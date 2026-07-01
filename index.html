@@ -863,7 +863,7 @@ body::after {
       <div id="selected-talent-list" class="selected-list"></div>
     </div>
     <div class="phase-actions">
-      <button class="btn btn-sm" onclick="refreshTalents()">刷新天赋</button>
+      <button class="btn btn-sm" onclick="refreshTalents()">刷新可能性</button>
       <button class="btn btn-sm btn-red" onclick="confirmTalents()" id="btn-confirm-talent" disabled>确认选择</button>
     </div>
   </div>
@@ -929,15 +929,15 @@ body::after {
         <div style="display:flex;flex-direction:column;gap:10px;">
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:#b8a99a;">
             <input type="radio" name="gameMode" value="normal" checked onchange="setGameMode('normal')">
-            <span>标准模式 — 正常的天赋选择和属性分配</span>
+            <span>标准模式 — 正常的可能性选择和属性分配</span>
           </label>
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:#b8a99a;">
             <input type="radio" name="gameMode" value="free" onchange="setGameMode('free')">
-            <span>完全自由模式 — 跳过天赋选择，直接属性分配，拥有所有天赋效果</span>
+            <span>完全自由模式 — 跳过可能性选择，直接属性分配，拥有所有可能性效果</span>
           </label>
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:#b8a99a;">
             <input type="radio" name="gameMode" value="notalent" onchange="setGameMode('notalent')">
-            <span>无天赋模式 — 不选择任何天赋，纯靠属性在都市求生</span>
+            <span>无可能性模式 — 不选择任何可能性，纯靠属性在都市求生</span>
           </label>
         </div>
       </div>
@@ -1001,7 +1001,7 @@ body::after {
 // =============================
 
 const ALL_TALENTS = [
-  // ==================== 白色天赋 (80个) ====================
+  // ==================== 白色可能性 (80个) ====================
   // 普通职业类
   { id:'w1', name:'清洁工', rarity:'white', desc:'你在都市的各个角落清扫垃圾，没人会注意你的存在。', effect:'体质+1，工作时不易被发现', con:1, int:0, wil:0, wea:0, tag:'普通职业' },
   { id:'w2', name:'厨师', rarity:'white', desc:'你擅长料理，至少能喂饱自己和身边的人。', effect:'体质+1，烹饪相关事件成功率提升', con:1, int:0, wil:0, wea:0, tag:'普通职业' },
@@ -1107,7 +1107,7 @@ const ALL_TALENTS = [
   { id:'w100', name:'X公司的魔窟矿工', rarity:'white', desc:'你在X公司的魔窟中挖掘特殊合金。你挖到过一些……不该存在的东西。', effect:'体质+1，智力+1，废墟事件略有优势', con:1, int:1, wil:0, wea:0, tag:'X公司' },
   { id:'w_new1', name:'保育院孤儿', rarity:'white', desc:'你在后巷的保育院中度过了童年。那段经历让你早早学会了在都市中生存的本领。', effect:'意志+1，童年事件中有微小优势', con:0, int:0, wil:1, wea:0, tag:'童年' },
 
-  // ==================== 蓝色天赋 (60个) ====================
+  // ==================== 蓝色可能性 (60个) ====================
   { id:'b1', name:'后巷的孩子', rarity:'blue', desc:'你在后巷长大，从小就学会了生存的法则。', effect:'体质+2，后巷相关事件有优势', con:2, int:0, wil:0, wea:0, tag:'背景' },
   { id:'b2', name:'应试村的常客', rarity:'blue', desc:'你多次参加应试村的考试，知识储备远超常人。', effect:'智力+2，考试类事件有优势', con:0, int:2, wil:0, wea:0, tag:'背景' },
   { id:'b3', name:'左撇子', rarity:'blue', desc:'你的惯用手是左手，这使你在战斗中出其不意。', effect:'体质+1，战斗类事件略有优势', con:1, int:0, wil:0, wea:0, tag:'特质' },
@@ -1179,7 +1179,7 @@ const ALL_TALENTS = [
   { id:'b69', name:'概念焚化炉的操作员', rarity:'blue', desc:'你负责操作概念焚化炉。你知道有些东西被焚化后，连同人们对它的记忆也会消失。', effect:'智力+2，记忆力下降的代价', con:0, int:2, wil:0, wea:0, tag:'翼公司' },
   { id:'b70', name:'时间征收员学徒', rarity:'blue', desc:'你在T公司学习时间征收技术。三级征收员用锤和稿插入身体吸取时间——你还没到那个级别。', effect:'智力+1，T公司事件有优势', con:0, int:1, wil:0, wea:1, tag:'T公司' },
 
-  // ==================== 紫色天赋 (40个) ====================
+  // ==================== 紫色可能性 (40个) ====================
   { id:'p1', name:'觉醒的E.G.O', rarity:'purple', desc:'你完全接受了自我真实形象后，获得了独一无二的专属武器与装备，精神更加坚定。外表保持人形，但周身散发着与意志合一的力量——E.G.O已在你体内觉醒。', effect:'体质+3，E.G.O相关事件大幅提升', con:3, int:0, wil:0, wea:0, tag:'能力' },
   { id:'p2', name:'食指的指令', rarity:'purple', desc:'你蒙上了白布，追随食指的指令。指令就是命运，而你已经选择将自己交给它。', effect:'体质+2，智力+1，食指事件大幅提升', con:2, int:1, wil:0, wea:0, tag:'能力' },
   { id:'p3', name:'协会的推荐信', rarity:'purple', desc:'你获得了协会的推荐信，前途一片光明。', effect:'全属性+1，协会事件大幅提升', con:1, int:1, wil:1, wea:1, tag:'背景' },
@@ -1240,7 +1240,7 @@ const ALL_TALENTS = [
   { id:'p_new10', name:'梅菲斯托费勒斯乘员', rarity:'purple', desc:'你是边狱公司巴士梅菲斯托费勒斯的乘员之一，与十二名罪人同行。', effect:'体质+1，智力+1，边狱公司相关事件自动触发', con:1, int:1, wil:0, wea:0, tag:'边狱公司' },
   { id:'p_new11', name:'玻璃窗实验体', rarity:'purple', desc:'你曾被环指掳走，成为玻璃窗技术的实验体。虽然幸存，但身体留下了不可逆的变化。', effect:'体质-1，智力+3，对扭曲/罪孽有异常抗性', con:-1, int:3, wil:0, wea:0, tag:'环指' },
 
-  // ==================== 金色天赋 (16个) ====================
+  // ==================== 金色可能性 (16个) ====================
   { id:'g1', name:'首脑的注视', rarity:'gold', desc:'你隐约感觉到首脑的存在。在都市的某个角落，你的每一次呼吸似乎都在被A公司所记录。这让你如履薄冰。', effect:'全属性+2，首脑事件极大提升', con:2, int:2, wil:2, wea:2, tag:'传说' },
   { id:'g2', name:'星星的祝福', rarity:'gold', desc:'星星为你祝福，你的愿望更容易实现。', effect:'意志+4，幸运类事件极大提升', con:0, int:0, wil:4, wea:0, tag:'传说' },
   { id:'g3', name:'河流的触碰', rarity:'gold', desc:'河流触碰了你的灵魂，你获得了时间的权能。', effect:'智力+4，时间类事件极大提升', con:0, int:4, wil:0, wea:0, tag:'传说' },
@@ -1267,13 +1267,13 @@ const ALL_TALENTS = [
   { id:'g_new4', name:'都市之星·等级评定中', rarity:'gold', desc:'你被协会指定为都市之星候补。这意味着你是都市中最危险的存在之一，所有协会和手指都会关注你。', effect:'武器+2，体质+1，会触发被追杀事件', con:1, int:0, wil:0, wea:2, tag:'都市之星' },
   { id:'g_new5', name:'边狱公司罪人', rarity:'gold', desc:'你是边狱公司LCB部门的罪人之一，被梅菲斯托费勒斯载着在都市中搜集金枝。', effect:'体质+2，智力+1，意志+1，边狱公司事件链自动触发', con:2, int:1, wil:1, wea:0, tag:'边狱公司' },
 
-  // ==================== 传说天赋 (5个) ====================
+  // ==================== 传说可能性 (5个) ====================
   { id:'l1', name:'都市的奇点', rarity:'legend', desc:'你本身就是都市的奇迹，超越了所有规则与限制。', effect:'全属性+5，所有事件获得极大加成', con:5, int:5, wil:5, wea:5, tag:'超越' },
   { id:'l2', name:'A公司的首脑', rarity:'legend', desc:'你是A公司的高级职员之一，虽然距离首脑还差得远，但你处理的事务直接关系到都市规则的运转。', effect:'全属性+4，额外获得首脑权能', con:4, int:4, wil:4, wea:4, tag:'超越' },
   { id:'l3', name:'图书馆之主的光之种', rarity:'legend', desc:'你承载着光之种的希望，是都市未来的关键。', effect:'全属性+4，光之种完全掌控', con:4, int:4, wil:4, wea:4, tag:'超越' },
   { id:'l4', name:'光之种之源的灵魂治疗', rarity:'legend', desc:'你见证了那道照亮都市灵魂的光芒。尽管光芒的源头已经不在，但你继承了那份意志，试图用自己的方式治愈他人。', effect:'全属性+4，精神类事件完全免疫', con:4, int:4, wil:4, wea:4, tag:'超越' },
   { id:'l5', name:'命运剧本', rarity:'legend', desc:'你编写着都市的命运，一切尽在掌控之中。', effect:'全属性+4，可以预知并改变关键事件', con:4, int:4, wil:4, wea:4, tag:'超越' },
-  // === 边狱公司情报天赋 ===
+  // === 边狱公司情报可能性 ===
   { id:'lx1', name:'边狱巴士的乘客', rarity:'legend', desc:'你乘坐了边狱公司的梅菲斯特巴士。但丁的星盘在你眼前闪耀，十三个罪人的命运与你交织。星盘可以储存金枝、与命运共鸣产生五种现实效果——PIGRITIA、SUPERBIA、MOROSITAS等。', effect:'全属性+1，罪孽事件极大提升', con:1, int:1, wil:1, wea:1, tag:'边狱' },
   { id:'l_new1', name:'血魔初代眷属血脉', rarity:'legend', desc:'你的血管中流淌着第一代眷属的血液。血魔的渴望与人类理智的斗争，从你出生的那一天就开始了。', effect:'体质+3，意志+2，吸血事件有特殊分支，可触发拉曼却领事件链', con:3, int:0, wil:2, wea:0, tag:'血魔' },
   { id:'l_new2', name:'漆黑噤默·疑似', rarity:'legend', desc:'南部流传着关于你的恐怖传说。漆黑的面具、沉默的处刑、不留活路的屠杀——人们说，漆黑噤默回来了。', effect:'武器+4，体质+2，南部事件有特殊走向，会被协会追杀', con:2, int:0, wil:0, wea:4, tag:'都市之星' },
@@ -1282,20 +1282,20 @@ const ALL_TALENTS = [
   { id:'r1', name:'耗子群的一员', rarity:'white', desc:'你是后巷街头混混——耗子群的一员。组织松散，靠遗弃废品苟活。你们常从弃尸中剖出内脏贩卖。', effect:'家境+1，体质-1', con:-1, int:0, wil:0, wea:1, tag:'底层身份' },
   { id:'r2', name:'弃尸翻找者', rarity:'white', desc:'你学会了在后巷的弃尸中翻找值钱的内脏来贩卖。这是耗子最基本的生存技能。', effect:'家境+1，意志-1', con:0, int:0, wil:-1, wea:1, tag:'底层身份' },
   { id:'r3', name:'耗子队的领头人', rarity:'blue', desc:'你带领着一群耗子在后巷求生。虽然组织松散，但你是他们为数不多的依靠。', effect:'体质+1，智力+1，耗子事件有优势', con:1, int:1, wil:0, wea:0, tag:'底层身份' },
-  // === 奇点接触天赋 ===
+  // === 奇点接触可能性 ===
   { id:'s1', name:'概念焚化炉的使用者', rarity:'purple', desc:'你曾使用过概念焚化炉——能够将被焚烧物体的相关记忆一同焚毁的装置。', effect:'智力+2，奇点事件大幅提升', con:0, int:2, wil:0, wea:0, tag:'奇点' },
   { id:'s2', name:'人类纺织面料的穿戴者', rarity:'purple', desc:'你穿戴了用人类纺织而成的特殊面料。这是某个已崩溃翼公司的奇点技术，面料能带来减重、增速、增力的效果。', effect:'体质+2，速度大幅提升', con:2, int:0, wil:0, wea:0, tag:'改造' },
   { id:'s3', name:'遗物的发现者', rarity:'purple', desc:'你曾在废墟中发现了一件遗物。遗物是具备独特效用的神秘物品，在都市内外广为流传。', effect:'智力+2，意志+1，遗物事件有优势', con:0, int:2, wil:1, wea:0, tag:'遗物' },
   { id:'s4', name:'星盘的链接者', rarity:'purple', desc:'你与星盘产生了链接。星盘取代了但丁的头部，能够链接罪人使其复活，储存金枝，与命运共鸣。', effect:'全属性+1，边狱事件大幅提升', con:1, int:1, wil:1, wea:1, tag:'边狱' },
   { id:'s5', name:'纹身手术的接受者', rarity:'purple', desc:'你接受了纹身手术——某个已崩溃翼公司的奇点，根据颜料成分能爆发性增强肌肉力量或使表皮如钢铁般坚硬。', effect:'体质+3，战斗事件大幅提升', con:3, int:0, wil:0, wea:0, tag:'改造' },
   { id:'s6', name:'经验罐头的成瘾者', rarity:'blue', desc:'你长期食用N公司西西弗百货出售的经验罐头，获得了大量调制记忆。代价是你逐渐分不清哪些经历是自己的。', effect:'智力+2，意志-1，智力类事件有优势', con:0, int:2, wil:-1, wea:0, tag:'奇点' },
-  // === 五指详细天赋 ===
+  // === 五指详细可能性 ===
   { id:'f1', name:'拇指的顾问', rarity:'purple', desc:'你是拇指内部极为稀有的顾问职位。虽然具体职能不明，但在拇指中享有极高的尊重。', effect:'体质+2，智力+1，拇指事件极大提升', con:2, int:1, wil:0, wea:0, tag:'拇指' },
   { id:'f2', name:'食指的纺织者', rarity:'purple', desc:'你是食指中看管书写指令的巨大机械的纺织者。你来到密室后不再外出，但你是食指不可或缺的核心。', effect:'智力+3，食指事件极大提升', con:0, int:3, wil:0, wea:0, tag:'食指' },
   { id:'f3', name:'中指的长兄', rarity:'purple', desc:'你是中指的长兄/姊，领导着众兄弟姐妹。复仇账簿在你手中翻动，仇怨纹身覆盖你的皮肤。', effect:'体质+2，意志+1，中指事件极大提升', con:2, int:0, wil:1, wea:0, tag:'中指' },
   { id:'f4', name:'环指的画廊大师', rarity:'purple', desc:'你是环指的三重环大师，拥有自己的画廊。你的艺术品在都市中拍卖出天价。', effect:'智力+2，家境+2，环指事件极大提升', con:0, int:2, wil:0, wea:2, tag:'环指' },
   { id:'f5', name:'小指的天退星', rarity:'purple', desc:'你是小指中以星名相称的成员——天退星。你的信物是以星辰锻造的刀剑，来自都市以外的遗物。小指成员在行动前互不认识。', effect:'体质+2，智力+1，小指事件极大提升', con:2, int:1, wil:0, wea:0, tag:'小指' },
-  // === 清道夫/血魔/鲸鱼/扭曲神备天赋 ===
+  // === 清道夫/血魔/鲸鱼/扭曲神备可能性 ===
   { id:'sw1', name:'清道夫家族的一员', rarity:'purple', desc:'你是清道夫家族的一员。完全由液体组成的生物，密封服装包裹身体，运动消耗液体"燃料"。你称同伴为"家人""邻居"，你珍视这份羁绊。管理者被称为"嬷嬷"。', effect:'体质+3，清道夫事件极大提升', con:3, int:0, wil:0, wea:0, tag:'清道夫' },
   { id:'sw2', name:'清道夫的孺慕者', rarity:'purple', desc:'你理解清道夫的生存方式——液化人类作为燃料。你虽非清道夫，但与某个"嬷嬷"建立了联系。', effect:'体质+2，智力+1，清道夫事件友好', con:2, int:1, wil:0, wea:0, tag:'清道夫' },
   { id:'vd1', name:'血魔的二代眷属', rarity:'purple', desc:'你是某位一代眷属创造的二代眷属。你的红色眼瞳在渴望血液时越发浓烈，你对水有着本能的恐惧。你拥有不俗的再生能力，长时间不吸血会衰老。', effect:'体质+3，意志-1，血魔事件极大提升', con:3, int:0, wil:-1, wea:0, tag:'血魔' },
@@ -1320,7 +1320,7 @@ const ALL_TALENTS = [
   { id:'im6', name:'仙人资质', rarity:'purple', desc:'你拥有修炼仙人之道的资质。鸿园铁槛寺的仙人们在你身上看到了潜力——你有机会修成完整的仙人之道。', effect:'体质+1，智力+2，仙人事件永生可能', con:1, int:2, wil:0, wea:0, tag:'仙人' },
   { id:'im7', name:'安瓿依赖体', rarity:'blue', desc:'你的细胞已经被K公司的再生安瓿改造过。你依赖安瓿维持生命，但这也意味着你有机会获得永久的安瓿循环。', effect:'体质+2，意志-1，安瓿事件永生可能', con:2, int:0, wil:-1, wea:0, tag:'K公司' },
   { id:'im8', name:'图书馆司书体质', rarity:'purple', desc:'你与图书馆有着特殊的联系。安吉拉在你身上看到了成为司书的潜力——一种将存在固化为书页的体质。', effect:'智力+2，意志+1，图书馆司书永生事件极大提升', con:0, int:2, wil:1, wea:0, tag:'图书馆' },
-  // === 协会/新闻/孤儿天赋 ===
+  // === 协会/新闻/孤儿可能性 ===
   { id:'as1', name:'Zwei协会推荐者', rarity:'blue', desc:'你获得了Zwei协会第二科的推荐信。凭借这封信，你可以直接参加Zwei协会的入科考核。', effect:'体质+1，意志+1，Zwei事件有优势', con:1, int:0, wil:1, wea:0, tag:'协会' },
   { id:'as2', name:'六协义体适格者', rarity:'blue', desc:'你的身体对义体改造有良好的适应性。六协会第三科的义体技师对你很感兴趣。', effect:'体质+2，六协会事件有优势', con:2, int:0, wil:0, wea:0, tag:'协会' },
   { id:'as3', name:'七协情报网的一员', rarity:'blue', desc:'你是七协会第二科外围情报网的一员。你为七协提供街头情报，作为交换获得保护和报酬。', effect:'智力+2，家境+1，七协会事件有优势', con:0, int:2, wil:0, wea:1, tag:'协会' },
@@ -1328,7 +1328,7 @@ const ALL_TALENTS = [
   { id:'as5', name:'实验体的后遗', rarity:'blue', desc:'你幼年时曾被翼公司拿去做实验，身体留下了不可逆的影响。也许是副作用，也许是某种变异——你不确定。', effect:'体质-1，智力+1，实验相关事件有优势', con:-1, int:1, wil:0, wea:0, tag:'实验' },
   { id:'as6', name:'孤儿院幸存者', rarity:'white', desc:'你在孤儿院长大，经历过点彩派的袭击。你身上的彩色伤痕永远不会消退——那是你生存的证明。', effect:'意志+1，童年创伤事件', con:0, int:0, wil:1, wea:0, tag:'孤儿' },
   { id:'as7', name:'都市新闻记者', rarity:'blue', desc:'你是后巷的一名信息贩子。你收集各种都市新闻和传言，将其整理后出售给需要的客户。', effect:'智力+2，新闻事件大幅提升', con:0, int:2, wil:0, wea:1, tag:'情报' },
-  // 组合标签天赋
+  // 组合标签可能性
   { id:'c1', name:'孤儿', rarity:'epic', desc:'你没有父母，在后巷的废墟中独自降生。深宵是你最早的摇篮，清道夫的脚步声是你最早的安眠曲。', effect:'体质+1，意志+1，触发孤儿线', con:1, int:0, wil:1, wea:0, tag:'孤儿' },
   { id:'c2', name:'双生子', rarity:'epic', desc:'你与另一个生命同时降临。你们共享着某种超越血脉的羁绊。', effect:'体质+1，意志+1，根据性别触发安吉丽卡/阿尔加利亚线', con:1, int:1, wil:1, wea:0, tag:'双生子' },
   { id:'c3', name:'女性', rarity:'rare', desc:'你是女性，在都市的残酷中挣扎。', effect:'意志+1', con:0, int:0, wil:1, wea:0, tag:'女性' },
@@ -1340,10 +1340,10 @@ const ALL_TALENTS = [
   { id:'c9', name:'拇指成员', rarity:'rare', desc:'你出生在拇指的势力范围内，从小听着枪声和等级制度长大。', effect:'体质+1，触发拇指候补线', con:1, int:0, wil:0, wea:0, tag:'拇指' },
   { id:'c10', name:'食指代行者', rarity:'epic', desc:'你被食指选中，成为传达指令的代行者。指令不可违抗，这是刻在你骨髓中的铁律。', effect:'意志+2，触发食指代行者线', con:0, int:0, wil:2, wea:0, tag:'食指' },
   { id:'c11', name:'帮派分子', rarity:'rare', desc:'你在帮派的阴影中长大，暴力是你唯一的语言。', effect:'体质+1，家境+1', con:1, int:0, wil:0, wea:1, tag:'帮派' },
-  // ==================== 蜘蛛巢出生天赋（紫色） ====================
+  // ==================== 蜘蛛巢出生可能性（紫色） ====================
   { id:'spider_orphan', name:'蜘蛛巢的遗孤', rarity:'purple', desc:'蜘蛛巢中被遗弃的孩子，拥有天杀星刀的血脉。', effect:'意志+2，蜘蛛巢相关事件中获得优势判定', con:0, int:0, wil:2, wea:0, tag:'蜘蛛巢,天杀星刀', startRoute:'蜘蛛巢' },
   { id:'arayashiki_heir', name:'天杀星刀的继承者', rarity:'purple', desc:'继承了能斩断一切联系的天杀星刀·阿赖耶识。', effect:'体质+1，意志+3，获得扭曲抗性', con:1, int:0, wil:3, wea:0, tag:'蜘蛛巢,天杀星刀,扭曲抗性', startRoute:'蜘蛛巢' },
-  // ==================== 边狱罪人出生天赋（金色） ====================
+  // ==================== 边狱罪人出生可能性（金色） ====================
   { id:'don_quixote_blood', name:'血魔之子', rarity:'gold', desc:'出生在拉·曼却领，血与梦的血脉在体内流淌。', effect:'体质+3，意志+2', con:3, int:0, wil:2, wea:0, tag:'边狱罪人,拉·曼却,血魔', startRoute:'拉·曼却领' },
   { id:'ryoshu_blade', name:'天杀星刃者', rarity:'gold', desc:'蜘蛛巢出身的刀匠，拥有异常的时间感知能力。', effect:'智力+2，意志+3', con:0, int:2, wil:3, wea:0, tag:'边狱罪人,蜘蛛巢,天杀星刀', startRoute:'蜘蛛巢' },
   { id:'honglu_eye', name:'大观园之眼', rarity:'gold', desc:'眼中嵌入了碧玉般的异质物，被仙人时刻观察着。', effect:'智力+3，意志+2', con:0, int:3, wil:2, wea:0, tag:'边狱罪人,大观园,仙人', startRoute:'大观园' },
@@ -1356,12 +1356,12 @@ const ALL_TALENTS = [
   { id:'ryi_martial', name:'武术修行者', rarity:'gold', desc:'来自S公司的武道修行者，拳脚即是真理。', effect:'体质+3，智力+1', con:3, int:1, wil:0, wea:0, tag:'边狱罪人,S公司,武道', startRoute:'S巢' },
   { id:'outis_rebel', name:'鸿园叛逆者', rarity:'gold', desc:'鸿园中的叛逆者，拥有一群愿意追随到死的忠实部下。', effect:'体质+1，意志+3，家境+1', con:1, int:0, wil:3, wea:1, tag:'边狱罪人,鸿园,领袖' },
   { id:'samson_gangster', name:'黑帮继承者', rarity:'gold', desc:'继承了某个地下组织的遗产与权势。', effect:'体质+2，家境+2', con:2, int:0, wil:0, wea:2, tag:'边狱罪人,黑帮,地下势力' },
-  // ==================== 特殊出身天赋（紫色） ====================
+  // ==================== 特殊出身可能性（紫色） ====================
   { id:'nest_a_tuner', name:'A巢·调律者候补', rarity:'purple', desc:'出生在A巢附近，拥有多种奇点技术的直觉性理解力。', effect:'智力+3，意志+2', con:0, int:3, wil:2, wea:0, tag:'A巢,调律者,奇点', startRoute:'A巢' },
   { id:'sweeper_desc', name:'清道夫后裔', rarity:'purple', desc:'血脉中残留着清道夫的特质，深宵中的噩梦对你绕道而行。你隐约感觉到清道夫与首脑之间的联系——那是超越个人理解的命令链条。', effect:'体质+2，意志+1，深宵事件中安全', con:2, int:0, wil:1, wea:0, tag:'清道夫,深宵,血脉' },
   { id:'nest_s_scholar', name:'S巢·科举天才', rarity:'purple', desc:'S巢的应试天才，对经史子集烂熟于心。', effect:'智力+3，家境+1', con:0, int:3, wil:0, wea:1, tag:'S巢,科举,学者', startRoute:'S巢' },
   { id:'nest_s_branded', name:'S巢·奴婢烙印', rarity:'purple', desc:'身上被打了削弱气力的烙印，活着本身就需要非人的意志。', effect:'全属性-1，但触发逆袭事件链', con:-1, int:-1, wil:-1, wea:-1, tag:'S巢,烙印,逆袭', startRoute:'S巢' },
-  // ==================== 黑色天赋（特殊开局） ====================
+  // ==================== 黑色可能性（特殊开局） ====================
   { id:'head_shadow', name:'首脑的影子', rarity:'black', desc:'出生即被首脑选中，注定成为调律者，一切都在那道目光的计算之中。', effect:'智力+4，意志+4，家境+5，触发专属事件线', con:0, int:4, wil:4, wea:5, tag:'首脑,调律者,特殊线', startRoute:'首脑的影' },
 ];
 
@@ -2034,8 +2034,8 @@ const ACHIEVEMENTS = [
     lore:'鸿园的军事力量。十二支对应十二生肖，每支有不同职能。服用黑兽丸可增强力量但副作用严重。' },
 
   // ====== 普通级成就 ======
-  { id:'talent_combo', name:'组合天赋', desc:'触发过组合天赋效果。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('comboTriggered'),
-    lore:'特定的天赋组合会触发特殊效果。孤儿、双生子、实验品等组合线会开启完全不同的开局路线。' },
+  { id:'talent_combo', name:'组合可能性', desc:'触发过组合可能性效果。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('comboTriggered'),
+    lore:'特定的可能性组合会触发特殊效果。孤儿、双生子、实验品等组合线会开启完全不同的开局路线。' },
   { id:'bridge_pass', name:'年龄段过渡', desc:'经历所有年龄段过渡事件。', rarity:RARITY.COMMON, condition:(gs)=>['童年结束','成年','步入壮年','步入中年','步入晚年'].every(m=>gs.milestones.includes(m)),
     lore:'都市中的人生阶段：童年(0-6)→少年(7-18)→青年(19-30)→壮年(31-50)→中年(51-70)→晚年(71+)。每个阶段都有独特的挑战。' },
   { id:'event_chain', name:'事件链完成', desc:'完成过任意事件链。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('chainCompleted'),
@@ -2564,7 +2564,7 @@ function updateTalentSummary() {
     list.appendChild(tag);
   });
   document.querySelector('.selected-talents h3').textContent =
-    `已选择天赋 (${gameState.selectedTalents.length}/3)`;
+    `已选择可能性 (${gameState.selectedTalents.length}/3)`;
   document.getElementById('btn-confirm-talent').disabled = gameState.selectedTalents.length < 3;
 }
 
@@ -2644,7 +2644,7 @@ function renderAttrs() {
     wil: gameState.attrs.wil - base.wil,
     wea: gameState.attrs.wea - base.wea
   };
-  summary.innerHTML = `天赋加成：体质 ${base.con >= 0 ? '+' : ''}${base.con} / 智力 ${base.int >= 0 ? '+' : ''}${base.int} / 意志 ${base.wil >= 0 ? '+' : ''}${base.wil} / 家境 ${base.wea >= 0 ? '+' : ''}${base.wea}`;
+  summary.innerHTML = `可能性加成：体质 ${base.con >= 0 ? '+' : ''}${base.con} / 智力 ${base.int >= 0 ? '+' : ''}${base.int} / 意志 ${base.wil >= 0 ? '+' : ''}${base.wil} / 家境 ${base.wea >= 0 ? '+' : ''}${base.wea}`;
   panel.appendChild(summary);
 
   updateAttrDisplay();
@@ -6309,7 +6309,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
       modAttr('con', -1);
     }
 
-    // 天赋触发
+    // 可能性触发
     if (hasTag('天才')) {
       events.push(
         evt(
@@ -6948,7 +6948,7 @@ function generateTeenEvents(age, a, f, bp, tags) {
     setFlag('workshop_apprentice', true);
   }
 
-  // 各种天赋触发
+  // 各种可能性触发
   if (hasTag('E.G.O适应者') && age >= 12 && chance(0.06) && !hasMilestone('E.G.O觉醒')) {
     events.push(
       evt(
@@ -7221,11 +7221,11 @@ function generateTeenEvents(age, a, f, bp, tags) {
 function generateYoungAdultEvents(age, a, f, bp, tags) {
   const events = [];
 
-  // 职业选择（19岁）——天赋优先匹配
+  // 职业选择（19岁）——可能性优先匹配
   if (age === 19) {
     addMilestone('成年');
 
-    // === 天赋优先匹配 ===
+    // === 可能性优先匹配 ===
     const talentOrg = getTalentOrg();
     if (talentOrg) {
       const mappedOrgs = ORG_MAP[talentOrg] || [talentOrg];
@@ -7233,12 +7233,12 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
       if (!canJoinOrg(targetOrg)) {
         const current = getCurrentOrg();
         events.push(evt(
-          `你原本因天赋适合加入${targetOrg}，但你已经是${current}的一员。两个组织水火不容，你的道路被堵死了。`,
+          `你原本因可能性适合加入${targetOrg}，但你已经是${current}的一员。两个组织水火不容，你的道路被堵死了。`,
           'talent_org_blocked', '意志-1', false
         ));
         modAttr('wil', -1);
       } else {
-        // 天赋直接匹配成功
+        // 可能性直接匹配成功
         let joinText = '', joinId = '', effects = {};
         if (isFingerOrg(targetOrg)) {
           joinText = `你成年了。天生属于${targetOrg}的血脉在你体内觉醒，家族的关系网迅速将你吸纳进去。`;
@@ -7306,7 +7306,7 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
       }
     }
 
-    // === 无天赋匹配时的常规职业选择 ===
+    // === 无可能性匹配时的常规职业选择 ===
     if (!getCurrentOrg()) {
       const careers = [
         { name: '翼公司员工', req: { int: 5, wea: 4 }, eff: 'int+2,wea+1' },
@@ -8514,7 +8514,7 @@ function showResults() {
     ${highlightSection}
     ${libSection}
     <div class="result-talents">
-      <h4>&#10022; 天赋 &#10022;</h4>
+      <h4>&#10022; 可能性 &#10022;</h4>
       <div class="result-talent-list">
         ${gameState.selectedTalents.map(t => `<span class="selected-tag">${t.name}</span>`).join('')}
       </div>
@@ -8801,7 +8801,7 @@ document.addEventListener('keydown', (e) => {
  *
  * 依赖外部环境与变量：
  *   - gameState: { selectedTalents:[{id,name,tag}], flags:{}, attrs:{con,int,wil,wea}, milestones:[], events:[], age }
- *   - hasTag(tag): boolean            — 检查是否持有某天赋标签
+ *   - hasTag(tag): boolean            — 检查是否持有某可能性标签
  *   - getFlag(key): any               — 读取旗帜
  *   - setFlag(key,val): void          — 设置旗帜
  *   - modAttr(attr,delta): void       — 修改属性（con/int/wil/wea）
@@ -9688,12 +9688,12 @@ function useLifeInsurance() {
 }
 
 // ============================================================
-// D. 天赋流向加成系统
+// D. 可能性流向加成系统
 // ============================================================
 
 /**
  * 组织/流向 → 属性加成映射表
- * 根据天赋标签，在对应组织事件中获得额外加成。
+ * 根据可能性标签，在对应组织事件中获得额外加成。
  */
 const FLOW_BONUS_MAP = {
   // 拇指 — 强化体质与武力
@@ -9726,8 +9726,8 @@ const FLOW_BONUS_MAP = {
 };
 
 /**
- * 获取指定天赋标签在对应组织事件中的属性加成
- * @param {string} tag — 天赋标签
+ * 获取指定可能性标签在对应组织事件中的属性加成
+ * @param {string} tag — 可能性标签
  * @param {string} attr — 属性名（con/int/wil/wea），可选，若不传则返回全部加成
  * @returns {number|object}
  */
@@ -9745,7 +9745,7 @@ function getFlowBonus(tag, attr) {
 }
 
 /**
- * 获取当前所有已选天赋标签的合计流向加成
+ * 获取当前所有已选可能性标签的合计流向加成
  * @returns {object} — { con, int, wil, wea }
  */
 function getAllFlowBonuses() {
@@ -9768,7 +9768,7 @@ function getAllFlowBonuses() {
 }
 
 /**
- * 在组织事件中应用天赋流向加成
+ * 在组织事件中应用可能性流向加成
  * @param {string} orgTag — 组织标签（如 '拇指'）
  * @param {string} eventType — 事件类型（用于日志）
  */
@@ -9785,7 +9785,7 @@ function applyFlowBonusInEvent(orgTag, eventType) {
   }
 
   if (hasBonus) {
-    subEvt('bonus', `flow_${orgTag}_${eventType}`, `你的${orgTag}天赋在此事件中发挥了作用，获得属性加成。`, false, '流向加成');
+    subEvt('bonus', `flow_${orgTag}_${eventType}`, `你的${orgTag}可能性在此事件中发挥了作用，获得属性加成。`, false, '流向加成');
   }
 }
 
