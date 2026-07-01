@@ -2060,6 +2060,11 @@ function generateEvents(age) {
     runExtendedEvents();
   }
 
+  // 奇点科技事件：WARP列车、各翼公司、清道夫等
+  if (typeof runSingularityEvents === 'function' && gameState.alive && !gameState.dead) {
+    runSingularityEvents(age, a, f, bp, tags);
+  }
+
   // 衔接事件：年龄段过渡
   if (typeof generateBridgeEvents === 'function' && gameState.alive && !gameState.dead) {
     const bridge = generateBridgeEvents(age, a, f, bp, tags);
@@ -9081,6 +9086,334 @@ function runTieredEvents(age, a, f, bp, tags) {
       addEvent({ text: gen.t, effect: 'general_event', effText: '一般事件', major: false, milestone: null });
       for (const [k, v] of Object.entries(gen.e)) modAttr(k, v);
     }
+  }
+}
+
+// ============================================================
+// 奇点科技事件系统（Singularity Events）
+// WARP列车故障、各翼公司奇点、清道夫、工坊事故等
+// ============================================================
+function runSingularityEvents(age, a, f, bp, tags) {
+  if (age < 5) return; // 幼儿期不触发
+
+  // ========== WARP 列车事件（W公司奇点） ==========
+  if (chance(0.08) || (bp === 'w_nest' && chance(0.15))) {
+    const warpEvents = [
+      {
+        t: '你乘坐的WARP列车突然剧烈震动。窗外的景色开始扭曲，空间像被揉皱的纸张。广播里传来乘务员的声音：「各位乘客请注意，本次列车正在进行空间校正，请勿恐慌。」——但所有人的脸都白了。',
+        e: { wil: -1, int: 1 },
+        ms: 'WARP空间校正',
+        cond: () => age >= 10
+      },
+      {
+        t: 'WARP列车的车门在行驶中意外打开。你看到了门外——不是隧道，而是一片虚无。某种东西正从虚无中凝视着你。乘务员冲过来关上了门，但你的手已经伸出去了一半。你感到手指一阵刺痛，收回手时，指节似乎比以前长了一点。',
+        e: { con: 1, wil: -2 },
+        ms: 'WARP空间泄漏',
+        cond: () => age >= 10
+      },
+      {
+        t: '你乘坐的WARP列车到达了错误的车站。站台上的指示牌写着你不认识的名字。乘客们惊慌失措，但乘务员面不改色：「W公司对此次偏差深表歉意。请各位耐心等待，列车将在……不确定时间内返回。」你被困在了一个不属于任何地图的地方。',
+        e: { int: 2, wil: -1 },
+        ms: 'WARP空间偏差',
+        cond: () => age >= 15
+      },
+      {
+        t: 'WARP列车上发生了劫持事件。三个蒙面人声称掌握了「空间炸弹」，要求W公司释放某些政治犯。列车内的空间开始不稳定，墙壁像呼吸一样起伏。你必须在车厢被折叠成二维之前做出选择。',
+        e: { con: 1, wil: 2 },
+        ms: 'WARP列车劫持',
+        cond: () => age >= 18 && (a.con + a.wil) >= 10
+      },
+      {
+        t: 'WARP列车正常运行中，但窗外的景象让你不安——你看到了自己。另一个你站在另一个世界的月台上，正好奇地向这边张望。你们的目光穿过空间的裂缝交汇了。列车加速，那个身影消失在扭曲的光线中。',
+        e: { int: 2, wil: 1 },
+        ms: 'WARP平行观测',
+        cond: () => age >= 16
+      },
+      {
+        t: 'WARP列车上的乘务员递给你一份免责声明：「亲爱的乘客，本次列车将于途经H巷的时间异常区域，部分乘客可能会暂时经历年龄回溯或加速。W公司不对任何因此产生的心理创伤负责。」话音刚落，你注意到对面座位上的老人变成了一个孩子。',
+        e: { int: 2, wil: -1 },
+        ms: 'WARP时间异常区',
+        cond: () => age >= 20
+      },
+      {
+        t: 'WARP列车在运行中突然完全静止。窗外不再是空间隧道，而是——你自己的一生。像电影一样快进播放。你看到了出生、童年、那些你已经忘记的面孔。当画面到达现在时，列车恢复了运行。广播说这是「正常的空间映照现象」。',
+        e: { wil: 3, int: 1 },
+        ms: 'WARP人生映照',
+        cond: () => age >= 30
+      },
+      {
+        t: '你在WARP列车上遇到了一个从未来穿越来的人。他说这次列车将会在三分钟后坠入「空间裂缝」。他告诉你了逃生的方法——但需要你相信一个陌生人。你选择相信他。三分钟后，列车确实剧烈震荡，但你按照他的指示躲进了三号车厢的维修通道，毫发无伤。',
+        e: { wil: 2, con: 1 },
+        ms: 'WARP未来预警',
+        cond: () => age >= 20
+      },
+      {
+        t: 'WARP列车每次经过某个特定路段时，你都会听到一种低频嗡鸣声。乘务员说那是「空间共振」，无害的。但你开始梦见那个声音。在梦里，嗡鸣变成了语言，讲述着关于都市创建之前的秘密。',
+        e: { int: 3, wil: -1 },
+        ms: 'WARP空间共振',
+        cond: () => age >= 25
+      },
+    ];
+    const we = pick(warpEvents.filter(e => e.cond()));
+    if (we) {
+      addEvent({ text: we.t, effect: 'warp_event', effText: 'WARP列车事件', major: true, milestone: we.ms });
+      addMilestone(we.ms);
+      for (const [k, v] of Object.entries(we.e)) modAttr(k, v);
+    }
+    return; // WARP事件和奇点事件互斥，避免一年触发太多
+  }
+
+  // ========== K公司奇点：再生安瓿 ==========
+  if ((bp === 'k_nest' || hasTag('K公司')) && chance(0.12) && !getFlag('k_singularity_touched')) {
+    setFlag('k_singularity_touched', true);
+    const kEvents = pick([
+      {
+        t: '你在K公司的安瓿工厂实习。再生安瓿的生产过程需要在活体细胞中注入「再生因子」——这些因子提取自某种连K公司都不愿公开的生物。你亲眼看到一瓶安瓿在十秒内修复了一只被切断的老鼠的手臂，完全再生，连疤痕都没有。',
+        e: { int: 3, wil: -1 },
+        ms: '再生安瓿见证'
+      },
+      {
+        t: '你因重伤被注射了K公司的再生安瓿。伤口在几秒内完全愈合，疼痛消失。但你注意到——愈合后的皮肤比之前年轻了十岁。K公司的安瓿不仅仅是「再生」，它在逆转时间。',
+        e: { con: 5, int: 1, wil: 1 },
+        ms: '再生安瓿注射'
+      },
+      {
+        t: '你在黑市上买到了一瓶「仿制再生安瓿」。使用后，你的伤口确实愈合了，但新长出的皮肤呈现不自然的灰色。三天后，你发现伤口的位置长出了一小块不属于你的组织——它有自己的脉搏。',
+        e: { con: 2, wil: -3 },
+        ms: '仿制安瓿副作用'
+      },
+    ]);
+    addEvent({ text: kEvents.t, effect: 'k_singularity', effText: 'K公司奇点', major: true, milestone: kEvents.ms });
+    addMilestone(kEvents.ms);
+    for (const [k, v] of Object.entries(kEvents.e)) modAttr(k, v);
+    return;
+  }
+
+  // ========== T公司奇点：时间操纵 ==========
+  if ((bp === 't_nest' || hasTag('T公司')) && chance(0.12) && !getFlag('t_singularity_touched')) {
+    setFlag('t_singularity_touched', true);
+    const tEvents = pick([
+      {
+        t: '你在T公司的总部亲眼见证了「时间压缩」——一栋五十层的建筑在三十秒内从地基拔地而起，塔吊的动作被加速了数千倍，工人们像高速摄影中的影像一样在钢筋间穿梭。T公司的奇点科技让时间成为了可以自由调配的资源。',
+        e: { int: 4 },
+        ms: 'T公司时间压缩'
+      },
+      {
+        t: 'T公司向你展示了一台「时间保险箱」。将任何物品放入保险箱，它会停留在放入的那一刻。一百年后取出来，里面的食物还是热的，鲜花还是鲜的。你被允许放入了一件私人物品——你放入了一张全家福。也许将来某天，你会再把它取出来。',
+        e: { int: 2, wil: 2 },
+        ms: 'T公司时间保险箱'
+      },
+      {
+        t: '你参与了T公司的一项实验：将一个人的局部时间倒流一小时。实验对象的手从苍老变得年轻。但实验结束后，他的手开始不受控制地在年轻和苍老之间切换——每隔三十秒交替一次。T公司的人说这是「已知的小问题」。',
+        e: { int: 3, wil: -2 },
+        ms: 'T公司时间实验'
+      },
+    ]);
+    addEvent({ text: tEvents.t, effect: 't_singularity', effText: 'T公司奇点', major: true, milestone: tEvents.ms });
+    addMilestone(tEvents.ms);
+    for (const [k, v] of Object.entries(tEvents.e)) modAttr(k, v);
+    return;
+  }
+
+  // ========== R公司奇点：精神/记忆操控 ==========
+  if ((bp === 'r_nest' || hasTag('R公司')) && chance(0.12) && !getFlag('r_singularity_touched')) {
+    setFlag('r_singularity_touched', true);
+    const rEvents = pick([
+      {
+        t: '你参观了R公司的「精神武器库」。那些武器不需要弹药——它们发射的是「恐惧」「绝望」「疯狂」的精神波。你被允许试用了一件低功率的样品。扣下扳机的那一刻，你看到了自己最深处的噩梦。',
+        e: { int: 3, wil: -2 },
+        ms: 'R公司精神武器'
+      },
+      {
+        t: 'R公司向你提出了一笔交易：用你的一段痛苦记忆，交换一枚眼的报酬。你犹豫了三天，最终交出了那段关于失去某人的记忆。钱到账了，但你的心里空了一块。你甚至记不得自己失去了什么——只是偶尔，手指会无意识地描摹某个已经忘记的名字。',
+        e: { wea: 5, wil: -3 },
+        ms: 'R公司记忆交易'
+      },
+      {
+        t: '你目睹了R公司的士兵在战斗中使用「恐惧炸弹」。爆炸后，方圆百米内的所有敌人同时瘫倒在地，口吐白沫，眼神空洞。他们在几分钟内恢复了意识，但再也没有人敢靠近R公司的地盘。',
+        e: { int: 2, con: 1 },
+        ms: 'R公司恐惧炸弹'
+      },
+    ]);
+    addEvent({ text: rEvents.t, effect: 'r_singularity', effText: 'R公司奇点', major: true, milestone: rEvents.ms });
+    addMilestone(rEvents.ms);
+    for (const [k, v] of Object.entries(rEvents.e)) modAttr(k, v);
+    return;
+  }
+
+  // ========== N公司奇点：禁止拍摄与空间折叠 ==========
+  if ((bp === 'n_nest' || hasTag('N公司')) && chance(0.12) && !getFlag('n_singularity_touched')) {
+    setFlag('n_singularity_touched', true);
+    const nEvents = pick([
+      {
+        t: '你在N公司管辖的区域目睹了「空间折叠」——一条不到十米长的走廊，走进去却花了三个小时才出来。出口和入口明明在同一条街上，但穿过的距离是整个都市的周长。N公司的奇点科技让空间本身成为了迷宫。',
+        e: { int: 4, wil: -1 },
+        ms: 'N公司空间折叠'
+      },
+      {
+        t: '你在N公司附近偷偷拍了一张照片。闪光灯亮起的瞬间，一个穿着黑色制服的人出现在你面前——你甚至没看到他移动。「拍照是禁忌。」他面无表情地删除了照片，然后消失在你的视野中。你低头一看，你的影子不见了。三天后，影子才慢慢回来。',
+        e: { wil: -3, int: 1 },
+        ms: 'N公司禁忌拍照'
+      },
+      {
+        t: 'N公司向你展示了他们的「空间监狱」——一个外表只有一间房间大小的建筑，内部却能容纳一万人。犯人们被折叠在空间的不同层级中，互不相见，永远无法交流。你听到墙壁中有微弱的哭声。',
+        e: { int: 3, wil: -2 },
+        ms: 'N公司空间监狱'
+      },
+    ]);
+    addEvent({ text: nEvents.t, effect: 'n_singularity', effText: 'N公司奇点', major: true, milestone: nEvents.ms });
+    addMilestone(nEvents.ms);
+    for (const [k, v] of Object.entries(nEvents.e)) modAttr(k, v);
+    return;
+  }
+
+  // ========== L公司/脑叶公司奇点：E.G.O与异想体 ==========
+  if ((hasTag('脑叶公司') || hasTag('L公司') || getFlag('lobotomy_employee')) && chance(0.15) && !getFlag('l_singularity_touched')) {
+    setFlag('l_singularity_touched', true);
+    const lEvents = pick([
+      {
+        t: '你被指派管理一个名为「悲悯之心」的异想体收容单元。它看起来像一个巨大的人类心脏，不断跳动，周围的温度维持在四十二度。收容协议上写着：「当心跳频率超过每分钟120次时，所有人员必须撤离。」你看着监视器上的数字跳动——115……118……122。',
+        e: { int: 3, wil: -2 },
+        ms: '异想体管理·悲悯之心'
+      },
+      {
+        t: '在一次收容突破中，你被迫进入了一个异想体的空间。那里没有地面，没有天空，只有无数面镜子。每一面镜子里映出的是你不同人生中可能成为的自己——富有的、贫穷的、幸福的、疯狂的。你在镜子迷宫中行走，不确定哪个才是「真实的」自己。',
+        e: { wil: 3, int: 2 },
+        ms: '异想体空间·镜之迷宫'
+      },
+      {
+        t: '你参与了一次E.G.O装备测试。那套装甲在被激活时，你的意识突然与异想体产生了共鸣。你看到了它的记忆——被囚禁的痛苦、被利用的愤怒、以及一丝微弱的希望。共鸣结束时，你跪在地上，泪流满面。',
+        e: { int: 4, wil: -1 },
+        ms: 'E.G.O共鸣'
+      },
+      {
+        t: '脑叶公司的走廊尽头出现了一扇不属于建筑图纸的门。你打开门，看到里面是一个阳光明媚的花园——天空是蓝色的，草是绿色的，有鸟，有蝴蝶。这在都市里是不可能的。你知道这可能是异想体的陷阱，但你还是走进了花园，在阳光下躺了五分钟。五分钟后你回到了走廊，但你的心情好了一整年。',
+        e: { wil: 5 },
+        ms: '白色收容所花园'
+      },
+    ]);
+    addEvent({ text: lEvents.t, effect: 'l_singularity', effText: 'L公司奇点', major: true, milestone: lEvents.ms });
+    addMilestone(lEvents.ms);
+    for (const [k, v] of Object.entries(lEvents.e)) modAttr(k, v);
+    return;
+  }
+
+  // ========== U公司奇点：大湖与能源 ==========
+  if ((bp === 'u_nest' || hasTag('U公司') || bp === 'lake') && chance(0.1) && !getFlag('u_singularity_touched')) {
+    setFlag('u_singularity_touched', true);
+    const uEvents = pick([
+      {
+        t: '你在U公司的大湖研究所中看到了他们的核心科技——一台利用湖底生物发电的巨型装置。那些生物被称为「湖之民」，它们不是鱼，也不是人类，而是一种介于两者之间的存在。U公司用它们作为「生物电池」，每只湖之民可以为整个巢供电一年。',
+        e: { int: 3, wil: -1 },
+        ms: 'U公司湖之民'
+      },
+      {
+        t: '大湖深处传来了某种低频震动。U公司的仪器显示，湖底的某个「沉睡者」正在翻动身躯。整个大湖的水面泛起涟漪，鱼群疯狂地跳出水面试图逃跑。研究人员的脸色惨白：这个沉睡者上一次翻身，是在烟霾战争期间。',
+        e: { int: 2, wil: -2, con: -1 },
+        ms: '大湖沉睡者'
+      },
+      {
+        t: '你随U公司的科考队潜入了大湖的深渊。在三百米深的水下，你看到了一座不属于人类文明的建筑群。那些结构由某种发光的蓝色材质构成，形状违背了所有建筑学的常识。U公司的科学家们兴奋地采集样本，但你感到不安——这座城市的建造者们，可能还没有离开。',
+        e: { int: 4, wil: -2 },
+        ms: '大湖深渊遗迹'
+      },
+    ]);
+    addEvent({ text: uEvents.t, effect: 'u_singularity', effText: 'U公司奇点', major: true, milestone: uEvents.ms });
+    addMilestone(uEvents.ms);
+    for (const [k, v] of Object.entries(uEvents.e)) modAttr(k, v);
+    return;
+  }
+
+  // ========== 清道夫相关事件（W公司清道夫的红色液体） ==========
+  if (chance(0.1) && age >= 10) {
+    const cleanerEvents = [
+      {
+        t: '深宵降临了。街道上的清道夫开始清扫。你躲在废弃建筑的二楼，透过窗户观察它们——那些红色的液体让它们发出令人不安的红光。一台清道夫突然停在窗外，红色的传感器对准了你藏身的方向。你的心跳几乎停止了。五秒后，它转身离去。它没有发现你——或者它选择了忽略你。',
+        e: { wil: -2 },
+        ms: null,
+        cond: () => age >= 10 && age <= 30
+      },
+      {
+        t: '你在后巷发现了一个损坏的清道夫残骸。那红色的液体还在脉动，像是有生命一样。你小心翼翼地收集了一小瓶。当你触碰那液体时，你感到一阵温暖流遍全身——很舒适，也很危险。你把液体倒掉了，但温暖的感觉持续了好几天。',
+        e: { con: 1, wil: 1 },
+        ms: '清道夫红色液体',
+        cond: () => age >= 15
+      },
+      {
+        t: '你在清理废墟时，发现了清道夫清扫后留下的痕迹。地上有一种暗红色的粉末，像是它们经过后留下的「灰烬」。你用手指沾了一点——冰冷刺骨。你的手指在接下来的三天里失去了触觉。',
+        e: { con: -1, int: 1 },
+        ms: null,
+        cond: () => age >= 12
+      },
+      {
+        t: '某天深宵，清道夫的数量是平时的三倍。W公司发布了公告：「今日因空间异常导致垃圾堆积，清道夫执行加班清扫。」整个后巷陷入了比往常更深的恐惧。你躲在邻居家的地下室里，听到了头顶上清道夫的嗡嗡声和某种——咀嚼声。',
+        e: { wil: -3, con: -1 },
+        ms: '清道夫加班清扫',
+        cond: () => age >= 18
+      },
+      {
+        t: '你遇到了一个自称「前清道夫维修员」的老人。他说清道夫不是机器，而是「某种被改造的东西」——它们曾经是人。你问他为什么知道这么多。他沉默了很久，然后卷起袖子——他的手臂上布满了与清道夫相同的红色纹路。',
+        e: { int: 3, wil: -2 },
+        ms: '清道夫真相',
+        cond: () => age >= 25
+      },
+    ];
+    const ce = pick(cleanerEvents.filter(e => e.cond()));
+    if (ce) {
+      addEvent({ text: ce.t, effect: 'cleaner_event', effText: '清道夫事件', major: !!ce.ms, milestone: ce.ms });
+      if (ce.ms) addMilestone(ce.ms);
+      for (const [k, v] of Object.entries(ce.e)) modAttr(k, v);
+    }
+    return;
+  }
+
+  // ========== 通用奇点科技遭遇（不限出生地） ==========
+  if (chance(0.06)) {
+    const singEvents = pick([
+      {
+        t: '你在黑市上发现了一份「奇点科技蓝图」，据说是某个翼公司研究员偷出来的。蓝图上画着一个装置，标注写着「空间折叠器——原型机」。你试图理解上面的公式，那些数学符号超出了你所有的知识储备，但你的直觉告诉你——这个东西一旦被制造出来，都市的规则将被改写。',
+        e: { int: 3 },
+        ms: '奇点蓝图'
+      },
+      {
+        t: '某个夜晚，你在梦中收到了一段「奇点频率」。醒来后，你无法用语言描述那个声音，但你的手不受控制地在纸上画出了某种图纸。那是某种奇点装置的设计图，完美、精密、远超你的能力。你把图纸烧了，但图案已经烙在了你的记忆中。',
+        e: { int: 4, wil: -1 },
+        ms: '梦中奇点'
+      },
+      {
+        t: '都市中传言某个无名工坊成功复制了部分奇点科技。消息传出后，翼公司的特工在三天内清除了所有相关人员。你在工坊附近路过时捡到了一块碎片——它还在发出微弱的蓝光。你藏起了它，知道自己手中握着的可能是改变都市的钥匙，也可能是死亡通知书。',
+        e: { int: 3, wea: 2, wil: -1 },
+        ms: '奇点碎片'
+      },
+      {
+        t: '你在一次事故中被卷入了T公司和W公司奇点的冲突区域。时间在那里变得不稳定——你看到过去和未来的自己同时站在你面前。过去的你在笑，未来的你在哭。空间在你周围扭曲成莫比乌斯环的形状。你在混乱中失去了意识，醒来后发现自己毫发无伤，但手表上的时间倒退了整整一年。',
+        e: { int: 4, wil: -2 },
+        ms: '奇点冲突区'
+      },
+      {
+        t: '你在巢的科技馆参观了一个奇点科技展览。展品包括T公司的时间胶囊、K公司的再生安瓿原型、W公司的空间碎片。当一个展品——一个装在玻璃箱中的「小型黑洞」——突然产生异常时，整个展厅的空间开始坍缩。你在最后一秒被救援队拖了出来，但你的左手小指被黑洞边缘削去了一截。它再也没有长回来。',
+        e: { int: 2, con: -2, wil: 1 },
+        ms: '奇点展览事故'
+      },
+      {
+        t: '你的同事是个秘密的奇点科技研究者。他在自家车库里建造了一台「微型空间折叠装置」。成功的那一刻，他的车库消失了——连同车库里的所有东西。他的家人说他只是在车库工作，一会儿就出来。但他再也没有出来。你把车库的钥匙扔进了清道夫经过的街道。',
+        e: { int: 3, wil: -2 },
+        ms: '车库奇点事故'
+      },
+      {
+        t: '某个翼公司公布了「奇点科技民用化计划」。作为试点，你的住宅区安装了一套实验性的空间扩展系统——从外面看是普通的公寓，但内部空间被扩展了十倍。第一天晚上，你在自己的客厅里迷路了。不是因为空间大，而是因为空间开始「变化」——你每次走过同一个走廊，两侧的房间都不一样。',
+        e: { int: 2, wil: -1 },
+        ms: '空间扩展民用化'
+      },
+      {
+        t: '你在废墟中找到了一本属于某个翼公司研究员的日记。日记中记录了他对奇点科技的恐惧：「我们不理解自己创造的东西。每一次实验，我们都像是在黑暗中按下按钮。总有一天，某个按钮会释放出我们无法控制的力量。」日记的最后一页只有一句话：「它醒了。」',
+        e: { int: 3, wil: -1 },
+        ms: '研究员日记'
+      },
+    ]);
+    addEvent({ text: singEvents.t, effect: 'singularity_event', effText: '奇点科技事件', major: true, milestone: singEvents.ms });
+    addMilestone(singEvents.ms);
+    for (const [k, v] of Object.entries(singEvents.e)) modAttr(k, v);
   }
 }
 
