@@ -1349,6 +1349,190 @@ let gameState = {
 };
 
 // =============================
+// 组织与身份系统常量
+// =============================
+
+const ORG_MAP = {
+  '拇指': ['拇指'], '食指': ['食指'], '中指': ['中指'], '环指': ['环指'], '小指': ['小指'],
+  'Zwei': ['Zwei协会'], 'Seven': ['Seven协会'], '六协会': ['六协会'],
+  'し协会': ['し协会'], 'Cinq': ['Cinq协会'], 'Hana': ['Hana协会'],
+  '协会': ['Zwei协会','Seven协会','六协会','し协会','Cinq协会','Hana协会'],
+  '帮派': ['黑云会','剑契组','谢肉祭','不来梅乐队','笑面'],
+  '工坊': ['工坊'], '事务所': ['事务所'], '收尾人': ['收尾人'],
+  '翼': ['翼公司'], '齿轮教会': ['齿轮教会'], '血魔': ['血魔'],
+  '脑叶公司': ['脑叶公司'], 'N公司': ['N公司'], 'K公司': ['K公司'],
+  'W公司': ['W公司'], '边狱公司': ['边狱公司'], '扭曲': ['扭曲'],
+  '后巷': ['后巷'],
+};
+
+const ORG_MUTEX = {
+  '拇指': ['食指','中指','环指','小指'],
+  '食指': ['拇指','中指','环指','小指'],
+  '中指': ['拇指','食指','环指','小指'],
+  '环指': ['拇指','食指','中指','小指'],
+  '小指': ['拇指','食指','中指','环指'],
+  'Zwei协会': ['Seven协会','六协会','し协会','Cinq协会','Hana协会'],
+  'Seven协会': ['Zwei协会','六协会','し协会','Cinq协会','Hana协会'],
+  '六协会': ['Zwei协会','Seven协会','し协会','Cinq协会','Hana协会'],
+  'し协会': ['Zwei协会','Seven协会','六协会','Cinq协会','Hana协会'],
+  'Cinq协会': ['Zwei协会','Seven协会','六协会','し协会','Hana协会'],
+  'Hana协会': ['Zwei协会','Seven协会','六协会','し协会','Cinq协会'],
+};
+
+function isFingerOrg(name) { return ['拇指','食指','中指','环指','小指'].includes(name); }
+function isAssociation(name) { return ['Zwei协会','Seven协会','六协会','し协会','Cinq协会','Hana协会'].includes(name); }
+function isGang(name) { return ['黑云会','剑契组','谢肉祭','不来梅乐队','笑面'].includes(name); }
+function getCurrentOrg() { return getFlag('org') || getFlag('finger_joined'); }
+function hasOrg(orgName) { return getFlag('org') === orgName || getFlag('finger_joined') === orgName; }
+function canJoinOrg(orgName) {
+  const current = getCurrentOrg();
+  if (!current) return true;
+  const blocked = ORG_MUTEX[current] || [];
+  return !blocked.includes(orgName);
+}
+function getTalentOrg() {
+  for (const t of gameState.selectedTalents) {
+    if (ORG_MAP[t.tag]) return t.tag;
+  }
+  return null;
+}
+
+function orgSanction(oldOrg) {
+  const events = [];
+  const a = gameState.attrs;
+  if (isFingerOrg(oldOrg)) {
+    events.push(evt('你决定脱离' + oldOrg + '。这在手指中是绝对的禁忌。', 'org_leave_' + oldOrg, '', true, '脱离' + oldOrg));
+    events.push(evt(oldOrg + '派出了清道夫来"清理"你这个叛徒。红色的光芒在黑暗中逼近。', 'finger_purge', '', true, null));
+    if ((a.con || 0) >= 7 && (a.wil || 0) >= 5) {
+      events.push(evt('你拼尽全力击退了清道夫，但你知道' + oldOrg + '永远不会放过你。', 'purge_survive', '体质-2，意志+1', false));
+      modAttr('con', -2); modAttr('wil', 1);
+    } else {
+      events.push(evt('清道夫太多了。叛徒的下场只有一个。', 'purge_death', '死亡', true, '被' + oldOrg + '处刑'));
+      death(oldOrg + '处刑');
+    }
+  } else if (isAssociation(oldOrg)) {
+    events.push(evt('你向' + oldOrg + '提交了辞呈。协会接受了你的申请，但你的收尾人执照被永久吊销。', 'assoc_quit', '家境-2', true, '退出' + oldOrg));
+    modAttr('wea', -2);
+    setFlag('license_revoked', true);
+  } else if (isGang(oldOrg)) {
+    events.push(evt('你想离开' + oldOrg + '。帮派从不允许成员轻易离开。', 'gang_quit', '', true, '退出' + oldOrg));
+    events.push(evt('原帮派的弟兄们对你进行了"私刑"。你勉强活了下来，但身上多了几道永远去不掉的伤疤。', 'gang_beating', '体质-3', false));
+    modAttr('con', -3);
+  } else if (oldOrg === '翼公司') {
+    events.push(evt('你试图离开翼公司。他们对你的"离职申请"的回应是——抹除。', 'wing_quit', '', true, null));
+    if ((a.int || 0) >= 8) {
+      events.push(evt('你用智慧伪造了自己的死亡，从翼公司的监视下消失了。', 'wing_fake_death', '智力+1，家境-3', false));
+      modAttr('int', 1); modAttr('wea', -3);
+    } else {
+      events.push(evt('翼公司的处刑者找到了你。', 'wing_death', '死亡', true, '被翼公司抹除'));
+      death('翼公司抹除');
+    }
+  } else {
+    events.push(evt('你离开了' + oldOrg + '。', 'org_quit_' + oldOrg, '意志-1', false));
+    modAttr('wil', -1);
+  }
+  return events;
+}
+
+function checkLifeExtension(age) {
+  const events = [];
+  if (getFlag('full_immortal') || getFlag('full_vampire') || getFlag('gear_full')) {
+    events.push(evt('时间对你而言已失去意义。你超越了凡人的寿命限制，继续在这座城市中游荡。', 'life_extended', '', false));
+    gameState.age += randBetween(10, 30);
+    if (chance(0.3)) {
+      events.push(evt('漫长的岁月中，你见证了都市的变迁。', 'eternal_witness', '意志+1', false));
+      modAttr('wil', 1);
+    }
+    return { extended: true, events };
+  }
+  if (getFlag('half_immortal')) {
+    events.push(evt('仙皇虫的力量在你体内流淌。你的衰老被延缓了。', 'half_life_extended', '', false));
+    gameState.age += randBetween(5, 15);
+    return { extended: true, events };
+  }
+  return { extended: false, events };
+}
+
+function generateOfficeName() {
+  const prefixes = ['黎明','街灯','楔子','定','摩西','吊钩','花札','朱红十字','钢铁','暗夜','流星','苍蓝','血红','漆黑','银白','黄金'];
+  const suffixes = ['事务所','侦探事务所','收尾人事务所','工作室','办事处','公会'];
+  return pick(prefixes) + pick(suffixes);
+}
+function generateGangName(tier) {
+  const names = {
+    rumor: ['钢铁兄弟会','赤拳帮','锈铁团','灰鼠会','碎玻璃帮'],
+    ghost: ['皮埃尔的大肉派','后巷屠夫','血牙团','铁钩帮','缝脸会'],
+    legend: ['丧家犬','斧头帮','铁拳会','黑爪团','狼牙帮'],
+    disease: ['谢肉祭','黑云会','不来梅乐队','锈链帮','血扇团','骨刃会'],
+    nightmare: ['笑面','剑契组','哭嚎帮','影刃团','铁面会','血袍团'],
+    star: ['残响乐团','八大主厨','钢铁议会','暗影王朝','血月盟']
+  };
+  return pick(names[tier] || names.rumor);
+}
+
+const RARITY = { COMMON:'common', RARE:'rare', EPIC:'epic', LEGEND:'legend' };
+const ACHIEVEMENTS = [
+  { id:'finger_member', name:'五指之一', desc:'加入任意手指。', rarity:RARITY.EPIC, condition:(gs)=>['拇指','食指','中指','环指','小指'].some(f=>gs.milestones.includes('加入'+f)||getFlag('finger_joined')===f) },
+  { id:'city_star', name:'都市之星', desc:'成为都市之星。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('都市之星')||getFlag('city_star') },
+  { id:'deep_night_survivor', name:'深宵幸存者', desc:'在深宵的清扫中存活。', rarity:RARITY.EPIC, condition:(gs)=>(getFlag('deep_night_survived')||0)>=3 },
+  { id:'twisted_one', name:'扭曲者', desc:'成功扭曲。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('扭曲')||getFlag('twisted') },
+  { id:'ego_awaken', name:'E.G.O觉醒', desc:'觉醒E.G.O。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('E.G.O觉醒')||getFlag('ego_awakened') },
+  { id:'vampire_eternal', name:'血魔永生', desc:'完全转化为血魔。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('血魔转化')||getFlag('full_vampire') },
+  { id:'family_head', name:'家主', desc:'成为拇指的家主。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('家主') },
+  { id:'star_blade', name:'星刀之主', desc:'成为小指的星刀主人。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('星刀主人') },
+  { id:'library_guest', name:'图书馆的来宾', desc:'收到图书馆邀请函。', rarity:RARITY.RARE, condition:(gs)=>getFlag('library_invite') },
+  { id:'book_snatcher', name:'夺书者', desc:'从图书馆夺取书籍。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('library_ending')==='BOOK' },
+  { id:'smog_survivor', name:'烟霾幸存者', desc:'在烟霾战争中存活。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('war_survivor') },
+  { id:'pianist_audience', name:'钢琴师的听众', desc:'遭遇钢琴师。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('钢琴师') },
+  { id:'gear_ascend', name:'齿轮飞升', desc:'接受完全机械化改造。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('gear_full') },
+  { id:'arbiter_partner', name:'调律者的合作者', desc:'与首脑调律者达成合作。', rarity:RARITY.LEGEND, condition:(gs)=>getFlag('arbiter_coop') },
+  { id:'impurity', name:'杂质', desc:'被首脑认定为杂质。', rarity:RARITY.LEGEND, condition:(gs)=>getFlag('impurity') },
+  { id:'color_fixer', name:'色彩级收尾人', desc:'获得色彩级称号。', rarity:RARITY.LEGEND, condition:(gs)=>getFlag('becameColor') },
+  { id:'hundred_year', name:'百年孤独', desc:'在都市中存活超过一百岁。', rarity:RARITY.LEGEND, condition:(gs)=>gs.age>=100&&gs.alive },
+];
+function checkAchievements(gs) {
+  const unlocked = [];
+  for (const ach of ACHIEVEMENTS) {
+    try { if (ach.condition(gs)) unlocked.push(ach); } catch(e) {}
+  }
+  return unlocked;
+}
+
+const PASSIVE_ABILITIES = {
+  '拇指': { name:'阶级压制', desc:'战斗检定时体质+2，意志+1' },
+  '食指': { name:'指令服从', desc:'意志检定时+2，智力+1' },
+  '中指': { name:'债务追讨', desc:'战斗暴击率+10%，体质+1' },
+  '环指': { name:'艺术狂热', desc:'智力检定时+2，压力抵抗+1' },
+  '小指': { name:'星刀暗袭', desc:'先手检定+3，体质+1' },
+  '血魔': { name:'吸血再生', desc:'体质恢复+2，体质+1' },
+  'Zwei协会': { name:'守护之盾', desc:'防御时体质+3，意志+2' },
+  'Seven协会': { name:'情报分析', desc:'智力检定时+3，先手+2' },
+  '工坊': { name:'技术改造', desc:'装备效果+25%，智力+1' },
+  '脑叶公司': { name:'恐惧适应', desc:'压力抵抗+3，意志+2' },
+  '边狱公司': { name:'罪孽共鸣', desc:'全属性检定+1' },
+  '扭曲': { name:'畸形之力', desc:'体质与意志+2' },
+  '收尾人': { name:'委托专家', desc:'财富获取+20%，体质+1' },
+  '齿轮教团': { name:'机械飞升', desc:'装备效果+30%，体质+2' },
+  '后巷': { name:'底层求生', desc:'生存检定+2，消费减少20%' },
+};
+function getPassiveDesc(tag) {
+  const p = PASSIVE_ABILITIES[tag];
+  return p ? { name:p.name, desc:p.desc } : null;
+}
+function getAllPassiveDescs() {
+  const result = [];
+  const seen = new Set();
+  for (const t of gameState.selectedTalents) {
+    if (!t.tag || seen.has(t.tag)) continue;
+    seen.add(t.tag);
+    const d = getPassiveDesc(t.tag);
+    if (d) result.push({ tag:t.tag, ...d });
+  }
+  return result;
+}
+
+
+// =============================
 
 // PHASE: TITLE
 // =============================
@@ -3633,6 +3817,13 @@ function generateMiddleAgeEvents(age, a, f, bp, tags) {
 function generateElderEvents(age, a, f, bp, tags) {
   const events = [];
 
+  // 寿命延长检查
+  const ext = checkLifeExtension(age);
+  if (ext.extended) {
+    events.push(...ext.events);
+    return events;
+  }
+
   // 死亡判定逐年增加
   const deathChance = 0.05 + (age - 70) * 0.02;
 
@@ -4773,50 +4964,139 @@ function generateTeenEvents(age, a, f, bp, tags) {
 function generateYoungAdultEvents(age, a, f, bp, tags) {
   const events = [];
 
-  // 职业选择（19岁）
+  // 职业选择（19岁）——天赋优先匹配
   if (age === 19) {
     addMilestone('成年');
-    const careers = [
-      { name: '翼公司员工', req: { int: 5, wea: 4 }, eff: 'int+2,wea+1' },
-      { name: '协会收尾人', req: { con: 5, wil: 4 }, eff: 'con+1,wil+1' },
-      { name: '工坊工匠', req: { int: 5 }, eff: 'int+2' },
-      { name: '事务所收尾人', req: { con: 4 }, eff: 'con+1,wea+1' },
-      { name: '帮派成员', req: { con: 4, wil: 3 }, eff: 'con+1' },
-      { name: '手指成员', req: { wil: 5 }, eff: 'wil+1,wea+1' },
-      { name: '自由收尾人', req: null, eff: 'con+1,int+1' },
-      { name: '废墟探险者', req: { con: 4, int: 4 }, eff: 'int+1' },
-      { name: '大湖航海者', req: { con: 4 }, eff: 'con+1' },
-      { name: '血棒商贩', req: null, eff: 'wea+1' },
-    ];
 
-    const validCareers = careers.filter((c) => {
-      if (!c.req) return true;
-      return Object.keys(c.req).every((k) => (a[k] || 0) >= c.req[k]);
-    });
+    // === 天赋优先匹配 ===
+    const talentOrg = getTalentOrg();
+    if (talentOrg) {
+      const mappedOrgs = ORG_MAP[talentOrg] || [talentOrg];
+      const targetOrg = pick(mappedOrgs);
+      if (!canJoinOrg(targetOrg)) {
+        const current = getCurrentOrg();
+        events.push(evt(
+          `你原本因天赋适合加入${targetOrg}，但你已经是${current}的一员。两个组织水火不容，你的道路被堵死了。`,
+          'talent_org_blocked', '意志-1', false
+        ));
+        modAttr('wil', -1);
+      } else {
+        // 天赋直接匹配成功
+        let joinText = '', joinId = '', effects = {};
+        if (isFingerOrg(targetOrg)) {
+          joinText = `你成年了。天生属于${targetOrg}的血脉在你体内觉醒，家族的关系网迅速将你吸纳进去。`;
+          joinId = 'finger_talent_join_' + targetOrg;
+          effects = { con: 1, wea: 2 };
+          setFlag('finger_joined', targetOrg);
+          setFlag('org_rank', '外围成员');
+        } else if (isAssociation(targetOrg)) {
+          joinText = `你的才能引起了${targetOrg}的注意。经过考核，你成为了协会的一名收尾人。`;
+          joinId = 'assoc_talent_join_' + targetOrg;
+          effects = { con: 1, int: 1, wea: 1 };
+          setFlag('org', targetOrg);
+          setFlag('org_rank', '九阶收尾人');
+        } else if (isGang(targetOrg)) {
+          joinText = `后巷的血脉在呼唤你。你顺理成章地加入了${targetOrg}。`;
+          joinId = 'gang_talent_join_' + targetOrg;
+          effects = { con: 2, wea: 1 };
+          setFlag('org', targetOrg);
+          setFlag('org_rank', '帮众');
+        } else if (targetOrg === '工坊') {
+          joinText = '你对奇点技术的敏感让你进入了工坊。这里到处是未完成的实验品和疯狂的创意。';
+          joinId = 'workshop_talent_join';
+          effects = { int: 2 };
+          setFlag('org', '工坊');
+        } else if (targetOrg === '事务所') {
+          joinText = '你创办了一家事务所。虽然不大，但这是属于你自己的事业。';
+          joinId = 'office_talent_join';
+          effects = { int: 1, wea: 1 };
+          setFlag('org', '事务所');
+        } else if (targetOrg === '收尾人') {
+          joinText = '你成为了一名自由收尾人。没有协会庇护，但也没有协会的束缚。';
+          joinId = 'freelance_talent_join';
+          effects = { con: 1, wil: 1 };
+          setFlag('org', '收尾人');
+        } else if (targetOrg === '翼公司') {
+          joinText = '不可思议，你竟获得了翼公司的录用通知。那是无数人梦寐以求的机会。';
+          joinId = 'wing_talent_join';
+          effects = { int: 2, wea: 3 };
+          setFlag('org', '翼公司');
+        } else if (targetOrg === '齿轮教会') {
+          joinText = '钢铁的呼唤在你的梦中回响。你找到了齿轮教会，他们早已等候多时。';
+          joinId = 'gear_talent_join';
+          effects = { con: 1, int: 1 };
+          setFlag('org', '齿轮教会');
+        } else if (targetOrg === '血魔') {
+          joinText = '某种古老的血脉在你体内苏醒。你找到了同类，成为了血魔的一员。';
+          joinId = 'blood_talent_join';
+          effects = { con: 2, wil: -2 };
+          setFlag('org', '血魔');
+          setFlag('half_immortal', true);
+        } else {
+          joinText = `你成年了，加入了${targetOrg}。`;
+          joinId = 'org_talent_join_' + targetOrg;
+          effects = { wea: 1 };
+          setFlag('org', targetOrg);
+        }
+        events.push(evt(joinText, joinId, effects, true, '加入' + targetOrg));
+        addMilestone('加入' + targetOrg);
+        // 应用效果
+        if (effects.con) modAttr('con', effects.con);
+        if (effects.int) modAttr('int', effects.int);
+        if (effects.wil) modAttr('wil', effects.wil);
+        if (effects.wea) modAttr('wea', effects.wea);
+      }
+    }
 
-    const career = pick(validCareers.length > 0 ? validCareers : careers);
-    events.push(
-      evt(
+    // === 无天赋匹配时的常规职业选择 ===
+    if (!getCurrentOrg()) {
+      const careers = [
+        { name: '翼公司员工', req: { int: 5, wea: 4 }, eff: 'int+2,wea+1' },
+        { name: '协会收尾人', req: { con: 5, wil: 4 }, eff: 'con+1,wil+1' },
+        { name: '工坊工匠', req: { int: 5 }, eff: 'int+2' },
+        { name: '事务所收尾人', req: { con: 4 }, eff: 'con+1,wea+1' },
+        { name: '帮派成员', req: { con: 4, wil: 3 }, eff: 'con+1' },
+        { name: '手指成员', req: { wil: 5 }, eff: 'wil+1,wea+1' },
+        { name: '自由收尾人', req: null, eff: 'con+1,int+1' },
+        { name: '废墟探险者', req: { con: 4, int: 4 }, eff: 'int+1' },
+        { name: '大湖航海者', req: { con: 4 }, eff: 'con+1' },
+        { name: '血棒商贩', req: null, eff: 'wea+1' },
+      ];
+      const validCareers = careers.filter((c) => {
+        if (!c.req) return true;
+        return Object.keys(c.req).every((k) => (a[k] || 0) >= c.req[k]);
+      });
+      const career = pick(validCareers.length > 0 ? validCareers : careers);
+      events.push(evt(
         `你成年了。你选择了成为${career.name}，开始了你的都市人生。`,
-        'career',
-        career.eff.replace(/,/g, '，'),
-        true,
-        `成为${career.name}`
-      )
-    );
-    if (career.eff.includes('con+1')) modAttr('con', 1);
-    if (career.eff.includes('con+2')) modAttr('con', 2);
-    if (career.eff.includes('int+1')) modAttr('int', 1);
-    if (career.eff.includes('int+2')) modAttr('int', 2);
-    if (career.eff.includes('wil+1')) modAttr('wil', 1);
-    if (career.eff.includes('wil+2')) modAttr('wil', 2);
-    if (career.eff.includes('wea+1')) modAttr('wea', 1);
-    if (career.eff.includes('wea+2')) modAttr('wea', 2);
-    setFlag('career', career.name);
+        'career', career.eff.replace(/,/g, '，'), true, `成为${career.name}`
+      ));
+      if (career.eff.includes('con+1')) modAttr('con', 1);
+      if (career.eff.includes('con+2')) modAttr('con', 2);
+      if (career.eff.includes('int+1')) modAttr('int', 1);
+      if (career.eff.includes('int+2')) modAttr('int', 2);
+      if (career.eff.includes('wil+1')) modAttr('wil', 1);
+      if (career.eff.includes('wil+2')) modAttr('wil', 2);
+      if (career.eff.includes('wea+1')) modAttr('wea', 1);
+      if (career.eff.includes('wea+2')) modAttr('wea', 2);
+      setFlag('career', career.name);
+    }
   }
 
-  // 手指加入事件
+  // 手指加入事件（20-28岁）
   if (age >= 20 && age <= 28 && !getFlag('finger_joined') && chance(0.15)) {
+    // 如果已在其他组织，先触发冲突/制裁剧情
+    const currentOrg = getCurrentOrg();
+    if (currentOrg && !isFingerOrg(currentOrg)) {
+      events.push(evt(
+        `${currentOrg}的对手——某个手指向你伸出了橄榄枝。在都市中，脚踏两条船是危险的，但机会难得。`,
+        'finger_invite_conflict', '', true, '手指的邀请'
+      ));
+      events.push(...orgSanction(currentOrg));
+      if (!gameState.alive) return events;
+      setFlag('org', null);
+    }
+
     const fingers = [
       { name: '拇指', req: { con: 5 }, attr: 'con', desc: '拇指看重你的体质和战斗能力。红大衣在向你招手。' },
       { name: '食指', req: { int: 5 }, attr: 'int', desc: '食指需要你的智慧来理解和执行指令。' },
@@ -4828,25 +5108,33 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
     for (const finger of fingers) {
       const meetsReq = !finger.req || Object.keys(finger.req).every((k) => (a[k] || 0) >= finger.req[k]);
       if (meetsReq && chance(0.3)) {
-        events.push(
-          evt(
-            `${finger.desc}你成为了${finger.name}的一员。`,
-            'finger_join',
-            '家境+1，意志+1',
-            true,
-            `加入${finger.name}`
-          )
-        );
-        modAttr('wea', 1);
-        modAttr('wil', 1);
+        events.push(evt(
+          `${finger.desc}你成为了${finger.name}的一员。`,
+          'finger_join', '家境+1，意志+1', true, `加入${finger.name}`
+        ));
+        modAttr('wea', 1); modAttr('wil', 1);
         setFlag('finger_joined', finger.name);
+        addMilestone(`加入${finger.name}`);
         break;
       }
     }
   }
 
-  // 帮派加入事件
+  // 帮派加入事件（20-28岁）
   if (age >= 20 && age <= 28 && !getFlag('gang_joined') && chance(0.15)) {
+    // 帮派与手指/协会互斥
+    const currentOrg = getCurrentOrg();
+    if (currentOrg && (isFingerOrg(currentOrg) || isAssociation(currentOrg))) {
+      events.push(evt(
+        `帮派的人找到了你，希望你加入他们。但你已经是${currentOrg}的一员，帮派的规矩和${currentOrg}完全不同。`,
+        'gang_invite_conflict', '', true, '帮派的邀请'
+      ));
+      events.push(...orgSanction(currentOrg));
+      if (!gameState.alive) return events;
+      setFlag('finger_joined', null);
+      setFlag('org', null);
+    }
+
     const gangs = [
       { name: '黑云会', cond: () => bp === 'nine' || bp === 'backstreet', eff: 'con+1,wil+1' },
       { name: '剑契组', cond: () => bp === 'backstreet' || bp === 'outskirts', eff: 'con+2' },
@@ -4860,15 +5148,10 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
     const validGangs = gangs.filter((g) => g.cond());
     if (validGangs.length > 0) {
       const gang = pick(validGangs);
-      events.push(
-        evt(
-          `你加入了${gang.name}。从此，你的生命不再只属于你自己。`,
-          'gang_join',
-          gang.eff.replace(/,/g, '，'),
-          true,
-          `加入${gang.name}`
-        )
-      );
+      events.push(evt(
+        `你加入了${gang.name}。从此，你的生命不再只属于你自己。`,
+        'gang_join', gang.eff.replace(/,/g, '，'), true, `加入${gang.name}`
+      ));
       if (gang.eff.includes('con+1')) modAttr('con', 1);
       if (gang.eff.includes('con+2')) modAttr('con', 2);
       if (gang.eff.includes('int+1')) modAttr('int', 1);
@@ -4877,6 +5160,7 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
       if (gang.eff.includes('wil-1')) modAttr('wil', -1);
       if (gang.eff.includes('wea+1')) modAttr('wea', 1);
       setFlag('gang_joined', gang.name);
+      setFlag('org', gang.name);
     }
   }
 
@@ -5411,22 +5695,46 @@ function endSimulation() {
 // =============================
 
 function calculateRank() {
-  const a = gameState.attrs;
-  const f = gameState.flags;
-  const h = gameState.happiness;
-  const total = a.con + a.int + a.wil + a.wea;
+  const gs = gameState;
+  const achievements = checkAchievements(gs);
+  const achCount = achievements.length;
+  const milestoneCount = gs.milestones.length;
+  const con = gs.attrs.con || 0, int = gs.attrs.int || 0, wil = gs.attrs.wil || 0, wea = gs.attrs.wea || 0;
+  const attrSum = con + int + wil + wea;
+  const rarityWeights = { common: 5, rare: 12, epic: 25, legend: 50 };
+  let achScore = 0;
+  for (const a of achievements) achScore += rarityWeights[a.rarity] || 5;
+  const age = gs.age || 0;
+  const ageScore = age >= 100 ? 30 : age >= 80 ? 25 : age >= 60 ? 20 : age >= 40 ? 15 : age >= 25 ? 10 : age >= 15 ? 5 : 0;
+  const deathPenalty = gs.alive ? 0 : 15;
 
-  if (f.twisted) return { rank:'S', label:'异想体', quote:'都市的噩梦并非只存在于传说之中。那些扭曲的灵魂，终将化为异想体，永远游荡在这片黑暗之中。', color: '#8B0000' };
-  if (f.book) return { rank:'S', label:'书籍', quote:'你的故事被收录在了安吉拉的图书馆中。在这座无尽的图书馆里，你将以另一种形式继续存在。', color: '#9b59b6' };
-  if (f.becameColor) return { rank:'A', label:'都市之星', quote:'色彩级——都市中最强的收尾人。你的名字将永远被铭记在都市的传说之中。', color: '#f1c40f' };
-  if (f.becameDirector) return { rank:'A', label:'翼的董事', quote:'翼公司的董事——掌控着奇点科技的精英。你在巢的高墙之内，拥有了改变世界的力量。', color: '#f1c40f' };
-  if (total >= 28 && h >= 5) return { rank:'B', label:'色彩级', quote:'你以惊人的实力在都市中站稳了脚跟。你的名字让后巷的恶徒闻风丧胆。', color: '#daa520' };
-  if (total >= 22 && a.wea >= 6) return { rank:'C', label:'收尾人', quote:'作为一名收尾人，你在都市中过着体面的生活。这不是最耀眼的命运，但也不赖。', color: '#4a7fb5' };
-  if (total >= 15) return { rank:'D', label:'翼的职员', quote:'你在翼公司的体制内安稳地度过了这一生。巢的高墙保护了你，也束缚了你。', color: '#7a6f5a' };
-  if (h >= 3) return { rank:'D', label:'后巷的尘埃', quote:'都市的后巷中，你的故事如同一粒尘埃。微不足道，但真实存在过。', color: '#7a6f5a' };
-  return { rank:'F', label:'被都市遗忘者', quote:'都市不会记住每一个人。在这座巨大的城市里，你已经消散在无尽的黑暗之中。', color: '#555' };
+  // 快速通道
+  if (gs.milestones.includes('杂质') || gs.milestones.includes('都市之星')) {
+    return { rank: 'S+', label: '杂质 / 都市之星', quote: '你在都市的历史中留下了不可磨灭的痕迹。无论是作为英雄还是噩梦，你的名字将永远被铭记。', color: '#ff3864', score: 999, achievements, note: '被都市认定为杂质，或是传说般的都市之星。' };
+  }
+  if (gs.milestones.includes('色彩级收尾人') || gs.milestones.includes('漆黑静默') || gs.milestones.includes('殷红迷雾') || gs.milestones.includes('堇紫泪滴')) {
+    return { rank: 'S', label: '色彩级收尾人', quote: '色彩级——收尾人中的传奇。你的名字足以让后巷的耗子停止呼吸。', color: '#f1c40f', score: 900, achievements, note: '你是收尾人中的传奇，色彩级的威名响彻都市。' };
+  }
+  if (gs.flags.twisted) {
+    return { rank: 'S', label: '异想体', quote: '都市的噩梦并非只存在于传说之中。那些扭曲的灵魂，终将化为异想体，永远游荡在这片黑暗之中。', color: '#8B0000', score: 850, achievements, note: '你成为了都市 nightmares 的一部分。' };
+  }
+  if (gs.flags.book) {
+    return { rank: 'S', label: '书籍', quote: '你的故事被收录在了安吉拉的图书馆中。在这座无尽的图书馆里，你将以另一种形式继续存在。', color: '#9b59b6', score: 800, achievements, note: '图书馆中的一本书，另一个永恒的开始。' };
+  }
+
+  const total = attrSum * 2 + milestoneCount * 8 + achScore + ageScore - deathPenalty;
+  let rank, label, quote, color, note;
+  if (total >= 350) { rank='S+'; label='杂质 / 都市之星'; quote='你在都市的历史中留下了不可磨灭的痕迹。'; color='#ff3864'; note='被都市认定为杂质，或是传说般的都市之星。'; }
+  else if (total >= 280) { rank='S'; label='色彩级收尾人'; quote='色彩级——收尾人中的传奇。'; color='#f1c40f'; note='你的名字足以让后巷的耗子停止呼吸。'; }
+  else if (total >= 220) { rank='A+'; label='一阶收尾人'; quote='一阶收尾人中的佼佼者，巢与协会都对你敞开大门。'; color='#daa520'; note='高阶收尾人中的顶尖存在。'; }
+  else if (total >= 160) { rank='A'; label='高阶收尾人'; quote='你以惊人的实力在都市中站稳了脚跟。'; color='#4a7fb5'; note='足以应对大多数都市恶疾。'; }
+  else if (total >= 110) { rank='B'; label='中阶收尾人'; quote='作为一名收尾人，你在都市中过着体面的生活。'; color='#7a6f5a'; note='在后巷中已算一方强者。'; }
+  else if (total >= 70) { rank='C'; label='低阶收尾人'; quote='你在都市的夹缝中艰难求生。'; color='#555'; note='勉强在都市的夹缝中求生。'; }
+  else if (total >= 35) { rank='D'; label='普通人'; quote='都市不会记住每一个人。'; color='#666'; note='普通的巢民或后巷居民。'; }
+  else { rank='E'; label='耗子 / 底层'; quote:'在这座巨大的城市里，你已经消散在无尽的黑暗之中。'; color:'#444'; note:'都市从不缺少这样的尘埃。'; }
+
+  return { rank, label, quote, color, score: total, achievements, note };
 }
-
 function generateLifeStory() {
   const { birthplace, selectedTalents, milestones, events, age, alive, deathCause, attrs } = gameState;
   const storyParts = [];
@@ -5609,6 +5917,24 @@ function showResults() {
   `;
 
   const commonContent = `
+    ${result.achievements && result.achievements.length > 0 ? `
+    <div class="result-achievements" style="margin:20px 0;padding:15px;background:#111;border:1px solid #2a2a2a;border-radius:6px;">
+      <h4 style="color:var(--accent-gold);margin-bottom:10px;text-align:center;">&#10022; 成就 &#10022;</h4>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">
+        ${result.achievements.map(a => {
+          const colors = { common:'#7a7a7a', rare:'#4a7fb5', epic:'#9b59b6', legend:'#f1c40f' };
+          return `<span style="padding:4px 10px;border:1px solid ${colors[a.rarity]||'#7a7a7a'};color:${colors[a.rarity]||'#7a7a7a'};border-radius:4px;font-size:0.85rem;">${a.name}</span>`;
+        }).join('')}
+      </div>
+    </div>` : ''}
+    ${(() => {
+      const passives = getAllPassiveDescs();
+      return passives.length > 0 ? `
+    <div class="result-passives" style="margin:20px 0;padding:15px;background:#111;border:1px solid #2a2a2a;border-radius:6px;">
+      <h4 style="color:var(--accent-gold);margin-bottom:10px;text-align:center;">&#10022; 被动能力 &#10022;</h4>
+      ${passives.map(p => `<div style="padding:4px 0;color:#b8a99a;font-size:0.9rem;"><strong style="color:#daa520;">${p.name}</strong>：${p.desc}</div>`).join('')}
+    </div>` : '';
+    })()}
     <div class="result-stats">
       <div class="result-stat"><div class="result-stat-label">最终年龄</div><div class="result-stat-val">${gameState.age}岁</div></div>
       <div class="result-stat"><div class="result-stat-label">快乐值</div><div class="result-stat-val" style="color:${gameState.happiness >= 0 ? '#5a9e6f' : '#c0392b'}">${gameState.happiness}</div></div>
