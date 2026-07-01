@@ -1232,6 +1232,14 @@ const ALL_TALENTS = [
   { id:'dt2', name:'心望的使用者', rarity:'purple', desc:'你掌握了心望——将内心愿望汇聚为力量。心用于防御，身躯散发微光增强对攻击的抵挡；望用于攻击，依附肢体或武器的光环大幅强化攻击力。多个望可以叠加。', effect:'体质+2，智力+1，战斗事件大幅提升', con:2, int:1, wil:0, wea:0, tag:'心望' },
   { id:'dt3', name:'大罪的容器', rarity:'epic', desc:'你拒绝了自我真实形象的一切，褪掉了所有属于自身的部分，成为了七种原始大罪之一——纯粹的、只剩一种本能情绪的存在。', effect:'体质+3，意志-3，触发大罪线', con:3, int:0, wil:-3, wea:0, tag:'大罪' },
   { id:'dt4', name:'光之种的计划知情者', rarity:'purple', desc:'你知道光之种计划的真相——脑叶公司积累大量能源，通过基础于卡巴拉密教"火剑之路"的步骤完成。高塔般的大树破土而出，向世界撒落果实。过去与未来、现实与幻想、肉体与心灵、空间与时间的界限正在慢慢消失。', effect:'智力+3，光之种/扭曲/神备事件大幅提升', con:0, int:3, wil:1, wea:0, tag:'光之种' },
+  { id:'im1', name:'清道夫同化候选者', rarity:'purple', desc:'你的身体对清道夫的液化有异常抗性。也许有一天，你能与清道夫融合而不完全死亡。', effect:'体质+2，清道夫同化事件极大提升', con:2, int:0, wil:0, wea:0, tag:'清道夫' },
+  { id:'im2', name:'扭曲稳定体', rarity:'purple', desc:'你天生具有扭曲倾向，但能够稳定维持。你的存在介于人类与扭曲之间，拥有超越常人的生命力。', effect:'体质+2，智力+1，扭曲事件永生可能', con:2, int:1, wil:0, wea:0, tag:'扭曲' },
+  { id:'im3', name:'大罪之种', rarity:'epic', desc:'你的内心深处埋藏着大罪的种子。一旦完全释放，你将蜕变为纯粹的、永恒的大罪。', effect:'体质+3，意志-2，大罪事件永生可能', con:3, int:0, wil:-2, wea:0, tag:'大罪' },
+  { id:'im4', name:'机械化适格者', rarity:'purple', desc:'你的身体对机械化改造有极高的适应性。工坊的老技师们对你垂涎三尺——你是完美的机械飞升候选者。', effect:'体质+2，智力+1，机械化永生事件极大提升', con:2, int:1, wil:0, wea:0, tag:'改造' },
+  { id:'im5', name:'金枝共鸣体', rarity:'purple', desc:'你与金枝有着天生的共鸣。当金枝出现时，你能感受到它的召唤。你有潜力与金枝完全融合。', effect:'智力+2，意志+1，金枝事件永生可能', con:0, int:2, wil:1, wea:0, tag:'金枝' },
+  { id:'im6', name:'仙人资质', rarity:'purple', desc:'你拥有修炼仙人之道的资质。鸿园铁槛寺的仙人们在你身上看到了潜力——你有机会修成完整的仙人之道。', effect:'体质+1，智力+2，仙人事件永生可能', con:1, int:2, wil:0, wea:0, tag:'仙人' },
+  { id:'im7', name:'安瓿依赖体', rarity:'blue', desc:'你的细胞已经被K公司的再生安瓿改造过。你依赖安瓿维持生命，但这也意味着你有机会获得永久的安瓿循环。', effect:'体质+2，意志-1，安瓿事件永生可能', con:2, int:0, wil:-1, wea:0, tag:'K公司' },
+  { id:'im8', name:'图书馆司书体质', rarity:'purple', desc:'你与图书馆有着特殊的联系。安吉拉在你身上看到了成为司书的潜力——一种将存在固化为书页的体质。', effect:'智力+2，意志+1，图书馆司书永生事件极大提升', con:0, int:2, wil:1, wea:0, tag:'图书馆' },
   // 组合标签天赋
   { id:'c1', name:'孤儿', rarity:'epic', desc:'你没有父母，在后巷的废墟中独自降生。深宵是你最早的摇篮，清道夫的脚步声是你最早的安眠曲。', effect:'体质+1，意志+1，触发孤儿线', con:1, int:0, wil:1, wea:0, tag:'孤儿' },
   { id:'c2', name:'双生子', rarity:'epic', desc:'你与另一个生命同时降临。你们共享着某种超越血脉的羁绊。', effect:'体质+1，意志+1，根据性别触发安吉丽卡/阿尔加利亚线', con:1, int:1, wil:1, wea:0, tag:'双生子' },
@@ -1737,6 +1745,80 @@ function checkLifeExtension(age) {
     gameState.age += randBetween(5, 15);
     return { extended: true, events };
   }
+  // 新增永生类型
+  if (getFlag('sweeper_assimilated')) {
+    events.push(evt('你的身体已经完全液化重组。作为清道夫的一部分，你不再受凡人生死的束缚。只要不耗尽"燃料"，你就能永远活动下去。你和其他"家人"互称"邻居"，在深宵中无声地穿梭。', 'sweeper_eternal', '', false));
+    gameState.age += randBetween(15, 40);
+    if (chance(0.04)) {
+      events.push(evt('一位"嬷嬷"下达了新的指令。你和"家人"们集体出动，将一整条后巷清扫干净。', 'sweeper_hunt', '体质+1', false));
+      modAttr('con', 1);
+    }
+    return { extended: true, events };
+  }
+  if (getFlag('distortion_survived')) {
+    events.push(evt('你以扭曲的形态存活了下来。时间的流逝对你而言失去了意义——你不会衰老，不会饥饿，不会被疾病侵蚀。你的存在本身就是对都市规则的挑战。但你知道，扭曲存在过久会崩溃，届时异想体会取代你。', 'distortion_eternal', '', false));
+    gameState.age += randBetween(10, 25);
+    if (chance(0.05)) {
+      const distChanges = ['你的扭曲形态又蔓延了一些——手臂上长出了新的荆棘。', '你听到了那个甜美声音的低语——它在提醒你终将崩溃的命运。', '你以扭曲之姿拯救了一个即将被清道夫液化的人。对方的感激让你短暂想起了人类的情感。'];
+      events.push(evt(pick(distChanges), 'distortion_change', '意志+1', false));
+      modAttr('wil', 1);
+    }
+    return { extended: true, events };
+  }
+  if (getFlag('sin_incarnate')) {
+    events.push(evt('作为大罪的你没有寿命的概念。你是纯粹的、永恒的本能。都市的变迁对你而言只是背景噪音。你吞噬、破坏、统治——直到有人能终结你的存在。', 'sin_eternal', '', false));
+    gameState.age += randBetween(20, 50);
+    if (chance(0.05)) {
+      events.push(evt('一群收尾人试图讨伐你。你轻松地将他们全部碾碎。大罪的力量在都市中几乎是无敌的——除非面对同等级的存在。', 'sin_dominance', '体质+1', false));
+      modAttr('con', 1);
+    }
+    return { extended: true, events };
+  }
+  if (getFlag('librarian_immortal')) {
+    events.push(evt('作为图书馆的司书，你的存在被固化在了书页之间。你不老不死，只是在无尽的书籍海洋中整理、接待、守护。安吉拉偶尔会和你聊聊都市的故事——虽然她对人类的理解依然有限。', 'librarian_eternal', '', false));
+    gameState.age += randBetween(15, 30);
+    if (chance(0.04)) {
+      events.push(evt('图书馆迎来了一位特殊的来宾。你参与了接待，对方化为了新的书籍。罗兰在角落里叹了口气：「又一个故事结束了。」', 'library_reception', '智力+1', false));
+      modAttr('int', 1);
+    }
+    return { extended: true, events };
+  }
+  if (getFlag('mech_ascended')) {
+    events.push(evt('你的身体已被工坊的机械技术完全替代。心脏是齿轮泵，血液是冷却液，骨骼是合金框架。只要定期维护，你就能永远运转下去。机械飞升——这是另一种形式的永生。', 'mech_eternal', '', false));
+    gameState.age += randBetween(10, 25);
+    if (chance(0.05)) {
+      events.push(evt('你的某个机械部件出现了磨损。你前往琅琊工坊进行了维护。老技师拍了拍你的金属肩膀：「你这身装备比我的工坊还老。」', 'mech_maintenance', '体质+1', false));
+      modAttr('con', 1);
+    }
+    return { extended: true, events };
+  }
+  if (getFlag('golden_branch_fused')) {
+    events.push(evt('你与金枝完全融合了。金枝的力量流淌在你的每一滴血液中，维持着你的存在。你是都市中最接近"光之种"本质的人类——但这股力量也在缓慢地改变你的心智。', 'golden_eternal', '', false));
+    gameState.age += randBetween(15, 35);
+    if (chance(0.05)) {
+      events.push(evt('金枝共鸣让你看到了某个可能性——另一个选择的你，另一种人生。那些记忆不属于你，却无比真实。', 'golden_vision', '智力+1', false));
+      modAttr('int', 1);
+    }
+    return { extended: true, events };
+  }
+  if (getFlag('taixu_immortal_complete')) {
+    events.push(evt('你已修成仙人之道。鸿园铁槛寺的仙皇虫与你共生，你的身体不再受凡人生死的束缚。每月的重构日对你而言不再是危险，而是力量的源泉。你在都市的阴影中冷眼旁观凡人的生老病死。', 'taixu_eternal', '', false));
+    gameState.age += randBetween(20, 60);
+    if (chance(0.04)) {
+      events.push(evt('一位新的求道者来到铁槛寺，希望获得仙人的指引。你传授了他一些基础的法门——至于他能否修成，就看他的造化了。', 'taixu_teaching', '智力+1', false));
+      modAttr('int', 1);
+    }
+    return { extended: true, events };
+  }
+  if (getFlag('k_ampoule_eternal')) {
+    events.push(evt('K公司的再生安瓿在你体内建立了永久的循环系统。你的细胞在死亡瞬间就会被再生，伤口在眨眼间愈合。只要安瓿的供应不中断，你就是不死的——但你也无法摆脱对安瓿的依赖。', 'k_ampoule_eternal', '', false));
+    gameState.age += randBetween(5, 15);
+    if (chance(0.05)) {
+      events.push(evt('你偷偷潜入了K公司的仓库补充安瓿。守卫差点发现你，但你的再生能力让你在挨了两枪后依然成功逃脱。', 'k_ampoule_refill', '体质+1', false));
+      modAttr('con', 1);
+    }
+    return { extended: true, events };
+  }
   return { extended: false, events };
 }
 
@@ -2137,6 +2219,50 @@ const ACHIEVEMENTS = [
     lore:'扭曲者只接受了自己的痛苦，却拒绝了罪孽。他们以"只属于自己的方式"存活，保留希望拥有的部分自我与力量。扭曲存在时间过长会崩溃，届时异想体会取代其存在。' },
   { id:'sin_bearer', name:'大罪化身', desc:'拒绝一切后成为了大罪。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('傲慢之大罪') || gs.milestones.includes('嫉妒之大罪') || gs.milestones.includes('暴怒之大罪') || gs.milestones.includes('倦怠之大罪') || gs.milestones.includes('暴食之大罪') || gs.milestones.includes('忧郁之大罪') || gs.milestones.includes('色欲之大罪'),
     lore:'大罪是完全坏掉的人类，只剩一种本能。只有七种：傲慢、嫉妒、暴怒、倦怠、暴食、忧郁、色欲。与千变万化的扭曲和神备不同，大罪没有细分个体。' },
+  // === 永生相关成就 ===
+  { id:'sweeper_assimilated', name:'清道夫同化者', desc:'被清道夫液化并融合，成为了他们的一员。', rarity:RARITY.EPIC,
+    condition:(gs)=>gs.milestones.includes('清道夫同化'),
+    lore:'被清道夫武器击中后奇迹般未完全液化，与清道夫液体融合。穿上密封特制服装，互称"家人""邻居"，不受凡人生死束缚，不耗尽"燃料"就能永远活动。' },
+  { id:'distortion_immortal', name:'扭曲永生者', desc:'以扭曲形态稳定存活，超越了生死。', rarity:RARITY.EPIC,
+    condition:(gs)=>gs.milestones.includes('扭曲化永生'),
+    lore:'扭曲形态稳定后不会衰老、不会饥饿、不会被疾病侵蚀。但扭曲存在过久会崩溃，届时异想体会取代其存在。' },
+  { id:'sin_eternal', name:'大罪永恒', desc:'作为大罪彻底脱离人类范畴，获得永恒存在。', rarity:RARITY.LEGEND,
+    condition:(gs)=>gs.milestones.includes('大罪永生'),
+    lore:'大罪没有寿命、没有衰老、没有死亡——只有纯粹的、永恒的本能。在都市中几乎无敌，除非面对同等级存在。' },
+  { id:'librarian_eternal', name:'书之永生', desc:'成为图书馆司书，在书页间获得永生。', rarity:RARITY.EPIC,
+    condition:(gs)=>gs.milestones.includes('司书永生'),
+    lore:'图书馆司书的存在被固化在书页之间，不老不死，在无尽的书籍海洋中整理、接待、守护。' },
+  { id:'mech_ascended', name:'机械飞升者', desc:'通过工坊技术完全机械化，获得另类永生。', rarity:RARITY.EPIC,
+    condition:(gs)=>gs.milestones.includes('机械飞升'),
+    lore:'心脏换成齿轮泵，骨骼换成合金框架，血液换成冷却液。只要定期维护就能永远运转。' },
+  { id:'golden_branch_eternal', name:'金枝永恒', desc:'与金枝完全融合，接近光之种本质。', rarity:RARITY.LEGEND,
+    condition:(gs)=>gs.milestones.includes('金枝融合永生'),
+    lore:'金枝与人体完全融合后，力量流淌在每一滴血液中维持存在。但金枝的力量也在缓慢改变心智。' },
+  { id:'taixu_immortal', name:'仙人永生', desc:'在鸿园铁槛寺修成完整的仙人之道。', rarity:RARITY.LEGEND,
+    condition:(gs)=>gs.milestones.includes('仙人完全体'),
+    lore:'仙皇虫与人体建立共生关系，身体不再受凡人生死束缚。重构日不再是危险，而是力量源泉。' },
+  { id:'k_ampoule_eternal', name:'安瓿永生者', desc:'通过K公司再生安瓿获得永生。', rarity:RARITY.EPIC,
+    condition:(gs)=>gs.milestones.includes('安瓿永生'),
+    lore:'K公司安瓿在人体内建立永久循环，细胞死亡瞬间再生。但成为K公司的囚徒，一旦供应中断身体几小时内崩溃。' },
+  // === 更多世界观成就 ===
+  { id:'wing_worker', name:'翼公司职员', desc:'在翼公司工作过。', rarity:RARITY.COMMON,
+    condition:(gs)=>gs.milestones.includes('翼公司工作'),
+    lore:'各翼公司以奇点技术闻名：L公司管理异想体，R公司培养超级佣兵，W公司空间折叠列车，T公司停止时间，K公司再生安瓿。在翼工作是高风险高回报的。' },
+  { id:'association_fixer', name:'协会委托完成者', desc:'完成了协会的委托任务。', rarity:RARITY.COMMON,
+    condition:(gs)=>gs.milestones.includes('协会委托完成'),
+    lore:'各协会有不同专长：Zwei守护、六协义体战斗、七协情报、Cinq精密斩首、し协沉默暗杀。协会委托是收尾人积累经验的主要途径。' },
+  { id:'outskirts_explorer', name:'郊区探险者', desc:'参加了郊区探险队。', rarity:RARITY.RARE,
+    condition:(gs)=>gs.milestones.includes('郊区探险'),
+    lore:'郊区是都市之外的危险地带，没有首脑保护，只有无尽荒野和未知怪物。旧翼公司遗迹中可能藏有奇点残骸。' },
+  { id:'urban_legend_listener', name:'都市传闻收集者', desc:'听到了后巷的都市传闻。', rarity:RARITY.COMMON,
+    condition:(gs)=>gs.milestones.includes('都市传闻'),
+    lore:'后巷酒馆是都市传闻的集散地。传闻真假难辨，但在都市中，最荒诞的传闻往往最接近真相。' },
+  { id:'deep_night_survivor_3wave', name:'深宵三波生还者', desc:'在清道夫三波扫荡中存活。', rarity:RARITY.EPIC,
+    condition:(gs)=>gs.milestones.includes('深宵生还'),
+    lore:'深宵（3:13-4:34）是后巷的无法律地狱。清道夫三波扫荡：侦查→包围→清扫。能活过三波的人是真正的强者。' },
+  { id:'tuner_witness', name:'调律者目击者', desc:'目击了首脑调律者的行动。', rarity:RARITY.EPIC,
+    condition:(gs)=>gs.milestones.includes('调律者目击'),
+    lore:'调律者可以组合使用多种奇点：时间停止、空间折叠、概念抹除。被盯上的目标会从存在层面被消除。目击调律者而活下来本身就是奇迹。' },
   { id:'mind_heart_user', name:'心望使用者', desc:'觉醒了心望力量。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('心望觉醒'),
     lore:'心望是将内心愿望汇聚为力量的特殊表现。心用于防御，身躯散发光芒增强抵挡；望用于攻击，光环附着武器大幅强化破坏力。多个望可以叠加。使用存在心理要求与负担。' },
   { id:'golden_branch_holder', name:'金枝持有者', desc:'与金枝产生了共鸣。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('金枝共鸣'),
@@ -3010,6 +3136,7 @@ function generateEvents(age) {
   if (typeof runSpecialFixerEvents === 'function') runSpecialFixerEvents(age);
   if (typeof runRatFingerFixerEvents === 'function') runRatFingerFixerEvents(age);
     if (typeof runLoreDetailEvents === 'function') runLoreDetailEvents(age);
+  if (typeof runImmortalEvents === 'function') runImmortalEvents(age);
   if (typeof runReverberationEvents === 'function') runReverberationEvents(age);
 
   // 时间裂缝解释（最后加载）
@@ -12016,6 +12143,18 @@ function getTimeCrackExplanation(age) {
 // =============================
 function runSpecialFixerEvents(age) {
   if (!gameState.alive || gameState.dead) return;
+  // 事件冷却机制：初始化冷却对象
+  if (!gameState.eventCooldown) gameState.eventCooldown = {};
+  // 辅助函数：检查事件是否在冷却中
+  function isOnCooldown(eventKey, cooldownYears) {
+    const lastTrigger = gameState.eventCooldown[eventKey];
+    if (!lastTrigger) return false;
+    return (age - lastTrigger) < cooldownYears;
+  }
+  // 辅助函数：记录事件触发时间
+  function setCooldown(eventKey) {
+    gameState.eventCooldown[eventKey] = age;
+  }
   const bp = gameState.birthplace ? gameState.birthplace.id : 'backstreet';
   const tags = gameState.talentTags || [];
 
@@ -12307,6 +12446,15 @@ function runSpecialFixerEvents(age) {
 // =============================
 function runRatFingerFixerEvents(age) {
   if (!gameState.alive || gameState.dead) return;
+  if (!gameState.eventCooldown) gameState.eventCooldown = {};
+  function isOnCooldown(eventKey, cooldownYears) {
+    const lastTrigger = gameState.eventCooldown[eventKey];
+    if (!lastTrigger) return false;
+    return (age - lastTrigger) < cooldownYears;
+  }
+  function setCooldown(eventKey) {
+    gameState.eventCooldown[eventKey] = age;
+  }
   const bp = gameState.birthplace ? gameState.birthplace.id : 'backstreet';
   const a = gameState.attrs;
 
@@ -12754,6 +12902,15 @@ function runRatFingerFixerEvents(age) {
 // =============================
 function runLoreDetailEvents(age) {
   if (!gameState.alive || gameState.dead) return;
+  if (!gameState.eventCooldown) gameState.eventCooldown = {};
+  function isOnCooldown(eventKey, cooldownYears) {
+    const lastTrigger = gameState.eventCooldown[eventKey];
+    if (!lastTrigger) return false;
+    return (age - lastTrigger) < cooldownYears;
+  }
+  function setCooldown(eventKey) {
+    gameState.eventCooldown[eventKey] = age;
+  }
   const bp = gameState.birthplace ? gameState.birthplace.id : 'backstreet';
   const a = gameState.attrs;
 
@@ -13015,6 +13172,217 @@ function runLoreDetailEvents(age) {
     addEvent({ text: "你从一本旧书里读到了两百年前血魔战争的历史。血魔最初的来源是很久以前一栋宅邸的异变——\"从在那宅子里浸满血的瞬间开始，我们的血脉相互连接，产生了血统。在扭曲现象以前很久，我们就一直在阴影中生存、互相斗争了。\"一位收尾人劝说拉曼却领的血魔长老吉诃德站在人类一方。吉诃德率家系参战，使人类最终获得了胜利。但和平的代价是沉重的。", effect: "lore", effText: "智力+2", major: true, milestone: "血魔战争历史" });
     addMilestone("血魔战争历史");
     modAttr('int', 2);
+  }
+}
+
+// =============================
+// 永生/不朽特殊事件
+// =============================
+function runImmortalEvents(age) {
+  if (!gameState.alive || gameState.dead) return;
+  const bp = gameState.birthplace ? gameState.birthplace.id : 'backstreet';
+  const a = gameState.attrs;
+
+  // 事件冷却机制
+  if (!gameState.eventCooldown) gameState.eventCooldown = {};
+  function isOnCooldown(eventKey, cooldownYears) {
+    const lastTrigger = gameState.eventCooldown[eventKey];
+    if (!lastTrigger) return false;
+    return (age - lastTrigger) < cooldownYears;
+  }
+  function setCooldown(eventKey) {
+    gameState.eventCooldown[eventKey] = age;
+  }
+
+  // === 清道夫同化永生 ===
+  if (age >= 30 && !getFlag('sweeper_assimilated') && getFlag('sweeper_night') && chance(0.01)) {
+    setFlag('sweeper_assimilated', true);
+    addEvent({ text: "在一次深宵中，你被清道夫的武器击中了。但奇迹发生了——你的身体没有完全液化，而是与清道夫的液体产生了某种融合。你的意识在液体中漂浮，然后重新凝聚。当你『醒来』时，你穿着密封的特制服装，感受到了『家人』和『邻居』的存在。嬷嬷接纳了你。你成为了清道夫的一员——不再受凡人生死的束缚，只要不耗尽燃料就能永远活动。", effect: "immortal", effText: "成为清道夫，寿命不再终结", major: true, milestone: "清道夫同化" });
+    addMilestone("清道夫同化");
+    modAttr('con', 3);
+    modAttr('wil', -2);
+  }
+
+  // === 扭曲化永生 ===
+  if (age >= 35 && !getFlag('distortion_survived') && getFlag('distorted') && chance(0.02)) {
+    setFlag('distortion_survived', true);
+    addEvent({ text: "你的扭曲形态稳定了下来。时间对你失去了意义——你不会衰老，不会饥饿，不会被疾病侵蚀。你以扭曲之姿在都市中游荡，成为了一种介于人类与怪物之间的存在。但你知道，这个状态不是永恒的——扭曲存在过久会崩溃，届时异想体会取代你的存在。在那之前，你拥有无尽的岁月。", effect: "immortal", effText: "扭曲存活，寿命不再终结", major: true, milestone: "扭曲化永生" });
+    addMilestone("扭曲化永生");
+    modAttr('con', 2);
+    modAttr('int', 2);
+    modAttr('wil', -2);
+  }
+
+  // === 大罪化身永生 ===
+  if (age >= 40 && !getFlag('sin_incarnate') && getFlag('became_sin') && chance(0.02)) {
+    setFlag('sin_incarnate', true);
+    addEvent({ text: "作为大罪的你彻底脱离了人类的范畴。你没有寿命，没有衰老，没有死亡——只有纯粹的、永恒的本能。你在都市中横行，无人能挡。大罪的存在本身就是对都市规则的终极挑战。你将一直存在下去，直到有人能终结你。", effect: "immortal", effText: "大罪化身，寿命不再终结", major: true, milestone: "大罪永生" });
+    addMilestone("大罪永生");
+    modAttr('con', 5);
+    modAttr('wil', -5);
+  }
+
+  // === 图书馆司书永生 ===
+  if (age >= 35 && !getFlag('librarian_immortal') && getFlag('librarian') && chance(0.03)) {
+    setFlag('librarian_immortal', true);
+    addEvent({ text: "安吉拉授予了你图书馆司书的正式职位。你的存在被固化在了书页之间——你不老不死，只是在无尽的书籍海洋中整理、接待、守护。时间对你而言失去了意义。你见证了无数来宾的故事化为书籍，也见证了图书馆的不断扩张。罗兰偶尔会来找你聊天，聊起他在查尔斯事务所的往事。在图书馆中，你获得了另一种形式的永生。", effect: "immortal", effText: "司书永生，寿命不再终结", major: true, milestone: "司书永生" });
+    addMilestone("司书永生");
+    modAttr('int', 3);
+    modAttr('wil', 2);
+  }
+
+  // === 机械飞升永生 ===
+  if (age >= 30 && !getFlag('mech_ascended') && (bp === 'workshop' || hasTag('工坊')) && chance(0.02)) {
+    setFlag('mech_ascended', true);
+    addEvent({ text: "琅琊工坊的老技师向你展示了一项禁忌的技术——完全机械化的身体改造。心脏换成齿轮泵，骨骼换成合金框架，血液换成冷却液。这是一次不可逆的手术，但一旦成功，只要定期维护就能永远运转。你犹豫了片刻，然后躺上了手术台。当手术结束时，你摸了摸自己的金属胸膛——没有心跳，但你还『活着』。", effect: "immortal", effText: "机械飞升，寿命不再终结", major: true, milestone: "机械飞升" });
+    addMilestone("机械飞升");
+    modAttr('con', 4);
+    modAttr('int', 2);
+    modAttr('wil', -2);
+  }
+
+  // === 金枝融合永生 ===
+  if (age >= 35 && !getFlag('golden_branch_fused') && getFlag('golden_branch') && chance(0.02)) {
+    setFlag('golden_branch_fused', true);
+    addEvent({ text: "金枝与你完全融合了。那块金色的枝状物不再是外物，而是成为了你身体的一部分。金枝的力量流淌在你的每一滴血液中，维持着你的存在。你感受到了光之种的残余——那是脑叶公司积累的、通过卡巴拉密教『火剑之路』步骤完成的奇迹。你成为了都市中最接近『光之种』本质的存在。但这股力量也在缓慢改变你的心智。", effect: "immortal", effText: "金枝融合，寿命不再终结", major: true, milestone: "金枝融合永生" });
+    addMilestone("金枝融合永生");
+    modAttr('int', 4);
+    modAttr('wil', -1);
+  }
+
+  // === 仙人之道完全体 ===
+  if (age >= 40 && !getFlag('taixu_immortal_complete') && bp === 'eight' && getFlag('hongyuanResident') && chance(0.02)) {
+    setFlag('taixu_immortal_complete', true);
+    addEvent({ text: "你在鸿园铁槛寺修成了完整的仙人之道。仙皇虫与你建立了共生关系，你的身体不再受凡人生死的束缚。每月的重构日对你而言不再是危险，而是力量的源泉。铁槛寺的仙人们接纳了你，你成为了他们的一员。在都市的阴影中，你冷眼旁观凡人的生老病死——对于你而言，时间已经失去了意义。", effect: "immortal", effText: "仙人永生，寿命不再终结", major: true, milestone: "仙人完全体" });
+    addMilestone("仙人完全体");
+    modAttr('con', 2);
+    modAttr('int', 3);
+    modAttr('wil', 2);
+  }
+
+  // === K公司安瓿依赖永生 ===
+  if (age >= 30 && !getFlag('k_ampoule_eternal') && (bp === 'knest' || bp === 'K' || hasTag('K公司')) && chance(0.02)) {
+    setFlag('k_ampoule_eternal', true);
+    addEvent({ text: "你参与了K公司的一项秘密实验——将再生安瓿的效果永久固化在人体内。实验成功了：你的细胞在死亡瞬间就会被再生，伤口在眨眼间愈合。但这也有代价——你的体内被植入了安瓿供给装置，必须定期补充安瓿。一旦供应中断，你的身体会在几小时内崩溃。你获得了永生，但也成为了K公司的囚徒。", effect: "immortal", effText: "安瓿永生，寿命不再终结", major: true, milestone: "安瓿永生" });
+    addMilestone("安瓿永生");
+    modAttr('con', 3);
+    modAttr('int', 1);
+    modAttr('wil', -2);
+  }
+
+  // === 更多世界观新事件 ===
+
+  // 各翼公司工作事件
+  if (age >= 20 && !getFlag('wing_work_experience') && chance(0.03)) {
+    setFlag('wing_work_experience', true);
+    const wingJobs = [
+      { name: 'L公司', desc: '你成为了L公司的员工。你的工作是在设施中管理异想体——那些由人类潜意识具象化形成的怪物。每天你都要面对Qliphoth计数器，祈祷它不要归零。', effect: '智力+2，意志-1' },
+      { name: 'R公司', desc: '你在R公司的培养场工作。加速的时间孵化场中，成千上万的复制体在厮杀，只为留下最后一人。你在监控屏幕前目睹了这场残酷的筛选。', effect: '意志+1，家境+1' },
+      { name: 'W公司', desc: '你在W公司负责WARP列车的维护。空间折叠技术是公司的奇点——10秒的车程跨越数万光年。但你也知道，那些因空间折叠而"失联"的乘客去了哪里。', effect: '智力+2' },
+      { name: 'T公司', desc: '你在T公司的时间管理部门工作。你见识了"停止时间"的奇点技术——一件物品的时间被停止后，不会老化、不会损坏、不会变化。但你也听说了时间窃贼的传闻。', effect: '智力+2，体质-1' },
+      { name: 'K公司', desc: '你在K公司的医疗部门工作。再生安瓿的奇迹每天在你眼前上演——断肢重生、器官修复、甚至起死回生。但你也知道，安瓿的再生效果并不总是完美的。', effect: '体质+1，智力+1' }
+    ];
+    const job = pick(wingJobs);
+    addEvent({ text: job.desc, effect: "job", effText: job.effect, major: true, milestone: "翼公司工作" });
+    addMilestone("翼公司工作");
+    if (job.effect.includes('智力+2')) modAttr('int', 2);
+    if (job.effect.includes('智力+1')) modAttr('int', 1);
+    if (job.effect.includes('体质+1')) modAttr('con', 1);
+    if (job.effect.includes('体质-1')) modAttr('con', -1);
+    if (job.effect.includes('意志+1')) modAttr('wil', 1);
+    if (job.effect.includes('意志-1')) modAttr('wil', -1);
+    if (job.effect.includes('家境+1')) modAttr('wea', 1);
+  }
+
+  // 协会委托日常
+  if (age >= 18 && !getFlag('association_daily') && chance(0.04)) {
+    setFlag('association_daily', true);
+    const assocJobs = [
+      { name: 'Zwei协会', desc: '你接到了一个来自Zwei协会的委托：保护一名商人穿越后巷。Zwei以守护著称，这次委托对你来说是一次不错的锻炼。', req: 'con', diff: 4 },
+      { name: '六协会', desc: '六协会委托你协助处理一起帮派冲突。他们的收尾人以义体战斗闻名，你见识了他们惊人的战斗力。', req: 'con', diff: 5 },
+      { name: '七协会', desc: '七协会需要你调查一名可疑人物的情报。这是一次需要耐心和技巧的任务。', req: 'int', diff: 5 },
+      { name: 'Cinq协会', desc: 'Cinq协会的委托很特殊——精确斩首一名目标。你见识了他们优雅而致命的战斗风格。', req: 'con', diff: 6 },
+      { name: 'し协会', desc: 'し协会的委托没有多余的话语。一把没有护手的刀、一个目标、一个结果。简洁而致命。', req: 'wil', diff: 6 }
+    ];
+    const job = pick(assocJobs);
+    addEvent({ text: job.desc, effect: "job", effText: "委托中", major: true, milestone: "协会委托" });
+    addMilestone("协会委托");
+    if (checkCombat(job.diff, job.req)) {
+      addEvent({ text: "委托圆满完成。协会的联络人对你的表现给予了好评，并表示以后有活会优先考虑你。", effect: "success", effText: "体质+1，家境+1", major: false, milestone: "协会委托完成" });
+      addMilestone("协会委托完成");
+      modAttr('con', 1);
+      modAttr('wea', 1);
+    } else {
+      addEvent({ text: "委托失败了。虽然你没有完成任务，但协会的联络人没有责怪你——在都市中，活下来本身就是最大的成就。", effect: "fail", effText: "意志+1", major: false, milestone: "协会委托失败" });
+      addMilestone("协会委托失败");
+      modAttr('wil', 1);
+    }
+  }
+
+  // 郊区探险
+  if (age >= 25 && !getFlag('outskirts_expedition') && (bp === 'outskirts' || bp === 'ruins') && chance(0.03)) {
+    setFlag('outskirts_expedition', true);
+    addEvent({ text: "你参加了一次郊区探险队。郊区是都市之外的危险地带，那里没有首脑的保护，只有无尽的荒野和未知的怪物。你的队伍在废墟中发现了一座旧翼公司的设施——废弃已久，但内部似乎还有某种东西在运转。", effect: "expedition", effText: "智力+1，面临选择", major: true, milestone: "郊区探险" });
+    addMilestone("郊区探险");
+    modAttr('int', 1);
+    if (chance(0.5)) {
+      addEvent({ text: "你决定深入探索。设施深处有一台仍在运转的机器——是某种奇点技术的残骸。你小心翼翼地取走了一块核心部件，准备带回都市出售。", effect: "loot", effText: "家境+2", major: false, milestone: "奇点残骸发现" });
+      addMilestone("奇点残骸发现");
+      modAttr('wea', 2);
+    } else {
+      addEvent({ text: "你选择了撤离。就在你们离开后不久，那座设施在一阵光芒中坍塌了——某种自毁机制被触发了。你庆幸自己做出了正确的选择。", effect: "escape", effText: "意志+1", major: false, milestone: "设施自毁逃脱" });
+      addMilestone("设施自毁逃脱");
+      modAttr('wil', 1);
+    }
+  }
+
+  // 都市传闻事件
+  if (age >= 20 && !getFlag('urban_legend_heard') && chance(0.03)) {
+    setFlag('urban_legend_heard', true);
+    const legends = [
+      '传闻都市的边缘有一座无限高的塔，塔顶连接着另一个世界。没有人到达过塔顶——因为越往上，时间的流速就越慢。',
+      '有人说在后巷的深处有一条" river "——不是水流，而是时间的河流。掉入其中的人会体验到无数平行人生的记忆。',
+      '传闻某个翼公司正在研发能够读取人类思想的奇点技术。一旦成功，都市中将没有任何秘密。',
+      '有人说首脑并非人类，而是某种超越人类理解的存在。他们的"调律者"只是 outward 形态，真正的首脑隐藏在都市的某个角落。',
+      '传闻在都市的地下深处，埋藏着旧L公司的总部遗迹。那里沉睡着某种足以改变都市命运的力量。'
+    ];
+    addEvent({ text: "你在后巷的酒馆中听到了一个都市传闻。" + pick(legends), effect: "lore", effText: "智力+1", major: false, milestone: "都市传闻" });
+    addMilestone("都市传闻");
+    modAttr('int', 1);
+  }
+
+  // 深宵三波扫荡生存
+  if (age >= 15 && !getFlag('deep_night_survived') && chance(0.03)) {
+    setFlag('deep_night_survived', true);
+    addEvent({ text: "后巷的深宵开始了——凌晨3:13到4:34，80分钟的无法律地狱。清道夫的三波扫荡如约而至。第一波是侦查，第二波是包围，第三波是清扫。你和一群陌生人躲在废弃建筑中，屏住呼吸，祈祷清道夫的『燃料』足够——因为如果不够，他们会更加疯狂。", effect: "survival", effText: "意志+2", major: true, milestone: "深宵三波扫荡" });
+    addMilestone("深宵三波扫荡");
+    modAttr('wil', 2);
+    if (checkCombat(8, 'wil')) {
+      addEvent({ text: "你成功在深宵的三波扫荡中存活了下来。当第一缕阳光照进后巷时，你几乎是爬着离开了藏身之处。你的意志经受了极限的考验。", effect: "survive", effText: "意志+1", major: false, milestone: "深宵生还" });
+      addMilestone("深宵生还");
+      modAttr('wil', 1);
+    } else {
+      addEvent({ text: "第三波扫荡时，清道夫发现了你们的藏身之处。密封服装的身影涌了进来，武器闪烁着寒光。你拼命战斗，但数量太多了……", effect: "death", effText: "死亡", major: true });
+      death('深宵清道夫扫荡');
+      return;
+    }
+  }
+
+  // 首脑调律者目击
+  if (age >= 40 && !getFlag('tuner_sighted') && chance(0.01)) {
+    setFlag('tuner_sighted', true);
+    addEvent({ text: "你目击了首脑的调律者在行动。黑色的身影无声无息地出现，组合使用多种奇点技术——时间停止、空间折叠、概念抹除。被调律者盯上的目标在一瞬间就从存在层面被消除了。没有任何反抗的可能。你藏在暗处，连呼吸都不敢发出声音。当调律者离开后，你才发现自己的衣服已经被冷汗浸透。", effect: "lore", effText: "意志+2，智力+1", major: true, milestone: "调律者目击" });
+    addMilestone("调律者目击");
+    modAttr('wil', 2);
+    modAttr('int', 1);
+  }
+
+  // 废墟图书馆C结局复活
+  if (age >= 25 && !getFlag('library_c_resurrection') && getFlag('library_invite') && chance(0.02)) {
+    setFlag('library_c_resurrection', true);
+    addEvent({ text: "你在图书馆的某次接待中『死亡』了——但当你再次睁开眼睛时，你发现自己躺在都市的某个角落。你的身体完好无损，仿佛一切只是梦。这就是图书馆的C结局：被释放，在都市某处复活。你摸了摸自己的胸口——心跳还在。但你永远忘不了在图书馆中经历的一切。", effect: "resurrection", effText: "复活，意志+2", major: true, milestone: "图书馆C结局复活" });
+    addMilestone("图书馆C结局复活");
+    modAttr('wil', 2);
   }
 }
 
