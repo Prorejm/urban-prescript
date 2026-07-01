@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>都市人生重开模拟器</title>
@@ -782,6 +783,21 @@ body::after {
   pointer-events: none;
   box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 }
+/* === 条词记录 === */
+.codex-btn { position:fixed;bottom:80px;right:20px;z-index:999;background:var(--accent-purple);color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer;font-size:0.9rem;box-shadow:0 2px 8px rgba(0,0,0,0.4);transition:all 0.2s; }
+.codex-btn:hover { transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.5); }
+.codex-panel { position:fixed;top:0;right:-420px;width:400px;height:100vh;background:#0d0d0d;border-left:1px solid #2a2a2a;z-index:1000;transition:right 0.3s;overflow-y:auto;padding:20px;box-shadow:-4px 0 20px rgba(0,0,0,0.5); }
+.codex-panel.open { right:0; }
+.codex-overlay { position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:999;display:none; }
+.codex-overlay.open { display:block; }
+.codex-category { margin:15px 0; }
+.codex-category-title { color:var(--accent-gold);font-size:1.1rem;font-weight:bold;border-bottom:1px solid #2a2a2a;padding-bottom:5px;margin-bottom:10px; }
+.codex-entry { padding:8px 12px;margin:5px 0;background:#111;border:1px solid #222;border-radius:4px; }
+.codex-entry.locked { opacity:0.3;filter:grayscale(1); }
+.codex-entry-name { color:#daa520;font-weight:bold;font-size:0.95rem; }
+.codex-entry-desc { color:#888;font-size:0.85rem;margin-top:4px; }
+.codex-progress { text-align:center;color:#666;font-size:0.85rem;margin:10px 0; }
+.codex-secret-hint { color:#c0392b;font-style:italic;font-size:0.85rem;text-align:center;margin:10px 0;padding:10px;border:1px dashed #c0392b;border-radius:4px; }
 </style>
 </head>
 <body>
@@ -921,6 +937,19 @@ body::after {
     </div>
   </div>
 
+  <!-- 条词图鉴 -->
+  <button class="codex-btn" onclick="toggleCodex()" style="display:none;" id="codex-toggle">&#128218; 条词图鉴</button>
+  <div class="codex-overlay" id="codex-overlay" onclick="toggleCodex()"></div>
+  <div class="codex-panel" id="codex-panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <h3 style="color:var(--accent-gold);margin:0;">&#128218; 都市条词图鉴</h3>
+      <button onclick="toggleCodex()" style="background:none;border:none;color:#888;font-size:1.5rem;cursor:pointer;">&times;</button>
+    </div>
+    <div class="codex-progress" id="codex-progress"></div>
+    <div class="codex-secret-hint" id="codex-secret-hint" style="display:none;"></div>
+    <div id="codex-content"></div>
+  </div>
+
   <!-- Simulation controls -->
   <div class="sim-controls hidden" id="sim-controls">
     <button class="btn btn-sm" onclick="toggleSimSpeed()" id="btn-sim-speed">自动播放</button>
@@ -991,7 +1020,7 @@ const ALL_TALENTS = [
   { id:'w44', name:'翼的实习生', rarity:'white', desc:'你在翼公司实习，梦想转正但可能性渺茫。', effect:'智力+1，翼相关事件略有优势', con:0, int:1, wil:0, wea:0, tag:'普通身份' },
   { id:'w45', name:'食指指令的垃圾桶', rarity:'white', desc:'你被迫执行食指的指令，无论多么荒谬。', effect:'意志-1，服从指令时获得微小报酬', con:0, int:0, wil:-1, wea:1, tag:'玩梗' },
   { id:'w46', name:'清道夫的远房亲戚', rarity:'white', desc:'你认识清道夫，但这并不能保护你。', effect:'体质+1，清道夫相关事件略微友好', con:1, int:0, wil:0, wea:0, tag:'普通身份' },
-  { id:'w47', name:'WARP列车的常客', rarity:'white', desc:'你经常乘坐WARP列车，已经习惯了空间折叠带来的奇妙感觉。', effect:'意志+1，WARP相关事件略有抗性', con:0, int:0, wil:1, wea:0, tag:'普通身份' },
+  { id:'w47', name:'WARP列车的常客', rarity:'white', desc:'你经常乘坐WARP列车，已经习惯了现状还原带来的奇妙感觉——上车前的状态和下车后完全一样，但车内的漫长岁月已被抹消。', effect:'意志+1，WARP相关事件略有抗性', con:0, int:0, wil:1, wea:0, tag:'普通身份' },
   { id:'w48', name:'废墟的摄影爱好者', rarity:'white', desc:'你喜欢在废墟拍照，经常拍到不该拍的东西。', effect:'智力+1，废墟探索略有优势', con:0, int:1, wil:0, wea:0, tag:'普通身份' },
   { id:'w49', name:'大湖的钓鱼佬', rarity:'white', desc:'你在大湖边钓鱼，偶尔钓上来的东西会让你做噩梦。', effect:'体质+1，大湖相关事件略有优势', con:1, int:0, wil:0, wea:0, tag:'普通身份' },
   { id:'w50', name:'郊区观鸟者', rarity:'white', desc:'你在郊区观察鸟类，从未意识到自己才是被观察的对象。', effect:'智力+1，观察类事件略有优势', con:0, int:1, wil:0, wea:0, tag:'普通身份' },
@@ -1023,7 +1052,7 @@ const ALL_TALENTS = [
   { id:'w76', name:'工坊的学徒', rarity:'white', desc:'你在工坊学习技术，梦想有一天成为大师。', effect:'智力+1，工坊相关事件略有优势', con:0, int:1, wil:0, wea:0, tag:'普通身份' },
   { id:'w77', name:'事务所的杂役', rarity:'white', desc:'你为事务所打杂，偶尔偷学一两招。', effect:'体质+1，事务所相关事件略有优势', con:1, int:0, wil:0, wea:0, tag:'普通身份' },
   { id:'w78', name:'清道夫的清洁工', rarity:'white', desc:'你打扫清道夫的据点，祈祷他们永远不要饿。', effect:'体质+1，清道夫相关事件略微安全', con:1, int:0, wil:0, wea:0, tag:'玩梗' },
-  { id:'w79', name:'WARP列车的售票员', rarity:'white', desc:'你售卖WARP列车的车票，见过无数因空间折叠而扭曲的表情。', effect:'意志+1，WARP相关事件略有抗性', con:0, int:0, wil:1, wea:0, tag:'普通身份' },
+  { id:'w79', name:'WARP列车的售票员', rarity:'white', desc:'你售卖WARP列车的车票。你知道乘客在车厢内可能经历数千年的旅程，但下车后一切如初——这就是W公司现状还原奇点的恐怖之处。', effect:'意志+1，WARP相关事件略有抗性', con:0, int:0, wil:1, wea:0, tag:'普通身份' },
   { id:'w80', name:'大湖的海盗船清洁工', rarity:'white', desc:'你在海盗船上打扫卫生，见证着海盗们的狂欢与死亡。', effect:'体质+1，大湖相关事件略有优势', con:1, int:0, wil:0, wea:0, tag:'普通身份' },
   { id:'w81', name:'烙印工坊的顾客', rarity:'white', desc:'你在烙印工坊购买过武器。那里的光热武器在黑暗中格外耀眼。', effect:'体质+1，战斗事件略有优势', con:1, int:0, wil:0, wea:0, tag:'工坊' },
   { id:'w82', name:'琅琊工坊的常客', rarity:'white', desc:'你常去琅琊工坊修理拳套。那里的师傅话不多，但手艺一流。', effect:'体质+1，格斗事件略有优势', con:1, int:0, wil:0, wea:0, tag:'工坊' },
@@ -1074,7 +1103,7 @@ const ALL_TALENTS = [
   { id:'b25', name:'谢肉祭成员', rarity:'blue', desc:'你是谢肉祭的一员。那些纺织面料制成的面具下，是对"布料"的独特理解——他们以人形纺织闻名后巷。', effect:'体质+2，谢肉祭事件有优势', con:2, int:0, wil:0, wea:0, tag:'身份' },
   { id:'b26', name:'不来梅乐队粉丝', rarity:'blue', desc:'你不幸听到了不来梅乐队的演奏，那段旋律在你脑中挥之不去，你开始不自觉地哼唱。', effect:'智力+1，意志+1，不来梅事件有优势', con:0, int:1, wil:1, wea:0, tag:'身份' },
   { id:'b27', name:'哭泣之子的邻居', rarity:'blue', desc:'你曾是哭泣之子的邻居，见证了那一切的悲剧。', effect:'意志+2，精神抗性提升', con:0, int:0, wil:2, wea:0, tag:'背景' },
-  { id:'b28', name:'WARP列车乘客', rarity:'blue', desc:'你多次乘坐WARP列车，对空间折叠造成的扭曲有了抗性。', effect:'意志+2，WARP相关事件有抗性', con:0, int:0, wil:2, wea:0, tag:'背景' },
+  { id:'b28', name:'WARP列车乘客', rarity:'blue', desc:'你多次乘坐WARP列车，对现状还原的恐怖有了抗性。你知道那10秒车程背后隐藏的数千年在等你。', effect:'意志+2，WARP相关事件有抗性', con:0, int:0, wil:2, wea:0, tag:'背景' },
   { id:'b29', name:'大湖的海盗', rarity:'blue', desc:'你成为了大湖上的海盗，自由但也危险。', effect:'体质+2，大湖事件有优势', con:2, int:0, wil:0, wea:0, tag:'身份' },
   { id:'b30', name:'血魔的眷属', rarity:'blue', desc:'你与血魔有着微弱的联系，获得了些许力量。', effect:'体质+2，血魔事件有优势', con:2, int:0, wil:0, wea:0, tag:'身份' },
   { id:'b31', name:'拉曼却领的居民', rarity:'blue', desc:'你居住在拉曼却领，见识过血魔的狂欢。', effect:'体质+1，意志+1，拉曼却领事件有优势', con:1, int:0, wil:1, wea:0, tag:'背景' },
@@ -1764,7 +1793,7 @@ function checkLifeExtension(age) {
     return { extended: true, events };
   }
   if (getFlag('distortion_survived')) {
-    events.push(evt('你以扭曲的形态存活了下来。时间的流逝对你而言失去了意义——你不会衰老，不会饥饿，不会被疾病侵蚀。你的存在本身就是对都市规则的挑战。但你知道，扭曲存在过久会崩溃，届时异想体会取代你。', 'distortion_eternal', '', false));
+    events.push(evt('你以扭曲的形态存活了下来。时间的流逝对你而言失去了意义——你不会衰老，不会饥饿，不会被疾病侵蚀。你的存在本身就是对都市规则的挑战。但你知道，扭曲存在过久会崩溃消散。扭曲崩溃的后果尚不完全明确，但据说会在该区域留下某种异常——一种被称为"黑石碑"的神秘遗迹。', 'distortion_eternal', '', false));
     gameState.age += randBetween(10, 25);
     if (chance(0.05)) {
       const distChanges = ['你的扭曲形态又蔓延了一些——手臂上长出了新的荆棘。', '你听到了那个甜美声音的低语——它在提醒你终将崩溃的命运。', '你以扭曲之姿拯救了一个即将被清道夫液化的人。对方的感激让你短暂想起了人类的情感。'];
@@ -1895,7 +1924,7 @@ const ACHIEVEMENTS = [
   { id:'gear_ascend', name:'齿轮飞升', desc:'接受完全机械化改造。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('gear_full'),
     lore:'齿轮教团的终极形态。接受完全机械化改造后，人类的部分情感会逐渐消失，取而代之的是纯粹的逻辑和效率。' },
   { id:'lobotomy_manager', name:'脑叶公司主管', desc:'成为脑叶公司设施的主管。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('lobotomyManager'),
-    lore:'脑叶公司的主管负责管理收容单元中的异想体。异想体是人类潜意识的造物，通过适当管理可以获取脑啡肽——精神与物理能源。' },
+    lore:'脑叶公司的主管负责管理收容单元中的异想体。异想体是从光之中分离的独立存在。它们是光之种发射后，都市中出现的概念性生物。通过适当管理可以获取脑啡肽——一种高效的能源物质。' },
   { id:'sephirah_complete', name:'Sephirah共鸣', desc:'获得8个以上Sephirah的认可。', rarity:RARITY.EPIC, condition:(gs)=>SEPHIRAH_CHAIN.filter(c=>getFlag('sephirah_'+c.id+'_done')).length>=8,
     lore:'脑叶公司的Sephirah是各个部门的部长，源自卡门的身体。当所有Sephirah达成共鸣时，光之种将被发射。' },
   { id:'whale_hunter', name:'鲸猎者', desc:'在大湖中成功猎杀鲸鱼。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('whaleHunter'),
@@ -2005,7 +2034,7 @@ const ACHIEVEMENTS = [
   { id:'index_finger_orders', name:'食指代行者', desc:'执行过食指指令。', rarity:RARITY.RARE, condition:(gs)=>getFlag('index_finger_member'),
     lore:'食指的信条是「谨遵指令之意」。白袍佩剑，苦行者、代行者、传令员、纺织者各司其职。所有领地居民必须完成指令，否则被代行者按指令处理。' },
   { id:'abno_witness', name:'异想体遭遇者', desc:'遭遇异想体并存活。', rarity:RARITY.COMMON, condition:(gs)=>Object.keys(gs.flags||{}).filter(f=>f.startsWith('abno_')).length>=1,
-    lore:'异想体是人类潜意识的具现化。当都市居民的精神积累到极限，某些形态会固定下来成为异想体。遭遇它们并存活，本身就是一种奇迹。' },
+    lore:'异想体是从"光"中分离出的独立概念形态。脑叶公司负责收容和管理它们，从中提取脑啡肽——精神与物理能源。遭遇它们并存活，本身就是一种奇迹。' },
   { id:'gang_war_veteran', name:'帮派冲突老兵', desc:'经历五指冲突或帮派战斗。', rarity:RARITY.COMMON, condition:(gs)=>['五指冲突','帮派挑战','事务所挑战','中指复仇','环指画廊'].some(m=>gs.milestones.includes(m)),
     lore:'后巷帮派冲突是日常。五指之间通过「拉勾」会议维持表面和平，但下属帮派之间的摩擦从未真正停止。拇指对食指、小指与环指的冲突屡见不鲜。' },
   { id:'connoisseur', name:'火腿砰砰的葱饼', desc:'在后巷酒吧遇到罗兰并品尝葱饼。', rarity:RARITY.COMMON, condition:(gs)=>gs.milestones.includes('后巷酒吧的邂逅'),
@@ -2224,7 +2253,7 @@ const ACHIEVEMENTS = [
   { id:'ego_awakened_hero', name:'神备觉醒者', desc:'完全接受自我真实形象，觉醒了绽放E.G.O。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('神备觉醒'),
     lore:'当一个人能完全接受自我的真实形象，愿意承担痛苦与罪孽时，就能将真实形象转化为专属武器与装备——这就是"神备"，又称绽放E.G.O。精神面貌更加坚定，拥有独一无二的力量。' },
   { id:'distortion_bearer', name:'扭曲者', desc:'部分接受自我后发生扭曲。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('扭曲化'),
-    lore:'扭曲者只接受了自己的痛苦，却拒绝了罪孽。他们以"只属于自己的方式"存活，保留希望拥有的部分自我与力量。扭曲存在时间过长会崩溃，届时异想体会取代其存在。' },
+    lore:'扭曲者只接受了自己的痛苦，却拒绝了罪孽。他们以"只属于自己的方式"存活，保留希望拥有的部分自我与力量。扭曲存在时间过长会崩溃——届时扭曲者将彻底消散，其存在痕迹被光吞噬。' },
   { id:'sin_bearer', name:'大罪化身', desc:'拒绝一切后成为了大罪。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('傲慢之大罪') || gs.milestones.includes('嫉妒之大罪') || gs.milestones.includes('暴怒之大罪') || gs.milestones.includes('倦怠之大罪') || gs.milestones.includes('暴食之大罪') || gs.milestones.includes('忧郁之大罪') || gs.milestones.includes('色欲之大罪'),
     lore:'大罪是完全坏掉的人类，只剩一种本能。只有七种：傲慢、嫉妒、暴怒、倦怠、暴食、忧郁、色欲。与千变万化的扭曲和神备不同，大罪没有细分个体。' },
   // === 永生相关成就 ===
@@ -2233,7 +2262,7 @@ const ACHIEVEMENTS = [
     lore:'被清道夫武器击中后奇迹般未完全液化，与清道夫液体融合。穿上密封特制服装，互称"家人""邻居"，不受凡人生死束缚，不耗尽"燃料"就能永远活动。' },
   { id:'distortion_immortal', name:'扭曲永生者', desc:'以扭曲形态稳定存活，超越了生死。', rarity:RARITY.EPIC,
     condition:(gs)=>gs.milestones.includes('扭曲化永生'),
-    lore:'扭曲形态稳定后不会衰老、不会饥饿、不会被疾病侵蚀。但扭曲存在过久会崩溃，届时异想体会取代其存在。' },
+    lore:'扭曲形态稳定后不会衰老、不会饥饿、不会被疾病侵蚀。但扭曲存在过久会崩溃消散。扭曲崩溃的后果尚不完全明确，但据说会在该区域留下某种异常——一种被称为"黑石碑"的神秘遗迹。' },
   { id:'sin_eternal', name:'大罪永恒', desc:'作为大罪彻底脱离人类范畴，获得永恒存在。', rarity:RARITY.LEGEND,
     condition:(gs)=>gs.milestones.includes('大罪永生'),
     lore:'大罪没有寿命、没有衰老、没有死亡——只有纯粹的、永恒的本能。在都市中几乎无敌，除非面对同等级存在。' },
@@ -2255,7 +2284,7 @@ const ACHIEVEMENTS = [
   // === 更多世界观成就 ===
   { id:'wing_worker', name:'翼公司职员', desc:'在翼公司工作过。', rarity:RARITY.COMMON,
     condition:(gs)=>gs.milestones.includes('翼公司工作'),
-    lore:'各翼公司以奇点技术闻名：L公司管理异想体，R公司培养超级佣兵，W公司空间折叠列车，T公司停止时间，K公司再生安瓿。在翼工作是高风险高回报的。' },
+    lore:'各翼公司以奇点技术闻名：L公司管理异想体，R公司培养超级佣兵，W公司现状还原列车，T公司停止时间，K公司再生安瓿。在翼工作是高风险高回报的。' },
   { id:'association_fixer', name:'协会委托完成者', desc:'完成了协会的委托任务。', rarity:RARITY.COMMON,
     condition:(gs)=>gs.milestones.includes('协会委托完成'),
     lore:'各协会有不同专长：Zwei守护、六协义体战斗、七协情报、Cinq精密斩首、し协沉默暗杀。协会委托是收尾人积累经验的主要途径。' },
@@ -2270,7 +2299,7 @@ const ACHIEVEMENTS = [
     lore:'深宵（3:13-4:34）是后巷的无法律地狱。清道夫三波扫荡：侦查→包围→清扫。能活过三波的人是真正的强者。' },
   { id:'tuner_witness', name:'调律者目击者', desc:'目击了首脑调律者的行动。', rarity:RARITY.EPIC,
     condition:(gs)=>gs.milestones.includes('调律者目击'),
-    lore:'调律者可以组合使用多种奇点：时间停止、空间折叠、概念抹除。被盯上的目标会从存在层面被消除。目击调律者而活下来本身就是奇迹。' },
+    lore:'调律者可以组合使用多种奇点：时间停止、现状还原、概念抹除。被盯上的目标会从存在层面被消除。目击调律者而活下来本身就是奇迹。' },
   // === 协会科成就 ===
   { id:'zwei_member', name:'Zwei第二科推荐', desc:'获得了Zwei协会第二科的入科推荐。', rarity:RARITY.RARE,
     condition:(gs)=>gs.milestones.includes('Zwei护送完成'),
@@ -4891,7 +4920,7 @@ function generateAdultEvents(age, a, f, bp, tags) {
       { text: "你在图书馆的某个楼层遇到了一群来自郊区的不死军团的残部。他们的身体已经半机械化了，只剩下战斗的本能。", difficulty: 6 },
       { text: "这一层楼是一群大湖附近的郊外居民。他们的眼中带着对外界的恐惧，但手中的武器毫不迟疑。", difficulty: 5 },
       { text: "一群R公司的兔子部队退役兵占据了这层楼。他们即使在图书馆中也保持着残暴的战斗风格。", difficulty: 7 },
-      { text: "几名W公司WARP列车的研究员成为了来宾。他们利用空间折叠技术进行攻击，让人防不胜防。", difficulty: 7 },
+      { text: "几名W公司WARP列车的研究员成为了来宾。他们利用空间撕裂进行攻击，让人防不胜防。", difficulty: 7 },
       { text: "来自第七区的的一群巨兽猎人被邀请为来宾。他们的武器上还沾着郊区怪物的血。", difficulty: 6 }
     ];
     const floorEvt = pick(floorEvents);
@@ -4960,7 +4989,7 @@ function generateAdultEvents(age, a, f, bp, tags) {
       { t: '你的公司宣布了一项新的「效率优化」政策。每天工作时间延长到十六个小时，但薪水不变。', e: 'con-1', txt: '体质-1' },
       { t: '你在后巷的夜市里淘到了一幅旧画。画中的风景让你想起了小时候听过的故事——关于蓝色的天空。', e: 'wil+1', txt: '意志+1' },
       { t: '你的父母开始频繁地提起「过去」。你说「过去」在都市里是最没用的东西，但你心里知道不是这样。', e: 'wil-1', txt: '意志-1' },
-      { t: '你在WARP列车上目击了一场帮派火并。列车员通过广播说：「请乘客不要离开座位，空间折叠即将开始。」', e: 'con+1', txt: '体质+1' },
+      { t: '你在WARP列车上目击了一场帮派火并。列车员通过广播说：「请乘客不要离开座位，空间撕裂即将开始。」', e: 'con+1', txt: '体质+1' },
       { t: '你的上司让你去「说服」一个不肯搬家的老人。你去了，但站在门口很久，最后转身离开了。', e: 'wil+1', txt: '意志+1' },
       { t: '你在巢的商场里看到了一件适合孩子的衣服。价格标签让你把衣服放了回去，然后对孩子说「下次再买」。', e: 'wea-1', txt: '家境-1' },
       { t: '你的体检报告显示你有「都市综合征」——长期压力导致的身体损伤。医生说这叫「正常」。', e: 'con-1', txt: '体质-1' },
@@ -7389,7 +7418,7 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
   if (chance(0.06)) {
     const daily = pick([
       { t: '你租了一间后巷的公寓，月租占了你薪水的三分之一。房东警告你：深宵时千万不要出门。', e: 'wea-1', txt: '家境-1' },
-      { t: '你在通勤的WARP列车上遇到了一个奇怪的人。他声称自己曾在空间折叠中「迷路」，被困在列车里整整三天——但外界只过去了三分钟。然后在你眨眼间，他所在的车厢被折叠到了你够不到的地方。', e: 'int+1', txt: '智力+1' },
+      { t: '你在通勤的WARP列车上遇到了一个奇怪的人。他声称自己曾在空间撕裂中「迷路」，被困在列车里整整三天——但外界只过去了三分钟。然后在你眨眼间，他所在的车厢被撕裂到了你够不到的地方。', e: 'int+1', txt: '智力+1' },
       { t: '加班到深夜，你在便利店里买了一份便当。那是你今天的唯一一餐，味道像纸板。', e: 'con-1', txt: '体质-1' },
       { t: '你在酒吧里遇到了一个协会收尾人。他喝多了，给你讲了很多关于「色彩级」的传闻。你请他喝了一杯。', e: 'int+1', txt: '智力+1' },
       { t: '你的同事突然「离职」了。他的座位第二天就被清理干净，没人提起他的名字，就像他从未存在过。', e: 'wil-1', txt: '意志-1' },
@@ -7935,10 +7964,53 @@ function showResults() {
       ${commonContent}
     `;
   }
+  showSummary();
+}
+
+function showSummary() {
+  const card = document.getElementById('result-card');
+  if (card && !document.getElementById('share-img-btn')) {
+    const btn = document.createElement('button');
+    btn.id = 'share-img-btn';
+    btn.textContent = '\uD83D\uDCE7 保存为图片';
+    btn.style.cssText = 'margin:15px auto;display:block;background:#2a6;color:#fff;border:none;padding:10px 24px;border-radius:6px;cursor:pointer;font-size:1rem;';
+    btn.onclick = function() { saveResultAsImage(); };
+    card.appendChild(btn);
+  }
+}
+
+async function saveResultAsImage() {
+  const card = document.getElementById('result-card');
+  if (!card) return;
+  const btn = document.getElementById('share-img-btn');
+  if (btn) btn.style.display = 'none';
+  const msg = document.createElement('div');
+  msg.textContent = '正在生成图片...';
+  msg.style.cssText = 'text-align:center;color:#daa520;padding:15px;';
+  card.appendChild(msg);
+  try {
+    if (typeof html2canvas === 'undefined') {
+      msg.textContent = '图片生成库加载失败，请刷新页面重试';
+      if (btn) btn.style.display = 'block';
+      return;
+    }
+    const canvas = await html2canvas(card, { backgroundColor: '#0a0a0a', scale: 2, useCORS: true, logging: false });
+    const link = document.createElement('a');
+    link.download = '都市人生重开_' + (gameState.age || 0) + '岁_' + new Date().toLocaleDateString('zh-CN') + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    msg.textContent = '\u2714 图片已保存！';
+    msg.style.color = '#5a9e6f';
+  } catch(e) {
+    msg.textContent = '图片生成失败: ' + e.message;
+    msg.style.color = '#c0392b';
+  }
+  if (btn) btn.style.display = 'block';
 }
 
 function restartGame() {
   hideAllPhases();
+  document.getElementById('codex-toggle').style.display = 'none';
   showPhase('phase-title');
 }
 
@@ -7949,8 +8021,156 @@ function restartGame() {
 function hideAllPhases() {
   document.querySelectorAll('.phase').forEach(p => p.classList.add('hidden'));
   document.getElementById('sim-controls').classList.add('hidden');
+  document.getElementById('codex-toggle').style.display = 'block';
   if (gameState.simTimer) clearTimeout(gameState.simTimer);
   gameState.simAuto = false;
+}
+
+// =============================
+// 条词图鉴系统
+// =============================
+const CODEX_DATA = [
+  // === 势力组织 ===
+  { id:'head', cat:'势力组织', name:'首脑（A公司）', desc:'统治都市的至高存在。其确切性质无人知晓。拥有调律者——可组合使用多种翼公司奇点技术的超存在。首脑发行都市通用货币"眼"并制定禁忌。', unlock:'首脑' },
+  { id:'claw', cat:'势力组织', name:'爪牙（C公司）', desc:'首脑的执行者，负责维护都市禁忌。对违反禁忌者先警告三次，然后执行制裁——将目标从存在层面抹除。', unlock:'爪牙' },
+  { id:'gaze', cat:'势力组织', name:'眼线（B公司）', desc:'负责监控各翼公司运营状态、信息审查和翼状态调整事务。凝视者拥有传送能力。', unlock:'眼线' },
+  { id:'five_fingers', cat:'势力组织', name:'五指', desc:'统治后巷的五个巨大派系：拇指（阶级/武装）、食指（指令/纺织）、中指（复仇/纹身）、环指（艺术/走廊）、小指（烙印/潜伏）。五指通过"拉勾"会议维持表面和平。', unlock:'五指' },
+  { id:'thumb', cat:'势力组织', name:'拇指', desc:'以严格的阶级制度统治的武装派系。阶级礼仪：出言不逊割舌，擅自发言碎颚，质疑上级枭首，扰乱阶级诛族。旗下帮派需定期缴纳"奉纳"。', unlock:'拇指' },
+  { id:'index_finger', cat:'势力组织', name:'食指', desc:'遵循指令的宗教性派系。所有人必须完成指令——无论内容多么荒谬。纺织者看管产生指令的巨大机械。苦行者蒙黑布行走。终端派使用魔法哔哔机接收实时变化指令。代行者三横杠可面对色彩收尾人。', unlock:'食指' },
+  { id:'middle_finger', cat:'势力组织', name:'中指', desc:'以复仇为核心的宗族派系。成员互称兄弟姐妹。复仇账簿精确记录每条仇怨。每解决一条仇怨获得"仇怨纹身"增强力量。', unlock:'中指' },
+  { id:'ring_finger', cat:'势力组织', name:'环指', desc:'以审美为核心的艺术派系。定期举办艺术考试，不及格者失去保护。拥有"走廊"——无视距离连接不同区域的隐秘通道网络。野兽派画廊展出各种前卫作品。', unlock:'环指' },
+  { id:'pinky', cat:'势力组织', name:'小指', desc:'成员在行动前互不相识的神秘派系。手背烙印升温即行动开始。成员可能是指挥官、家主候选人甚至鸿园黑兽部队魁首。', unlock:'小指' },
+  // === 协会 ===
+  { id:'hana', cat:'收尾人协会', name:'Hana协会（第一协会）', desc:'都市最高阶收尾人协会。负责统筹管理、灾害评级、等级评定和色彩授予。处理的委托涉及翼公司和五指级别事务。', unlock:'Hana' },
+  { id:'zwei', cat:'收尾人协会', name:'Zwei协会（第二协会）', desc:'以安保守护闻名的协会。\u201C您的盾牌。\u201D下设多个科，每个科负责不同区域的守护任务。', unlock:'Zwei' },
+  { id:'six_assoc', cat:'收尾人协会', name:'六协会', desc:'以义体战斗闻名的大规模集团作战协会。收尾人配备月长石制服，全身义体改造者拥有恐怖的爆发力。', unlock:'六协会' },
+  { id:'seven_assoc', cat:'收尾人协会', name:'Seven协会（第七协会）', desc:'以情报收集和调查著称的协会。擅长谋略和暗处的博弈。', unlock:'七协会' },
+  { id:'cinq', cat:'收尾人协会', name:'Cinq协会', desc:'处理最细腻工作的协会——斩首、暗杀、精密回收。战斗风格优雅而致命。', unlock:'Cinq' },
+  { id:'shi_assoc', cat:'收尾人协会', name:'し协会（第四协会）', desc:'收尾人从不说话的协会。使用没有护手的刀，一击必杀。沉默是唯一的语言。', unlock:'し协会' },
+  // === 翼公司 ===
+  { id:'wing_L', cat:'翼公司', name:'L公司（脑叶公司）', desc:'管理异想体以提取脑啡肽。光之种计划执行者。发射光之种后崩溃，化为废墟图书馆。', unlock:'L公司' },
+  { id:'wing_R', cat:'翼公司', name:'R公司', desc:'利用T公司时间加速技术的孵化场。成千上万复制体投入厮杀，只留最后一人——超级佣兵的来源。利用复制人禁忌的漏洞。', unlock:'R公司' },
+  { id:'wing_W', cat:'翼公司', name:'W公司', desc:'奇点是"现状还原"——将列车内一切还原到数千年前的状态。WARP列车在异空间行驶数千年但车内仅过10秒。空间撕裂是运行时现象。', unlock:'W公司' },
+  { id:'wing_T', cat:'翼公司', name:'T公司', desc:'奇点是时间操控。以时间作为货币和税收。TT1/TT2/TT4协议。停止时间的物品不会老化、损坏或变化。', unlock:'T公司' },
+  { id:'wing_K', cat:'翼公司', name:'K公司', desc:'奇点是再生——再生安瓿可瞬间修复伤口甚至起死回生。崩解安瓿则瞬间分解目标。', unlock:'K公司' },
+  { id:'wing_S', cat:'翼公司', name:'S公司', desc:'奇点与农牧产业相关。垄断整个都市的农畜产业供应。被称为"肉血骨农牧产业"。', unlock:'S公司' },
+  { id:'wing_N', cat:'翼公司', name:'N公司', desc:'西西弗百货运营商。出售经验罐头——调制记忆的封装产品。旗下钉（定格小队/情报）与锤（义体猎杀/异端审判）。月长石可吸收精神损害。', unlock:'N公司' },
+  // === 特殊存在 ===
+  { id:'sweeper', cat:'特殊存在', name:'清道夫', desc:'完全由液体组成的生物，穿密封特制服装。运动消耗液体"燃料"。武器可将人体液化并吸收。互称"家人""邻居"。管理者为"嬷嬷"。深宵（3:13-4:34）出动。与首脑有联系。', unlock:'清道夫' },
+  { id:'vampire', cat:'特殊存在', name:'血魔', desc:'以血液为生存必需的古老种族。三大特征：红眼（渴望越强色越浓）、极度恐水、宗族关系不可忤逆。长者为"长老"，超出数量限制者被"浴血沉眠"。一代眷属可创大量眷属，二代以下最多两个。咬人→血袋（残渣），注血→眷属。', unlock:'血魔' },
+  { id:'whale', cat:'特殊存在', name:'鲸鱼与人鱼', desc:'大湖中以人类为宿主的生物统称。鲸油吞噬一切并重组。活鲸油脂吞噬→人鱼。五大灾害：白鲸（苍白覆盖）和马林鲸（贯穿一切，已被靛蓝老人钓起）。已知品种：穴掌鲸、千缕鲸、孔穴鲸、白鲸、马林鲸、熔岩鲸。', unlock:'鲸鱼' },
+  { id:'rat_gang', cat:'特殊存在', name:'耗子', desc:'后巷最底层的街头混混。组织松散，靠遗弃废品苟活。常从弃尸中剖出内脏贩卖。集体行动，深宵躲避清道夫。', unlock:'耗子' },
+  { id:'butcher', cat:'特殊存在', name:'后巷屠夫', desc:'以后巷的人体为食材处理的后巷帮派。与八大主厨的烹饪艺术不同，后巷屠夫粗暴地将人当作肉来处理。', unlock:'后巷屠夫' },
+  { id:'carnival', cat:'特殊存在', name:'谢肉祭', desc:'以人形纺织面料闻名的后巷帮派。将人体纺织为特殊面料制成面具与衣物——这是裁缝技艺，与烹饪无关。', unlock:'谢肉祭' },
+  // === 现象 ===
+  { id:'distortion', cat:'现象', name:'扭曲', desc:'光之种后普遍发生的怪异现象。情绪积累到极限后，只接受痛苦不接受罪孽者扭曲——以"只属于自己的方式"存活，保留部分自我与力量。扭曲存在过久会崩溃消散，留下黑石碑遗迹。集体扭曲尤为棘手。', unlock:'扭曲' },
+  { id:'ego', cat:'现象', name:'神备（绽放E.G.O）', desc:'与扭曲相对的现象。完全接受自我真实形象——包括痛苦与罪孽者觉醒神备：专属武器与装备，精神更加坚定。', unlock:'神备' },
+  { id:'sin', cat:'现象', name:'大罪', desc:'完全拒绝自我真实形象者成为七种大罪之一——纯粹的、只剩一种本能情绪的存在。七种：傲慢、嫉妒、暴怒、倦怠、暴食、忧郁、色欲。无细分个体。', unlock:'大罪' },
+  { id:'xinwang', cat:'现象', name:'心望', desc:'将内心愿望汇聚为力量的特殊表现。心用于防御（身躯散发光芒增强抵挡），望用于攻击（光环附着武器强化穿透力）。多个望可叠加。使用有心理负担。', unlock:'心望' },
+  { id:'relic', cat:'现象', name:'遗物', desc:'都市内外具备独特效用的神秘物品。广为流传、价格不菲、效力惊人。如天杀星刀阿赖耶识、冈格尼尔、曼布里诺头盔、概念焚化炉等。每件遗物都伴随不可预测的代价。', unlock:'遗物' },
+  { id:'golden_branch', cat:'现象', name:'金枝', desc:'能展现扭曲前兆异常变形的道具。边狱公司从脑叶公司废墟发掘的黑石碑有类似效果。与命运共鸣可产生五种现实效果。', unlock:'金枝' },
+  // === 地点 ===
+  { id:'nest', cat:'地点', name:'巢', desc:'都市中发达安全的地带，由翼公司垄断统治。居民须遵守禁忌和缴税。翼公司倒台后巢暂变为后巷状态。', unlock:'巢' },
+  { id:'backstreet', cat:'地点', name:'后巷', desc:'巢之外的区域。无法地带，帮派横行。深宵时段（3:13-4:34）为无法律地狱。', unlock:'后巷' },
+  { id:'outskirts', cat:'地点', name:'郊区', desc:'都市之外的危险地带。没有首脑保护。五大灾害中白鲸在此活动。旧翼公司废墟遍布。', unlock:'郊区' },
+  { id:'great_lake', cat:'地点', name:'大湖', desc:'位于郊区的巨大湖泊。各种鲸鱼栖息于此。水手传说众多。五大灾害之二（白鲸、马林鲸）与此相关。', unlock:'大湖' },
+  { id:'ruins_library', cat:'地点', name:'废墟图书馆', desc:'安吉拉用光之种残余力量建造的图书馆。邀请都市来宾进行"接待"——战斗后败者化为书籍。馆长安吉拉（脑叶公司AI），管家罗兰（漆黑噤默）。', unlock:'图书馆' },
+  // === 隐藏条词 ===
+  { id:'river_recurrence', cat:'隐藏', name:'河中的复现', desc:'???', unlock:'隐藏', secret:true },
+  { id:'true_identity', cat:'隐藏', name:'你的真实身份', desc:'???', unlock:'隐藏', secret:true },
+  { id:'light_origin', cat:'隐藏', name:'光的起源', desc:'???', unlock:'隐藏', secret:true },
+  { id:'city_truth', cat:'隐藏', name:'都市的真相', desc:'???', unlock:'隐藏', secret:true },
+];
+
+let codexUnlocked = {};
+const SECRET_THRESHOLDS = [10, 25, 40, 60, 80];
+
+function unlockCodexEntry(id) {
+  codexUnlocked[id] = true;
+}
+
+function checkCodexUnlocks() {
+  const ms = gameState.milestones;
+  const fl = gameState.flags;
+  CODEX_DATA.forEach(entry => {
+    if (codexUnlocked[entry.id]) return;
+    if (entry.secret) return;
+    const keywords = entry.unlock.split(/[、，,]/);
+    for (const kw of keywords) {
+      if (ms.some(m => m.includes(kw)) || Object.keys(fl).some(k => k.includes(kw.toLowerCase()))) {
+        unlockCodexEntry(entry.id);
+        break;
+      }
+    }
+  });
+  const unlockedCount = Object.keys(codexUnlocked).length;
+  const achieved = getUnlockedAchievementCount();
+  if (achieved >= SECRET_THRESHOLDS[0] && !codexUnlocked['river_recurrence']) {
+    unlockCodexEntry('river_recurrence');
+    CODEX_DATA.find(e=>e.id==='river_recurrence').desc = '你在不同的人生中反复遇到相似的面孔和事件。这不是巧合——都市的"河"中，所有的可能性都在流动。你的每一次重开，都是河中的一次回旋。';
+  }
+  if (achieved >= SECRET_THRESHOLDS[1] && !codexUnlocked['true_identity']) {
+    unlockCodexEntry('true_identity');
+    CODEX_DATA.find(e=>e.id==='true_identity').desc = '你并非普通的都市居民。你的体质中蕴含着对"光"的异常感应——这解释了为何你总是被卷入异想体、扭曲、神备相关的事件。你是什么？光之种的残余？还是某种尚未被分类的存在？';
+  }
+  if (achieved >= SECRET_THRESHOLDS[2] && !codexUnlocked['light_origin']) {
+    unlockCodexEntry('light_origin');
+    CODEX_DATA.find(e=>e.id==='light_origin').desc = '光之种——脑叶公司积累的巨大能源，通过卡巴拉密教"火剑之路"的步骤完成。高塔般的大树破土而出，向世界撒落果实。过去与未来、现实与幻想、肉体与心灵、空间与时间的界限正在慢慢消失。你看到了那棵树的残影。';
+  }
+  if (achieved >= SECRET_THRESHOLDS[3] && !codexUnlocked['city_truth']) {
+    unlockCodexEntry('city_truth');
+    CODEX_DATA.find(e=>e.id==='city_truth').desc = '都市的真相被层层迷雾包裹。首脑不是一个人，而是规则本身。五指是后巷的暗面。翼公司的奇点是都市的基石。而你——一个反复回旋在河中的存在——也许是唯一能看清全貌的人。但这并不意味着你能改变什么。在都市中，真相往往比谎言更致命。';
+  }
+}
+
+function getUnlockedAchievementCount() {
+  const achieved = ACHIEVEMENTS.filter(a => a.condition(gameState)).length;
+  return achieved;
+}
+
+function renderCodex() {
+  checkCodexUnlocks();
+  const total = CODEX_DATA.length;
+  const unlocked = Object.keys(codexUnlocked).length;
+  document.getElementById('codex-progress').textContent = '已解锁: ' + unlocked + ' / ' + total + ' (' + Math.floor(unlocked/total*100) + '%)';
+  const achieved = getUnlockedAchievementCount();
+  const nextThreshold = SECRET_THRESHOLDS.find(t => achieved < t);
+  const hintEl = document.getElementById('codex-secret-hint');
+  if (nextThreshold) {
+    hintEl.style.display = 'block';
+    hintEl.textContent = '解锁更多隐藏条词需要成就数量达到 ' + nextThreshold + '（当前: ' + achieved + '）';
+  } else {
+    hintEl.style.display = 'none';
+  }
+  const cats = [...new Set(CODEX_DATA.map(e => e.cat))];
+  let html = '';
+  cats.forEach(cat => {
+    const entries = CODEX_DATA.filter(e => e.cat === cat);
+    html += '<div class="codex-category"><div class="codex-category-title">' + cat + '</div>';
+    entries.forEach(entry => {
+      const isUnlocked = codexUnlocked[entry.id];
+      html += '<div class="codex-entry ' + (isUnlocked ? '' : 'locked') + '">';
+      html += '<div class="codex-entry-name">' + (isUnlocked ? entry.name : '???') + '</div>';
+      html += '<div class="codex-entry-desc">' + (isUnlocked ? entry.desc : '未解锁——在人生中探索以发现此条词') + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  document.getElementById('codex-content').innerHTML = html;
+}
+
+function toggleCodex() {
+  const panel = document.getElementById('codex-panel');
+  const overlay = document.getElementById('codex-overlay');
+  const isOpen = panel.classList.contains('open');
+  if (isOpen) {
+    panel.classList.remove('open');
+    overlay.classList.remove('open');
+  } else {
+    renderCodex();
+    panel.classList.add('open');
+    overlay.classList.add('open');
+  }
 }
 
 function showPhase(id) {
@@ -10642,7 +10862,7 @@ function runTieredEvents(age, a, f, bp, tags) {
       { t: '某个深夜，你照镜子时发现镜中的自己比你慢了半拍。当你抬手时，镜中的你隔了一秒才抬手。你打碎镜子，但你知道——那个「你」还在某个地方活着。', e: { wil: -2, int: 5 }, ms: '镜中自我' },
       { t: '你在废弃的脑叶公司遗址中找到了一个发光的蛋。它温暖而柔软，像一颗心脏。你把它带回了家。每当你睡觉时，它都会发出微弱的光芒，像是在守护你的梦。', e: { wil: 4, con: 2 }, ms: '光之蛋' },
       { t: '一位身着白衣的老人出现在你面前。他说他是「都市的记录者」，已经活了五千年。他问你：「你想知道都市的真相吗？」你摇头。他笑了：「明智的选择。」', e: { int: 5, wil: 2 }, ms: '记录者的询问' },
-      { t: '你在WARP列车上看到了一个熟悉的身影——那是你的倒影，但又不完全是。在空间折叠的扭曲中，你们短暂地对视了一眼。那个「你」满身伤痕，但眼神坚定，只说了一句话：「不要放弃。」然后空间的褶皱平复，那个身影消失了。', e: { wil: 5, con: 2 }, ms: '折叠中的倒影' },
+      { t: '你在WARP列车上看到了一个熟悉的身影——那是你的倒影，但又不完全是。在空间撕裂的扭曲中，你们短暂地对视了一眼。那个「你」满身伤痕，但眼神坚定，只说了一句话：「不要放弃。」然后空间的裂缝平复，那个身影消失了。', e: { wil: 5, con: 2 }, ms: '折叠中的倒影' },
       { t: '某个午夜，所有的异想体同时停止了活动。整个都市陷入了诡异的宁静，持续了整整十三秒。在那十三秒里，你听到了某种声音——像是叹息，又像是歌唱。', e: { wil: 3, int: 3 }, ms: '十三秒的宁静' },
       { t: '你在后巷的一家小酒馆里遇到了一个总是带着微笑的男人。他自称是某个事务所的新人收尾人，名字叫罗兰。你们聊了很久，关于都市、关于梦想、关于未来。', e: { wil: 3, int: 2 }, ms: '遇见罗兰' },
       { t: '一个有着温柔笑容的女子向你问路。她自称叫安吉丽卡，是查尔斯事务所的收尾人。她的眼神中有着你不理解的悲伤。', e: { wil: 2, con: 1 }, ms: '遇见安吉丽卡' },
@@ -10989,13 +11209,13 @@ function runSingularityEvents(age, a, f, bp, tags) {
         cond: () => age >= 18 && (a.con + a.wil) >= 10
       },
       {
-        t: 'WARP列车正常运行中，但窗外的景象让你不安——你看到了自己。在空间折叠的褶皱中，另一个「你」站在扭曲的月台上，正好奇地向这边张望。你们的目光穿过空间的裂缝交汇了。列车加速，那个身影消失在折叠的空间中。',
+        t: 'WARP列车正常运行中，但窗外的景象让你不安——你看到了自己。在空间撕裂的扭曲中，另一个「你」站在裂开的月台上，正好奇地向这边张望。你们的目光穿过空间的裂缝交汇了。列车加速，那个身影消失在撕裂的空间中。',
         e: { int: 2, wil: 1 },
         ms: 'WARP折叠观测',
         cond: () => age >= 16
       },
       {
-        t: 'WARP列车上的乘务员递给你一份免责声明：「亲爱的乘客，本次列车将于途经H巷的空间褶皱密集区域，部分乘客可能会因空间折叠产生视觉错觉。W公司不对任何因此产生的心理创伤负责。」话音刚落，你注意到对面座位上的老人在空间的扭曲中看起来像一个孩子——那只是折叠空间造成的错觉。',
+        t: 'WARP列车上的乘务员递给你一份免责声明：「亲爱的乘客，本次列车将于途经H巷的空间撕裂密集区域，部分乘客可能会因空间撕裂产生视觉错觉。W公司不对任何因此产生的心理创伤负责。」话音刚落，你注意到对面座位上的老人在空间的扭曲中看起来像一个孩子——那只是撕裂空间造成的错觉。',
         e: { int: 2, wil: -1 },
         ms: 'WARP褶皱错觉',
         cond: () => age >= 20
@@ -11007,7 +11227,7 @@ function runSingularityEvents(age, a, f, bp, tags) {
         cond: () => age >= 30
       },
       {
-        t: '你在WARP列车上遇到了一个神情慌张的常客。他说自己曾多次乘坐这趟列车，对空间折叠的不稳定区域有所了解。他预测列车将在三分钟后经过一段危险的褶皱区域，建议你躲进三号车厢的维修通道。你选择相信他。三分钟后，列车确实剧烈震荡，空间像被撕裂的布匹一样抖动，但你按照他的指示行动，毫发无伤。',
+        t: '你在WARP列车上遇到了一个神情慌张的常客。他说自己曾多次乘坐这趟列车，对空间撕裂的不稳定区域有所了解。他预测列车将在三分钟后经过一段危险的撕裂区域，建议你躲进三号车厢的维修通道。你选择相信他。三分钟后，列车确实剧烈震荡，空间像被撕裂的布匹一样抖动，但你按照他的指示行动，毫发无伤。',
         e: { wil: 2, con: 1 },
         ms: 'WARP褶皱预警',
         cond: () => age >= 20
@@ -13170,7 +13390,7 @@ function runLoreDetailEvents(age) {
     addEvent({ text: "你只接受了痛苦，却拒绝承认自己的罪孽。那个声音说：\"只保留你希望拥有的部分吧。\"扭曲发生了。" + dist.desc, effect: "distortion", effText: "变为扭曲", major: true, milestone: "扭曲化" });
     addMilestone("扭曲化");
     if (checkCombat(9, 'wil')) {
-      addEvent({ text: "你以扭曲后的形态存活了下来，但代价是你不再完全是人类。扭曲的存在通常会随着时间破碎崩溃，届时一个异想体会取代你的存在。你的时间不多了。", effect: "survive", effText: "体质+2，智力+2，但寿命缩短", major: true, milestone: "扭曲存活" });
+      addEvent({ text: "你以扭曲后的形态存活了下来，但代价是你不再完全是人类。扭曲的存在通常会随着时间破碎崩溃，届时你将彻底消散于光中，化为虚无。你的时间不多了。", effect: "survive", effText: "体质+2，智力+2，但寿命缩短", major: true, milestone: "扭曲存活" });
       addMilestone("扭曲存活");
       modAttr('con', 2);
       modAttr('int', 2);
@@ -13257,7 +13477,7 @@ function runImmortalEvents(age) {
   // === 扭曲化永生 ===
   if (age >= 35 && !getFlag('distortion_survived') && getFlag('distorted') && chance(0.02)) {
     setFlag('distortion_survived', true);
-    addEvent({ text: "你的扭曲形态稳定了下来。时间对你失去了意义——你不会衰老，不会饥饿，不会被疾病侵蚀。你以扭曲之姿在都市中游荡，成为了一种介于人类与怪物之间的存在。但你知道，这个状态不是永恒的——扭曲存在过久会崩溃，届时异想体会取代你的存在。在那之前，你拥有无尽的岁月。", effect: "immortal", effText: "扭曲存活，寿命不再终结", major: true, milestone: "扭曲化永生" });
+    addEvent({ text: "你的扭曲形态稳定了下来。时间对你失去了意义——你不会衰老，不会饥饿，不会被疾病侵蚀。你以扭曲之姿在都市中游荡，成为了一种介于人类与怪物之间的存在。但你知道，这个状态不是永恒的——扭曲存在过久会崩溃消散，据说会在该区域留下某种异常——一种被称为\"黑石碑\"的神秘遗迹。在那之前，你拥有无尽的岁月。", effect: "immortal", effText: "扭曲存活，寿命不再终结", major: true, milestone: "扭曲化永生" });
     addMilestone("扭曲化永生");
     modAttr('con', 2);
     modAttr('int', 2);
@@ -13327,9 +13547,9 @@ function runImmortalEvents(age) {
   if (age >= 20 && !getFlag('wing_work_experience') && chance(0.03)) {
     setFlag('wing_work_experience', true);
     const wingJobs = [
-      { name: 'L公司', desc: '你成为了L公司的员工。你的工作是在设施中管理异想体——那些由人类潜意识具象化形成的怪物。每天你都要面对Qliphoth计数器，祈祷它不要归零。', effect: '智力+2，意志-1' },
+      { name: 'L公司', desc: '你成为了L公司的员工。你的工作是在设施中管理异想体——那些从光中分离出的概念形态化怪物。每天你都要面对Qliphoth计数器，祈祷它不要归零。主管Ayin设计了这些收容单元，目的是收集能源。', effect: '智力+2，意志-1' },
       { name: 'R公司', desc: '你在R公司的培养场工作。加速的时间孵化场中，成千上万的复制体在厮杀，只为留下最后一人。你在监控屏幕前目睹了这场残酷的筛选。', effect: '意志+1，家境+1' },
-      { name: 'W公司', desc: '你在W公司负责WARP列车的维护。空间折叠技术是公司的奇点——10秒的车程跨越数万光年。但你也知道，那些因空间折叠而"失联"的乘客去了哪里。', effect: '智力+2' },
+      { name: 'W公司', desc: '你在W公司负责WARP列车的维护。W公司的真正奇点是现状还原——乘客在车厢内经历漫长岁月后被还原至最初状态。而空间撕裂技术则是从另一家折断的翼购买来的，用于产生次元之门。你也知道那些"失联"乘客的下落。', effect: '智力+2' },
       { name: 'T公司', desc: '你在T公司的时间管理部门工作。你见识了"停止时间"的奇点技术——一件物品的时间被停止后，不会老化、不会损坏、不会变化。但你也听说了时间窃贼的传闻。', effect: '智力+2，体质-1' },
       { name: 'K公司', desc: '你在K公司的医疗部门工作。再生安瓿的奇迹每天在你眼前上演——断肢重生、器官修复、甚至起死回生。但你也知道，安瓿的再生效果并不总是完美的。', effect: '体质+1，智力+1' }
     ];
@@ -13422,7 +13642,7 @@ function runImmortalEvents(age) {
   // 首脑调律者目击
   if (age >= 40 && !getFlag('tuner_sighted') && chance(0.01)) {
     setFlag('tuner_sighted', true);
-    addEvent({ text: "你目击了首脑的调律者在行动。黑色的身影无声无息地出现，组合使用多种奇点技术——时间停止、空间折叠、概念抹除。被调律者盯上的目标在一瞬间就从存在层面被消除了。没有任何反抗的可能。你藏在暗处，连呼吸都不敢发出声音。当调律者离开后，你才发现自己的衣服已经被冷汗浸透。", effect: "lore", effText: "意志+2，智力+1", major: true, milestone: "调律者目击" });
+    addEvent({ text: "你目击了首脑的调律者在行动。黑色的身影无声无息地出现，组合使用多种奇点技术——时间停止、空间撕裂、概念抹除。被调律者盯上的目标在一瞬间就从存在层面被消除了。没有任何反抗的可能。你藏在暗处，连呼吸都不敢发出声音。当调律者离开后，你才发现自己的衣服已经被冷汗浸透。", effect: "lore", effText: "意志+2，智力+1", major: true, milestone: "调律者目击" });
     addMilestone("调律者目击");
     modAttr('wil', 2);
     modAttr('int', 1);
@@ -13835,6 +14055,7 @@ function showAchievements() {
 
 function backToTitle() {
   hideAllPhases();
+  document.getElementById('codex-toggle').style.display = 'none';
   showPhase('phase-title');
 }
 
