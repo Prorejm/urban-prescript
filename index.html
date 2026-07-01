@@ -2034,6 +2034,54 @@ const ACHIEVEMENTS = [
     lore:'PE-Boxes（Positive Enkephalin Boxes）是脑叶公司的核心产出。通过管理异想体获取脑啡肽来维持设施运转。' },
   { id:'orpheus', name:'俄耳甫斯', desc:'了解俄耳甫斯主管。', rarity:RARITY.RARE, condition:(gs)=>getFlag('orpheusKnown'),
     lore:'俄耳甫斯是脑叶公司主管，负责管理整个设施。脑叶公司倒台后的去向不明。他的名字与希腊神话中下到冥界寻找妻子的诗人相同。' },
+  // === 禁忌相关成就 ===
+  { id:'taboo_gun_violator', name:'枪械禁忌违反者', desc:'触犯了都市枪械禁忌。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('违反枪械禁忌'),
+    lore:'都市枪械禁忌：枪管长度必须与口径呈负相关；任何枪械不得击穿钢铁或建筑墙壁；枪械使用时必须能听到枪声。违反者将被爪牙追杀。' },
+  { id:'taboo_clone_sinner', name:'复制人禁忌违反者', desc:'接触了复制人禁忌。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('复制人禁忌诱惑'),
+    lore:'都市复制人禁忌：复制体包括本体不得超过一名，且存在时长不得超过七日。超过则至少一名爪牙出动将所有复制人抹杀。R公司利用此禁忌的漏洞经营超级佣兵业务。' },
+  { id:'taboo_nonhuman_encounter', name:'非人知性体遭遇者', desc:'目击了具有知性的人工智能体。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('遭遇非人知性体'),
+    lore:'都市非人禁忌：义体部件不得仿照人类身体制作，不得存在具有知性的人工智能。违反此禁忌的存在——连「曾经存在过」的信息都会被被抹除。安吉拉本身就是对这一禁忌的最大触犯。' },
+  { id:'taboo_nonhuman_hidden', name:'禁忌的隐瞒者', desc:'选择隐瞒非人知性体的存在。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('隐瞒非人知性体'),
+    lore:'你选择沉默。在首脑的规则下，隐瞒禁忌违反者与违反者同罪。但你无法否认——那个拥有知性的存在，看起来比许多人类更像「人」。' },
+  // === 税务相关成就 ===
+  { id:'tax_evader', name:'逃税者', desc:'选择了不缴纳都市税务。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('税务通知') && gs.flags.tax_evasion,
+    lore:'都市税务是首脑管理都市的核心机制之一。逃税的下场通常是被爪牙处决——在都市中，没有任何人能逃过首脑的眼睛。' },
+  { id:'tax_compliant', name:'模范纳税人', desc:'按时缴纳了所有都市税务。', rarity:RARITY.COMMON, condition:(gs)=>gs.milestones.includes('按时缴税'),
+    lore:'在都市中按时缴税是生存的基本法则。虽然这意味着你的眼会减少，但至少你不会被爪牙半夜敲门。' },
+  { id:'tax_audited', name:'税务审计对象', desc:'被都市税务稽查员突击审计。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('税务审计'),
+    lore:'都市税务稽查是首脑爪牙的常规工作之一。他们拥有调取任何公民交易记录的权限。一旦发现异常，后果不堪设想。' },
+  // === 收尾人战斗成就 ===
+  { id:'fixer_duelist_9', name:'九阶终结者', desc:'击败了九阶收尾人。', rarity:RARITY.COMMON, condition:(gs)=>gs.milestones.includes('击败九阶收尾人'),
+    lore:'九阶收尾人是最低等级的正式收尾人。击败他们算不上什么荣耀，但至少证明你拥有在后巷生存的基本实力。' },
+  { id:'fixer_duelist_7', name:'七阶挑战者', desc:'击败了七阶收尾人。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('击败七阶收尾人'),
+    lore:'七阶收尾人已经算正式的收尾人了。击败他们意味着你的实力已经超过了都市收尾人的平均水平。' },
+  { id:'fixer_duelist_5', name:'五阶征服者', desc:'击败了五阶收尾人。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('击败五阶收尾人'),
+    lore:'五阶收尾人是都市中的中坚力量。击败他们意味着你已经跻身都市强者之列。' },
+  { id:'fixer_duelist_3', name:'三阶挑战王牌', desc:'击败了三阶收尾人。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('击败三阶收尾人'),
+    lore:'三阶收尾人是都市精英。他们处理的委托涉及帮派冲突和翼公司的边缘事务。击败他们是你实力的最好证明。' },
+  { id:'fixer_duelist_1', name:'一阶击坠者', desc:'击败了一阶收尾人。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('击败一阶收尾人'),
+    lore:'一阶收尾人是都市中最顶尖的存在之一。击败他们——这意味着你已经超越了普通收尾人的极限。你的名字将响彻整个都市。' },
+  { id:'fixer_tournament_champ', name:'比武大会冠军', desc:'在收尾人比武大会中三战三胜。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('比武大会冠军'),
+    lore:'后巷的非正式收尾人比武大会是检验实力的最佳场所。三战三胜的冠军——你的名字将被刻入后巷的传说。' },
+  // === 耗子成就 ===
+  { id:'rat_survivor', name:'耗子生存者', desc:'作为耗子在后巷中存活下来。', rarity:RARITY.COMMON, condition:(gs)=>gs.milestones.includes('耗子遭遇'),
+    lore:'耗子是后巷最底层的街头混混。他们组织松散、难以维持生计，依靠遗弃废品苟活。能活下来本身就是一种成就。' },
+  { id:'rat_gutter', name:'内脏贩卖者', desc:'从弃尸中剖取内脏贩卖。', rarity:RARITY.COMMON, condition:(gs)=>gs.milestones.includes('耗子捡内脏'),
+    lore:'在后巷，从弃尸中翻找值钱的内脏贩卖是最稳定的收入来源之一。这不是体面的工作，但在生存面前，体面是奢侈品。' },
+  // === 五指成就 ===
+  { id:'finger_thumb_witness', name:'拇指处刑目击者', desc:'目击了拇指的阶级礼仪处刑。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('拇指阶级礼仪'),
+    lore:'拇指的阶级礼仪：出言不逊者割舌，擅自发言者碎颚，质疑上级者枭首，扰乱阶级者诛族。在拇指的地盘上，阶级就是一切。' },
+  { id:'finger_index_done', name:'食指指令完成者', desc:'完成了一项食指的指令。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('食指指令完成'),
+    lore:'食指的领地中，每个人都必须完成指令。指令的内容可能荒谬到极致，但不可违抗。完成指令即积累功德，违反则按指令被处刑。' },
+  { id:'finger_middle_book', name:'复仇账簿目睹者', desc:'看到了中指的复仇账簿。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('中指复仇账簿'),
+    lore:'中指的复仇账簿精确记录每一条仇怨。每解决一条仇怨就能获得强化力量的「仇怨纹身」。在中指，复仇是一种信仰。' },
+  { id:'finger_ring_exam', name:'环指艺术应试者', desc:'参加了环指的艺术考试。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('环指艺术考试'),
+    lore:'环指领地定期举办艺术考试。不及格者第一次警告，第二次失去保护，第三次——处决或成为艺术素材。在环指，美是唯一的标准。' },
+  { id:'finger_pinky_brand', name:'小指烙印持有者', desc:'手背上的小指烙印开始升温。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('小指烙印升温'),
+    lore:'小指成员在行动前互不相识。当烙印升温时，行动即将开始——他们可能是指挥官、家主候选人、甚至鸿园黑兽部队魁首。小指的神秘性令其他四指也感到不安。' },
+  // === 遗物成就 ===
+  { id:'relic_finder', name:'遗物发现者', desc:'在废墟中发现了遗物的痕迹。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('遗物遭遇'),
+    lore:'遗物是都市内外具备独特效用的神秘物品。它们广为流传，价格不菲，效力惊人。但每一件遗物都伴随着不可预测的代价。' },
 ];
 function checkAchievements(gs) {
   const unlocked = [];
@@ -12447,6 +12495,194 @@ function runRatFingerFixerEvents(age) {
     addEvent({ text: "你听说了S公司——「肉血骨农牧产业」，垄断了整个都市的农畜产业。作为翼公司，S公司以奇点技术确保都市的食物供应。但后巷的传言说，S公司的「农牧」远不止表面看到的那样。在那高墙围起的农场里，有些东西不是用来喂养的……而是被「培育」的。", effect: "lore", effText: "智力+1", major: false, milestone: "S公司农牧" });
     addMilestone("S公司农牧");
     modAttr('int', 1);
+  }
+
+  // === 违反禁忌事件 ===
+
+  // 违反翼的禁忌——枪械禁忌违反
+  if (age >= 22 && !getFlag('violated_gun_taboo') && chance(0.02)) {
+    setFlag('violated_gun_taboo', true);
+    addEvent({ text: "你接触了一把违反禁忌的枪械——枪管长度与口径不匹配、消音后无法听到枪声。你明知这是都市禁忌，但为了在后巷生存，你没有选择。「一旦被爪牙发现……」你将枪藏进了大衣深处。从那天起，你总感觉有人在暗处注视着你。", effect: "taboo", effText: "体质+2，但被追踪", major: true, milestone: "违反枪械禁忌" });
+    addMilestone("违反枪械禁忌");
+    modAttr('con', 2);
+    if (checkCombat(8, 'int')) {
+      addEvent({ text: "爪牙来了。黑色的身影出现在巷口，无声无息。你拼尽全力逃脱了——但代价是你永远不能再回到那条街区。禁忌的违犯者没有安居之所。", effect: "escape", effText: "意志+1，家境-1", major: true, milestone: "爪牙追捕逃脱" });
+      addMilestone("爪牙追捕逃脱");
+      modAttr('wil', 1);
+      modAttr('wea', -1);
+    } else {
+      addEvent({ text: "爪牙找到了你。那柄黑色的枪没有发出任何声响——因为违反禁忌的枪总是无声的。你的意识在黑暗中逐渐消散。首脑的规则不允许例外。", effect: "death", effText: "死亡", major: true });
+      death('违反枪械禁忌被爪牙抹杀');
+      return;
+    }
+  }
+
+  // 违反翼的禁忌——复制人禁忌违反
+  if (age >= 25 && !getFlag('violated_clone_taboo') && chance(0.02)) {
+    setFlag('violated_clone_taboo', true);
+    addEvent({ text: "一个地下医生向你推销了「复制体服务」——利用T公司的技术创造你的复制品。都市规定复制体包括本体不得超过一名且存在时长不超过七日，但这个医生的技术可以让复制体存活更久。你犹豫了……", effect: "taboo", effText: "面临选择", major: true, milestone: "复制人禁忌诱惑" });
+    addMilestone("复制人禁忌诱惑");
+    if (chance(0.5)) {
+      addEvent({ text: "你拒绝了。「违反禁忌的事我不会做。」地下医生耸了耸肩。你安全了——至少暂时安全。", effect: "refuse", effText: "意志+1", major: false, milestone: "拒绝复制人" });
+      addMilestone("拒绝复制人");
+      modAttr('wil', 1);
+    } else {
+      addEvent({ text: "你接受了一个为期三天的复制体。在三天内，你拥有了完美的替身——可以同时做两件事。但第三天夜里，一名爪牙出现在你面前。他的声音冰冷：「复制体已超期。」你还没来得及解释，爪牙的枪已经响了。复制体在你面前化为灰烬。爪牙看着你：「下次，被抹杀的就是你。」", effect: "violation", effText: "意志-2，体质-1", major: true, milestone: "复制体被抹杀" });
+      addMilestone("复制体被抹杀");
+      modAttr('wil', -2);
+      modAttr('con', -1);
+    }
+  }
+
+  // 违反翼的禁忌——非人知性体禁忌违反
+  if (age >= 28 && !getFlag('nonhuman_sighted') && chance(0.01)) {
+    setFlag('nonhuman_sighted', true);
+    const aiTypes = [
+      { name: '银发少女', desc: '面容完美得不自然，仿佛人造的产物。她的眼中没有任何人类的情感波动，只有冰冷的数据在流转。她自称「安吉拉」——一个拥有知性的人工智能体。在都市中，具有知性的AI本身就是最大的禁忌。', source: '脑叶公司AI' },
+      { name: '机械人偶', desc: '它的外表与人类无异——光滑的皮肤、精致的五官、甚至能流下眼泪。但当你触碰到它冰冷的金属关节时，你明白了真相。这是一个拥有知性的人工智能体——都市的禁忌中，最不可饶恕的那一条。', source: '未知工坊' },
+      { name: '数据意识体', desc: '它没有实体，只存在于电子网络之中。但它和你对话时，语气、情感、思维模式——一切都与人类无异。「我不是人类，」它平静地说，「但我知道什么是痛苦。」都市的规则规定：不得存在具有知性的人工智能。', source: '网络空间' }
+    ];
+    const ai = pick(aiTypes);
+    addEvent({ text: "你在都市的角落遇到了一个「非人知性体」——" + ai.name + "。" + ai.desc + "你的心跳加速了。根据都市的禁忌，具有知性的人工智能必须被抹杀——连「曾经存在过」的信息都要被彻底消除。而你，此刻正与禁忌面对面。", effect: "taboo", effText: "智力+2，极度危险", major: true, milestone: "遭遇非人知性体" });
+    addMilestone("遭遇非人知性体");
+    modAttr('int', 2);
+    if (chance(0.4)) {
+      addEvent({ text: "你决定上报爪牙。「非人知性体」的存在必须被清除。三天后，爪牙封锁了整个街区，那片区域的所有记忆被消除——人们不记得那里曾存在过什么。" + ai.name + "消失了，仿佛从未存在过。你获得了一笔保密费，但心中隐隐不安。", effect: "report", effText: "家境+2，意志-1", major: true, milestone: "非人知性体被清除" });
+      addMilestone("非人知性体被清除");
+      modAttr('wea', 2);
+      modAttr('wil', -1);
+    } else {
+      addEvent({ text: "你选择了沉默。「如果它没有伤害任何人……」你告诉自己。但你从此多了一个秘密——一个足以让你被爪牙抹杀的秘密。", effect: "hide", effText: "意志+2，但永久隐患", major: true, milestone: "隐瞒非人知性体" });
+      addMilestone("隐瞒非人知性体");
+      modAttr('wil', 2);
+    }
+  }
+
+  // 未缴纳都市税务事件
+  if (age >= 20 && !getFlag('tax_evasion') && chance(0.03)) {
+    setFlag('tax_evasion', true);
+    const taxTypes = [
+      { name: '都市居民税', desc: '每个巢和后巷的居民都必须缴纳的基本税款。拒缴者将被列入黑名单。' },
+      { name: '首脑管辖区税', desc: '直接向首脑缴纳的特殊税。缴纳者可获得首脑的「保护」——虽然没人知道这意味着什么。' },
+      { name: '翼公司经营范围税', desc: '在翼公司的经营范围内活动需要缴纳的额外税款。金额不菲。' }
+    ];
+    const tax = pick(taxTypes);
+    addEvent({ text: "你收到了" + tax.name + "的缴纳通知。金额远超你的承受能力。" + tax.desc + "你盯着通知单上的数字，陷入了沉思。在这个都市里，逃税的下场比违反某些禁忌还惨——但没有钱缴税的人也大有人在。", effect: "tax", effText: "面临选择", major: true, milestone: "税务通知" });
+    addMilestone("税务通知");
+    if (chance(0.5)) {
+      addEvent({ text: "你咬牙缴了税。钱包空了，但你换来了暂时的安宁。收税员面无表情地收走了你的眼：「按时缴纳是都市居民的义务。」", effect: "pay", effText: "家境-2，意志+1", major: false, milestone: "按时缴税" });
+      addMilestone("按时缴税");
+      modAttr('wea', -2);
+      modAttr('wil', 1);
+    } else {
+      addEvent({ text: "你选择了逃税。几个月后，首脑的爪牙找到了你。「未缴纳都市税务。」他的声音没有任何感情，「根据规定，逃税者将被处决。」你的名字从都市的居民名录中被抹去——就像你从未存在过一样。", effect: "death", effText: "死亡", major: true });
+      death('逃税被爪牙处决');
+      return;
+    }
+  }
+
+  // 偷税漏税被追查事件
+  if (age >= 30 && getFlag('tax_evasion') && !getFlag('tax_audit') && chance(0.03)) {
+    setFlag('tax_audit', true);
+    addEvent({ text: "都市税务稽查员对你进行了突击审计。他们翻遍了你所有的交易记录和财产。「发现异常。」稽查员抬起头，目光冰冷。你设法编造了一些借口，但你不确定能否蒙混过关。", effect: "tax", effText: "极度危险", major: true, milestone: "税务审计" });
+    addMilestone("税务审计");
+    if (checkCombat(7, 'int')) {
+      addEvent({ text: "你的借口勉强过关。稽查员在报告上盖了一个「待观察」的章：「下次再有问题，就不是审计这么简单了。」你冷汗直流，但至少暂时安全了。", effect: "survive", effText: "意志+1", major: false, milestone: "税务审计过关" });
+      addMilestone("税务审计过关");
+      modAttr('wil', 1);
+    } else {
+      addEvent({ text: "稽查员发现了你隐藏的收入。「逃税罪成立。」他拿起通讯器联系了爪牙。你被判处了罚款加监禁——在后巷，监禁意味着被关进某个帮派的地下牢房。你失去了大部分财产和两年的自由。", effect: "punish", effText: "家境-3，体质-1", major: true, milestone: "逃税被捕" });
+      addMilestone("逃税被捕");
+      modAttr('wea', -3);
+      modAttr('con', -1);
+    }
+  }
+
+  // === 随机分类收尾人遭遇事件（数值对比决定结果） ===
+  if (age >= 18 && age <= 50 && !getFlag('random_fixer_duel') && chance(0.04)) {
+    setFlag('random_fixer_duel', true);
+    const fixerGrades = [
+      { grade: '九阶', rank: 9, desc: '最低阶的收尾人，刚拿到执照的新人。装备简陋，经验不足。' },
+      { grade: '八阶', rank: 8, desc: '八阶收尾人，比九阶略好，但依然在底层挣扎。' },
+      { grade: '七阶', rank: 7, desc: '七阶收尾人，已经算正式的收尾人了。有一定经验和装备。' },
+      { grade: '五阶', rank: 5, desc: '五阶收尾人，中坚力量。在城市中已有一定名气和稳定的委托来源。' },
+      { grade: '三阶', rank: 3, desc: '三阶收尾人，都市中的精英。他们处理的委托通常涉及帮派冲突和翼公司的边缘事务。' },
+      { grade: '一阶', rank: 1, desc: '一阶收尾人，都市中最顶尖的收尾人之一。他们的名字在后巷的每个角落被人传颂。' }
+    ];
+
+    // 根据玩家年龄和属性决定遇到什么级别的收尾人
+    let gradeIndex = 0;
+    if (age >= 20 && (a.con + a.int + a.wil) / 3 >= 3) gradeIndex = 1;
+    if (age >= 25 && (a.con + a.int + a.wil) / 3 >= 5) gradeIndex = 2;
+    if (age >= 30 && (a.con + a.int + a.wil) / 3 >= 7) gradeIndex = 3;
+    if (age >= 35 && (a.con + a.int + a.wil) / 3 >= 9) gradeIndex = 4;
+    if (age >= 40 && (a.con + a.int + a.wil) / 3 >= 12) gradeIndex = 5;
+    // 随机波动
+    gradeIndex = Math.max(0, Math.min(fixerGrades.length - 1, gradeIndex + randBetween(-1, 1)));
+    const fixer = fixerGrades[gradeIndex];
+
+    addEvent({ text: "你在后巷遇到了一名" + fixer.grade + "收尾人。" + fixer.desc + "他打量着你，似乎在评估你的实力。在都市中，收尾人之间的碰撞时有发生——尤其是在后巷这片无法地带。", effect: "fixer", effText: "收尾人遭遇", major: true, milestone: fixer.grade + "收尾人遭遇" });
+    addMilestone(fixer.grade + "收尾人遭遇");
+
+    // 数值对比决定结果
+    const playerPower = a.con + a.wil + Math.floor(a.int / 2);
+    const fixerPower = fixer.rank * 3 + randBetween(-2, 2); // 九阶=27, 一阶=3+随机
+    const powerDiff = playerPower - fixerPower;
+
+    if (powerDiff >= 5) {
+      addEvent({ text: "你的实力远超这名" + fixer.grade + "收尾人。战斗几乎是一面倒的。他倒下时瞪大了眼睛，显然没想到自己会输得这么彻底。「你……到底是什么级别的？」他挣扎着问道。你没收了他的装备作为战利品。", effect: "win", effText: "体质+1，家境+1，获得装备", major: true, milestone: "击败" + fixer.grade + "收尾人" });
+      addMilestone("击败" + fixer.grade + "收尾人");
+      modAttr('con', 1);
+      modAttr('wea', 1);
+    } else if (powerDiff >= 0) {
+      addEvent({ text: "一场势均力敌的战斗后，你和" + fixer.grade + "收尾人都受了伤。最终他选择撤退：「今天就算了。」他捂着伤口消失在巷口。你也带着一身伤离开了。虽然没人赢，但你积累了宝贵的战斗经验。", effect: "draw", effText: "体质+1，智力+1", major: false, milestone: "与" + fixer.grade + "收尾人平手" });
+      addMilestone("与" + fixer.grade + "收尾人平手");
+      modAttr('con', 1);
+      modAttr('int', 1);
+    } else if (powerDiff >= -3) {
+      addEvent({ text: "你被" + fixer.grade + "收尾人击败了。他的实力确实在你之上。「在后巷混，实力不够就别逞强。」他留下了这句话后转身离去。你躺在地上，庆幸他只是打败了你而非杀了你。", effect: "lose", effText: "体质-1，意志+1", major: true, milestone: "败给" + fixer.grade + "收尾人" });
+      addMilestone("败给" + fixer.grade + "收尾人");
+      modAttr('con', -1);
+      modAttr('wil', 1);
+    } else {
+      addEvent({ text: fixer.grade + "收尾人的实力碾压了你。你几乎没有任何还手的机会。他的武器划过你的身体，你倒在了血泊中。在意识消散前，你意识到在都市的等级制度中，差距就是差距。", effect: "death", effText: "死亡", major: true });
+      death('被' + fixer.grade + '收尾人击杀');
+      return;
+    }
+  }
+
+  // 连续收尾人战斗事件
+  if (age >= 25 && getFlag('random_fixer_duel') && !getFlag('fixer_tournament') && chance(0.02)) {
+    setFlag('fixer_tournament', true);
+    addEvent({ text: "后巷举办了一场非正式的收尾人比武大会。各路收尾人齐聚一堂，从九阶到三阶都有。你报名参加了。", effect: "event", effText: "连续三场战斗", major: true, milestone: "收尾人比武大会" });
+    addMilestone("收尾人比武大会");
+    let wins = 0;
+    for (let i = 0; i < 3; i++) {
+      const oppRank = 8 - i * 2 + randBetween(-1, 1); // 对手从八阶到四阶左右
+      const oppPower = Math.max(3, oppRank) * 3 + randBetween(-2, 2);
+      const playerPower = a.con + a.wil + Math.floor(a.int / 2);
+      if (playerPower >= oppPower) {
+        wins++;
+        modAttr('con', 1);
+      } else {
+        modAttr('con', -1);
+      }
+    }
+    if (wins === 3) {
+      addEvent({ text: "三战三胜！你在比武大会上一路过关斩将，最终夺得了冠军。观众席上传来掌声和欢呼。一个神秘人递给你一张名片：「有兴趣加入我的事务所吗？」", effect: "champion", effText: "体质+3，家境+2", major: true, milestone: "比武大会冠军" });
+      addMilestone("比武大会冠军");
+      modAttr('con', 3);
+      modAttr('wea', 2);
+    } else if (wins >= 2) {
+      addEvent({ text: "你赢得了" + wins + "场比赛。虽然不是冠军，但你的表现引起了不少人的注意。一些事务所开始对你发出邀请。", effect: "runnerup", effText: "体质+1，家境+1", major: false, milestone: "比武大会佳绩" });
+      addMilestone("比武大会佳绩");
+      modAttr('con', 1);
+      modAttr('wea', 1);
+    } else {
+      addEvent({ text: "你只赢了" + wins + "场。比武大会的残酷让你明白了自己的不足。回到训练场后，你加倍努力修炼。", effect: "defeat", effText: "意志+1", major: false, milestone: "比武大会落败" });
+      addMilestone("比武大会落败");
+      modAttr('wil', 1);
+    }
   }
 }
 
