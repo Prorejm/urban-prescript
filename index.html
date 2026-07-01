@@ -204,6 +204,15 @@ body::after {
   letter-spacing: 0.3em;
 }
 
+.talent-subtitle {
+  font-size: 0.9rem;
+  color: var(--accent-gold);
+  font-style: italic;
+  margin-top: 12px;
+  letter-spacing: 0.1em;
+  opacity: 0.85;
+}
+
 .talent-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -237,6 +246,8 @@ body::after {
 
 .talent-card.rarity-blue { border-left: 3px solid var(--blue); }
 .talent-card.rarity-purple { border-left: 3px solid var(--purple); }
+.talent-card.rarity-black .talent-name { color: #1a1a2e; text-shadow: 0 0 8px rgba(100,0,100,0.5); }
+.talent-card.rarity-black { border-left: 3px solid #1a1a2e; background: linear-gradient(135deg, rgba(20,20,40,0.15), rgba(40,0,60,0.08)); }
 .talent-card.rarity-gold { border-left: 3px solid var(--gold); }
 
 .talent-name {
@@ -572,6 +583,29 @@ body::after {
   display: flex;
   gap: 12px;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 90vw;
+}
+.speed-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+.speed-control input[type="range"] {
+  width: 80px;
+  accent-color: var(--accent-gold);
+  cursor: pointer;
+}
+.speed-label {
+  min-width: 36px;
+  text-align: center;
+  color: var(--accent-gold);
+  font-family: var(--font-en);
+  font-weight: 700;
+  font-size: 0.8rem;
 }
 
 .sim-controls.hidden { display: none; }
@@ -760,8 +794,12 @@ body::after {
     <div class="title-cn">都市人生重开模拟器</div>
     <div class="title-sub">Project Moon Universe</div>
     <div class="title-decor">&#10022;</div>
-    <div style="margin-top:40px">
+    <div style="margin-top:40px;display:flex;flex-direction:column;align-items:center;gap:16px;">
       <button class="btn" onclick="startGame()">点击开始</button>
+      <div style="display:flex;gap:12px;">
+        <button class="btn btn-sm" onclick="showAchievements()">&#10022; 成就 &#10022;</button>
+        <button class="btn btn-sm" onclick="showSettings()">&#9881; 设置</button>
+      </div>
     </div>
   </div>
 
@@ -770,6 +808,7 @@ body::after {
     <div class="phase-header">
       <div class="phase-title">TALENT SELECTION</div>
       <div class="phase-title-cn">&#10022; 天赋选择 &#10022;</div>
+      <div class="talent-subtitle">这会决定你未来的流向</div>
     </div>
     <div id="talent-grid" class="talent-grid"></div>
     <div class="selected-talents">
@@ -831,9 +870,66 @@ body::after {
     </div>
   </div>
 
+  <!-- Phase: Settings -->
+  <div id="phase-settings" class="phase hidden">
+    <div class="phase-header">
+      <div class="phase-title">SETTINGS</div>
+      <div class="phase-title-cn">&#10022; 游戏设置 &#10022;</div>
+    </div>
+    <div class="settings-panel" style="max-width:600px;margin:20px auto;padding:20px;background:#111;border:1px solid #2a2a2a;border-radius:8px;">
+      <div class="setting-item" style="margin:16px 0;padding:12px;background:#1a1a1a;border-radius:6px;">
+        <div style="font-weight:bold;color:#d4c5a0;margin-bottom:8px;">&#10022; 游戏模式 &#10022;</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:#b8a99a;">
+            <input type="radio" name="gameMode" value="normal" checked onchange="setGameMode('normal')">
+            <span>标准模式 — 正常的天赋选择和属性分配</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:#b8a99a;">
+            <input type="radio" name="gameMode" value="free" onchange="setGameMode('free')">
+            <span>完全自由模式 — 跳过天赋选择，直接属性分配，拥有所有天赋效果</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:#b8a99a;">
+            <input type="radio" name="gameMode" value="notalent" onchange="setGameMode('notalent')">
+            <span>无天赋模式 — 不选择任何天赋，纯靠属性在都市求生</span>
+          </label>
+        </div>
+      </div>
+      <div class="setting-item" style="margin:16px 0;padding:12px;background:#1a1a1a;border-radius:6px;">
+        <div style="font-weight:bold;color:#d4c5a0;margin-bottom:8px;">&#10022; 显示设置 &#10022;</div>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:#b8a99a;">
+          <input type="checkbox" id="setting-fast-skip" onchange="updateSetting('fastSkip',this.checked)">
+          <span>快速跳过 — 跳过所有事件动画，直接显示结果</span>
+        </label>
+      </div>
+    </div>
+    <div class="phase-actions">
+      <button class="btn btn-sm" onclick="backToTitle()">返回</button>
+    </div>
+  </div>
+
+  <!-- Phase: Achievements -->
+  <div id="phase-achievements" class="phase hidden">
+    <div class="phase-header">
+      <div class="phase-title">ACHIEVEMENTS</div>
+      <div class="phase-title-cn">&#10022; 成就一览 &#10022;</div>
+    </div>
+    <div id="achievement-list" style="max-width:700px;margin:20px auto;padding:20px;">
+      <div style="color:#7a6f5a;text-align:center;padding:20px;">成就系统将在你完成人生后解锁……</div>
+    </div>
+    <div class="phase-actions">
+      <button class="btn btn-sm" onclick="backToTitle()">返回</button>
+    </div>
+  </div>
+
   <!-- Simulation controls -->
   <div class="sim-controls hidden" id="sim-controls">
     <button class="btn btn-sm" onclick="toggleSimSpeed()" id="btn-sim-speed">自动播放</button>
+    <div class="speed-control">
+      <span>速度</span>
+      <input type="range" id="speed-slider" min="1" max="10" value="5" oninput="updateSpeed()">
+      <span class="speed-label" id="speed-label">5</span>
+    </div>
+    <button class="btn btn-sm" onclick="nextEvent()" id="btn-next-event">下一条</button>
     <button class="btn btn-sm btn-red" onclick="finishSim()">跳过</button>
   </div>
 </div>
@@ -895,7 +991,7 @@ const ALL_TALENTS = [
   { id:'w44', name:'翼的实习生', rarity:'white', desc:'你在翼公司实习，梦想转正但可能性渺茫。', effect:'智力+1，翼相关事件略有优势', con:0, int:1, wil:0, wea:0, tag:'普通身份' },
   { id:'w45', name:'食指指令的垃圾桶', rarity:'white', desc:'你被迫执行食指的指令，无论多么荒谬。', effect:'意志-1，服从指令时获得微小报酬', con:0, int:0, wil:-1, wea:1, tag:'玩梗' },
   { id:'w46', name:'清道夫的远房亲戚', rarity:'white', desc:'你认识清道夫，但这并不能保护你。', effect:'体质+1，清道夫相关事件略微友好', con:1, int:0, wil:0, wea:0, tag:'普通身份' },
-  { id:'w47', name:'W列车的常客', rarity:'white', desc:'你经常乘坐WARP列车，已经习惯了那种奇妙的感觉。', effect:'意志+1，时间相关事件略有抗性', con:0, int:0, wil:1, wea:0, tag:'普通身份' },
+  { id:'w47', name:'WARP列车的常客', rarity:'white', desc:'你经常乘坐WARP列车，已经习惯了空间折叠带来的奇妙感觉。', effect:'意志+1，WARP相关事件略有抗性', con:0, int:0, wil:1, wea:0, tag:'普通身份' },
   { id:'w48', name:'废墟的摄影爱好者', rarity:'white', desc:'你喜欢在废墟拍照，经常拍到不该拍的东西。', effect:'智力+1，废墟探索略有优势', con:0, int:1, wil:0, wea:0, tag:'普通身份' },
   { id:'w49', name:'大湖的钓鱼佬', rarity:'white', desc:'你在大湖边钓鱼，偶尔钓上来的东西会让你做噩梦。', effect:'体质+1，大湖相关事件略有优势', con:1, int:0, wil:0, wea:0, tag:'普通身份' },
   { id:'w50', name:'郊区观鸟者', rarity:'white', desc:'你在郊区观察鸟类，从未意识到自己才是被观察的对象。', effect:'智力+1，观察类事件略有优势', con:0, int:1, wil:0, wea:0, tag:'普通身份' },
@@ -927,17 +1023,37 @@ const ALL_TALENTS = [
   { id:'w76', name:'工坊的学徒', rarity:'white', desc:'你在工坊学习技术，梦想有一天成为大师。', effect:'智力+1，工坊相关事件略有优势', con:0, int:1, wil:0, wea:0, tag:'普通身份' },
   { id:'w77', name:'事务所的杂役', rarity:'white', desc:'你为事务所打杂，偶尔偷学一两招。', effect:'体质+1，事务所相关事件略有优势', con:1, int:0, wil:0, wea:0, tag:'普通身份' },
   { id:'w78', name:'清道夫的清洁工', rarity:'white', desc:'你打扫清道夫的据点，祈祷他们永远不要饿。', effect:'体质+1，清道夫相关事件略微安全', con:1, int:0, wil:0, wea:0, tag:'玩梗' },
-  { id:'w79', name:'W列车的售票员', rarity:'white', desc:'你售卖WARP列车的车票，见过无数扭曲的表情。', effect:'意志+1，时间相关事件略有抗性', con:0, int:0, wil:1, wea:0, tag:'普通身份' },
+  { id:'w79', name:'WARP列车的售票员', rarity:'white', desc:'你售卖WARP列车的车票，见过无数因空间折叠而扭曲的表情。', effect:'意志+1，WARP相关事件略有抗性', con:0, int:0, wil:1, wea:0, tag:'普通身份' },
   { id:'w80', name:'大湖的海盗船清洁工', rarity:'white', desc:'你在海盗船上打扫卫生，见证着海盗们的狂欢与死亡。', effect:'体质+1，大湖相关事件略有优势', con:1, int:0, wil:0, wea:0, tag:'普通身份' },
+  { id:'w81', name:'烙印工坊的顾客', rarity:'white', desc:'你在烙印工坊购买过武器。那里的光热武器在黑暗中格外耀眼。', effect:'体质+1，战斗事件略有优势', con:1, int:0, wil:0, wea:0, tag:'工坊' },
+  { id:'w82', name:'琅琊工坊的常客', rarity:'white', desc:'你常去琅琊工坊修理拳套。那里的师傅话不多，但手艺一流。', effect:'体质+1，格斗事件略有优势', con:1, int:0, wil:0, wea:0, tag:'工坊' },
+  { id:'w83', name:'卡莉斯塔工作室的粉丝', rarity:'white', desc:'你迷恋卡莉斯塔工作室的水晶双刀。虽然买不起，但每次路过都要看很久。', effect:'智力+1，工坊事件略有优势', con:0, int:1, wil:0, wea:0, tag:'工坊' },
+  { id:'w84', name:'逻辑工作室的弹药员', rarity:'white', desc:'你在逻辑工作室负责搬运弹药。那里的弹药贵得离谱，但效果也确实惊人。', effect:'智力+1，家境-1，射击事件略有优势', con:0, int:1, wil:0, wea:-1, tag:'工坊' },
+  { id:'w85', name:'轮盘重工的搬运工', rarity:'white', desc:'你在轮盘重工搬运沉重巨剑。那些武器比你整个人都重。', effect:'体质+2，智力-1', con:2, int:-1, wil:0, wea:0, tag:'工坊' },
+  { id:'w86', name:'玫瑰扳手工坊的学徒', rarity:'white', desc:'你在K巢周边的玫瑰扳手工坊学习链锯维护。链锯的轰鸣声是你每天的伴奏。', effect:'体质+1', con:1, int:0, wil:0, wea:0, tag:'工坊' },
+  { id:'w87', name:'黑云会的纹身顾客', rarity:'white', desc:'你在黑云会接受了纹身手术。虽然效果一般，但至少看起来像那么回事。', effect:'体质+1，防御略有提升', con:1, int:0, wil:0, wea:0, tag:'黑云会' },
+  { id:'w88', name:'Dieci协会的求学者', rarity:'white', desc:'你在Dieci协会学习遗物知识。那些来自废墟的物品总是让你着迷。', effect:'智力+1，废墟事件略有优势', con:0, int:1, wil:0, wea:0, tag:'协会' },
+  { id:'w89', name:'Девять协会的送货员', rarity:'white', desc:'你在Девять协会负责送货。派送箱里的AI波鲁德尼察偶尔会和你聊天。', effect:'智力+1，送货事件略有优势', con:0, int:1, wil:0, wea:0, tag:'协会' },
+  { id:'w90', name:'Öufi协会的公证学徒', rarity:'white', desc:'你在Öufi协会学习公证契约。在都市中，一份合法的契约比什么都重要。', effect:'智力+1，交易事件略有优势', con:0, int:1, wil:0, wea:0, tag:'协会' },
+  { id:'w91', name:'血魔的远亲', rarity:'white', desc:'你的某个远房亲戚是血魔。虽然你们从未见面，但你偶尔会感到一种奇怪的渴望。', effect:'体质+1，血魔事件略有优势', con:1, int:0, wil:0, wea:0, tag:'血魔' },
+  { id:'w92', name:'齿轮教团的旁听者', rarity:'white', desc:'你在齿轮教团的集会旁听过。那些机械狂热者的布道让你不寒而栗。', effect:'智力+1，机械事件略有优势', con:0, int:1, wil:0, wea:0, tag:'齿轮教团' },
+  { id:'w93', name:'大湖废料蟹的饲养员', rarity:'white', desc:'你在后巷近岸湖域饲养废料蟹。虽然臭气熏天，但废料蟹的壳是很好的材料。', effect:'家境+1，大湖事件略有优势', con:0, int:0, wil:0, wea:1, tag:'大湖' },
+  { id:'w94', name:'第十区的赌场荷官', rarity:'white', desc:'你在第十区的赌场当荷官。你见惯了赌徒的疯狂，也学会了如何保持冷静。', effect:'智力+1，赌博事件略有优势', con:0, int:1, wil:1, wea:0, tag:'赌徒' },
+  { id:'w95', name:'N公司的摄影师', rarity:'white', desc:'你为N公司拍摄照片。在这个禁止摄影的区域，你的工作是非法的——也因此报酬极高。', effect:'家境+1，智力+1，N公司事件略有优势', con:0, int:1, wil:0, wea:1, tag:'N公司' },
+  { id:'w96', name:'T公司的时钟维修员', rarity:'white', desc:'你在T公司维修街头时钟。你知道那些时钟不只是显示时间——它们在监控一切。', effect:'智力+1，T公司事件略有优势', con:0, int:1, wil:0, wea:0, tag:'T公司' },
+  { id:'w97', name:'R公司的孵化场清洁工', rarity:'white', desc:'你在R公司的孵化场打扫卫生。那些复制体在厮杀中选出的过程让你噩梦连连。', effect:'体质+1，意志-1，R公司事件略有优势', con:1, int:0, wil:-1, wea:0, tag:'R公司' },
+  { id:'w98', name:'K公司的三级员工', rarity:'white', desc:'你是K公司的三级员工，大部分时间待在玻璃管中。你的意识被暂停以适应安瓿。', effect:'体质+2，智力-1', con:2, int:-1, wil:0, wea:0, tag:'K公司' },
+  { id:'w99', name:'S公司的科举考生', rarity:'white', desc:'你参加了S公司的科举考试。肉、血、骨三党的争斗让你明白了权力的游戏。', effect:'智力+1，S公司事件略有优势', con:0, int:1, wil:0, wea:0, tag:'S公司' },
+  { id:'w100', name:'X公司的魔窟矿工', rarity:'white', desc:'你在X公司的魔窟中挖掘特殊合金。你挖到过一些……不该存在的东西。', effect:'体质+1，智力+1，废墟事件略有优势', con:1, int:1, wil:0, wea:0, tag:'X公司' },
 
   // ==================== 蓝色天赋 (60个) ====================
   { id:'b1', name:'后巷的孩子', rarity:'blue', desc:'你在后巷长大，从小就学会了生存的法则。', effect:'体质+2，后巷相关事件有优势', con:2, int:0, wil:0, wea:0, tag:'背景' },
   { id:'b2', name:'应试村的常客', rarity:'blue', desc:'你多次参加应试村的考试，知识储备远超常人。', effect:'智力+2，考试类事件有优势', con:0, int:2, wil:0, wea:0, tag:'背景' },
   { id:'b3', name:'左撇子', rarity:'blue', desc:'你的惯用手是左手，这使你在战斗中出其不意。', effect:'体质+1，战斗类事件略有优势', con:1, int:0, wil:0, wea:0, tag:'特质' },
-  { id:'b4', name:'清道夫的幸存者', rarity:'blue', desc:'你曾在清道夫的猎杀中存活，这份经历使你更加坚韧。', effect:'意志+2，生存类事件有优势', con:0, int:0, wil:2, wea:0, tag:'背景' },
+  { id:'b4', name:'清道夫的幸存者', rarity:'blue', desc:'你在深宵（3:13-4:34）中从清道夫的猎杀下幸存。那些身穿密封服的液体生物把猎物液化当作燃料，互称「家人」与「邻居」。你永远不会忘记那嗡嗡作响的恐怖夜晚。', effect:'意志+2，生存类事件有优势', con:0, int:0, wil:2, wea:0, tag:'背景' },
   { id:'b5', name:'翼公司职员之子', rarity:'blue', desc:'你的父母在翼公司工作，你从小在巢中长大。', effect:'智力+1，财富+1，巢相关事件有优势', con:0, int:1, wil:0, wea:1, tag:'背景' },
   { id:'b6', name:'帮派混混', rarity:'blue', desc:'你在帮派中混迹，学会了打架和生存的技巧。', effect:'体质+2，战斗类事件有优势', con:2, int:0, wil:0, wea:0, tag:'身份' },
-  { id:'b7', name:'图书管理员助理', rarity:'blue', desc:'你协助管理图书馆的藏书，接触了许多禁忌的知识。', effect:'智力+2，知识类事件有优势', con:0, int:2, wil:0, wea:0, tag:'身份' },
+  { id:'b7', name:'图书管理员助理', rarity:'blue', desc:'你在后巷的旧书店整理藏书，偶尔从夹页中发现一些收尾人遗落的照片和情报。', effect:'智力+2，知识类事件有优势', con:0, int:2, wil:0, wea:0, tag:'身份' },
   { id:'b8', name:'废墟拾荒者', rarity:'blue', desc:'你在废墟中搜寻有价值的物品，经常发现惊喜。', effect:'智力+1，体质+1，废墟探索有优势', con:1, int:1, wil:0, wea:0, tag:'身份' },
   { id:'b9', name:'巢边长大的孩子', rarity:'blue', desc:'你在巢与后巷的交界处长大，熟悉两个世界。', effect:'全属性+1，巢和后巷事件均有微小优势', con:1, int:1, wil:1, wea:0, tag:'背景' },
   { id:'b10', name:'夜行者', rarity:'blue', desc:'你习惯在夜间活动，深宵对你而言并非威胁。', effect:'体质+1，意志+1，夜间事件有优势', con:1, int:0, wil:1, wea:0, tag:'特质' },
@@ -956,24 +1072,24 @@ const ALL_TALENTS = [
   { id:'b23', name:'黑云会成员', rarity:'blue', desc:'你是黑云会的一员，掌握着独特的剑术。', effect:'体质+2，黑云会事件有优势', con:2, int:0, wil:0, wea:0, tag:'身份' },
   { id:'b24', name:'剑契组成员', rarity:'blue', desc:'你是剑契组的一员，继承了古老的剑术。', effect:'体质+2，剑契组事件有优势', con:2, int:0, wil:0, wea:0, tag:'身份' },
   { id:'b25', name:'谢肉祭成员', rarity:'blue', desc:'你是谢肉祭的一员，对"肉"有着独特的理解。', effect:'体质+2，谢肉祭事件有优势', con:2, int:0, wil:0, wea:0, tag:'身份' },
-  { id:'b26', name:'不来梅乐队粉丝', rarity:'blue', desc:'你狂热地崇拜不来梅乐队，能模仿他们的演奏。', effect:'智力+1，意志+1，不来梅事件有优势', con:0, int:1, wil:1, wea:0, tag:'身份' },
+  { id:'b26', name:'不来梅乐队粉丝', rarity:'blue', desc:'你不幸听到了不来梅乐队的演奏，那段旋律在你脑中挥之不去，你开始不自觉地哼唱。', effect:'智力+1，意志+1，不来梅事件有优势', con:0, int:1, wil:1, wea:0, tag:'身份' },
   { id:'b27', name:'哭泣之子的邻居', rarity:'blue', desc:'你曾是哭泣之子的邻居，见证了那一切的悲剧。', effect:'意志+2，精神抗性提升', con:0, int:0, wil:2, wea:0, tag:'背景' },
-  { id:'b28', name:'WARP列车乘客', rarity:'blue', desc:'你多次乘坐WARP列车，对时空的扭曲有了抗性。', effect:'意志+2，时间类事件有抗性', con:0, int:0, wil:2, wea:0, tag:'背景' },
+  { id:'b28', name:'WARP列车乘客', rarity:'blue', desc:'你多次乘坐WARP列车，对空间折叠造成的扭曲有了抗性。', effect:'意志+2，WARP相关事件有抗性', con:0, int:0, wil:2, wea:0, tag:'背景' },
   { id:'b29', name:'大湖的海盗', rarity:'blue', desc:'你成为了大湖上的海盗，自由但也危险。', effect:'体质+2，大湖事件有优势', con:2, int:0, wil:0, wea:0, tag:'身份' },
   { id:'b30', name:'血魔的眷属', rarity:'blue', desc:'你与血魔有着微弱的联系，获得了些许力量。', effect:'体质+2，血魔事件有优势', con:2, int:0, wil:0, wea:0, tag:'身份' },
   { id:'b31', name:'拉曼却领的居民', rarity:'blue', desc:'你居住在拉曼却领，见识过血魔的狂欢。', effect:'体质+1，意志+1，拉曼却领事件有优势', con:1, int:0, wil:1, wea:0, tag:'背景' },
-  { id:'b32', name:'鸿园的仆人', rarity:'blue', desc:'你在鸿园服务，见证了孔家的兴衰。', effect:'智力+1，意志+1，鸿园事件有优势', con:0, int:1, wil:1, wea:0, tag:'身份' },
-  { id:'b33', name:'大观园的轿夫', rarity:'blue', desc:'你在大观园抬轿，见识过史家的奢华。', effect:'体质+2，大观园事件有优势', con:2, int:0, wil:0, wea:0, tag:'身份' },
-  { id:'b34', name:'孔家的药童', rarity:'blue', desc:'你在孔家学习药理，掌握了基本的医术。', effect:'智力+2，医疗事件有优势', con:0, int:2, wil:0, wea:0, tag:'身份' },
-  { id:'b35', name:'史家的后人', rarity:'blue', desc:'你拥有史家的血脉，继承了部分家传技艺。', effect:'智力+1，财富+1，史家事件有优势', con:0, int:1, wil:0, wea:1, tag:'背景' },
+  { id:'b32', name:'鸿园的仆人', rarity:'blue', desc:'你在鸿园的大家族中充当仆役，目睹了家族之间暗流涌动的权力斗争与丸药的炼制。', effect:'智力+1，意志+1，鸿园事件有优势', con:0, int:1, wil:1, wea:0, tag:'身份' },
+  { id:'b33', name:'大观园的轿夫', rarity:'blue', desc:'你在鸿园大观园中抬轿，见识了家族的奢华与铁槛寺中仙人的神秘。', effect:'体质+2，大观园事件有优势', con:2, int:0, wil:0, wea:0, tag:'身份' },
+  { id:'b34', name:'孔家的药童', rarity:'blue', desc:'你跟随鸿园的丸药师学习药理，掌握了丸药炼制的基础知识和基本医术。', effect:'智力+2，医疗事件有优势', con:0, int:2, wil:0, wea:0, tag:'身份' },
+  { id:'b35', name:'史家的后人', rarity:'blue', desc:'你是鸿园某位家主候选人的远房亲戚，继承了部分丸药配方和家传武艺。', effect:'智力+1，财富+1，史家事件有优势', con:0, int:1, wil:0, wea:1, tag:'背景' },
   { id:'b36', name:'K公司的推销员', rarity:'blue', desc:'你为K公司推销安瓿，业绩尚可。', effect:'智力+1，财富+1，K公司事件有优势', con:0, int:1, wil:0, wea:1, tag:'身份' },
   { id:'b37', name:'T公司的计时员', rarity:'blue', desc:'你管理着T公司的时间，严格遵守每一秒。', effect:'智力+2，T公司事件有优势', con:0, int:2, wil:0, wea:0, tag:'身份' },
   { id:'b38', name:'R公司的士兵', rarity:'blue', desc:'你是R公司的士兵，经历过战争的洗礼。', effect:'体质+2，R公司事件有优势', con:2, int:0, wil:0, wea:0, tag:'身份' },
-  { id:'b39', name:'N公司的摄影师', rarity:'blue', desc:'你为N公司拍摄各种照片，其中不少是机密。', effect:'智力+2，N公司事件有优势', con:0, int:2, wil:0, wea:0, tag:'身份' },
-  { id:'b40', name:'I公司的情报员', rarity:'blue', desc:'你为I公司收集情报，穿梭在都市的阴影中。', effect:'智力+2，情报类事件有优势', con:0, int:2, wil:0, wea:0, tag:'身份' },
+  { id:'b39', name:'N公司的摄影师', rarity:'blue', desc:'你曾是N公司的摄影职员，负责记录都市的影像资料。因一次拍摄事故被解雇。', effect:'智力+2，N公司事件有优势', con:0, int:2, wil:0, wea:0, tag:'身份' },
+  { id:'b40', name:'情报掮客', rarity:'blue', desc:'你在都市中从事信息掮客的工作，为各方势力收集情报。这份工作极度危险，但你精于此道。', effect:'智力+2，情报类事件有优势', con:0, int:2, wil:0, wea:0, tag:'身份' },
   { id:'b41', name:'L公司的前员工', rarity:'blue', desc:'你曾在脑叶公司工作，知道一些关于异想体的秘密。', effect:'智力+2，异想体事件有信息优势', con:0, int:2, wil:0, wea:0, tag:'背景' },
   { id:'b42', name:'U公司的航海者', rarity:'blue', desc:'你随U公司的船队航行，见识过许多奇异的事物。', effect:'体质+1，智力+1，航海事件有优势', con:1, int:1, wil:0, wea:0, tag:'身份' },
-  { id:'b43', name:'Z公司的神秘人', rarity:'blue', desc:'你与Z公司有着神秘的联系，连你自己都不完全了解。', effect:'全属性+1，随机事件概率略微改变', con:1, int:1, wil:1, wea:0, tag:'身份' },
+  { id:'b43', name:'Z公司的神秘人', rarity:'blue', desc:'你与都市中某个不为人知的组织有着联系。在都市的地图上找不到它的位置，但它确实存在。', effect:'全属性+1，随机事件概率略微改变', con:1, int:1, wil:1, wea:0, tag:'身份' },
   { id:'b44', name:'血棒的食用者', rarity:'blue', desc:'你食用过血棒，获得了些许恢复能力。', effect:'体质+2，恢复类事件有优势', con:2, int:0, wil:0, wea:0, tag:'特质' },
   { id:'b45', name:'钢琴家的听众', rarity:'blue', desc:'你听过钢琴家的演奏，那旋律至今在你脑海中回响。', effect:'智力+1，意志+1，音乐类事件有优势', con:0, int:1, wil:1, wea:0, tag:'背景' },
   { id:'b46', name:'光之种的目击者', rarity:'blue', desc:'你亲眼见证了光之种的发射，内心受到了触动。', effect:'意志+2，精神类事件有优势', con:0, int:0, wil:2, wea:0, tag:'背景' },
@@ -986,22 +1102,32 @@ const ALL_TALENTS = [
   { id:'b53', name:'K公司的安瓿推销员', rarity:'blue', desc:'你推销K公司的安瓿，救过不少人也害过不少人。', effect:'智力+1，财富+1，K公司事件有优势', con:0, int:1, wil:0, wea:1, tag:'身份' },
   { id:'b54', name:'T公司的时间管理专员', rarity:'blue', desc:'你精确管理着时间，不容许任何一秒的浪费。', effect:'智力+2，时间类事件有优势', con:0, int:2, wil:0, wea:0, tag:'身份' },
   { id:'b55', name:'R公司的退役士兵', rarity:'blue', desc:'你从R公司退役，战争的记忆伴随终生。', effect:'体质+2，意志-1，战斗类事件有优势', con:2, int:0, wil:-1, wea:0, tag:'身份' },
-  { id:'b56', name:'N公司的摄影师', rarity:'blue', desc:'你用镜头记录都市的一切，无论善恶。', effect:'智力+2，观察类事件有优势', con:0, int:2, wil:0, wea:0, tag:'身份' },
+  { id:'b56', name:'N公司的摄影师', rarity:'blue', desc:'你是自由摄影师，在后巷为收尾人和事务所拍摄宣传照，偶尔涉足禁忌的边缘。', effect:'智力+2，观察类事件有优势', con:0, int:2, wil:0, wea:0, tag:'身份' },
   { id:'b57', name:'H公司的实验体', rarity:'blue', desc:'你曾参与H公司的实验，获得了未知的变化。', effect:'体质+1，智力+1，实验类事件有优势', con:1, int:1, wil:0, wea:0, tag:'身份' },
   { id:'b58', name:'J公司的职员', rarity:'blue', desc:'你在J公司工作，掌握着关于镜像的秘密。', effect:'智力+2，J公司事件有优势', con:0, int:2, wil:0, wea:0, tag:'身份' },
   { id:'b59', name:'郊区探险队的厨师', rarity:'blue', desc:'你为郊区探险队烹饪，是队伍中最受欢迎的人。', effect:'体质+1，意志+1，郊区事件有优势', con:1, int:0, wil:1, wea:0, tag:'身份' },
   { id:'b60', name:'后巷的地下医生', rarity:'blue', desc:'你在后巷行医，没有执照但技术过硬。', effect:'智力+2，医疗事件有优势', con:0, int:2, wil:0, wea:0, tag:'身份' },
+  { id:'b61', name:'R公司的兔子士兵', rarity:'blue', desc:'你曾加入R公司的兔子部队。那段残暴的训练让你至今噩梦不断。', effect:'体质+2，战斗事件有优势', con:2, int:0, wil:0, wea:0, tag:'R公司' },
+  { id:'b62', name:'残响乐团的听众', rarity:'blue', desc:'你曾听过残响乐团的演奏。那段旋律在你脑海中挥之不去，让你对扭曲有了更深的理解。', effect:'意志+1，扭曲事件有抗性', con:0, int:0, wil:1, wea:0, tag:'扭曲' },
+  { id:'b63', name:'九人会的线人', rarity:'blue', desc:'你为N公司董事赫尔曼组建的九人会提供情报。你知道"所有镜世界"的存在。', effect:'智力+2，N公司事件有优势', con:0, int:2, wil:0, wea:0, tag:'N公司' },
+  { id:'b64', name:'推奴人的目标', rarity:'blue', desc:'你是S公司管辖下的奴婢后裔，身上的烙印时隐时痛。推奴人随时可能找上门来。', effect:'体质+1，S公司事件触发率高', con:1, int:0, wil:1, wea:0, tag:'奴婢' },
+  { id:'b65', name:'废料蟹的共生者', rarity:'blue', desc:'你与一只因共鸣音叉而突变的废料蟹建立了奇特的共生关系。它会为你战斗。', effect:'体质+1，大湖事件有优势', con:1, int:0, wil:0, wea:1, tag:'大湖' },
+  { id:'b66', name:'月长石矿工', rarity:'blue', desc:'你在第十三区的月长石矿场工作。长期接触月长石让你对精神伤害有了抗性。', effect:'意志+2，精神类事件有抗性', con:1, int:0, wil:2, wea:0, tag:'M公司' },
+  { id:'b67', name:'愿力赌徒', rarity:'blue', desc:'你在第十区的赌场里用愿力赌博。有时好运降临，有时血本无归。', effect:'家境+2，赌博事件触发率高', con:0, int:1, wil:0, wea:2, tag:'赌徒' },
+  { id:'b68', name:'WARP经济舱乘客', rarity:'blue', desc:'你乘坐过WARP列车的经济舱——那段漫长的旅程让你在车厢内修炼了数年。', effect:'体质+1，智力+1，WARP事件有优势', con:1, int:1, wil:0, wea:0, tag:'W公司' },
+  { id:'b69', name:'概念焚化炉的操作员', rarity:'blue', desc:'你负责操作概念焚化炉。你知道有些东西被焚化后，连同人们对它的记忆也会消失。', effect:'智力+2，记忆力下降的代价', con:0, int:2, wil:0, wea:0, tag:'翼公司' },
+  { id:'b70', name:'时间征收员学徒', rarity:'blue', desc:'你在T公司学习时间征收技术。三级征收员用锤和稿插入身体吸取时间——你还没到那个级别。', effect:'智力+1，T公司事件有优势', con:0, int:1, wil:0, wea:1, tag:'T公司' },
 
   // ==================== 紫色天赋 (40个) ====================
-  { id:'p1', name:'觉醒的E.G.O', rarity:'purple', desc:'你的E.G.O开始觉醒，拥有了超越常人的力量。', effect:'体质+3，E.G.O相关事件大幅提升', con:3, int:0, wil:0, wea:0, tag:'能力' },
-  { id:'p2', name:'食指的指令', rarity:'purple', desc:'你收到了食指的指令，成为了指令的执行者。', effect:'体质+2，智力+1，食指事件大幅提升', con:2, int:1, wil:0, wea:0, tag:'能力' },
+  { id:'p1', name:'觉醒的E.G.O', rarity:'purple', desc:'你体内沉睡着人性之井的力量，在极端情感下可能绽放出E.G.O——代价是精神与肉体的双重负担。', effect:'体质+3，E.G.O相关事件大幅提升', con:3, int:0, wil:0, wea:0, tag:'能力' },
+  { id:'p2', name:'食指的指令', rarity:'purple', desc:'你蒙上了白布，追随食指的指令。指令就是命运，而你已经选择将自己交给它。', effect:'体质+2，智力+1，食指事件大幅提升', con:2, int:1, wil:0, wea:0, tag:'能力' },
   { id:'p3', name:'协会的推荐信', rarity:'purple', desc:'你获得了协会的推荐信，前途一片光明。', effect:'全属性+1，协会事件大幅提升', con:1, int:1, wil:1, wea:1, tag:'背景' },
   { id:'p4', name:'色彩级的潜质', rarity:'purple', desc:'你拥有成为色彩级收尾人的潜质，未来不可限量。', effect:'体质+2，意志+2，收尾人事件大幅提升', con:2, int:0, wil:2, wea:0, tag:'潜质' },
   { id:'p5', name:'大湖的航海者', rarity:'purple', desc:'你是大湖上经验丰富的航海者，征服了无数风暴。', effect:'体质+3，大湖事件大幅提升', con:3, int:0, wil:0, wea:0, tag:'能力' },
   { id:'p6', name:'光之种的见证者', rarity:'purple', desc:'你近距离见证了光之种，获得了光的祝福。', effect:'意志+3，精神类事件大幅提升', con:0, int:0, wil:3, wea:0, tag:'背景' },
-  { id:'p7', name:'异想体亲和体质', rarity:'purple', desc:'你对异想体有着奇特的亲和力，能与它们沟通。', effect:'智力+2，意志+1，异想体事件大幅提升', con:0, int:2, wil:1, wea:0, tag:'能力' },
+  { id:'p7', name:'异想体亲和体质', rarity:'purple', desc:'你拥有"人性之井"的潜质，能隐约感知到来自都市底部的暗流。这让你更容易被异想体吸引。', effect:'智力+2，意志+1，异想体事件大幅提升', con:0, int:2, wil:1, wea:0, tag:'能力' },
   { id:'p8', name:'禁忌的知情者', rarity:'purple', desc:'你知道都市中的禁忌知识，这份知识既是力量也是诅咒。', effect:'智力+3，禁忌事件有优势但精神压力大', con:0, int:3, wil:0, wea:0, tag:'能力' },
-  { id:'p9', name:'E.G.O觉醒者', rarity:'purple', desc:'你的E.G.O已经觉醒，可以发挥出强大的力量。', effect:'体质+2，智力+1，E.G.O事件大幅提升', con:2, int:1, wil:0, wea:0, tag:'能力' },
+  { id:'p9', name:'E.G.O觉醒者', rarity:'purple', desc:'你的E.G.O已经觉醒，可以在战斗中绽放。但每次绽放都会消耗你的精神与肉体，过度使用将导致扭曲。', effect:'体质+2，智力+1，E.G.O事件大幅提升', con:2, int:1, wil:0, wea:0, tag:'能力' },
   { id:'p10', name:'扭曲的抵抗者', rarity:'purple', desc:'你抵抗住了扭曲的诱惑，意志坚如钢铁。', effect:'意志+3，精神抗性大幅提升', con:0, int:0, wil:3, wea:0, tag:'能力' },
   { id:'p11', name:'图书馆的司书候补', rarity:'purple', desc:'你被选中成为图书馆的司书候补，接近了知识的殿堂。', effect:'智力+3，知识类事件大幅提升', con:0, int:3, wil:0, wea:0, tag:'身份' },
   { id:'p12', name:'脑叶公司的部长候补', rarity:'purple', desc:'你被培养为脑叶公司的部长候补，肩负重任。', effect:'智力+2，意志+1，脑叶公司事件大幅提升', con:0, int:2, wil:1, wea:0, tag:'身份' },
@@ -1009,33 +1135,41 @@ const ALL_TALENTS = [
   { id:'p14', name:'烟霾战争的参与者', rarity:'purple', desc:'你亲身参与了烟霾战争，从中获得了宝贵的经验。', effect:'体质+2，意志+2，战争事件大幅提升', con:2, int:0, wil:2, wea:0, tag:'背景' },
   { id:'p15', name:'深宵的猎手', rarity:'purple', desc:'你在深宵中狩猎，成为了黑暗中的恐惧。', effect:'体质+3，夜间事件大幅提升', con:3, int:0, wil:0, wea:0, tag:'能力' },
   { id:'p16', name:'清道夫的猎杀者', rarity:'purple', desc:'你猎杀清道夫，成为了他们的噩梦。', effect:'体质+3，清道夫事件大幅提升', con:3, int:0, wil:0, wea:0, tag:'能力' },
-  { id:'p17', name:'血魔的眷属', rarity:'purple', desc:'你与血魔建立了深厚的联系，获得了强大的力量。', effect:'体质+3，血魔事件大幅提升', con:3, int:0, wil:0, wea:0, tag:'能力' },
+  { id:'p17', name:'血魔的眷属', rarity:'purple', desc:'你是血魔的后裔，血液中流淌着对鲜血的渴望。在血红之夜中，你感受到了眷属的召唤。', effect:'体质+3，血魔事件大幅提升', con:3, int:0, wil:0, wea:0, tag:'能力' },
   { id:'p18', name:'三鸟的信者', rarity:'purple', desc:'你信仰三鸟，获得了部分神明的力量。', effect:'体质+1，智力+1，意志+1，三鸟事件大幅提升', con:1, int:1, wil:1, wea:0, tag:'信仰' },
   { id:'p19', name:'一罪与百善的忏悔者', rarity:'purple', desc:'你在一罪与百善面前忏悔，获得了净化之力。', effect:'意志+3，精神净化类事件大幅提升', con:0, int:0, wil:3, wea:0, tag:'信仰' },
   { id:'p20', name:'漆黑噤默的传人', rarity:'purple', desc:'你继承了漆黑噤默的衣钵，掌握了沉默的力量。', effect:'体质+2，智力+1，漆黑噤默事件大幅提升', con:2, int:1, wil:0, wea:0, tag:'传承' },
   { id:'p21', name:'殷红迷雾的崇拜者', rarity:'purple', desc:'你崇拜殷红迷雾，从崇拜中汲取了力量。', effect:'体质+3，殷红迷雾事件大幅提升', con:3, int:0, wil:0, wea:0, tag:'信仰' },
   { id:'p22', name:'苍蓝残响的追随者', rarity:'purple', desc:'你追随苍蓝残响，被他的旋律所吸引。', effect:'智力+2，意志+1，苍蓝残响事件大幅提升', con:0, int:2, wil:1, wea:0, tag:'追随' },
   { id:'p23', name:'堇紫泪滴的学生', rarity:'purple', desc:'你成为了堇紫泪滴的学生，学习她的剑术。', effect:'体质+2，智力+1，堇紫泪滴事件大幅提升', con:2, int:1, wil:0, wea:0, tag:'传承' },
-  { id:'p24', name:'朱红十字的治愈者', rarity:'purple', desc:'你继承了朱红十字的治愈之力，能治愈他人的伤痛。', effect:'体质+1，智力+2，医疗事件大幅提升', con:1, int:2, wil:0, wea:0, tag:'传承' },
+  { id:'p24', name:'朱红十字的目击者', rarity:'purple', desc:'你曾目击朱红十字挥舞那柄发光的大型十字武器，炽烈的火焰与压迫感让你至今难忘。', effect:'体质+1，智力+2，燃烧类事件有优势', con:1, int:2, wil:0, wea:0, tag:'传承' },
   { id:'p25', name:'八大主厨的食客', rarity:'purple', desc:'你品尝过八大主厨的料理，从中获得了力量。', effect:'体质+3，八大主厨事件大幅提升', con:3, int:0, wil:0, wea:0, tag:'背景' },
   { id:'p26', name:'苍蓝残响的乐手', rarity:'purple', desc:'你成为了苍蓝残响的乐手，演奏着禁忌的旋律。', effect:'智力+2，意志+1，音乐类事件大幅提升', con:0, int:2, wil:1, wea:0, tag:'身份' },
   { id:'p27', name:'不来梅的乐手', rarity:'purple', desc:'你加入了不来梅乐队，成为了其中一员。', effect:'智力+2，意志+1，不来梅事件大幅提升', con:0, int:2, wil:1, wea:0, tag:'身份' },
   { id:'p28', name:'哭泣之子的守护者', rarity:'purple', desc:'你守护着哭泣之子，分担了他的悲伤。', effect:'意志+3，精神类事件大幅提升', con:0, int:0, wil:3, wea:0, tag:'身份' },
   { id:'p29', name:'八大主厨', rarity:'purple', desc:'你成为了八大主厨之一，掌握着禁忌的料理。', effect:'体质+2，智力+1，料理事件大幅提升', con:2, int:1, wil:0, wea:0, tag:'身份' },
   { id:'p30', name:'狼之时刻的猎物', rarity:'purple', desc:'你曾是狼之时刻的猎物，但活了下来。', effect:'体质+2，意志+2，狼之时刻事件有抗性', con:2, int:0, wil:2, wea:0, tag:'背景' },
-  { id:'p31', name:'在宪的傀儡', rarity:'purple', desc:'你成为了在宪的傀儡，获得了超越人体的力量。', effect:'体质+3，意志-1，傀儡类事件大幅提升', con:3, int:0, wil:-1, wea:0, tag:'身份' },
+  { id:'p31', name:'在宪的傀儡', rarity:'purple', desc:'你被某种力量操控着，如提线木偶般行动。你无法确定那股力量来自何方，但你的身体确实因此获得了超常的能力。', effect:'体质+3，意志-1，傀儡类事件大幅提升', con:3, int:0, wil:-1, wea:0, tag:'身份' },
   { id:'p32', name:'普鲁托的契约者', rarity:'purple', desc:'你与普鲁托签订了契约，获得了交易的力量。', effect:'智力+2，财富+1，交易类事件大幅提升', con:0, int:2, wil:0, wea:1, tag:'契约' },
-  { id:'p33', name:'奥斯瓦尔德的小丑', rarity:'purple', desc:'你成为了奥斯瓦尔德的小丑，在疯狂中找到了自我。', effect:'智力+2，意志+1，奥斯瓦尔德事件大幅提升', con:0, int:2, wil:1, wea:0, tag:'身份' },
+  { id:'p33', name:'奥斯瓦尔德的小丑', rarity:'purple', desc:'你成为了某个扭曲的小丑的同伴，在那荒诞的马戏团中找到了属于自己的位置。微笑就是你的面具。', effect:'智力+2，意志+1，奥斯瓦尔德事件大幅提升', con:0, int:2, wil:1, wea:0, tag:'身份' },
   { id:'p34', name:'血红之夜的幸存者', rarity:'purple', desc:'你在血红之夜中存活，成为了少数的幸运儿。', effect:'体质+2，意志+2，血红之夜事件有抗性', con:2, int:0, wil:2, wea:0, tag:'背景' },
   { id:'p35', name:'光之种的沐浴者', rarity:'purple', desc:'你沐浴在光之种的光芒中，获得了蜕变。', effect:'全属性+2，光之种事件大幅提升', con:2, int:2, wil:2, wea:0, tag:'背景' },
   { id:'p36', name:'河流的记忆者', rarity:'purple', desc:'你记住了河流的流动，获得了时间的力量。', effect:'智力+3，时间类事件大幅提升', con:0, int:3, wil:0, wea:0, tag:'能力' },
-  { id:'p37', name:'首脑的候选者', rarity:'purple', desc:'你被选为首脑的候选者，拥有了极高的地位。', effect:'全属性+1，首脑事件大幅提升', con:1, int:1, wil:1, wea:2, tag:'身份' },
-  { id:'p38', name:'眼线的监视者', rarity:'purple', desc:'你成为了眼线的一员，监视着都市的一切。', effect:'智力+3，信息类事件大幅提升', con:0, int:3, wil:0, wea:0, tag:'身份' },
-  { id:'p39', name:'爪牙的挑战者', rarity:'purple', desc:'你敢挑战爪牙，这份勇气本身就是一种力量。', effect:'体质+3，爪牙事件有抗性', con:3, int:0, wil:0, wea:0, tag:'身份' },
+  { id:'p37', name:'首脑的候选者', rarity:'purple', desc:'你在某种巧合下与首脑产生了微弱的联系。虽然这并不意味什么，但你确信自己被都市的规则所注视。', effect:'全属性+1，首脑事件大幅提升', con:1, int:1, wil:1, wea:2, tag:'身份' },
+  { id:'p38', name:'眼线的监视者', rarity:'purple', desc:'你被B公司招募为监控网络的维护人员，负责处理都市中无处不在的监控数据。', effect:'智力+3，信息类事件大幅提升', con:0, int:3, wil:0, wea:0, tag:'身份' },
+  { id:'p39', name:'爪牙的挑战者', rarity:'purple', desc:'你目击了一次爪牙的制裁行动——那个违反禁忌的人连同违规事项一起从都市中消失。你决定永远不触犯任何禁忌。', effect:'体质+3，爪牙事件有抗性', con:3, int:0, wil:0, wea:0, tag:'身份' },
   { id:'p40', name:'翼的董事候补', rarity:'purple', desc:'你被培养为翼公司的董事候补，前途无量。', effect:'智力+2，财富+1，翼事件大幅提升', con:0, int:2, wil:0, wea:1, tag:'身份' },
+  { id:'p41', name:'神备觉醒者', rarity:'purple', desc:'你在极端的痛苦中接受了自我的全部，绽放出了神备(E.G.O)——这是比E.G.O更高的境界。代价是你的身体和灵魂都留下了永久的伤疤。', effect:'全属性+2，扭曲抗性大幅提升', con:2, int:2, wil:2, wea:2, tag:'神备' },
+  { id:'p42', name:'星盘的碎片', rarity:'purple', desc:'你获得了星盘的一块碎片。它偶尔会闪过其他世界的信息，让你窥见不同的命运。', effect:'智力+3，偶尔获得预知信息', con:0, int:3, wil:1, wea:0, tag:'边狱' },
+  { id:'p43', name:'人形纺织面料', rarity:'purple', desc:'你接受了前翼公司的"人类纺织"技术，身体被部分纺织为特殊面料，轻盈而坚韧。', effect:'体质+3，速度大幅提升', con:3, int:0, wil:0, wea:0, tag:'改造' },
+  { id:'p44', name:'天杀星刀的接触者', rarity:'purple', desc:'你曾短暂接触过天杀星刀。它试图斩断你与世界的联系，但你活了下来——代价是左手永远失去了知觉。', effect:'意志+3，战斗事件有绝对优势', con:0, int:1, wil:3, wea:0, tag:'遗物' },
+  { id:'p45', name:'调律者的目睹者', rarity:'purple', desc:'你亲眼目睹了首脑的调律者在行动。他们可以组合使用多种奇点，那种力量超越了你的一切认知。', effect:'意志+2，对各翼奇点事件有抗性', con:0, int:2, wil:2, wea:0, tag:'首脑' },
+  { id:'p46', name:'深宵幸存者', rarity:'purple', desc:'你在后巷深宵的清道夫三波扫荡中幸存了下来。那80分钟的无法律地狱，你永远忘不了。', effect:'体质+2，意志+2，深宵事件免疫', con:2, int:0, wil:2, wea:0, tag:'深宵' },
+  { id:'p47', name:'灰烬之翼的遗物', rarity:'purple', desc:'你持有从烟霾战争中回收的遗物。它散发着惨白浓烟的残留气息，偶尔会在你手中微微震动。', effect:'智力+2，烟霾战争事件有特殊优势', con:0, int:2, wil:1, wea:0, tag:'烟霾战争' },
+  { id:'p48', name:'愿力罐持有者', rarity:'purple', desc:'你持有一个愿力罐，它可以吸取并储存"愿力"。在关键时刻释放愿力可以改变命运。', effect:'家境+2，关键时刻获得幸运加成', con:0, int:0, wil:1, wea:3, tag:'遗物' },
 
   // ==================== 金色天赋 (16个) ====================
-  { id:'g1', name:'首脑的注视', rarity:'gold', desc:'首脑注视着你，这份关注既是荣耀也是威胁。', effect:'全属性+2，首脑事件极大提升', con:2, int:2, wil:2, wea:2, tag:'传说' },
+  { id:'g1', name:'首脑的注视', rarity:'gold', desc:'你隐约感觉到首脑的存在。在都市的某个角落，你的每一次呼吸似乎都在被A公司所记录。这让你如履薄冰。', effect:'全属性+2，首脑事件极大提升', con:2, int:2, wil:2, wea:2, tag:'传说' },
   { id:'g2', name:'星星的祝福', rarity:'gold', desc:'星星为你祝福，你的愿望更容易实现。', effect:'意志+4，幸运类事件极大提升', con:0, int:0, wil:4, wea:0, tag:'传说' },
   { id:'g3', name:'河流的触碰', rarity:'gold', desc:'河流触碰了你的灵魂，你获得了时间的权能。', effect:'智力+4，时间类事件极大提升', con:0, int:4, wil:0, wea:0, tag:'传说' },
   { id:'g4', name:'光之种的照耀', rarity:'gold', desc:'光之种照耀着你，你的灵魂得到了升华。', effect:'全属性+3，光之种事件极大提升', con:3, int:3, wil:3, wea:0, tag:'传说' },
@@ -1051,16 +1185,20 @@ const ALL_TALENTS = [
   { id:'g14', name:'图书馆的邀请函', rarity:'gold', desc:'你收到了图书馆的邀请函，成为了真正的来宾。', effect:'智力+4，知识事件极大提升', con:0, int:4, wil:0, wea:0, tag:'传说' },
   { id:'g15', name:'首脑的替代者', rarity:'gold', desc:'你成为了首脑的替代者，拥有了改变都市的权力。', effect:'全属性+3，首脑事件极大提升', con:3, int:3, wil:3, wea:3, tag:'传说' },
   { id:'g16', name:'奇点的主宰', rarity:'gold', desc:'你主宰了奇点科技，成为了都市中最危险的存在。', effect:'智力+4，奇点科技事件极大提升', con:0, int:4, wil:0, wea:2, tag:'传说' },
+  { id:'g17', name:'图书馆的管家', rarity:'gold', desc:'你成为了图书馆的管家，打理着这座收藏了无数灵魂的书之殿堂。罗兰曾站在这个位置上，而你接过了这份沉默的职责。', effect:'智力+3，意志+2，图书馆事件极大提升', con:0, int:3, wil:2, wea:0, tag:'图书馆' },
+  { id:'g18', name:'边狱巴士的乘客', rarity:'gold', desc:'你乘坐了边狱公司的梅菲斯特巴士。但丁的星盘在你眼前闪耀，十三个罪人的命运与你交织。', effect:'全属性+1，罪孽事件极大提升', con:1, int:1, wil:1, wea:1, tag:'边狱' },
+  { id:'g19', name:'残响乐团的指挥', rarity:'gold', desc:'你跟随苍蓝残响组建了残响乐团。你们收集扭曲实体，演奏都市最深处的悲伤。', effect:'智力+2，意志+3，扭曲事件极大提升', con:0, int:2, wil:3, wea:0, tag:'残响乐团' },
+  { id:'g20', name:'十三协会的创立者', rarity:'gold', desc:'你推动成立了第十三协会——专门处理扭曲的收尾人协会。堇紫泪滴伊织的理念在你身上得到了实现。', effect:'意志+3，智力+2，扭曲事件极大提升', con:0, int:2, wil:3, wea:0, tag:'十三协会' },
 
   // ==================== 传说天赋 (5个) ====================
   { id:'l1', name:'都市的奇点', rarity:'legend', desc:'你本身就是都市的奇迹，超越了所有规则与限制。', effect:'全属性+5，所有事件获得极大加成', con:5, int:5, wil:5, wea:5, tag:'超越' },
-  { id:'l2', name:'A公司的首脑', rarity:'legend', desc:'你来自都市的最高点，掌控着一切的开始与终结。', effect:'全属性+4，额外获得首脑权能', con:4, int:4, wil:4, wea:4, tag:'超越' },
+  { id:'l2', name:'A公司的首脑', rarity:'legend', desc:'你是A公司的高级职员之一，虽然距离首脑还差得远，但你处理的事务直接关系到都市规则的运转。', effect:'全属性+4，额外获得首脑权能', con:4, int:4, wil:4, wea:4, tag:'超越' },
   { id:'l3', name:'安吉拉的光之种', rarity:'legend', desc:'你承载着光之种的希望，是都市未来的关键。', effect:'全属性+4，光之种完全掌控', con:4, int:4, wil:4, wea:4, tag:'超越' },
-  { id:'l4', name:'卡门的灵魂治疗', rarity:'legend', desc:'你治愈了都市的灵魂，带来了真正的救赎。', effect:'全属性+4，精神类事件完全免疫', con:4, int:4, wil:4, wea:4, tag:'超越' },
+  { id:'l4', name:'卡门的灵魂治疗', rarity:'legend', desc:'你见证了卡门的光——那道照亮都市灵魂的光芒。尽管卡门已经不在，但你继承了他的意志，试图用自己的方式治愈他人。', effect:'全属性+4，精神类事件完全免疫', con:4, int:4, wil:4, wea:4, tag:'超越' },
   { id:'l5', name:'艾因的剧本', rarity:'legend', desc:'你编写着都市的命运，一切尽在掌控之中。', effect:'全属性+4，可以预知并改变关键事件', con:4, int:4, wil:4, wea:4, tag:'超越' },
   // 组合标签天赋
   { id:'c1', name:'孤儿', rarity:'epic', desc:'你没有父母，在后巷的废墟中独自降生。深宵是你最早的摇篮，清道夫的脚步声是你最早的安眠曲。', effect:'体质+1，意志+1，触发孤儿线', con:1, int:0, wil:1, wea:0, tag:'孤儿' },
-  { id:'c2', name:'双生子', rarity:'epic', desc:'你与另一个生命同时降临。你们共享着某种超越血脉的羁绊。', effect:'体质+1，意志+1，根据性别触发安吉莉卡/阿尔加利亚线', con:1, int:1, wil:1, wea:0, tag:'双生子' },
+  { id:'c2', name:'双生子', rarity:'epic', desc:'你与另一个生命同时降临。你们共享着某种超越血脉的羁绊。', effect:'体质+1，意志+1，根据性别触发安吉丽卡/阿尔加利亚线', con:1, int:1, wil:1, wea:0, tag:'双生子' },
   { id:'c3', name:'女性', rarity:'rare', desc:'你是女性，在都市的残酷中挣扎。', effect:'意志+1', con:0, int:0, wil:1, wea:0, tag:'女性' },
   { id:'c4', name:'男性', rarity:'rare', desc:'你是男性，在都市的钢铁丛林中求存。', effect:'体质+1', con:1, int:0, wil:0, wea:0, tag:'男性' },
   { id:'c5', name:'翼的实验品', rarity:'epic', desc:'你从出生起就是某个翼公司的实验对象。你的身体里流淌着不属于自己的血液。', effect:'体质随机±2，触发实验品线', con:1, int:1, wil:0, wea:0, tag:'实验品' },
@@ -1070,6 +1208,29 @@ const ALL_TALENTS = [
   { id:'c9', name:'拇指成员', rarity:'rare', desc:'你出生在拇指的势力范围内，从小听着枪声和等级制度长大。', effect:'体质+1，触发拇指候补线', con:1, int:0, wil:0, wea:0, tag:'拇指' },
   { id:'c10', name:'食指代行者', rarity:'epic', desc:'你被食指选中，成为传达指令的代行者。指令不可违抗，这是刻在你骨髓中的铁律。', effect:'意志+2，触发食指代行者线', con:0, int:0, wil:2, wea:0, tag:'食指' },
   { id:'c11', name:'帮派分子', rarity:'rare', desc:'你在帮派的阴影中长大，暴力是你唯一的语言。', effect:'体质+1，家境+1', con:1, int:0, wil:0, wea:1, tag:'帮派' },
+  // ==================== 蜘蛛巢出生天赋（紫色） ====================
+  { id:'spider_orphan', name:'蜘蛛巢的遗孤', rarity:'purple', desc:'蜘蛛巢中被遗弃的孩子，拥有天杀星刀的血脉。', effect:'意志+2，蜘蛛巢相关事件中获得优势判定', con:0, int:0, wil:2, wea:0, tag:'蜘蛛巢,天杀星刀', startRoute:'蜘蛛巢' },
+  { id:'arayashiki_heir', name:'天杀星刀的继承者', rarity:'purple', desc:'继承了能斩断一切联系的天杀星刀·阿赖耶识。', effect:'体质+1，意志+3，获得扭曲抗性', con:1, int:0, wil:3, wea:0, tag:'蜘蛛巢,天杀星刀,扭曲抗性', startRoute:'蜘蛛巢' },
+  // ==================== 边狱罪人出生天赋（金色） ====================
+  { id:'don_quixote_blood', name:'堂吉诃德·血魔之子', rarity:'gold', desc:'出生在拉·曼却领，血与梦的血脉在体内流淌。', effect:'体质+3，意志+2', con:3, int:0, wil:2, wea:0, tag:'边狱罪人,拉·曼却,血魔', startRoute:'拉·曼却领' },
+  { id:'ryoshu_blade', name:'良秀·天杀星刃者', rarity:'gold', desc:'蜘蛛巢出身的刀匠，拥有异常的时间感知能力。', effect:'智力+2，意志+3', con:0, int:2, wil:3, wea:0, tag:'边狱罪人,蜘蛛巢,天杀星刀', startRoute:'蜘蛛巢' },
+  { id:'honglu_eye', name:'鸿璐·大观园之眼', rarity:'gold', desc:'眼中嵌入了碧玉般的异质物，被仙人时刻观察着。', effect:'智力+3，意志+2', con:0, int:3, wil:2, wea:0, tag:'边狱罪人,大观园,仙人', startRoute:'大观园' },
+  { id:'ishmael_whale', name:'以实玛利·白鲸猎人', rarity:'gold', desc:'曾参与击杀大湖中游荡的白鲸的幸存者。', effect:'体质+2，智力+2，意志+1', con:2, int:2, wil:1, wea:0, tag:'边狱罪人,白鲸,大湖' },
+  { id:'gregor_gcorp', name:'格里高尔·G公司实验体', rarity:'gold', desc:'幼年被G公司奇点技术改造，身体与昆虫融合。', effect:'体质+2，智力+2，但快乐上限降低', con:2, int:2, wil:0, wea:0, tag:'边狱罪人,G公司,奇点技术' },
+  { id:'faust_mcorp', name:'浮士德·M公司的天才', rarity:'gold', desc:'边狱公司LCA小队的领导者，M公司精英中的精英。', effect:'智力+3，家境+2', con:0, int:3, wil:0, wea:2, tag:'边狱罪人,M公司,LCA' },
+  { id:'sinclair_mark', name:'辛克莱·该隐印记', rarity:'gold', desc:'额头刻有血红印记，被某种超越意志的存在所选择。', effect:'智力+1，意志+3', con:0, int:1, wil:3, wea:0, tag:'边狱罪人,该隐印记' },
+  { id:'heathcliff_rage', name:'希斯克利夫·愤怒之力', rarity:'gold', desc:'该隐印记持有者，愤怒即是力量的源泉。', effect:'体质+3，意志+2', con:3, int:0, wil:2, wea:0, tag:'边狱罪人,该隐印记,愤怒' },
+  { id:'demiyan_abyss', name:'德米安·深渊凝视者', rarity:'gold', desc:'该隐印记持有者，拥有凝视深渊并从中读取真相的能力。', effect:'智力+3，意志+1', con:0, int:3, wil:1, wea:0, tag:'边狱罪人,该隐印记,深渊' },
+  { id:'ryi_martial', name:'李燮·武术修行者', rarity:'gold', desc:'来自S公司的武道修行者，拳脚即是真理。', effect:'体质+3，智力+1', con:3, int:1, wil:0, wea:0, tag:'边狱罪人,S公司,武道', startRoute:'S巢' },
+  { id:'outis_rebel', name:'奥提斯·鸿园叛逆者', rarity:'gold', desc:'鸿园中的叛逆者，拥有一群愿意追随到死的忠实部下。', effect:'体质+1，意志+3，家境+1', con:1, int:0, wil:3, wea:1, tag:'边狱罪人,鸿园,领袖' },
+  { id:'samson_gangster', name:'参孙·黑帮继承者', rarity:'gold', desc:'继承了某个地下组织的遗产与权势。', effect:'体质+2，家境+2', con:2, int:0, wil:0, wea:2, tag:'边狱罪人,黑帮,地下势力' },
+  // ==================== 特殊出身天赋（紫色） ====================
+  { id:'nest_a_tuner', name:'A巢·调律者候补', rarity:'purple', desc:'出生在A巢附近，拥有多种奇点技术的直觉性理解力。', effect:'智力+3，意志+2', con:0, int:3, wil:2, wea:0, tag:'A巢,调律者,奇点', startRoute:'A巢' },
+  { id:'sweeper_desc', name:'清道夫后裔', rarity:'purple', desc:'血脉中残留着清道夫的特质，深宵中的噩梦对你绕道而行。', effect:'体质+2，意志+1，深宵事件中安全', con:2, int:0, wil:1, wea:0, tag:'清道夫,深宵,血脉' },
+  { id:'nest_s_scholar', name:'S巢·科举天才', rarity:'purple', desc:'S巢的应试天才，对经史子集烂熟于心。', effect:'智力+3，家境+1', con:0, int:3, wil:0, wea:1, tag:'S巢,科举,学者', startRoute:'S巢' },
+  { id:'nest_s_branded', name:'S巢·奴婢烙印', rarity:'purple', desc:'身上被打了削弱气力的烙印，活着本身就需要非人的意志。', effect:'全属性-1，但触发逆袭事件链', con:-1, int:-1, wil:-1, wea:-1, tag:'S巢,烙印,逆袭', startRoute:'S巢' },
+  // ==================== 黑色天赋（特殊开局） ====================
+  { id:'head_shadow', name:'首脑的影子', rarity:'black', desc:'出生即被首脑选中，注定成为调律者，一切都在那道目光的计算之中。', effect:'智力+4，意志+4，家境+5，触发专属事件线', con:0, int:4, wil:4, wea:5, tag:'首脑,调律者,特殊线', startRoute:'首脑的影' },
 ];
 
 
@@ -1298,6 +1459,80 @@ const BIRTHPLACES = [
     region: 'finger',
   },
 
+  // 特殊区域/翼领地
+  {
+    id: 'D',
+    name: 'D区（缃碧少女出身）',
+    desc: '都市北部的一处巢，缃碧少女的传说从这里开始。',
+    req: null,
+    icon: 'D',
+    region: 'nest',
+  },
+  {
+    id: 'X',
+    name: 'X区（魔窟）',
+    desc: 'X公司的领地。地下深处开采着特殊合金，挖掘出的东西不只有矿石。',
+    req: null,
+    icon: 'X',
+    region: 'nest',
+  },
+  {
+    id: 'S10',
+    name: '第十区（赌博之城）',
+    desc: '弥漫赌博文化的都市南部区域。愿力在这里被买卖，运气就是货币。',
+    req: null,
+    icon: '10',
+    region: 'nest',
+  },
+  {
+    id: 'S16',
+    name: '第十六区（P公司领地）',
+    desc: '极高建筑林立，P公司的"完全保护"奇点让这里坚不可摧。拉·曼却领也位于此处。',
+    req: null,
+    icon: '16',
+    region: 'nest',
+  },
+  {
+    id: 'S19',
+    name: '第十九区（S公司领地）',
+    desc: '东方政治体制的区域，科举制度和朋党之争是这里的常态。奴婢制度让人不寒而栗。',
+    req: null,
+    icon: '19',
+    region: 'nest',
+  },
+  {
+    id: 'S20',
+    name: '第二十区（T公司领地）',
+    desc: '时间在这里被精确管控。色彩回收装置让越靠近中心的地方颜色越少。',
+    req: null,
+    icon: '20',
+    region: 'nest',
+  },
+  {
+    id: 'S13',
+    name: '第十三区（月长石产地）',
+    desc: 'MDM Enterprise的领地，出产珍贵的月长石。月面骑士团在此巡逻。',
+    req: null,
+    icon: '13',
+    region: 'nest',
+  },
+  {
+    id: 'WH',
+    name: '大湖沉眠之地',
+    desc: '大湖最深处的漆黑区域，暴雨和雷鸣从未停歇。这里已接近郊区，只有最疯狂的猎人才敢靠近。',
+    req: { wea: 3 },
+    icon: 'WH',
+    region: 'special',
+  },
+  {
+    id: 'RU2',
+    name: '礼物工厂',
+    desc: '郊区某处的小矮人经营着礼物工厂，而北方巨人担任着这里的老板。这里的"礼物"让人毛骨悚然。',
+    req: null,
+    icon: 'GF',
+    region: 'special',
+  },
+
   // 特殊
   {
     id: 'ramancha',
@@ -1482,25 +1717,131 @@ function generateGangName(tier) {
   return pick(names[tier] || names.rumor);
 }
 
-const RARITY = { COMMON:'common', RARE:'rare', EPIC:'epic', LEGEND:'legend' };
+const RARITY = { COMMON:'common', RARE:'rare', EPIC:'epic', LEGEND:'legend', PURPLE:'purple', BLACK:'black' };
 const ACHIEVEMENTS = [
-  { id:'finger_member', name:'五指之一', desc:'加入任意手指。', rarity:RARITY.EPIC, condition:(gs)=>['拇指','食指','中指','环指','小指'].some(f=>gs.milestones.includes('加入'+f)||getFlag('finger_joined')===f) },
-  { id:'city_star', name:'都市之星', desc:'成为都市之星。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('都市之星')||getFlag('city_star') },
-  { id:'deep_night_survivor', name:'深宵幸存者', desc:'在深宵的清扫中存活。', rarity:RARITY.EPIC, condition:(gs)=>(getFlag('deep_night_survived')||0)>=3 },
-  { id:'twisted_one', name:'扭曲者', desc:'成功扭曲。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('扭曲')||getFlag('twisted') },
-  { id:'ego_awaken', name:'E.G.O觉醒', desc:'觉醒E.G.O。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('E.G.O觉醒')||getFlag('ego_awakened') },
-  { id:'vampire_eternal', name:'血魔永生', desc:'完全转化为血魔。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('血魔转化')||getFlag('full_vampire') },
-  { id:'family_head', name:'家主', desc:'成为拇指的家主。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('家主') },
-  { id:'star_blade', name:'星刀之主', desc:'成为小指的星刀主人。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('星刀主人') },
-  { id:'library_guest', name:'图书馆的来宾', desc:'收到图书馆邀请函。', rarity:RARITY.RARE, condition:(gs)=>getFlag('library_invite') },
-  { id:'book_snatcher', name:'夺书者', desc:'从图书馆夺取书籍。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('library_ending')==='BOOK' },
-  { id:'smog_survivor', name:'烟霾幸存者', desc:'在烟霾战争中存活。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('war_survivor') },
-  { id:'pianist_audience', name:'钢琴师的听众', desc:'遭遇钢琴师。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('钢琴师') },
-  { id:'gear_ascend', name:'齿轮飞升', desc:'接受完全机械化改造。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('gear_full') },
-  { id:'arbiter_partner', name:'调律者的合作者', desc:'与首脑调律者达成合作。', rarity:RARITY.LEGEND, condition:(gs)=>getFlag('arbiter_coop') },
-  { id:'impurity', name:'杂质', desc:'被首脑认定为杂质。', rarity:RARITY.LEGEND, condition:(gs)=>getFlag('impurity') },
-  { id:'color_fixer', name:'色彩级收尾人', desc:'获得色彩级称号。', rarity:RARITY.LEGEND, condition:(gs)=>getFlag('becameColor') },
-  { id:'hundred_year', name:'百年孤独', desc:'在都市中存活超过一百岁。', rarity:RARITY.LEGEND, condition:(gs)=>gs.age>=100&&gs.alive },
+  // ====== 传说级成就 ======
+  { id:'city_star', name:'都市之星', desc:'成为都市之星。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('都市之星')||getFlag('city_star'),
+    lore:'都市的灾害评级中最高级别之一。触及翼公司核心利益，覆盖数座巢。需Hana协会专门科室跟踪。' },
+  { id:'impurity', name:'杂质', desc:'被首脑认定为杂质。', rarity:RARITY.LEGEND, condition:(gs)=>getFlag('impurity'),
+    lore:'威胁人类未来或彻底改变都市现状的存在。仅ABC公司（首脑/眼线/爪牙）可处理。触犯都市禁忌而诞生的终极威胁。' },
+  { id:'color_fixer', name:'色彩级收尾人', desc:'获得色彩级称号。', rarity:RARITY.LEGEND, condition:(gs)=>getFlag('becameColor')||gs.milestones.some(m=>m.includes('色彩级')),
+    lore:'非职业等级，终身荣誉称号。由Hana协会评定"最适合当收尾人"的人。称号由"颜色"+"个人特点"组成。可单人压制都市梦魇。' },
+  { id:'twisted_one', name:'扭曲者', desc:'成功扭曲。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('扭曲')||getFlag('twisted'),
+    lore:'光之种发射后在都市普遍发生的怪异现象。情绪积累至极限后，部分接受自我（只接受痛苦不接受罪孽）而产生。保留希望但形态崩坏。' },
+  { id:'ego_awaken', name:'E.G.O觉醒', desc:'觉醒E.G.O。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('E.G.O觉醒')||getFlag('ego_awakened'),
+    lore:'完全接受自我（痛苦+罪孽）后绽放出的力量。获得专属装备或特殊道具，是超越普通人类极限的境界。' },
+  { id:'god_ego', name:'神备觉醒', desc:'觉醒神备(E.G.O)。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('神备觉醒')||getFlag('godEgoAwakened'),
+    lore:'比E.G.O更高的境界。在极端的痛苦中接受了自我的全部后绽放。代价是身体和灵魂都留下永久伤疤。' },
+  { id:'vampire_eternal', name:'血魔永生', desc:'完全转化为血魔。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('血魔转化')||getFlag('full_vampire'),
+    lore:'两百年前血魔战争的遗留。血魔以血液为食，部分血魔如堂吉诃德选择用血棒替代。长老一代眷属拥有极强的力量。' },
+  { id:'family_head', name:'家主', desc:'成为拇指的家主。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('家主'),
+    lore:'拇指的最高统治者。拇指以"阶级礼仪"为信条，纪律严明。内部阶级：教父→二老板→指挥官→士兵。' },
+  { id:'star_blade', name:'星刀之主', desc:'成为小指的星刀主人。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('星刀主人'),
+    lore:'小指以特殊信物和星名代号识别彼此。"无处不在，却又互不相识"是小指的信条。星刀是小指的最高荣誉。' },
+  { id:'arbiter_partner', name:'调律者的合作者', desc:'与首脑调律者达成合作。', rarity:RARITY.LEGEND, condition:(gs)=>getFlag('arbiter_coop'),
+    lore:'首脑(A公司)的调律者拥有压倒性的地位。他们可以组合使用多种奇点，是都市最顶端的战斗力。' },
+  { id:'light_seed', name:'光之种', desc:'发射光之种。', rarity:RARITY.LEGEND, condition:(gs)=>getFlag('lightSeedLaunched'),
+    lore:'脑叶公司的终极计划。艾因以卡门的神经培育"井"，从异想体中提取脑啡肽，最终发射照亮都市灵魂的光芒。' },
+  { id:'hundred_year', name:'百年孤独', desc:'在都市中存活超过一百岁。', rarity:RARITY.LEGEND, condition:(gs)=>gs.age>=100&&gs.alive,
+    lore:'在都市中活到一百岁几乎是不可能的奇迹。即使是色彩级收尾人也未必能见证一个世纪的变迁。' },
+  { id:'assistant_librarian', name:'助理司书', desc:'成为安吉拉的助理司书。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('助理司书'),
+    lore:'图书馆的来宾接待者。每一本书都记录着一个人的一生。安吉拉——以卡门形象为基础的人工智能——是图书馆的创建者。' },
+  { id:'sinner', name:'罪人', desc:'成为边狱公司的罪人。', rarity:RARITY.LEGEND, condition:(gs)=>getFlag('sinner'),
+    lore:'边狱公司LCB部门的十三名罪人之一。在但丁（头部被星盘取代的管理者）的指挥下，搜集金枝踏上赎罪之旅。' },
+  { id:'white_night_black_day', name:'白夜黑昼', desc:'经历白夜黑昼事件。', rarity:RARITY.LEGEND, condition:(gs)=>getFlag('whiteNight'),
+    lore:'脑叶公司发射光之种后，第十二区经历了三天极昼四天极夜。从此都市中扭曲、大罪和神备开始出现。' },
+
+  // ====== 史诗级成就 ======
+  { id:'finger_member', name:'五指之一', desc:'加入任意手指。', rarity:RARITY.EPIC, condition:(gs)=>['拇指','食指','中指','环指','小指'].some(f=>gs.milestones.includes('加入'+f)||getFlag('finger_joined')===f),
+    lore:'都市后巷的五大帮派。拇指（阶级礼仪）、食指（谨遵指令之意）、中指（永不遗忘）、环指（只相信自己看到的事物）、小指（无处不在却又互不相识）。' },
+  { id:'deep_night_survivor', name:'深宵幸存者', desc:'在深宵的清扫中存活3次以上。', rarity:RARITY.EPIC, condition:(gs)=>(getFlag('deep_night_survived')||0)>=3,
+    lore:'后巷深宵：每日凌晨3:13-4:34的80分钟。清道夫三波扫荡后巷，此间一切暴力不受法律约束。唯一禁忌是破坏居民区。' },
+  { id:'deep_night_master', name:'深宵常客', desc:'在深宵的清扫中存活10次以上。', rarity:RARITY.EPIC, condition:(gs)=>(getFlag('deep_night_survived')||0)>=10,
+    lore:'能在清道夫的三波扫荡中存活十次的人，在都市中已经是传奇。清道夫的利爪和牙齿是后巷居民最深的恐惧。' },
+  { id:'book_snatcher', name:'夺书者', desc:'从图书馆夺取书籍。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('library_ending')==='BOOK',
+    lore:'图书馆中的每一本书都记录着一个人的一生。从安吉拉手中夺走一本书意味着获得那个人的全部记忆和力量。' },
+  { id:'smog_survivor', name:'烟霾幸存者', desc:'在烟霾战争中存活。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('war_survivor')||getFlag('smokeWar'),
+    lore:'第十二区的烟霾战争。旧L公司泄露惨白浓烟超70天，R公司兔子部队/前G公司/T公司/拇指等多势力混战。旧L公司和前G公司倒台。' },
+  { id:'gear_ascend', name:'齿轮飞升', desc:'接受完全机械化改造。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('gear_full'),
+    lore:'齿轮教团的终极形态。接受完全机械化改造后，人类的部分情感会逐渐消失，取而代之的是纯粹的逻辑和效率。' },
+  { id:'lobotomy_manager', name:'脑叶公司主管', desc:'成为脑叶公司设施的主管。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('lobotomyManager'),
+    lore:'脑叶公司的主管负责管理收容单元中的异想体。异想体是人类潜意识的造物，通过适当管理可以获取脑啡肽——精神与物理能源。' },
+  { id:'sephirah_complete', name:'Sephirah共鸣', desc:'获得8个以上Sephirah的认可。', rarity:RARITY.EPIC, condition:(gs)=>SEPHIRAH_CHAIN.filter(c=>getFlag('sephirah_'+c.id+'_done')).length>=8,
+    lore:'脑叶公司的Sephirah是各个部门的部长，源自卡门的身体。当所有Sephirah达成共鸣时，光之种将被发射。' },
+  { id:'whale_hunter', name:'鲸猎者', desc:'在大湖中成功猎杀鲸鱼。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('whaleHunter'),
+    lore:'大湖深处的鲸鱼是巨大的怪物。马林鲸和白鲸已被猎杀，但剩余的三大灾害仍未被揭示。靛蓝老者是著名的鲸猎者。' },
+  { id:'zwei_member', name:'Zwei协会成员', desc:'加入Zwei协会。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('加入Zwei协会'),
+    lore:'Zwei协会（第二协会）以安保保护闻名，口号是"您的盾牌"。成员使用厚重大剑，是都市中相对安全的收尾人协会。' },
+  { id:'hana_member', name:'Hana协会成员', desc:'加入Hana协会。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('加入Hana协会'),
+    lore:'Hana协会（第一协会）是都市中最高阶的收尾人协会。负责统筹管理、灾害评级、等级评定和色彩授予。' },
+  { id:'six_association', name:'六协会成员', desc:'加入六协会。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('加入六协会'),
+    lore:'六协会负责大规模集团作战。成员身穿月长石制服，以军事化行动著称。在烟霾战争等重大冲突中发挥了重要作用。' },
+  { id:'ruina_veteran', name:'废墟探险家', desc:'深入废墟并带回有价值的发现。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('ruinsExplorer'),
+    lore:'都市地下深处的废墟包含废弃巢、古代建筑和组织的绝密设施。边境铁道是废墟居民获取罕见物品的重要途径。' },
+  { id:'crimson_night', name:'血红之夜', desc:'经历血红之夜事件。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('crimsonNight'),
+    lore:'都市之星伊莲娜释放大量血魔眷属的夜晚。一代眷属血魔的力量远超普通血魔。朱红十字后来被她控制为血袋。' },
+  { id:'pianist_witness', name:'钢琴师的听众', desc:'遭遇钢琴师事件。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('钢琴师事件')||getFlag('pianistEvent_global'),
+    lore:'都市第一例扭曲。原酒吧钢琴师弹奏使30万人变为音符。安吉丽卡在事件中身亡，罗兰杀死了钢琴师。' },
+  { id:'weeping_child', name:'哭泣之子的见证者', desc:'遭遇哭泣之子。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('哭泣之子'),
+    lore:'扭曲出现在V巢上空，八万余人死亡。六协会一科被残响打断。哭泣之子的悲伤能感染所有人。' },
+  { id:'abno_alpeph', name:'ALEPH级镇压', desc:'成功镇压ALEPH级异想体。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('alpephSuppress'),
+    lore:'ALEPH级是异想体中最危险的存在。稳定收容已耗费大量人力物力。如果突破收容后未被摧毁整个部门就被镇压，简直是奇迹。' },
+  { id:'golden_bough', name:'金枝持有者', desc:'获得金枝。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('goldenBough'),
+    lore:'边狱公司的特殊道具。星盘可储存金枝，与命运共鸣可解锁现实影响效果。每根金枝都蕴含着强大的力量。' },
+
+  // ====== 稀有级成就 ======
+  { id:'library_guest', name:'图书馆的来宾', desc:'收到图书馆邀请函。', rarity:RARITY.RARE, condition:(gs)=>getFlag('library_invite'),
+    lore:'图书馆邀请都市中的来宾前来挑战。接待失败的人将化为书籍，永远留在图书馆中。安吉拉注视着每一个进入者。' },
+  { id:'pianist_audience', name:'钢琴家的遭遇', desc:'近距离遭遇钢琴师。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('钢琴师'),
+    lore:'钢琴师的旋律是死亡的安魂曲。听到演奏的人会在不知不觉中化为音符，成为都市永远无法愈合的伤痕。' },
+  { id:'first_grade', name:'一阶收尾人', desc:'成为一阶收尾人。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('一阶收尾人'),
+    lore:'职业收尾人的最高等级，精英中的精英。一阶收尾人是明星般的存在，可以承接都市梦魇级的委托。' },
+  { id:'nine_grade', name:'九阶收尾人', desc:'成为九阶收尾人。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('九阶收尾人'),
+    lore:'通过入职考核后的最低等级。刚握起武器的普通人开始。在都市中，九阶收尾人的数量是最多的。' },
+  { id:'w_company', name:'WARP常客', desc:'乘坐WARP列车超过10次。', rarity:RARITY.RARE, condition:(gs)=>(getFlag('warpCount')||0)>=10,
+    lore:'W公司的奇点是空间撕裂和现状还原。WARP列车实现空间折叠，乘客在车内经历完整旅程而外界只过去数秒。' },
+  { id:'k_ampoule', name:'安瓿使用者', desc:'使用K公司安瓿超过5次。', rarity:RARITY.RARE, condition:(gs)=>(getFlag('kAmpouleCount')||0)>=5,
+    lore:'K公司的奇点是再生安瓿/崩解安瓿。再生安瓿可瞬间修复生物损伤，崩解安瓿则可瞬间分解目标。阿方索是现任代表。' },
+  { id:'time_tax', name:'时间纳税人', desc:'被T公司征收过时间。', rarity:RARITY.RARE, condition:(gs)=>getFlag('timeTaxed'),
+    lore:'T公司的奇点是时间控制。TT1/TT2/TT4协议控制时间流速。时间作为货币流通，三级征收员用锤和稿插入身体吸取时间。' },
+  { id:'tres_member', name:'Tres协会成员', desc:'加入Tres协会。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('加入Tres协会'),
+    lore:'Tres协会（第三协会）负责工坊管理、装备审查和税收。所有工坊的武器都要经过他们的审查才能合法流通。' },
+  { id:'seven_member', name:'Seven协会成员', desc:'加入Seven协会。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('加入Seven协会'),
+    lore:'Seven协会（第七协会）负责情报收集和调查。成员以情报和分析见长，是都市中信息最灵通的人群之一。' },
+  { id:'restructuring', name:'重构日幸存者', desc:'经历鸿园重构日并存活。', rarity:RARITY.RARE, condition:(gs)=>getFlag('restructuringDay'),
+    lore:'鸿园每月一次重构日，整个第八区的建筑重新排列。空间扭曲中底层居民可能坠落死亡，家主席位也可能因此易主。' },
+  { id:'moonlight_stone', name:'月长石接触者', desc:'接触过月长石。', rarity:RARITY.RARE, condition:(gs)=>getFlag('moonlightStone'),
+    lore:'M公司的奇点。月长石可吸收和抵御精神损害。长期接触月长石会对精神产生不可预知的影响。' },
+  { id:'blood_bag', name:'血棒食用者', desc:'长期食用血棒。', rarity:RARITY.RARE, condition:(gs)=>(getFlag('bloodBagCount')||0)>=5,
+    lore:'拉曼却领血魔不吸血的替代品。但血棒无法满足精神需求，长期食用会导致血魔逐渐衰弱。' },
+  { id:'r_corp_rabbit', name:'兔子部队退役', desc:'从R公司兔子部队退役。', rarity:RARITY.RARE, condition:(gs)=>getFlag('rabbitVeteran'),
+    lore:'R公司的兔子部队是泛用战斗员，残暴嗜血。他们在孵化场中通过厮杀选出最强个体。存活退役本身就是一种成就。' },
+  { id:'butcher_gang', name:'谢肉祭成员', desc:'加入谢肉祭。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('加入谢肉祭'),
+    lore:'第二十三巷（味之巷）的食人帮派。八大主厨是食物链的顶点。公开食人是这里的常态。' },
+  { id:'nails_hammer', name:'钉与锤', desc:'接触过N公司的钉或锤。', rarity:RARITY.RARE, condition:(gs)=>getFlag('nailsHammer'),
+    lore:'N公司（钉与锤）有两派：锤（异端审判官，义体猎杀武装集团）和钉（定格小队，情报搜集）。经验罐头是他们的产品之一。' },
+  { id:'black_beast', name:'黑兽十二支', desc:'接触黑兽十二支中的任一。', rarity:RARITY.RARE, condition:(gs)=>getFlag('blackBeast'),
+    lore:'鸿园的军事力量。十二支对应十二生肖，每支有不同职能。服用黑兽丸可增强力量但副作用严重。' },
+
+  // ====== 普通级成就 ======
+  { id:'talent_combo', name:'组合天赋', desc:'触发过组合天赋效果。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('comboTriggered'),
+    lore:'特定的天赋组合会触发特殊效果。孤儿、双生子、实验品等组合线会开启完全不同的开局路线。' },
+  { id:'bridge_pass', name:'年龄段过渡', desc:'经历所有年龄段过渡事件。', rarity:RARITY.COMMON, condition:(gs)=>['童年结束','成年','步入壮年','步入中年','步入晚年'].every(m=>gs.milestones.includes(m)),
+    lore:'都市中的人生阶段：童年(0-6)→少年(7-18)→青年(19-30)→壮年(31-50)→中年(51-70)→晚年(71+)。每个阶段都有独特的挑战。' },
+  { id:'event_chain', name:'事件链完成', desc:'完成过任意事件链。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('chainCompleted'),
+    lore:'某些事件会形成连续的链条。一个事件的选择会影响后续事件的发展，导向完全不同的结局。' },
+  { id:'claw_warning', name:'爪牙警告', desc:'接受过爪牙的三次警告。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('clawWarningCount')>=3,
+    lore:'爪牙(C公司)执行都市禁忌。他们会先警告三次，若仍不停止则执行制裁。违反禁忌者连同违规事项一起从都市中消失。' },
+  { id:'workshop_visit', name:'工坊访客', desc:'访问过任意工坊。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('workshopVisited'),
+    lore:'都市中有无数工坊，从烙印工坊到琅琊工坊，每个都有自己的特色。高级工坊的武器可以改变战局。' },
+  { id:'backstreet_born', name:'后巷出生', desc:'出生在后巷。', rarity:RARITY.COMMON, condition:(gs)=>gs.birthplace&&gs.birthplace.id==='backstreet',
+    lore:'后巷是巢与巢之间的贫民区域。帮派林立，深宵清道夫扫荡。在都市中，后巷出生的人占绝大多数。' },
+  { id:'nest_born', name:'巢中出生', desc:'出生在巢中。', rarity:RARITY.COMMON, condition:(gs)=>gs.birthplace&&['K','T','H','N','R','W','U','L','D','P'].includes(gs.birthplace.id),
+    lore:'巢是都市发达安全的地带，被翼公司垄断统治。居民须遵守禁忌和缴税。翼公司倒台后巢暂变为后巷状态。' },
+  { id:'association_visit', name:'协会拜访', desc:'拜访过任意协会。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('associationVisited'),
+    lore:'都市中有12+1个收尾人协会，从Hana（第一）到第十三协会（扭曲处理）。每个协会负责不同的领域。' },
+  { id:'l_corp_visit', name:'L公司接触', desc:'接触过前脑叶公司或图书馆。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('joinedLCompany')||getFlag('library_invite'),
+    lore:'前L公司（脑叶公司）位于第十二区，通过管理异想体提取脑啡肽。倒台后图书馆在迷雾中建立，邀请都市来宾。' },
 ];
 function checkAchievements(gs) {
   const unlocked = [];
@@ -1549,7 +1890,7 @@ function getAllPassiveDescs() {
 // PHASE: TITLE
 // =============================
 
-function startGame() {
+function _originalStartGame() {
   hideAllPhases();
   gameState = {
     phase:'talent', talents:[], selectedTalents:[], baseAttrs:{con:0,int:0,wil:0,wea:0},
@@ -1559,6 +1900,37 @@ function startGame() {
   };
   refreshTalents();
   showPhase('phase-talent');
+}
+
+function startGame() {
+  if (gameSettings.mode === 'free') {
+    hideAllPhases();
+    gameState = {
+      phase:'attr', talents:[], selectedTalents:[], baseAttrs:{con:0,int:0,wil:0,wea:0},
+      attrs:{con:0,int:0,wil:0,wea:0}, pointsLeft:20, birthplace:null,
+      happiness:0, age:0, alive:true, events:[], milestones:[], flags:{},
+      simTimer:null, simAuto:false, talentTags:[]
+    };
+    gameState.flags.freeMode = true;
+    gameState.attrs.con = 3; gameState.attrs.int = 3; gameState.attrs.wil = 3; gameState.attrs.wea = 2;
+    renderAttrPanel();
+    showPhase('phase-attr');
+    return;
+  }
+  if (gameSettings.mode === 'notalent') {
+    hideAllPhases();
+    gameState = {
+      phase:'attr', talents:[], selectedTalents:[], baseAttrs:{con:0,int:0,wil:0,wea:0},
+      attrs:{con:0,int:0,wil:0,wea:0}, pointsLeft:20, birthplace:null,
+      happiness:0, age:0, alive:true, events:[], milestones:[], flags:{},
+      simTimer:null, simAuto:false, talentTags:[]
+    };
+    gameState.flags.noTalentMode = true;
+    renderAttrPanel();
+    showPhase('phase-attr');
+    return;
+  }
+  _originalStartGame();
 }
 
 // =============================
@@ -1786,6 +2158,9 @@ function startSimulation() {
   gameState.events = [];
   gameState.milestones = [];
   gameState.birthYear = Math.floor(Math.random() * 201) + 785; // 785~985
+  gameState.pendingEvents = [];
+  gameState.eventIndex = 0;
+  gameState.afterEventCallback = null;
   gameState.flags = {
     whiteNight: false,
     crimsonNight: false,
@@ -1801,7 +2176,31 @@ function startSimulation() {
     metRiver: false,
     metStar: false,
     sawHead: false,
+    joinedLCompany: false,
+    sephirahStage: 0,
+    lightSeedLaunched: false,
+    postLightSeed: 0,
+    timeCrackExplained: false,
+    freeMode: false,
+    noTalentMode: false,
     deepNightCount: 0,
+    blockAngelicaDeath: false,
+    blockSadRoland: false,
+    metRoland: false,
+    metAngelica: false,
+    metKali: false,
+    metArgalia: false,
+    metIori: false,
+    metGebura: false,
+    metBinah: false,
+    metAngela: false,
+    metDonQuixote: false,
+    metSancho: false,
+    smokeWar: false,
+    crimsonNight: false,
+    deepNightSurvived: false,
+    restructuringDay: false,
+    pianistEvent_global: false,
   };
   document.getElementById('event-log').innerHTML = '';
   updateSimStats();
@@ -1814,31 +2213,54 @@ function nextYear() {
   if (!gameState.alive) return;
 
   const events = generateEvents(gameState.age);
-  events.forEach(ev => {
-    addEvent(ev);
-  });
+  // Store pending events for one-by-one display
+  gameState.pendingEvents = events.map(ev => ({ ...ev, rendered: false }));
+  gameState.eventIndex = 0;
 
-  // If generateEvents caused death, end here
+  // If generateEvents caused death during generation
   if (!gameState.alive || gameState.dead) {
-    setTimeout(() => endSimulation(), 1500);
+    if (gameState.pendingEvents.length > 0) {
+      showAllPendingEvents(() => {
+        setTimeout(() => endSimulation(), 800);
+      });
+    } else {
+      setTimeout(() => endSimulation(), 800);
+    }
     return;
   }
 
-  // Check alive
+  // Start displaying events one by one; after all done, process year-end
+  showAllPendingEvents(() => {
+    afterYearEvents();
+  });
+}
+
+function afterYearEvents() {
+  // Check alive conditions (twisted / con<=0)
   if (gameState.happiness <= -10) {
     gameState.alive = false;
     gameState.flags.twisted = true;
-    addEvent({ text: '你的内心承受不住都市的重压，理性崩溃了……', effect: '扭曲了', major: true });
-    addEvent({ text: '你扭曲成了都市的又一 nightmares。', effect: '', major: true });
-    setTimeout(() => endSimulation(), 1500);
+    gameState.pendingEvents = [
+      { text: '你的内心承受不住都市的重压，理性崩溃了……', effect: '扭曲了', major: true },
+      { text: '你扭曲成了都市的又一 nightmares。', effect: '', major: true }
+    ];
+    gameState.eventIndex = 0;
+    showAllPendingEvents(() => {
+      setTimeout(() => endSimulation(), 800);
+    });
     return;
   }
 
   if (gameState.attrs.con <= 0) {
     gameState.alive = false;
-    addEvent({ text: '你的身体已无法承受都市的残酷。', effect: '体质归零', major: true });
-    addEvent({ text: '你永远闭上了双眼。', effect: '', major: true });
-    setTimeout(() => endSimulation(), 1500);
+    gameState.pendingEvents = [
+      { text: '你的身体已无法承受都市的残酷。', effect: '体质归零', major: true },
+      { text: '你永远闭上了双眼。', effect: '', major: true }
+    ];
+    gameState.eventIndex = 0;
+    showAllPendingEvents(() => {
+      setTimeout(() => endSimulation(), 800);
+    });
     return;
   }
 
@@ -1852,24 +2274,108 @@ function nextYear() {
 
   if (Math.random() < deathChance) {
     gameState.alive = false;
-    addEvent({ text: `你在${gameState.age}岁时安详地离开了这个世界。`, effect: '自然死亡', major: false });
-    setTimeout(() => endSimulation(), 1500);
+    gameState.pendingEvents = [
+      { text: `你在${gameState.age}岁时安详地离开了这个世界。`, effect: '自然死亡', major: false }
+    ];
+    gameState.eventIndex = 0;
+    showAllPendingEvents(() => {
+      setTimeout(() => endSimulation(), 800);
+    });
     return;
   }
 
   if (gameState.age > 100) {
     gameState.alive = false;
-    addEvent({ text: '你在这个都市活了太久太久，连时间都模糊了。', effect: '', major: false });
-    setTimeout(() => endSimulation(), 1500);
+    gameState.pendingEvents = [
+      { text: '你在这个都市活了太久太久，连时间都模糊了。', effect: '', major: false }
+    ];
+    gameState.eventIndex = 0;
+    showAllPendingEvents(() => {
+      setTimeout(() => endSimulation(), 800);
+    });
     return;
   }
 
   updateSimStats();
 
   if (gameState.simAuto) {
-    const delay = Math.max(200, 800 - gameState.age * 3);
+    const speed = getSimSpeed();
+    const delay = getSpeedDelay(speed);
     gameState.simTimer = setTimeout(() => nextYear(), delay);
   }
+}
+
+function getSimSpeed() {
+  const slider = document.getElementById('speed-slider');
+  return slider ? parseInt(slider.value) : 5;
+}
+
+function getSpeedDelay(speed) {
+  // speed 1=slowest(2000ms), 5=medium(500ms), 10=fastest(50ms)
+  const delays = [2000, 1500, 1000, 800, 600, 450, 300, 200, 100, 50];
+  return delays[Math.min(speed, 10) - 1] || 500;
+}
+
+function getEventDelay(speed) {
+  // Delay between individual events within a year
+  const delays = [1200, 900, 650, 500, 380, 280, 200, 130, 70, 30];
+  return delays[Math.min(speed, 10) - 1] || 380;
+}
+
+function updateSpeed() {
+  const speed = getSimSpeed();
+  document.getElementById('speed-label').textContent = speed;
+}
+
+function showNextEvent(onDone) {
+  if (!gameState.pendingEvents || gameState.eventIndex >= gameState.pendingEvents.length) {
+    if (onDone) onDone();
+    return;
+  }
+  const ev = gameState.pendingEvents[gameState.eventIndex];
+  gameState.eventIndex++;
+  addEvent(ev);
+
+  if (gameState.eventIndex < gameState.pendingEvents.length) {
+    // More events to show
+    if (gameState.simAuto) {
+      const speed = getSimSpeed();
+      const delay = getEventDelay(speed);
+      gameState.simTimer = setTimeout(() => showNextEvent(onDone), delay);
+    } else {
+      // Manual mode: wait for user to click "下一条"
+      gameState.afterEventCallback = onDone;
+    }
+  } else {
+    // All events for this year rendered
+    if (onDone) onDone();
+  }
+}
+
+function showAllPendingEvents(onDone) {
+  if (!gameState.pendingEvents || gameState.pendingEvents.length === 0) {
+    if (onDone) onDone();
+    return;
+  }
+  // Reset and show all remaining pending events
+  gameState.eventIndex = 0;
+  showNextEvent(onDone);
+}
+
+function nextEvent() {
+  // Manual "next event" button handler
+  if (gameState.simAuto) return; // ignore in auto mode
+  if (!gameState.pendingEvents || gameState.eventIndex >= gameState.pendingEvents.length) {
+    // No more events in current batch - try advancing to next year
+    if (gameState.alive && !gameState.dead) {
+      afterYearEvents();
+    }
+    return;
+  }
+  // Continue showing next pending event
+  const cb = gameState.afterEventCallback;
+  gameState.afterEventCallback = null;
+  showNextEvent(cb);
 }
 
 
@@ -1946,31 +2452,76 @@ function subEvt(arg1, arg2, text, major, milestone) {
   addEvent({ text: text, major: !!major, milestone: milestone });
 }
 
-// ============================================================
 // 色彩称号生成系统
 // ============================================================
+const COLOR_PALETTE = [
+  { name: '殷红', hex: '#DC143C', attr: 'con' },
+  { name: '血红', hex: '#8B0000', attr: 'con' },
+  { name: '绯红', hex: '#FF1493', attr: 'con' },
+  { name: '赤红', hex: '#B22222', attr: 'con' },
+  { name: '猩红', hex: '#FF2400', attr: 'con' },
+  { name: '苍蓝', hex: '#4682B4', attr: 'int' },
+  { name: '靛蓝', hex: '#4B0082', attr: 'int' },
+  { name: '湛蓝', hex: '#00BFFF', attr: 'int' },
+  { name: '蔚蓝', hex: '#007FFF', attr: 'int' },
+  { name: '漆黑', hex: '#000000', attr: 'wil' },
+  { name: '墨黑', hex: '#0C0C0C', attr: 'wil' },
+  { name: '玄黑', hex: '#1C1C1C', attr: 'wil' },
+  { name: '黯黑', hex: '#2B2B2B', attr: 'wil' },
+  { name: '鎏金', hex: '#D4AF37', attr: 'wea' },
+  { name: '赤金', hex: '#B8860B', attr: 'wea' },
+  { name: '紫金', hex: '#9B30FF', attr: 'wea' },
+  { name: '金碧', hex: '#FFD700', attr: 'wea' },
+  { name: '堇紫', hex: '#800080', attr: 'mix' },
+  { name: '紫罗兰', hex: '#8B008B', attr: 'mix' },
+  { name: '暗紫', hex: '#483D8B', attr: 'mix' },
+  { name: '翠绿', hex: '#00FF00', attr: 'mix' },
+  { name: '墨绿', hex: '#006400', attr: 'mix' },
+  { name: '纯白', hex: '#FFFFFF', attr: 'mix' },
+  { name: '银白', hex: '#C0C0C0', attr: 'mix' },
+  { name: '朱红', hex: '#FF4500', attr: 'con' },
+  { name: '青碧', hex: '#00CED1', attr: 'mix' },
+  { name: '桃红', hex: '#FF69B4', attr: 'mix' },
+  { name: '琉璃', hex: '#87CEEB', attr: 'int' },
+];
+
+const TITLE_SUFFIXES = {
+  weapon: ['之刃', '风暴', '裁决', '审判', '之剑', '之枪', '之牙', '之爪', '之矢', '之锤'],
+  nature: ['迷雾', '泪滴', '深渊', '流星', '幻梦', '晨曦', '残响', '潮汐', '风暴', '雷霆'],
+  abstract: ['寂静', '意志', '智慧', '谋略', '荣耀', '光芒', '终结', '信念', '觉醒', '记忆'],
+  action: ['噤默', '咆哮', '裁决', '审判', '守护', '追逐', '徘徊', '凝视', '低语', '燃烧'],
+};
+
 function generateColorTitle() {
   const a = gameState.attrs;
   const max = Math.max(a.con || 0, a.int || 0, a.wil || 0, a.wea || 0);
-  let pool = [];
-  if ((a.con || 0) === max) {
-    pool = ['赤红之刃', '猩红风暴', '血红裁决', '绯红审判'];
-    if ((a.con || 0) >= 10) pool.push('殷红迷雾');
-  } else if ((a.int || 0) === max) {
-    pool = ['苍蓝智慧', '靛蓝谋略', '湛蓝之眼', '蔚蓝深渊'];
-  } else if ((a.wil || 0) === max) {
-    pool = ['漆黑寂静', '墨黑深渊', '玄黑意志', '暗黑终结'];
-    if ((a.wil || 0) >= 10) pool.push('漆黑噤默');
-  } else if ((a.wea || 0) === max) {
-    pool = ['金碧辉煌', '鎏金权柄', '赤金财富', '紫金荣耀'];
+
+  // 根据主属性筛选颜色
+  let attrFilter = 'mix';
+  if ((a.con || 0) === max) attrFilter = 'con';
+  else if ((a.int || 0) === max) attrFilter = 'int';
+  else if ((a.wil || 0) === max) attrFilter = 'wil';
+  else if ((a.wea || 0) === max) attrFilter = 'wea';
+
+  // 倾向主属性的颜色（70%概率），否则混色
+  let pool = COLOR_PALETTE.filter(c => c.attr === attrFilter);
+  if (Math.random() < 0.3) {
+    pool = COLOR_PALETTE.filter(c => c.attr === 'mix' || c.attr !== attrFilter);
   }
-  if (pool.length === 0) {
-    pool = ['纯白之光', '银白流星', '灰白审判', '七彩幻梦'];
-    if (Math.abs((a.con || 0) - (a.int || 0)) <= 1 && Math.abs((a.wil || 0) - (a.wea || 0)) <= 1) {
-      pool.push('堇紫泪滴', '朱红十字');
-    }
-  }
-  return pick(pool);
+  if (pool.length === 0) pool = COLOR_PALETTE;
+
+  const color = pick(pool);
+  const suffixCategory = pick(['weapon', 'nature', 'abstract', 'action']);
+  const suffix = pick(TITLE_SUFFIXES[suffixCategory]);
+  const fullTitle = color.name + suffix;
+
+  // 存储色彩信息到flag
+  setFlag('color_title', fullTitle);
+  setFlag('color_hex', color.hex);
+  setFlag('color_name', color.name);
+  setFlag('color_suffix', suffix);
+
+  return fullTitle;
 }
 
 // ============================================================
@@ -2007,6 +2558,16 @@ function generateEvents(age) {
 
   const events = [];
 
+  // 事件互斥检查：如果前置事件已发生，阻止后续相关事件
+  // 安吉丽卡存活 → 阻止安吉丽卡死亡事件
+  if (getFlag('aliveAfterPianist') && age >= 25 && age <= 50) {
+    setFlag('blockAngelicaDeath', true);
+  }
+  // 安吉丽卡存活 → 阻止悲伤罗兰遭遇
+  if (getFlag('aliveAfterPianist') && age >= 30 && age <= 50) {
+    setFlag('blockSadRoland', true);
+  }
+
   // 运行特殊开局与组合标签系统（0岁时检测组合线）
   if (typeof runAllSpecialStarts === 'function') {
     runAllSpecialStarts(age);
@@ -2039,7 +2600,39 @@ function generateEvents(age) {
     events.push(...generateElderEvents(age, a, f, bp, tags));
   }
 
-  // 通用跨年龄彩蛋
+  // 衔接事件：年龄段过渡（固定事件优先加载）
+  if (typeof generateBridgeEvents === 'function' && gameState.alive && !gameState.dead) {
+    const bridge = generateBridgeEvents(age, a, f, bp, tags);
+    if (bridge && bridge.length) events.push(...bridge);
+  }
+
+  // 扩展事件：大湖捕鲸、工坊、图书馆、生命保险
+  if (typeof runExtendedEvents === 'function' && gameState.alive && !gameState.dead) {
+    runExtendedEvents();
+  }
+
+  // L公司事件链系统（条件触发型固定事件）
+  if (gameState.alive && !gameState.dead) {
+    runLobotomyChain(age);
+    runAbnormalityWork(age);
+  }
+
+  // 传奇收尾人遭遇与时间线历史事件
+  if (typeof runLegendEvents === 'function' && gameState.alive && !gameState.dead) {
+    runLegendEvents(age);
+  }
+
+  // 四级事件系统：一般 / 特殊 / 极其特殊 / 特别（随机事件靠后加载）
+  if (typeof runTieredEvents === 'function' && gameState.alive && !gameState.dead) {
+    runTieredEvents(age, a, f, bp, tags);
+  }
+
+  // 奇点科技事件：WARP列车、各翼公司、清道夫等（随机事件靠后加载）
+  if (typeof runSingularityEvents === 'function' && gameState.alive && !gameState.dead) {
+    runSingularityEvents(age, a, f, bp, tags);
+  }
+
+  // 通用跨年龄彩蛋（最后加载，避免影响前面的事件判定）
   if (hasTag('双和茶') && chance(0.03)) {
     events.push(
       evt(
@@ -2055,7 +2648,7 @@ function generateEvents(age) {
   if (getFlag('saved_angelica') && chance(0.05) && !hasMilestone('漆黑噤默传承')) {
     events.push(
       evt(
-        '安吉莉卡亲自向你致谢，并将罗兰的一些战斗技巧传授给你。你获得了「漆黑噤默的传承」。',
+        '安吉丽卡亲自向你致谢，并将罗兰的一些战斗技巧传授给你。你获得了「漆黑噤默的传承」。',
         'inheritance',
         '体质+2，意志+2',
         true,
@@ -2067,31 +2660,20 @@ function generateEvents(age) {
     addMilestone('漆黑噤默传承');
   }
 
-  // 扩展事件：大湖捕鲸、工坊、图书馆、生命保险
-  if (typeof runExtendedEvents === 'function' && gameState.alive && !gameState.dead) {
-    runExtendedEvents();
-  }
+  // 新事件链调用
+  if (typeof eventChainSNestEscape === 'function') eventChainSNestEscape(age);
+  if (typeof eventChainCCorpClaw === 'function') eventChainCCorpClaw(age);
+  if (typeof eventChainBCorpEye === 'function') eventChainBCorpEye(age);
+  if (typeof eventChainHongluSuccession === 'function') eventChainHongluSuccession(age);
+  if (typeof eventChainBlackBeast === 'function') eventChainBlackBeast(age);
+  if (typeof eventChainTunerHunter === 'function') eventChainTunerHunter(age);
+  if (typeof eventChainIdentityShift === 'function') eventChainIdentityShift(age);
+  if (typeof eventChainHeadTuner === 'function') eventChainHeadTuner(age);
+  if (typeof eventChainSweeperBirth === 'function') eventChainSweeperBirth(age);
+  if (typeof runSpecialFixerEvents === 'function') runSpecialFixerEvents(age);
 
-  // 奇点科技事件：WARP列车、各翼公司、清道夫等
-  if (typeof runSingularityEvents === 'function' && gameState.alive && !gameState.dead) {
-    runSingularityEvents(age, a, f, bp, tags);
-  }
-
-  // 衔接事件：年龄段过渡
-  if (typeof generateBridgeEvents === 'function' && gameState.alive && !gameState.dead) {
-    const bridge = generateBridgeEvents(age, a, f, bp, tags);
-    if (bridge && bridge.length) events.push(...bridge);
-  }
-
-  // 传奇收尾人遭遇与时间线历史事件
-  if (typeof runLegendEvents === 'function' && gameState.alive && !gameState.dead) {
-    runLegendEvents(age);
-  }
-
-  // 四级事件系统：一般 / 特殊 / 极其特殊 / 特别
-  if (typeof runTieredEvents === 'function' && gameState.alive && !gameState.dead) {
-    runTieredEvents(age, a, f, bp, tags);
-  }
+  // 时间裂缝解释（最后加载）
+  getTimeCrackExplanation(age);
 
   return events;
 }
@@ -3327,10 +3909,10 @@ function generateAdultEvents(age, a, f, bp, tags) {
   }
 
   // 罗兰/漆黑缄默的疯狂
-  if (age >= 30 && age <= 50 && chance(0.06) && !hasMilestone('漆黑缄默')) {
+  if (age >= 30 && age <= 50 && chance(0.06) && !hasMilestone('漆黑缄默') && !getFlag('blockSadRoland')) {
     events.push(
       evt(
-        '你在后巷的废墟中遇到了一个男人。他的眼神空洞而疯狂，手中紧握着一把黑色的剑。那是罗兰——或者说，是失去安吉莉卡后的漆黑缄默。',
+        '你在后巷的废墟中遇到了一个男人。他的眼神空洞而疯狂，手中紧握着一把黑色的剑。那是罗兰——或者说，是失去安吉丽卡后的漆黑缄默。',
         'roland_mad',
         '',
         true,
@@ -3340,7 +3922,7 @@ function generateAdultEvents(age, a, f, bp, tags) {
     if ((a.wil || 0) >= 8) {
       events.push(
         evt(
-          '你理解了罗兰的痛苦。那份失去至爱的疯狂让你感同身受。你默默地陪伴了他一夜，听他讲述安吉莉卡的故事。',
+          '你理解了罗兰的痛苦。那份失去至爱的疯狂让你感同身受。你默默地陪伴了他一夜，听他讲述安吉丽卡的故事。',
           'roland_understand',
           '意志+1',
           false
@@ -3631,7 +4213,7 @@ function generateAdultEvents(age, a, f, bp, tags) {
       { t: '你的体检报告出来了。医生说你的肺里有某种不明物质，可能是烟霾战争的残留。治疗费用是你三年的薪水。', e: 'con-1', txt: '体质-1' },
       { t: '你在后巷的投资买了一间小店面，卖着从废墟里淘来的旧物。生意不好，但足以糊口。', e: 'wea+1', txt: '家境+1' },
       { t: '你的老朋友来拜访你。他现在是某个帮派的中层干部，手臂上纹着黑云会的标记。你们喝了一整晚，什么都没说。', e: 'wil+1', txt: '意志+1' },
-      { t: '你参加了拇指举办的地下拍卖会。一枚眼可以买一条人命，一百枚眼可以买一个小帮派的情报。你什么都没买，只是看了看。', e: 'int+1', txt: '智力+1' },
+      { t: '你参加了拇指举办的地下拍卖会。一枚眼可以买一条人命，一百枚眼可以买一个小帮派的情报。（都市通用货币「眼」，由首脑发行）你什么都没买，只是看了看。', e: 'int+1', txt: '智力+1' },
       { t: '你的邻居在深宵中被清道夫「清理」了。第二天早上，街道干净得像什么都没发生过。你学会了不要问问题。', e: 'wil-1', txt: '意志-1' },
       { t: '你在N巢的禁摄区偷拍了一张照片。照片洗出来后，你看到了一些不该存在的东西——一个长着翅膀的人影。你把照片烧了。', e: 'int+1', txt: '智力+1' },
       { t: '你的婚姻走到了尽头。在都市里，爱情是最先被消耗殆尽的东西。你们和平分手，因为争斗需要花费太多精力。', e: 'wil-1', txt: '意志-1' },
@@ -3970,8 +4552,8 @@ function generateMiddleAgeEvents(age, a, f, bp, tags) {
       { t: '你年轻时的帮派兄弟来找你借钱。他染上了黑市的药物，眼睛里已经没有光了。你给了他钱，知道那只会加速他的死亡。', e: 'wea-1', txt: '家境-1' },
       { t: '你开始教邻居的孩子们读书。不收费，只是因为你喜欢听到他们的笑声。在都市里，这是一种奢侈的爱好。', e: 'wil+1', txt: '意志+1' },
       { t: '你在公司的档案库里发现了自己的「备份档案」。那里面记录了你从出生到现在的每一个细节，包括你从未告诉过任何人的秘密。你把档案烧了。', e: 'wil-2', txt: '意志-2' },
-      { t: '你收到了一封来自「未来」的信。信上写着：「不要参加下个月的会议。」你不信邪，但在会议前一天，建筑发生了爆炸。', e: 'wil+1', txt: '意志+1' },
-      { t: '你的头发白了一半。去染发的路上，你在镜子里看到了一个陌生人。那是二十年后的你，还是二十年前的你？', e: 'wil-1', txt: '意志-1' },
+      { t: '你收到了一封没有署名的警告信。信上写着：「不要参加下个月的会议。」你不信邪，但在会议前一天，建筑发生了爆炸。', e: 'wil+1', txt: '意志+1' },
+      { t: '你的头发白了一半。去染发的路上，你在镜子里看到了一个陌生人。那是谁？你完全不认识那张脸。', e: 'wil-1', txt: '意志-1' },
       { t: '你终于攒够了钱，买了一张去郊区的车票。但在车站，你犹豫了。你不知道自己害怕的是郊区，还是害怕离开熟悉的地狱。', e: 'wil+1', txt: '意志+1' },
     ]);
     events.push(evt(daily.t, 'middle_age_daily', daily.txt, false));
@@ -4762,7 +5344,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
       { t: '你在垃圾堆旁发现了一只受伤的流浪猫。你偷偷把它带回家，用破布给它做了一个窝。', e: 'wil+1', txt: '意志+1' },
       { t: '邻居的大孩子抢走了你的玩具。你哭了，但没人来帮你。在都市里，弱小就是原罪。', e: 'wil-1', txt: '意志-1' },
       { t: '妈妈教你唱了一首古老的童谣。你不知道歌词的意思，但旋律让你在深宵时不再害怕。', e: 'wil+1', txt: '意志+1' },
-      { t: '你在后巷的墙缝里发现了一枚眼。那是拇指发行的货币，足够买三块面包。', e: 'wea+1', txt: '家境+1' },
+      { t: '你在后巷的墙缝里发现了一枚眼。那是都市的通用货币，由首脑发行，足够买三块面包。', e: 'wea+1', txt: '家境+1' },
       { t: '一个收尾人路过时给了你一颗糖。那是你吃过最甜的东西，你记住了他腰间的剑鞘。', e: 'con+1', txt: '体质+1' },
       { t: '你在废弃的管道里和朋友们玩捉迷藏。那管道通向某个翼公司的地下设施，你们没敢深入。', e: 'int+1', txt: '智力+1' },
       { t: '深宵时你听到了清道夫的嗡嗡声，你躲在床底下发抖，直到黎明到来。', e: 'wil-1', txt: '意志-1' },
@@ -5485,7 +6067,7 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
   if (age >= 20 && chance(0.1) && !hasMilestone('WARP列车')) {
     events.push(
       evt(
-        '你登上了WARP列车。空间在你面前扭曲，时间变得没有意义。',
+        '你登上了WARP列车。空间在你面前折叠扭曲，你感到一阵奇异的晕眩。列车内部的时间流逝与外界不同——外界只过去数秒，而你在车内经历了完整的旅程。',
         'warp_ride',
         '',
         true,
@@ -5542,11 +6124,11 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
     if ((a.con || 0) >= 8 || (a.wil || 0) >= 8) {
       events.push(
         evt(
-          '你冲进了钢琴家的旋律中。你的意志（或体质）让你保持清醒，你救下了一个女人——她叫安吉莉卡。',
+          '你冲进了钢琴家的旋律中。你的意志（或体质）让你保持清醒，你救下了一个女人——她叫安吉丽卡。',
           'save_angelica',
           '意志+2',
           true,
-          '救下安吉莉卡'
+          '救下安吉丽卡'
         )
       );
       modAttr('wil', 2);
@@ -5849,7 +6431,7 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
   if (chance(0.45)) {
     const daily = pick([
       { t: '你租了一间后巷的公寓，月租占了你薪水的三分之一。房东警告你：深宵时千万不要出门。', e: 'wea-1', txt: '家境-1' },
-      { t: '你在通勤的WARP列车上遇到了一个奇怪的人。他自称来自「未来」，然后在你眨眼间消失了。', e: 'int+1', txt: '智力+1' },
+      { t: '你在通勤的WARP列车上遇到了一个奇怪的人。他声称自己曾在空间折叠中「迷路」，被困在列车里整整三天——但外界只过去了三分钟。然后在你眨眼间，他所在的车厢被折叠到了你够不到的地方。', e: 'int+1', txt: '智力+1' },
       { t: '加班到深夜，你在便利店里买了一份便当。那是你今天的唯一一餐，味道像纸板。', e: 'con-1', txt: '体质-1' },
       { t: '你在酒吧里遇到了一个协会收尾人。他喝多了，给你讲了很多关于「色彩级」的传闻。你请他喝了一杯。', e: 'int+1', txt: '智力+1' },
       { t: '你的同事突然「离职」了。他的座位第二天就被清理干净，没人提起他的名字，就像他从未存在过。', e: 'wil-1', txt: '意志-1' },
@@ -5929,11 +6511,23 @@ function updateSimStats() {
 function toggleSimSpeed() {
   gameState.simAuto = !gameState.simAuto;
   const btn = document.getElementById('btn-sim-speed');
+  const nextBtn = document.getElementById('btn-next-event');
   if (gameState.simAuto) {
     btn.textContent = '暂停';
-    nextYear();
+    if (nextBtn) nextBtn.style.opacity = '0.4';
+    // If there are pending events, continue auto-displaying them
+    if (gameState.pendingEvents && gameState.eventIndex < gameState.pendingEvents.length) {
+      const cb = gameState.afterEventCallback;
+      gameState.afterEventCallback = null;
+      const speed = getSimSpeed();
+      const delay = getEventDelay(speed);
+      gameState.simTimer = setTimeout(() => showNextEvent(cb), delay);
+    } else if (gameState.alive && !gameState.dead) {
+      nextYear();
+    }
   } else {
     btn.textContent = '自动播放';
+    if (nextBtn) nextBtn.style.opacity = '1';
     if (gameState.simTimer) clearTimeout(gameState.simTimer);
   }
 }
@@ -6040,12 +6634,12 @@ function calculateRank() {
   let rank, label, quote, color, note;
   if (total >= 350) { rank='S+'; label='杂质 / 都市之星'; quote='你在都市的历史中留下了不可磨灭的痕迹。'; color='#ff3864'; note='被都市认定为杂质，或是传说般的都市之星。'; }
   else if (total >= 280) { rank='S'; label='色彩级收尾人'; quote='色彩级——收尾人中的传奇。'; color='#f1c40f'; note='你的名字足以让后巷的耗子停止呼吸。'; }
-  else if (total >= 220) { rank='A+'; label='一阶收尾人'; quote='一阶收尾人中的佼佼者，巢与协会都对你敞开大门。'; color='#daa520'; note='高阶收尾人中的顶尖存在。'; }
-  else if (total >= 160) { rank='A'; label='高阶收尾人'; quote='你以惊人的实力在都市中站稳了脚跟。'; color='#4a7fb5'; note='足以应对大多数都市恶疾。'; }
-  else if (total >= 110) { rank='B'; label='中阶收尾人'; quote='作为一名收尾人，你在都市中过着体面的生活。'; color='#7a6f5a'; note='在后巷中已算一方强者。'; }
-  else if (total >= 70) { rank='C'; label='低阶收尾人'; quote='你在都市的夹缝中艰难求生。'; color='#555'; note='勉强在都市的夹缝中求生。'; }
-  else if (total >= 35) { rank='D'; label='普通人'; quote='都市不会记住每一个人。'; color='#666'; note='普通的巢民或后巷居民。'; }
-  else { rank='E'; label='耗子 / 底层'; quote:'在这座巨大的城市里，你已经消散在无尽的黑暗之中。'; color:'#444'; note:'都市从不缺少这样的尘埃。'; }
+  else if (total >= 220) { rank='A+'; label='一阶收尾人'; quote:'一阶——职业收尾人的顶点。都市的梦魇在你面前不过是一场噩梦。'; color='#daa520'; note:'职业最高等级，精英中的精英。'; }
+  else if (total >= 160) { rank='A'; label='二阶收尾人'; quote:'二阶——"上游"的实力。你可以承接都市梦魇级的委托了。'; color='#4a7fb5'; note:'足以应对大多数都市恶疾。'; }
+  else if (total >= 110) { rank='B'; label='五阶收尾人'; quote:'五阶——"中游"的起点。你已经在都市中站稳了脚跟。'; color='#7a6f5a'; note:'在后巷中已算一方强者。'; }
+  else if (total >= 70) { rank='C'; label='七阶收尾人'; quote:'七阶——你加入了有名气的事务所，但距离真正的强者还差得远。'; color='#555'; note:'勉强在都市的夹缝中求生。'; }
+  else if (total >= 35) { rank='D'; label='九阶收尾人'; quote:'九阶——刚握起武器的普通人。都市不会记住你的名字。'; color='#666'; note:'后巷底层的无名之辈。'; }
+  else { rank='E'; label='耗子 / 底层'; quote:'在这座巨大的都市里，你连成为九阶的资格都没有。'; color:'#444'; note:'都市从不缺少这样的尘埃。'; }
 
   return { rank, label, quote, color, score: total, achievements, note };
 }
@@ -6286,6 +6880,16 @@ function showResults() {
     card.innerHTML = `
       <div class="result-rank" style="color:${result.color}">&#10022; ${result.rank} &#10022;</div>
       <div class="result-rank-label">${result.label}</div>
+      ${(() => {
+        const ct = getFlag('color_title');
+        const ch = getFlag('color_hex');
+        if (ct && ch && gameState.milestones.some(m => m.includes('色彩级'))) {
+          return `<div style="margin:12px 0;padding:8px 16px;border:2px solid ${ch};border-radius:4px;background:rgba(${parseInt(ch.slice(1,3),16)},${parseInt(ch.slice(3,5),16)},${parseInt(ch.slice(5,7),16)},0.08);display:inline-block;">
+            <span style="color:${ch};font-size:1.15rem;font-weight:bold;letter-spacing:0.15em;">&#9670; ${ct} &#9670;</span>
+          </div>`;
+        }
+        return '';
+      })()}
       <div class="result-quote">"${result.quote}"</div>
       ${commonContent}
     `;
@@ -6379,7 +6983,7 @@ const COMBO_LINES = [
   {
     tags: ['双生子', '女性'],
     line: 'anglica',
-    name: '漆黑缄默·安吉莉卡',
+    name: '漆黑缄默·安吉丽卡',
     desc: '你与兄长一同出生在郊区的废墟中，曾是翼的实验对象。你将拿起剑，成为都市传说中的漆黑噤默。',
   },
   // 双生子线 — 男性分支
@@ -6683,12 +7287,12 @@ function nonhumanStart(age) {
 }
 
 /**
- * 安吉莉卡线（双生子+女性）
+ * 安吉丽卡线（双生子+女性）
  * 童年：与兄长在郊区废墟求生
  * 少年：被翼实验后抛弃
  * 青年：加入查尔斯事务所
  * 成年：遇到罗兰，成为漆黑噤默
- * 遭遇：钢琴师事件中可能死亡（但如果属性够高可存活改变历史）
+ * 遭遇：钢琴师事件中可能死亡（但如果属性够高可存活，进入不同的命运分支）
  *
  * @param {number} age — 当前年龄
  */
@@ -6696,7 +7300,7 @@ function angelicaStart(age) {
   if (!getFlag('comboLine') || getFlag('comboLine') !== 'anglica') return;
 
   if (age === 0) {
-    subEvt('birth', 'anglica_birth', '你与兄长一同降生在郊区的废墟中。你们的啼哭声在空旷的荒野上回荡。', true, '双生子·安吉莉卡');
+    subEvt('birth', 'anglica_birth', '你与兄长一同降生在郊区的废墟中。你们的啼哭声在空旷的荒野上回荡。', true, '双生子·安吉丽卡');
     setFlag('brotherAlive', true);
     setFlag('experimented', false);
     setFlag('charlesOfficeMember', false);
@@ -6775,8 +7379,8 @@ function angelicaStart(age) {
 }
 
 /**
- * 安吉莉卡 · 钢琴师事件（命运分歧点）
- * 原作中安吉莉卡死于钢琴师事件，但如果属性足够高，可能存活并改变历史
+ * 安吉丽卡 · 钢琴师事件（命运分歧点）
+ * 原作中安吉丽卡死于钢琴师事件，但如果属性足够高，可能存活并进入不同的命运分支
  */
 function angelicaPianistEvent() {
   subEvt('major', 'anglica_pianist_start', '钢琴师的旋律在都市中回荡。那是死亡的安魂曲。查尔斯事务所接到了委托，你与罗兰一同前往。', true, '钢琴师事件');
@@ -8573,6 +9177,11 @@ function legendaryFixerEvents(age) {
     { id: "alb", name: "苍蓝残响", weight: 0.8 },
     { id: "purple", name: "朱红十字", weight: 0.7 },
     { id: "blue", name: "蔚蓝之眼", weight: 0.6 },
+    { id: "crimson", name: "猩红凝视", weight: 0.8 },
+    { id: "cyan", name: "缃碧少女", weight: 0.6 },
+    { id: "winter", name: "冬红布袋", weight: 0.5 },
+    { id: "indigo", name: "靛蓝老人", weight: 0.7 },
+    { id: "azure", name: "蔚蓝天堂", weight: 0.6 },
   ];
   const legend = pickWeighted(legends);
 
@@ -8594,6 +9203,21 @@ function legendaryFixerEvents(age) {
       break;
     case "blue":
       encounterBlueEye();
+      break;
+    case "crimson":
+      encounterCrimsonGaze();
+      break;
+    case "cyan":
+      encounterCyanGirl();
+      break;
+    case "winter":
+      encounterWinterRed();
+      break;
+    case "indigo":
+      encounterIndigoElder();
+      break;
+    case "azure":
+      encounterAzureHeaven();
       break;
   }
 }
@@ -8705,7 +9329,7 @@ function encounterPurpleCross() {
   setFlag("colorFixerWeight", (getFlag("colorFixerWeight") || 0) + 2);
 
   if (gameState.attrs.con >= 8 && gameState.attrs.wil >= 7) {
-    addEvent({ text: "朱红十字看了你一眼，扔给你一个小瓶。『拿着。在都市里，能救你的只有你自己。』然后他消失在雾中。", effect: "gift", effText: "体质+2", major: false });
+    addEvent({ text: "朱红十字看了你一眼，将燃烧的大型十字武器扛在肩上。「不想死就赶紧离开。」然后他消失在雾中。", effect: "gift", effText: "体质+2", major: false });
     modAttr("con", 2);
   } else {
     addEvent({ text: "朱红十字没有理会你。他像是在寻找什么，或者什么人。你只是个路人——但在这个都市里，路人往往死得最快。", effect: "none", effText: "", major: false });
@@ -8725,6 +9349,97 @@ function encounterBlueEye() {
   } else {
     addEvent({ text: "蔚蓝之眼看了你一眼，摇了摇头：『你还不够。』然后转身离去。那句话像钉子一样钉在了你的心里。", effect: "frustration", effText: "意志-1", major: false });
     modAttr("wil", -1);
+  }
+}
+
+/** 猩红凝视 · 维吉里乌斯 (Vergilius) */
+function encounterCrimsonGaze() {
+  addEvent({ text: "短剑划过空气的声音，灼热的气浪先于人影到达。一个红发男人站在你面前，短剑上散发着超高温的光芒——那是烙印工坊的武器。他的眼神像是能看穿一切。『猩红凝视』维吉里乌斯。", effect: "legend", effText: "", major: true, milestone: "遭遇猩红凝视" });
+  addMilestone("遭遇猩红凝视");
+  setFlag("colorFixerWeight", (getFlag("colorFixerWeight") || 0) + 2);
+
+  if (gameState.attrs.con >= 8 && gameState.attrs.wil >= 7 && chance(0.3)) {
+    addEvent({ text: "维吉里乌斯收起了短剑。『你的眼神不错。』他教给你「望」与「心望」的技巧——那不是普通的剑术，而是预判对手意图、在对手出招前就已经看到结局的技法。", effect: "train", effText: "体质+2，意志+2，智力+1", major: true, milestone: "猩红凝视的指导" });
+    modAttr("con", 2);
+    modAttr("wil", 2);
+    modAttr("int", 1);
+    setFlag("crimsonTeach", true);
+  } else if (gameState.attrs.con >= 6) {
+    addEvent({ text: "维吉里乌斯看了你一眼，没有拔剑。『你还不够格让我出手。』但你感到一股无形的压迫感——那就是「望」的力量，仅仅是视线就足以让人丧失战意。", effect: "survive", effText: "体质+1，意志+1", major: false });
+    modAttr("con", 1);
+    modAttr("wil", 1);
+  } else {
+    addEvent({ text: "维吉里乌斯的视线落在你身上。那一眼中蕴含的灼热与审视让你的膝盖不由自主地弯曲。你跪倒在地，汗流浃背，直到他移开目光。", effect: "trauma", effText: "意志-2", major: true });
+    modAttr("wil", -2);
+  }
+}
+
+/** 缃碧少女 */
+function encounterCyanGirl() {
+  addEvent({ text: "一个身着碧色衣裙的少女从巷口走出。她的面容精致得不似凡人，举手投足间散发着某种不属于都市的优雅。那是『缃碧少女』，都市中最神秘的色彩级之一。", effect: "legend", effText: "", major: true, milestone: "遭遇缃碧少女" });
+  addMilestone("遭遇缃碧少女");
+  setFlag("colorFixerWeight", (getFlag("colorFixerWeight") || 0) + 2);
+
+  if (gameState.attrs.int >= 8 && chance(0.35)) {
+    addEvent({ text: "缃碧少女对你微微一笑。『你很有意思。』她留下了一个碧色的铃铛。『当你需要庇护时，摇响它。』", effect: "gift", effText: "智力+2，意志+1", major: true, milestone: "缃碧少女的铃铛" });
+    modAttr("int", 2);
+    modAttr("wil", 1);
+    setFlag("cyanBell", true);
+  } else {
+    addEvent({ text: "缃碧少女只是从你身旁走过，仿佛你只是路边的一株野草。然而那擦肩而过的瞬间，你闻到了一种奇异的香气——那让你想起了遥远的、从未存在过的故乡。", effect: "none", effText: "", major: false });
+  }
+}
+
+/** 冬红布袋 */
+function encounterWinterRed() {
+  addEvent({ text: "寒风凛冽的街道上，一个裹着红色布袋的身影静静伫立。你看不清布袋下的面容，只能感受到某种古老而冰冷的气息。『冬红布袋』——那是都市居民在冬季不敢提及的名字。", effect: "legend", effText: "", major: true, milestone: "遭遇冬红布袋" });
+  addMilestone("遭遇冬红布袋");
+  setFlag("colorFixerWeight", (getFlag("colorFixerWeight") || 0) + 1);
+
+  if (gameState.attrs.wil >= 9) {
+    addEvent({ text: "冬红布袋缓缓抬起头。布袋下露出的眼睛平静如深潭。『你不怕冷。』一个沙哑的声音说。『带走这个。』一块红色的布片落入你手中——它散发着不可思议的温暖。", effect: "gift", effText: "意志+3", major: true, milestone: "冬红布袋的布片" });
+    modAttr("wil", 3);
+    setFlag("winterCloth", true);
+  } else {
+    addEvent({ text: "冬红布袋没有理会你。它只是站在那里，像一座被雪覆盖的墓碑。你感到一股寒意从骨髓深处升起——那不是普通的寒冷，而是某种更接近死亡本身的温度。", effect: "trauma", effText: "意志-2", major: true });
+    modAttr("wil", -2);
+  }
+}
+
+/** 靛蓝老人 · 大湖捕鲸人 */
+function encounterIndigoElder() {
+  addEvent({ text: "大湖的岸边，一个苍老的身影正凝视着水面。他的船锚型武器插在地上，像一座沉默的纪念碑。那是『靛蓝老人』——大湖上最可怕的捕鲸人，也是都市中最古老的色彩级收尾人之一。", effect: "legend", effText: "", major: true, milestone: "遭遇靛蓝老人" });
+  addMilestone("遭遇靛蓝老人");
+  setFlag("colorFixerWeight", (getFlag("colorFixerWeight") || 0) + 2);
+
+  if (gameState.attrs.con >= 9 && chance(0.25)) {
+    addEvent({ text: "靛蓝老人转过身来，浑浊的眼中闪过一丝光芒。『你想学大湖的法则？』他用三重「望」向你展示了捕鲸人的技艺——那是与巨兽搏斗、在死亡边缘舞蹈的技艺。", effect: "train", effText: "体质+3，意志+2", major: true, milestone: "靛蓝老人的传授" });
+    modAttr("con", 3);
+    modAttr("wil", 2);
+    setFlag("indigoTeach", true);
+  } else if (gameState.attrs.con >= 7) {
+    addEvent({ text: "靛蓝老人看了你一眼，点了点头。『能走到这里，不错了。』他没有多说什么，但那简单的认可让你感到一种前所未有的力量。", effect: "survive", effText: "体质+1，意志+1", major: false });
+    modAttr("con", 1);
+    modAttr("wil", 1);
+  } else {
+    addEvent({ text: "靛蓝老人甚至没有看你。他的目光穿透了你，看向大湖深处某种你无法感知的东西。你感到自己是如此渺小——在大湖面前，在都市面前，在命运面前。", effect: "trauma", effText: "意志-2", major: true });
+    modAttr("wil", -2);
+  }
+}
+
+/** 蔚蓝天堂 */
+function encounterAzureHeaven() {
+  addEvent({ text: "天空呈现出一种不自然的蔚蓝。一个身披白色斗篷的人从光芒中走出，他的存在本身就像是一道温暖的光。『蔚蓝天堂』——那是传说中能净化一切污秽的色彩级收尾人。", effect: "legend", effText: "", major: true, milestone: "遭遇蔚蓝天堂" });
+  addMilestone("遭遇蔚蓝天堂");
+  setFlag("colorFixerWeight", (getFlag("colorFixerWeight") || 0) + 2);
+
+  if (gameState.attrs.wil >= 8 && gameState.attrs.int >= 7 && chance(0.3)) {
+    addEvent({ text: "蔚蓝天堂向你伸出了手。『你的灵魂很干净。』温暖的光芒笼罩了你，你感到过去的一切创伤、恐惧和愧疚都在这光芒中消融了。", effect: "heal", effText: "意志+3，体质+2", major: true, milestone: "蔚蓝天堂的净化" });
+    modAttr("wil", 3);
+    modAttr("con", 2);
+    setFlag("azureBless", true);
+  } else {
+    addEvent({ text: "蔚蓝天堂看了你一眼，目光中带着悲悯。『还不够。』然后他转身离去，留下你站在原地，感到一种说不清的失落。", effect: "none", effText: "", major: false });
   }
 }
 
@@ -8883,14 +9598,77 @@ function runTieredEvents(age, a, f, bp, tags) {
       { t: '某个深夜，你照镜子时发现镜中的自己比你慢了半拍。当你抬手时，镜中的你隔了一秒才抬手。你打碎镜子，但你知道——那个「你」还在某个地方活着。', e: { wil: -2, int: 5 }, ms: '镜中自我' },
       { t: '你在废弃的脑叶公司遗址中找到了一个发光的蛋。它温暖而柔软，像一颗心脏。你把它带回了家。每当你睡觉时，它都会发出微弱的光芒，像是在守护你的梦。', e: { wil: 4, con: 2 }, ms: '光之蛋' },
       { t: '一位身着白衣的老人出现在你面前。他说他是「都市的记录者」，已经活了五千年。他问你：「你想知道都市的真相吗？」你摇头。他笑了：「明智的选择。」', e: { int: 5, wil: 2 }, ms: '记录者的询问' },
-      { t: '你在WARP列车上遇到了一个来自「未来」的自己。未来的你满身伤痕，但眼神坚定。他只说了一句话：「不要放弃。」然后列车穿过了一个隧道，他消失了。', e: { wil: 5, con: 2 }, ms: '未来自我' },
+      { t: '你在WARP列车上看到了一个熟悉的身影——那是你的倒影，但又不完全是。在空间折叠的扭曲中，你们短暂地对视了一眼。那个「你」满身伤痕，但眼神坚定，只说了一句话：「不要放弃。」然后空间的褶皱平复，那个身影消失了。', e: { wil: 5, con: 2 }, ms: '折叠中的倒影' },
       { t: '某个午夜，所有的异想体同时停止了活动。整个都市陷入了诡异的宁静，持续了整整十三秒。在那十三秒里，你听到了某种声音——像是叹息，又像是歌唱。', e: { wil: 3, int: 3 }, ms: '十三秒的宁静' },
+      { t: '你在后巷的一家小酒馆里遇到了一个总是带着微笑的男人。他自称是某个事务所的新人收尾人，名字叫罗兰。你们聊了很久，关于都市、关于梦想、关于未来。', e: { wil: 3, int: 2 }, ms: '遇见罗兰' },
+      { t: '一个有着温柔笑容的女子向你问路。她自称叫安吉丽卡，是查尔斯事务所的收尾人。她的眼神中有着你不理解的悲伤。', e: { wil: 2, con: 1 }, ms: '遇见安吉丽卡' },
+      { t: '你在废墟深处看到了一个红色的身影。她的刀上沾满了血，但那不是人类的血。她回头看了一眼，然后消失在烟雾中——那是殷红迷雾。', e: { con: 2, wil: 2 }, ms: '遇见殷红迷雾' },
+      { t: '一段钢琴旋律在废墟中回荡。你循声而去，看到了一个蓝发的男子坐在钢琴前。「你听到了吗？」他微笑着说，「那是都市的哭泣。」', e: { int: 3, wil: -1 }, ms: '遇见苍蓝残响' },
+      { t: '一个紫发的女子静静地站在雨中。她的剑插在地上，雨水顺着剑身流下。她没有回头，只是轻声说：「雨停了，就该走了。」', e: { wil: 2, int: 2 }, ms: '遇见堇紫泪滴' },
     ]);
     addEvent({ text: special.t, effect: 'special_event', effText: '特别事件', major: true, milestone: special.ms });
     addMilestone(special.ms);
     for (const [k, v] of Object.entries(special.e)) modAttr(k, v);
     return;
   }
+
+  // ========== 世界观重大事件（独立概率判定，极端稀有） ==========
+    // 烟霾战争事件
+    if (chance(0.02) && age >= 25 && age <= 40 && !hasMilestone('烟霾战争')) {
+      addEvent({ text: '第十二区上空弥漫着惨白的浓烟——烟霾战争爆发了。R公司的兔子部队在废墟中肆虐，T公司投下了使人急剧衰老的炸弹。你在混乱中拼命逃亡。', major: true, milestone: '烟霾战争' });
+      addMilestone('烟霾战争');
+      modAttr('con', -1);
+      modAttr('wil', 2);
+      setFlag('smokeWar', true);
+      return;
+    }
+    // 血红之夜事件
+    if (chance(0.015) && age >= 30 && age <= 45 && !hasMilestone('血红之夜')) {
+      addEvent({ text: '血红之夜——都市之星伊莲娜释放了大量血魔眷属。整个都市陷入了恐慌，收尾人们被紧急调动。你亲眼目睹了一位色彩级收尾人倒下。', major: true, milestone: '血红之夜' });
+      addMilestone('血红之夜');
+      modAttr('wil', -1);
+      setFlag('crimsonNight', true);
+      return;
+    }
+    // 清道夫深宵事件
+    if (chance(0.03) && age >= 15 && age <= 60 && !getFlag('deepNightSurvived')) {
+      addEvent({ text: '凌晨3:13——后巷深宵开始了。清道夫的三波扫荡即将来临。80分钟内，一切暴力都不受法律约束。你屏住呼吸，祈祷天亮。', major: true });
+      if ((a.wil || 0) >= 6 || (a.con || 0) >= 7) {
+        addEvent({ text: '你在清道夫的第一波扫荡中活了下来。角落里传来的惨叫声让你无法入眠，但你——活下来了。' });
+        modAttr('wil', 1);
+        setFlag('deepNightSurvived', true);
+      } else {
+        addEvent({ text: '清道夫的利爪划过空气的声音就在你身后。你拼命奔跑，受了伤，但好歹活过了这个深宵。' });
+        modAttr('con', -1);
+        setFlag('deepNightSurvived', true);
+      }
+      return;
+    }
+    // 鸿园重构日事件
+    if (chance(0.02) && age >= 10 && age <= 50 && (bp === 'H' || bp === 'hongyuan') && !getFlag('restructuringDay')) {
+      addEvent({ text: '鸿园重构日——整个第八区的建筑开始重新排列。空间在你面前扭曲，你拼命抓住身旁的柱子。下层区域的居民传来惨叫——有人坠落了。', major: true });
+      modAttr('wil', 1);
+      setFlag('restructuringDay', true);
+      return;
+    }
+    // 钢琴家事件（大范围）
+    if (chance(0.01) && age >= 18 && age <= 35 && !getFlag('pianistEvent_global') && !hasMilestone('钢琴家事件')) {
+      addEvent({ text: '第九区的上空回荡着诡异的钢琴旋律——那是钢琴家的演奏。30万人的生命随着音符消逝，化为都市永远无法愈合的伤痕。', major: true, milestone: '钢琴家事件' });
+      addMilestone('钢琴家事件');
+      setFlag('pianistEvent_global', true);
+      if (bp === '9' || bp === 'ninth') {
+        modAttr('wil', -2);
+        addEvent({ text: '你在第九区，钢琴家事件的核心区域。那段旋律差点夺走了你的理智……' });
+      }
+      return;
+    }
+    // 哭泣之子事件
+    if (chance(0.008) && age >= 20 && age <= 45 && !hasMilestone('哭泣之子')) {
+      addEvent({ text: '一个巨大的扭曲身影出现在巢的上空——哭泣之子。八万人的生命在它的影响下消逝。你感到一股无法言喻的悲伤涌上心头。', major: true, milestone: '哭泣之子' });
+      addMilestone('哭泣之子');
+      modAttr('wil', -1);
+      return;
+    }
 
   // ========== 极其特殊事件（概率 6%，稀有且重大） ==========
   if (chance(0.06)) {
@@ -8906,13 +9684,17 @@ function runTieredEvents(age, a, f, bp, tags) {
       { t: '你在食指的指令中发现了一条给你的专属指令：「今日必须帮助一个陌生人。」你照做了。被帮助的人后来成为了都市之星——而他在成名后的第一次采访中提到了你。', e: { wil: 3, wea: 2 }, ms: '命运的指令' },
       { t: '你的血液中检测出了微量的「光之种」成分。医生说这是不可能的，因为光之种只存在于传说中。但从那天起，你身边的植物开始以异常的速度生长。', e: { con: 2, wil: 2 }, ms: '光之种残留' },
       { t: '你在一次事故中失去了左眼。三个月后，你的眼眶中长出了一种能「看到情感颜色」的器官。愤怒是红色，悲伤是蓝色，爱是金色。', e: { int: 3, wil: -1 }, ms: '情感之眼' },
-      { t: '你遇到了一个自称「逆行者」的人。他声称自己正在从未来向过去生活，并准确预言了你接下来三天的每一个选择。第四天，他消失了，只留下一句「你做得很好」。', e: { wil: 3, int: 2 }, ms: '逆行者' },
       { t: '你在郊区的废墟中找到了一面镜子。镜中映出的不是现在的你，而是你最想成为的自己。你把镜子带回了都市，但镜中的影像开始慢慢渗入现实。', e: { con: 2, wil: 2, int: 1 }, ms: '理想之镜' },
       { t: '一个年幼的血魔后裔找到了你，把你当成了亲人。你无法拒绝那双红色的眼睛。从那天起，你多了一项责任——保护一个随时可能失控的怪物。', e: { wil: 3, con: 1 }, ms: '血魔的监护' },
       { t: '你收到了一份来自「LCB」的机密档案，上面写着十二个罪人的名字和罪行。你不知道为什么会收到这个，但你知道，这份档案会改变某些人的命运。', e: { int: 3, wil: 1 }, ms: 'LCB机密档案' },
       { t: '你在一次深宵中遇到了一个正在「进食」的眼线。它没有攻击你，而是邀请你共享它的猎物。你拒绝了，但它记住了你的「礼貌」。', e: { wil: 2, int: 2 }, ms: '眼线的邀请' },
       { t: '你的身体开始逐渐「数据化」。手指偶尔会呈现出代码的形态，而你看到的文字有时会自行重组。医生说这是奇点科技的污染，但你感到某种自由。', e: { int: 3, con: -1 }, ms: '数据化污染' },
       { t: '你在后巷的地下市场买到了一张「未使用过的出生证明」。上面的名字是空白的，但日期是今天。你把它烧了，但某种感觉告诉你——你「杀死」了一个可能存在的生命。', e: { wil: -1, int: 3 }, ms: '空白出生证明' },
+      { t: '一个红发的女子站在设施走廊中，手持一把巨大的武器。「新来的？」她挑了挑眉，「别拖后腿。」', e: { con: 2, wil: 1 }, ms: '遇见Gebura' },
+      { t: '一个穿着黑袍的女子出现在你面前。空间在她周围微微扭曲。「你……很有趣。」她说，「你的恐惧有着独特的味道。」', e: { int: 2, wil: -1 }, ms: '遇见Binah' },
+      { t: '金色的光芒笼罩着你。一个白发女子站在书架之间，她的眼睛如同两颗金色的星辰。「欢迎来到图书馆，来宾。」', e: { int: 3, wil: 2 }, ms: '遇见安吉拉' },
+      { t: '一个戴着古怪头盔的骑士站在废墟中，手持长枪。「我是堂吉诃德！」他大声宣布，「这片废墟就是我的风车！」', e: { wil: 2, con: 1 }, ms: '遇见堂吉诃德' },
+      { t: '一个沉默的随从跟在堂吉诃德身后。他看了你一眼，眼中有着你无法理解的疲惫。', e: { wil: 1, int: 1 }, ms: '遇见桑丘' },
     ]);
     addEvent({ text: rare.t, effect: 'rare_event', effText: '极其特殊事件', major: true, milestone: rare.ms });
     addMilestone(rare.ms);
@@ -8932,7 +9714,7 @@ function runTieredEvents(age, a, f, bp, tags) {
       { t: '你的梦境变得越来越清晰，甚至可以「控制」梦中的自己。某天你在梦里遇到了另一个也在控制梦境的人。你们对视了一眼，同时醒了过来。', e: { wil: 2, int: 1 }, cond: () => true },
       { t: '你在后巷的墙上看到了一段用血写的文字：「不要信任穿白西装的人。」你擦掉了它，但第二天它又出现了，而且位置离你的住所更近了一步。', e: { wil: -1, int: 1 }, cond: () => true },
       { t: '你收到了一个匿名包裹，里面是一把你小时候丢失的玩具剑。附带一张纸条：「我一直替你保管着。」你环顾四周，但街道上空无一人。', e: { wil: 2 }, cond: () => true },
-      { t: '你在WARP列车的座位上发现了一本日记。日记的最后一页写着：「如果你读到了这里，说明我已经消失了。请照顾好我的猫。」你下车时，一只黑猫跟上了你。', e: { wil: 1, con: 1 }, cond: () => true },
+      { t: '你在WARP列车的座位上发现了一本日记。日记的最后一页写着：「如果你读到了这里，说明我已经被困在折叠空间中了。请照顾好我的猫。」你下车时，一只黑猫跟上了你。', e: { wil: 1, con: 1 }, cond: () => true },
       { t: '你的手机收到了一条来自未知号码的短信：「今晚不要走第三大道。」你本来不走那条路，但出于好奇你走了。你避开了一场帮派火并。', e: { wil: 1, int: 1 }, cond: () => true },
     );
 
@@ -9005,6 +9787,20 @@ function runTieredEvents(age, a, f, bp, tags) {
         { t: '你体内的实验物质突然产生了某种「共鸣」。你感到了其他实验体的存在——他们分散在都市的各个角落，和你一样痛苦，一样迷茫。那一夜，你们在无意识中「交谈」了。', e: { wil: 1, int: 2 }, cond: () => true },
       );
     }
+
+    // 新特殊事件
+    specPool.push(
+      { t: '你在废墟中发现了一个概念焚化炉。它正在焚烧一些物品——连同人们对它们的记忆。你赶紧离开了。', e: { int: 2 }, cond: () => chance(0.5) },
+      { t: '你目睹了一次时间征收。T公司的征收员将征收稿插入一个商人的身体，吸取了他的时间。商人瞬间衰老了十岁。', e: { wil: 2 }, cond: () => age >= 20 && chance(0.4) },
+      { t: '你在二十三巷的一家餐厅用餐。上菜后你发现味道不对——然后你意识到这里可能就是传闻中的"味之巷"。', e: { con: 1, wil: -1 }, cond: () => bp === '23' && chance(0.6) },
+      { t: '一个N公司的定格小队成员找到你，询问某个"违反摄影禁忌"的人的下落。你表示不知情，但他的眼神让你不寒而栗。', e: { wil: 1 }, cond: () => age >= 15 && chance(0.35) },
+      { t: '你在鸿园的大观园中迷路了。一个穿着古装的仆人指引你走出园林，但你总觉得他的步伐不太像人类。', e: { int: 1 }, cond: () => bp === 'H' && chance(0.5) },
+      { t: '你在边境铁道附近遇到了一群郊区居民。他们用珍贵的物品换取都市的日用品。其中一个人递给你一块奇怪的石头。', e: { wea: 1 }, cond: () => chance(0.3) },
+      { t: 'R公司的驯鹿部队从你头顶飞过。他们的脑波电波攻击的余波让你头痛欲裂。', e: { wil: 2 }, cond: () => age >= 18 && chance(0.25) },
+      { t: '你在第二十区看到了色彩回收装置的运作。整个区域的颜色被抽走，只剩下灰白。然后有人付钱恢复了色彩。', e: { wea: -1, int: 1 }, cond: () => bp === 'S20' && chance(0.7) },
+      { t: '一个异端审判官（N公司锤部门）从你面前经过。他的义体散发着不祥的红光，手中握着巨大的"锤"。', e: { wil: 1 }, cond: () => age >= 20 && chance(0.2) },
+      { t: '你在后巷深宵前找到了一个安全的藏身处。3:13的钟声即将敲响，你听到远处传来清道夫的声响。你活了下来。', e: { wil: 2 }, cond: () => age >= 10 && chance(0.3) },
+    );
 
     const spec = pick(specPool.filter(s => s.cond()));
     if (spec) {
@@ -9082,6 +9878,30 @@ function runTieredEvents(age, a, f, bp, tags) {
       { t: '风很大。后巷的破招牌在风中吱嘎作响，像是一群垂死的人在呻吟。你把窗户关紧了。', e: { wil: -1 }, cond: () => true },
     );
 
+    // 新一般事件
+    generalPool.push(
+      { t: '你在街头看到一家新开的工坊。招牌上写着"琅琊工坊——拳套与短刀"。你走进去看了看，但没有买任何东西。', e: { wil: 1 }, cond: () => true },
+      { t: '一个Девять协会的送货员骑着摩托车从你身边飞驰而过。他的派送箱在颠簸中发出奇怪的电子音。', e: { int: 1 }, cond: () => true },
+      { t: '你在第十区的赌场外看到一个人哭喊着被拖走。"愿力输光了……"他喃喃自语。你摸了摸自己的口袋。', e: { wil: 1 }, cond: () => true },
+      { t: 'K公司的推销员向你推销再生安瓿。"试试这个，包治百病！"他的笑容过于灿烂，让你有些不安。', e: { con: 1 }, cond: () => true },
+      { t: '你在后巷发现了一家卖血棒的小店。店主是个看起来疲惫的血魔。"来一根？"他问。你摇了摇头。', e: { wil: -1 }, cond: () => true },
+      { t: 'WARP列车的广告在街头闪烁。"跨越空间，只需一瞬。"你想起了那些关于折叠空间的恐怖故事。', e: { int: 1 }, cond: () => true },
+      { t: '一个R公司的退役士兵坐在街角喝酒。他的义肢在月光下泛着冷光。"战场……不是人待的地方。"', e: { wil: 1 }, cond: () => true },
+      { t: '你在第十三区看到月面骑士团巡逻。他们的盔甲在月光下闪闪发亮，像是在守护什么珍贵的东西。', e: { wil: 1 }, cond: () => true },
+      { t: '一个Dieci协会的学者在废墟边缘采集样本。"这里面蕴含着都市的秘密……"他兴奋地说，完全没有注意到身后的危险。', e: { int: 1 }, cond: () => true },
+      { t: 'T公司的色彩回收装置正在运作。你看到一个人的色彩被抽走，变得灰白。然后他掏出一笔钱，恢复了颜色。', e: { int: 1, wil: -1 }, cond: () => true },
+      { t: '你在X区的魔窟入口外看到了招聘广告。"高薪诚聘矿工，无需经验，风险自负。"', e: { con: 1 }, cond: () => true },
+      { t: '一个S公司的推奴人从你身边走过。他身上的烙印器具在阳光下反射着刺眼的光。你屏住了呼吸。', e: { wil: -1 }, cond: () => true },
+      { t: '你在后巷的近岸湖域闻到了熟悉的臭味。一只废料蟹从水面探出头来，又迅速沉了下去。', e: { wil: 1 }, cond: () => true },
+      { t: 'N公司的自杀自动售货机引起了你的注意。投币后可以选择"遗忘"或"死亡"。你加快了脚步。', e: { wil: -1 }, cond: () => true },
+      { t: 'P公司的完全保护装置让第十六区的建筑坚不可摧。你抬头看着那些极高的建筑，感到一阵眩晕。', e: { wil: 1 }, cond: () => true },
+      { t: '一个齿轮教团的成员在街头宣传机械飞升的好处。他的半边脸已经是金属了。"加入我们，抛弃软弱！"', e: { int: 1 }, cond: () => true },
+      { t: '你在黑市上看到一块月长石正在拍卖。起拍价高得离谱，但竞价者依然络绎不绝。', e: { wea: -1 }, cond: () => true },
+      { t: 'Hana协会的色彩评定员路过你身边时停顿了一下。他看了你一眼，摇了摇头，然后走开了。', e: { wil: -1 }, cond: () => true },
+      { t: '一个Q公司的符咒师向你推销护身符。"这个可以让你的武器附带火焰效果！只要一百眼！"', e: { int: 1 }, cond: () => true },
+      { t: 'J公司的锁匠在街头表演。他用一把钥匙锁住了风，然后解开了它。围观者发出惊叹。', e: { int: 1 }, cond: () => true },
+    );
+
     const gen = pick(generalPool.filter(g => g.cond()));
     if (gen) {
       addEvent({ text: gen.t, effect: 'general_event', effText: '一般事件', major: false, milestone: null });
@@ -9125,15 +9945,15 @@ function runSingularityEvents(age, a, f, bp, tags) {
         cond: () => age >= 18 && (a.con + a.wil) >= 10
       },
       {
-        t: 'WARP列车正常运行中，但窗外的景象让你不安——你看到了自己。另一个你站在另一个世界的月台上，正好奇地向这边张望。你们的目光穿过空间的裂缝交汇了。列车加速，那个身影消失在扭曲的光线中。',
+        t: 'WARP列车正常运行中，但窗外的景象让你不安——你看到了自己。在空间折叠的褶皱中，另一个「你」站在扭曲的月台上，正好奇地向这边张望。你们的目光穿过空间的裂缝交汇了。列车加速，那个身影消失在折叠的空间中。',
         e: { int: 2, wil: 1 },
-        ms: 'WARP平行观测',
+        ms: 'WARP折叠观测',
         cond: () => age >= 16
       },
       {
-        t: 'WARP列车上的乘务员递给你一份免责声明：「亲爱的乘客，本次列车将于途经H巷的时间异常区域，部分乘客可能会暂时经历年龄回溯或加速。W公司不对任何因此产生的心理创伤负责。」话音刚落，你注意到对面座位上的老人变成了一个孩子。',
+        t: 'WARP列车上的乘务员递给你一份免责声明：「亲爱的乘客，本次列车将于途经H巷的空间褶皱密集区域，部分乘客可能会因空间折叠产生视觉错觉。W公司不对任何因此产生的心理创伤负责。」话音刚落，你注意到对面座位上的老人在空间的扭曲中看起来像一个孩子——那只是折叠空间造成的错觉。',
         e: { int: 2, wil: -1 },
-        ms: 'WARP时间异常区',
+        ms: 'WARP褶皱错觉',
         cond: () => age >= 20
       },
       {
@@ -9143,9 +9963,9 @@ function runSingularityEvents(age, a, f, bp, tags) {
         cond: () => age >= 30
       },
       {
-        t: '你在WARP列车上遇到了一个从未来穿越来的人。他说这次列车将会在三分钟后坠入「空间裂缝」。他告诉你了逃生的方法——但需要你相信一个陌生人。你选择相信他。三分钟后，列车确实剧烈震荡，但你按照他的指示躲进了三号车厢的维修通道，毫发无伤。',
+        t: '你在WARP列车上遇到了一个神情慌张的常客。他说自己曾多次乘坐这趟列车，对空间折叠的不稳定区域有所了解。他预测列车将在三分钟后经过一段危险的褶皱区域，建议你躲进三号车厢的维修通道。你选择相信他。三分钟后，列车确实剧烈震荡，空间像被撕裂的布匹一样抖动，但你按照他的指示行动，毫发无伤。',
         e: { wil: 2, con: 1 },
-        ms: 'WARP未来预警',
+        ms: 'WARP褶皱预警',
         cond: () => age >= 20
       },
       {
@@ -9416,6 +10236,924 @@ function runSingularityEvents(age, a, f, bp, tags) {
     addMilestone(singEvents.ms);
     for (const [k, v] of Object.entries(singEvents.e)) modAttr(k, v);
   }
+}
+
+// =============================
+// LOBOTOMY CORPORATION EVENT CHAIN SYSTEM
+// =============================
+
+// 异想体数据
+const ABNORMALITIES = [
+  { name: '一罪与百善', code: 'F-01-37', level: 'ZAYIN', type: 'F', work: '本能', desc: '一个虔诚的教徒，渴望拯救所有灵魂。', danger: 1 },
+  { name: '五十九只羊', code: 'T-01-31', level: 'ZAYIN', type: 'T', work: '沟通', desc: '一群温顺的白色小羊。', danger: 1 },
+  { name: '训练中的吾郎', code: 'T-01-68', level: 'ZAYIN', type: 'T', work: '本能', desc: '一只接受训练的小狗，忠诚而热情。', danger: 1 },
+  { name: '善良的魔杖', code: 'F-01-02', level: 'ZAYIN', type: 'F', work: '洞察', desc: '一根渴望被使用的魔法棒。', danger: 1 },
+  { name: '长得像伊莲娜的姑娘', code: 'T-05-51', level: 'ZAYIN', type: 'T', work: '沟通', desc: '一个微笑着的少女幻影。', danger: 1 },
+  { name: '面的第七层', code: 'O-04-101', level: 'ZAYIN', type: 'O', work: '洞察', desc: '一个平静的面具，注视着来者。', danger: 1 },
+  { name: '亡蝶葬仪', code: 'T-01-68', level: 'HE', type: 'T', work: '压迫', desc: '一位在蝴蝶中徘徊的少女。她会在没有爱的注视下哭泣。', danger: 3 },
+  { name: '红染的朋友', code: 'F-01-27', level: 'HE', type: 'F', work: '本能', desc: '一个穿着红色斗篷的孩子。如果你不拥抱他，他会用刀刺向你。', danger: 3 },
+  { name: '愈合之子', code: 'F-05-44', level: 'HE', type: 'F', work: '沟通', desc: '一个渴望治愈所有伤口的孩子。但他的治愈方式令人恐惧。', danger: 3 },
+  { name: '魔弹射手', code: 'F-01-63', level: 'HE', type: 'F', work: '洞察', desc: '一个不可靠的射手，他的子弹会穿透一切。', danger: 3 },
+  { name: '绝望骑士', code: 'F-01-69', level: 'HE', type: 'F', work: '压迫', desc: '一位骑在马上的骑士，用绝望将世界染成黑色。', danger: 3 },
+  { name: '银色之枪', code: 'F-01-71', level: 'HE', type: 'F', work: '本能', desc: '一把拥有自我意识的银色枪械，渴望被扣下扳机。', danger: 3 },
+  { name: '裸体族', code: 'F-04-82', level: 'HE', type: 'F', work: '沟通', desc: '一群追求纯净的人，他们渴望褪去一切伪装。', danger: 3 },
+  { name: '甜蜜的家', code: 'F-01-08', level: 'WAW', type: 'F', work: '本能', desc: '一个温馨的家。但门一旦关上，就再也出不来了。', danger: 4 },
+  { name: '贞洁的安哥拉', code: 'F-01-23', level: 'WAW', type: 'F', work: '洞察', desc: '一位纯洁的少女，她的存在让所有谎言无处遁形。', danger: 4 },
+  { name: '白雪黑蒂', code: 'F-01-29', level: 'WAW', type: 'F', work: '压迫', desc: '两个截然不同的少女，黑与白的两面。', danger: 4 },
+  { name: '大鸟', code: 'F-01-86', level: 'WAW', type: 'F', work: '压迫', desc: '一只巨大的审判之鸟，守护着森林的法则。', danger: 4 },
+  { name: '惩戒鸟', code: 'F-04-04', level: 'WAW', type: 'F', work: '沟通', desc: '一只执行惩戒的鸟。被它的羽毛触碰到的生物会被定罪。', danger: 4 },
+  { name: '审判鸟', code: 'F-04-04', level: 'WAW', type: 'F', work: '本能', desc: '一只手握天平的鸟。所有罪恶都会被它称量。', danger: 4 },
+  { name: '快乐泰迪', code: 'T-01-68', level: 'WAW', type: 'T', work: '沟通', desc: '一只破旧但温暖的泰迪熊。它会吞噬你不快乐的记忆。', danger: 4 },
+  { name: '粘土先生', code: 'F-01-64', level: 'WAW', type: 'F', work: '洞察', desc: '一个由粘土构成的教师。他用学生来塑造自己的"杰作"。', danger: 4 },
+  { name: ' Nothing There', code: 'O-01-104', level: 'WAW', type: 'O', work: '压迫', desc: '一个空壳。它渴望成为"某人"。如果你直视它，它就会取代你。', danger: 4 },
+  { name: '歌利亚', code: 'F-01-83', level: 'WAW', type: 'F', work: '本能', desc: '一个长着六只手臂的巨人。它用音乐召唤毁灭。', danger: 4 },
+  { name: '白夜', code: 'O-01-104', level: 'ALEPH', type: 'O', work: '压迫', desc: '一个白发少女。当她睁开眼睛时，世界将迎来永恒的白昼。她的歌声能夺走一切。', danger: 5 },
+  { name: '天启鸟', code: 'F-04-104', level: 'ALEPH', type: 'F', work: '压迫', desc: '一只巨大的机械鸟。它终结一切，也重启一切。', danger: 5 },
+  { name: '无名之狼', code: 'F-01-87', level: 'ALEPH', type: 'F', work: '本能', desc: '一只吞噬一切的饥饿之狼。它将都市中最深的恐惧化为现实。', danger: 5 },
+  { name: '冥界之花', code: 'F-01-81', level: 'ALEPH', type: 'F', work: '沟通', desc: '一朵永不凋零的花。它的花粉会让人沉溺在美好的幻觉中直到死亡。', danger: 5 },
+  { name: '憎恶女王', code: 'F-01-91', level: 'ALEPH', type: 'F', work: '洞察', desc: '一位坐在荆棘王座上的女王。她的憎恶能将一切化为焦土。', danger: 5 },
+];
+
+// 工作类型描述
+const WORK_TYPES = {
+  '本能': '直接接触异想体，满足其生理需求。需要勇气。',
+  '洞察': '改善异想体的收容环境。需要谨慎和智慧。',
+  '沟通': '与异想体交流，满足其社交需求。需要自律和节制。',
+  '压迫': '抑制异想体的欲望和存在。需要绝对的正义。'
+};
+
+// 10个Sephirah事件链
+const SEPHIRAH_CHAIN = [
+  {
+    id: 'malkuth', name: 'Malkuth', title: '昂首阔步的信念', stage: 1,
+    ageStart: 20, ageEnd: 25,
+    desc: '你是脑叶公司新入职的员工。Malkuth是管理部的Sephirah，她总是在微笑，但你看到了那份微笑背后的疲惫。',
+    eventTexts: [
+      '你通过了脑叶公司的入职考试，被分配到管理部。Malkuth热情地接待了你，她的笑容让你感到一丝温暖——在这个冰冷的设施中，温暖是奢侈品。',
+      'Malkuth带着你巡视设施。"我们的工作很重要，"她说，"虽然其他人可能不理解，但我们管理着的……可不是普通的东西。"',
+      '你的第一次工作是ZAYIN级异想体——{abno}。你紧张地执行着{work}工作，Malkuth在监控室中注视着你。工作顺利完成了。',
+      '在一次紧急收容突破中，Malkuth果断调动各部门协调镇压。"不要慌！"她的声音穿透了警报声，"按照流程来，我们能处理！"',
+      '深夜加班时，你看到Malkuth独自坐在管理部的办公室里。她似乎在翻看什么档案，眼角的泪痕在屏幕的蓝光下闪烁。她发现你后迅速擦了擦眼睛，恢复了那副招牌微笑。"没什么，只是有点累了。"',
+      'Malkuth向你倾诉了她的烦恼——她是第一个Sephirah，承载着所有部门间的协调工作。"有时候我觉得……这份信念支撑着我继续走下去。昂首阔步，不能回头。"',
+      { text: '你完成了管理部的所有任务。Malkuth对你的表现非常满意。"你让我想起了最初的自己。"她微笑着说，"继续加油吧。"Milestone: Malkuth的认可', major: true }
+    ],
+    reward: { int: 1, wil: 1 },
+    milestone: 'Malkuth的认可'
+  },
+  {
+    id: 'yesod', name: 'Yesod', title: '卓尔不凡的理性', stage: 2,
+    ageStart: 23, ageEnd: 28,
+    desc: 'Yesod是信息部的Sephirah，以冷静和理性著称。他管理着设施的IT系统，对任何不规范的行为零容忍。',
+    eventTexts: [
+      '信息部的Yesod审查了你的工作记录。他的紫色眼睛审视着你。"你的工作效率有12%的提升空间。"他的声音没有一丝感情波动。',
+      'Yesod让你处理一批来自T公司的数据异常。"不要泄露任何信息。"他警告道，"这里的每一条数据都关乎设施的存亡。"',
+      '你被派去协助信息部的收容工作——{abno}。Yesod在监控中实时指导你："注意PE-BOX的产出数值，任何偏差都可能意味着异想体情绪波动。"',
+      '一名同事因为违反信息保密协议而被Yesod处分。你看到那名同事被带走时，Yesod的表情依然平静如水。"规则就是规则。"他说。',
+      '在一次WAW级异想体出逃事件中，Yesod的信息封锁系统发挥了关键作用。"没有完美的系统，"他罕见地露出了思考的表情，"但理性是我们唯一的武器。"',
+      { text: 'Yesod终于认可了你的工作能力。"你是我见过的最规范的员工之一。"他说这句话时，嘴角似乎微微上扬了一下。Milestone: Yesod的认可', major: true }
+    ],
+    reward: { int: 2 },
+    milestone: 'Yesod的认可'
+  },
+  {
+    id: 'hod', name: 'Hod', title: '愈加善良的希望', stage: 3,
+    ageStart: 26, ageEnd: 31,
+    desc: 'Hod是安全部的Sephirah，温柔而善良。她总是为员工们的安全担忧，但她的善良有时会让她陷入两难。',
+    eventTexts: [
+      '安全部的Hod在你完成一次危险工作后亲自来慰问。"你没有受伤吧？"她关切的眼神让你想起了远方的姐姐。',
+      'Hod在安全部会议上提出了加强员工保护装备的建议，但被高层驳回了。你看到她走出会议室时咬着嘴唇，眼眶微红。',
+      '一次HE级异想体——{abno}的工作中，你差点受伤。Hod亲自率领安全部队前来支援。"每一个员工的安全都是我的责任！"她的声音带着颤抖。',
+      'Hod私下找到你："你觉得……善良在这里有用吗？有时候我觉得，无论我怎么努力，还是会有人受伤……"',
+      '在Hod的指导下，安全部成功预防了一次大规模收容突破。"谢谢你，"Hod微笑着说，"是你让我相信，善良和希望永远不会过时。"',
+      { text: 'Hod送给了你一个安全部的徽章。"以后遇到危险就出示这个。"她说，"我会记住你的善良。"Milestone: Hod的认可', major: true }
+    ],
+    reward: { con: 1, wil: 1 },
+    milestone: 'Hod的认可'
+  },
+  {
+    id: 'netzach', name: 'Netzach', title: '生存下去的勇气', stage: 4,
+    ageStart: 29, ageEnd: 34,
+    desc: 'Netzach是福利部的Sephirah，看起来总是无精打采。他负责医疗和员工健康，但自己似乎是最不健康的那个人。',
+    eventTexts: [
+      '你第一次见到Netzach时，他正瘫在福利部的椅子上。"啊……新人啊……"他懒洋洋地挥了挥手，"别太拼命，活着就好。"',
+      '福利部的医疗舱嗡嗡作响。Netzach一边给你检查身体，一边嘟囔着："在这个地方工作，能保持心理健康才是最大的本事……"',
+      '你发现Netzach偷偷在休息时间帮助受伤的员工。"别告诉别人。"他疲惫地笑了笑，"我只是……不想再看到有人因为我没能帮上忙而……"',
+      '一次ALEPH级异想体警报响起时，Netzach罕见地打起了精神。"把所有伤员送来福利部！"他快速地准备着治疗设备，"我不会再让任何人死在我面前！"',
+      'Netzach向你吐露了心声："我其实……一直在害怕。害怕自己不够好，害怕救不了任何人。但你让我看到了……就算害怕，也要有活下去的勇气。"',
+      { text: 'Netzach递给你一瓶特殊的安瓿——这不是普通的K公司产品，而是福利部特制的。"这是我最好的药水。"他说，"活下去，这是你欠自己的。"Milestone: Netzach的认可', major: true }
+    ],
+    reward: { con: 2 },
+    milestone: 'Netzach的认可'
+  },
+  {
+    id: 'tiphereth', name: 'Tiphereth', title: '存在意义的憧憬', stage: 5,
+    ageStart: 32, ageEnd: 37,
+    desc: 'Tiphereth是培训部的Sephirah，外表年轻但眼神中有着超越年龄的深沉。他负责培养和训练新员工。',
+    eventTexts: [
+      '培训部的Tiphereth打量着你。"你有一定的潜力。"他的评价看似平淡，但你注意到他眼中闪过一丝光芒。',
+      'Tiphereth亲自指导你的训练——面对{abno}的{work}工作。"理解异想体的本质，"他说，"不要被表象迷惑，它们的每一个行为都有深层原因。"',
+      '"你知道我们为什么需要培训吗？"Tiphereth靠在墙上，"因为在这里，每一个员工都可能成为下一个牺牲品。我的工作，就是尽量减少这个数量。"',
+      '在一次培训中，Tiphereth展示了如何压制WAW级异想体。他的动作干净利落，如同行云流水。"记住，勇气和谨慎缺一不可。"',
+      'Tiphereth告诉你："我一直在思考存在的意义。培训别人，看着他们成长……这或许就是我的意义所在。"',
+      { text: 'Tiphereth在结业仪式上对你点了点头。"你让我看到了希望。"他说这话时，笑容中带着释然。"去吧，成为你该成为的人。"Milestone: Tiphereth的认可', major: true }
+    ],
+    reward: { con: 1, int: 1, wil: 1 },
+    milestone: 'Tiphereth的认可'
+  },
+  {
+    id: 'gebura', name: 'Gebura', title: '守护他人的决意', stage: 6,
+    ageStart: 35, ageEnd: 40,
+    desc: 'Gebura是纪律部的Sephirah，性格火爆而直率。她负责设施的安保和镇压工作，是战斗力最强的Sephirah之一。',
+    eventTexts: [
+      '纪律部的Gebura第一次见到你就皱起了眉头。"看起来不太能打的样子。"她上下打量着你，"不过没关系，等你真正需要战斗的时候，自然会长出爪牙。"',
+      '一次异想体突破收容，Gebura提起她的大刀冲了出去。"让开！"她怒吼着，一刀劈向了失控的{abno}，"在我面前，没有收容不了的怪物！"',
+      '你注意到Gebura在战斗后总是独自去一个角落。"别跟过来。"她的声音有些沙哑，"只是……想起了以前的事情。有些人，我没来得及保护……"',
+      'Gebura在训练场上教你战斗技巧。"你的身体就是武器，"她说，"别怕受伤。在都市里，受伤是家常便饭。重要的是——你为了什么而受伤。"',
+      '"守护……"Gebura罕见地露出了温柔的表情，"以前我不明白为什么要守护别人。现在……我有想要守护的人了。"',
+      { text: 'Gebura拍了拍你的肩膀。"你小子，还行。"她的嘴角微微上扬，"以后要是遇到危险，就喊我的名字。"她递给你一把纪律部特制的短刀。Milestone: Gebura的认可', major: true }
+    ],
+    reward: { con: 3 },
+    milestone: 'Gebura的认可'
+  },
+  {
+    id: 'chesed', name: 'Chesed', title: '值得托付的信任', stage: 7,
+    ageStart: 38, ageEnd: 43,
+    desc: 'Chesed是中央本部的Sephirah，负责设施的总体运营。他外表温和有礼，但内心深不可测。',
+    eventTexts: [
+      'Chesed在走廊里与你擦肩而过。"你就是那个被Sephirah们提到的员工？"他微笑着递给你一杯茶，"来，坐下来聊聊。"',
+      'Chesed安排你去处理一个棘手的跨部门协调任务。"信任是一种很微妙的东西，"他说，"给得太多会让人放肆，给得太少会让人疏远。"',
+      '"设施就像一台精密的机器，"Chesed一边品茶一边说，"每一个齿轮都在转动，而我负责确保它们不会咬合在一起。"',
+      '在一次紧急情况中，Chesed展现了惊人的指挥能力。"所有人，各就各位。"他的声音平静但充满威严，没有任何人质疑他的命令。',
+      'Chesed私下对你说："你是一个值得信任的人。在脑叶公司，信任是比脑啡肽更珍贵的资源。"',
+      { text: 'Chesed将一枚特殊的徽章别在你的胸前。"这是中央本部的通行证。"他说，"有了这个，你在设施中的任何地方都可以畅通无阻。我信任你。"Milestone: Chesed的认可', major: true }
+    ],
+    reward: { int: 1, wea: 1 },
+    milestone: 'Chesed的认可'
+  },
+  {
+    id: 'binah', name: 'Binah', title: '直面恐惧，斩断循环', stage: 8,
+    ageStart: 41, ageEnd: 46,
+    desc: 'Binah是仲裁部的Sephirah，一个看起来年轻却拥有深邃智慧的存在。她总是带着神秘莫测的表情，仿佛看穿了一切。',
+    eventTexts: [
+      '仲裁部的Binah第一次与你说话时，你的脊背不由自主地挺直了。"你的恐惧……很有趣。"她歪着头看着你，"就像湖水映出的倒影。"',
+      'Binah带你进入仲裁部的深处。那里关押着最危险的异想体。"每一个异想体都是一面镜子，"她说，"映照出人类灵魂中最深的恐惧。"',
+      '"你害怕死亡吗？"Binah突然问道。没等你回答，她继续说，"死亡在这里不是终点。循环……才是真正的恐惧。你被困在同一个瞬间，反复经历同样的痛苦。"',
+      '在一次ALEPH级异想体的镇压行动中，Binah展现了恐怖的力量。空间的裂缝在她周围展开，异想体被镇压后化为卵。"循环……被斩断了。"她平静地说。',
+      'Binah告诉你关于"光之种"的事情。"这是一切的终点，也是起点。当所有的Sephirah达成共鸣时，设施将迎来最后的抉择。"',
+      { text: 'Binah将一件仲裁部的制服交给你。"你已经准备好了。"她的声音带着一丝不易察觉的温情，"直面恐惧，斩断循环。这是你教会我的。"Milestone: Binah的认可', major: true }
+    ],
+    reward: { wil: 3 },
+    milestone: 'Binah的认可'
+  },
+  {
+    id: 'hokma', name: 'Hokma', title: '拥抱过去，创造未来', stage: 9,
+    ageStart: 44, ageEnd: 49,
+    desc: 'Hokma是记录/构想部的Sephirah，最年长也最智慧的存在之一。他能够操控时间，以深邃的目光审视着过去和未来。',
+    eventTexts: [
+      '记录/构想部的Hokma坐在一个巨大的时钟前。"时间……"他的声音如同古老的钟声，"在脑叶公司，时间有着不同的意义。T公司的奇点让我们得以窥见时间的一角。"',
+      'Hokma让你阅读一份关于设施过去的档案。"要想理解现在，必须先了解过去。"他翻过一页，"这里记录着每一个被遗忘的故事。"',
+      '"过去是无法改变的，"Hokma看着你，"但过去塑造了现在的你。拥抱它，而不是逃避它。只有这样，你才能创造不同的未来。"',
+      '在Hokma的指导下，你经历了一次短暂的"时间回溯"——看到了设施建立之初的景象。那个笑容，那份决心……一切都源自一个人——艾因。',
+      '"所有的Sephirah……都是从她身上诞生的。"Hokma的目光变得深远，"她的梦想，她的痛苦，她的希望。现在，这些都承载在我们身上。光之种……就是她留给世界的礼物。"',
+      { text: 'Hokma将一枚发光的怀表放在你手中。"这是记录部最珍贵的遗物。"他说，"带着它，去见证光之种的诞生吧。拥抱过去的一切，然后……创造未来。"Milestone: Hokma的认可', major: true }
+    ],
+    reward: { int: 1, wil: 2 },
+    milestone: 'Hokma的认可'
+  }
+];
+
+// 运行L公司事件链系统
+function runLobotomyChain(age) {
+  if (!gameState.alive || gameState.dead) return;
+
+  // 检查是否已进入脑叶公司路线
+  if (!getFlag('joinedLCompany')) return;
+
+  // 检查是否已经完成光之种
+  if (getFlag('lightSeedLaunched')) {
+    // 光之种发射后的世界线
+    runPostLightSeed(age);
+    return;
+  }
+
+  // 获取当前Sephirah进度
+  const currentStage = getFlag('sephirahStage') || 0;
+
+  // 尝试推进Sephirah事件链
+  for (let i = 0; i < SEPHIRAH_CHAIN.length; i++) {
+    const chain = SEPHIRAH_CHAIN[i];
+    const flagKey = 'sephirah_' + chain.id;
+
+    // 如果已开始但未完成
+    if (getFlag(flagKey + '_started') && !getFlag(flagKey + '_done')) {
+      const progress = getFlag(flagKey + '_progress') || 0;
+      if (progress < chain.eventTexts.length - 1 && chance(0.35)) {
+        // 推进一个事件
+        const evtText = chain.eventTexts[progress];
+        let finalText = evtText;
+        // 如果文本包含{abno}或{work}，替换为随机异想体
+        if (typeof evtText === 'object' && evtText.text) {
+          finalText = evtText.text;
+        }
+        if (finalText.includes('{abno}')) {
+          const abno = pick(ABNORMALITIES.filter(a => a.level === chain.level || a.level === 'HE'));
+          finalText = finalText.replace('{abno}', abno ? abno.name : '一个未知的异想体');
+        }
+        if (finalText.includes('{work}')) {
+          const wt = pick(Object.keys(WORK_TYPES));
+          finalText = finalText.replace('{work}', wt);
+        }
+        addEvent({ text: finalText, major: false });
+        setFlag(flagKey + '_progress', progress + 1);
+        return;
+      }
+    }
+
+    // 如果到了该Sephirah的年龄且前面的都完成了
+    if (i === currentStage && age >= chain.ageStart && age <= chain.ageEnd && chance(0.4)) {
+      if (i === 0 || getFlag('sephirah_' + SEPHIRAH_CHAIN[i-1].id + '_done')) {
+        const progress = getFlag(flagKey + '_progress') || 0;
+        const evtText = chain.eventTexts[progress];
+        let finalText;
+        if (typeof evtText === 'object' && evtText.text) {
+          finalText = evtText.text;
+          // 最后一个事件
+          setFlag(flagKey + '_done', true);
+          setFlag('sephirahStage', i + 1);
+          addMilestone(chain.milestone);
+          // 应用奖励
+          if (chain.reward) {
+            const a = gameState.attrs;
+            if (chain.reward.con) a.con = (a.con||0) + chain.reward.con;
+            if (chain.reward.int) a.int = (a.int||0) + chain.reward.int;
+            if (chain.reward.wil) a.wil = (a.wil||0) + chain.reward.wil;
+            if (chain.reward.wea) a.wea = (a.wea||0) + chain.reward.wea;
+          }
+        } else {
+          finalText = evtText;
+          setFlag(flagKey + '_started', true);
+          setFlag(flagKey + '_progress', progress + 1);
+        }
+        // 替换占位符
+        if (finalText.includes('{abno}')) {
+          const abno = pick(ABNORMALITIES);
+          finalText = finalText.replace('{abno}', abno ? abno.name : '一个未知的异想体');
+        }
+        if (finalText.includes('{work}')) {
+          const wt = pick(Object.keys(WORK_TYPES));
+          finalText = finalText.replace('{work}', wt);
+        }
+        addEvent({ text: finalText, major: false });
+        return;
+      }
+    }
+  }
+}
+
+// 随机异想体工作事件
+function runAbnormalityWork(age) {
+  if (!gameState.alive || gameState.dead) return;
+  if (!getFlag('joinedLCompany')) return;
+  if (getFlag('lightSeedLaunched')) return;
+
+  if (age >= 20 && chance(0.15)) {
+    const abno = pick(ABNORMALITIES);
+    if (!abno) return;
+    const work = pick(Object.keys(WORK_TYPES));
+    const success = abno.level === 'ZAYIN' ? chance(0.9) :
+                    abno.level === 'TETH' ? chance(0.75) :
+                    abno.level === 'HE' ? chance(0.5) :
+                    abno.level === 'WAW' ? chance(0.3) :
+                    chance(0.15);
+
+    if (success) {
+      const peBox = abno.level === 'ALEPH' ? randBetween(20,35) :
+                    abno.level === 'WAW' ? randBetween(12,25) :
+                    abno.level === 'HE' ? randBetween(8,18) :
+                    randBetween(4,14);
+      const texts = [
+        `你对 ${abno.name}（${abno.level}级）进行了${work}工作。工作顺利完成，产出了 ${peBox} 个PE-BOX。${WORK_TYPES[work]}`,
+        `管理部通知：${abno.name} 的${work}工作由你执行。异想体看起来比较平静，脑啡肽收集成功。`,
+      ];
+      addEvent({ text: pick(texts), effect: '智力+1', major: false });
+      gameState.attrs.int = (gameState.attrs.int||0) + 1;
+    } else {
+      const damage = abno.level === 'ALEPH' ? randBetween(2,4) :
+                    abno.level === 'WAW' ? randBetween(1,3) :
+                    randBetween(0,2);
+      const texts = [
+        `你对 ${abno.name}（${abno.level}级）的${work}工作失败了。异想体失控，你受到了${damage}点伤害。`,
+        `警报！${abno.name} 在工作中对你的${work}操作产生了强烈反应。紧急撤退，但已受伤。`,
+      ];
+      addEvent({ text: pick(texts), effect: `体质-${damage}`, major: false });
+      gameState.attrs.con = Math.max(0, (gameState.attrs.con||0) - damage);
+    }
+  }
+}
+
+// 光之种发射事件
+function triggerLightSeed() {
+  const completedSephiroth = SEPHIRAH_CHAIN.filter(c => getFlag('sephirah_' + c.id + '_done')).length;
+  if (completedSephiroth < 8) return false;
+
+  addEvent({ text: '─── 所有Sephirah的共鸣达成 ───', major: true });
+  addEvent({ text: '设施深处开始震动。脑啡肽的产量急剧上升，超越了所有记录。艾因——脑叶公司的主管——启动了最终计划。', major: true });
+  addEvent({ text: '"光之种……就是我的梦想。"艾因的声音在广播中回荡，"一个让所有人都能获得幸福的世界。"', major: true });
+  addEvent({ text: '巨大的能量柱从设施中央升腾而起，金色的光芒照亮了整个郊区。光之种……发射了。', major: true, milestone: '光之种发射' });
+  addMilestone('光之种发射');
+
+  setFlag('lightSeedLaunched', true);
+  setFlag('whiteNight', true);
+
+  // 全属性大幅提升
+  const a = gameState.attrs;
+  a.con = (a.con||0) + 3;
+  a.int = (a.int||0) + 3;
+  a.wil = (a.wil||0) + 3;
+  a.wea = (a.wea||0) + 2;
+  gameState.happiness = Math.min(10, (gameState.happiness||0) + 5);
+
+  return true;
+}
+
+// 光之种发射后的世界线事件
+function runPostLightSeed(age) {
+  if (!gameState.alive || gameState.dead) return;
+
+  const postFlag = getFlag('postLightSeed');
+  if (postFlag >= 5) return; // 事件链完成
+
+  if (chance(0.5)) {
+    const events = [
+      '光之种的余辉在都市中回荡。你感到自己体内有什么东西在变化……一种前所未有的力量正在觉醒。',
+      '白夜降临——都市的黑暗被光芒驱散。人们第一次看到了没有烟雾遮蔽的天空。',
+      '安吉拉在图书馆中注视着这一切。光之种改变了都市，也改变了她。她不再是那个只懂得模仿的AI。',
+      '你收到了一封来自安吉拉的邀请函。"我需要一位司书，"信上写道，"来协助我管理这座图书馆中的无限知识。"',
+    ];
+
+    if (postFlag < events.length) {
+      addEvent({ text: events[postFlag], major: postFlag >= 2 });
+      setFlag('postLightSeed', postFlag + 1);
+
+      if (postFlag >= events.length - 1) {
+        // 最终转化：助理司书
+        addEvent({ text: '你走进了图书馆。安吉拉站在那里，金色的光芒环绕着她。"欢迎，"她说，"从今天起，你就是这座图书馆的助理司书。"', major: true, milestone: '助理司书' });
+        addEvent({ text: '作为助理司书，你的使命是接待来自都市各处的来宾，管理书库中的每一本书——每一本书都记录着一个人的一生。', major: true });
+        addMilestone('助理司书');
+        setFlag('librarian', true);
+        setFlag('book', true);
+
+        // 标志性属性提升
+        gameState.attrs.int = (gameState.attrs.int||0) + 3;
+        gameState.attrs.wil = (gameState.attrs.wil||0) + 2;
+        gameState.happiness = Math.min(10, (gameState.happiness||0) + 3);
+      }
+    }
+  }
+}
+
+// ==================== 事件链辅助适配器 ====================
+function hasTalent(tag) {
+  return (gameState.tags || []).some(t => (t||'').indexOf(tag) !== -1);
+}
+function rollCheck(attr, diff) {
+  const a = gameState.attrs || {};
+  return (a[attr] || 0) + randBetween(1, 6) >= diff + 3;
+}
+function addLog(msg) { /* 兼容，不做额外操作 */ }
+function showEvent(text, choices, flag) {
+  addEvent({ text: text, effText: '抉择事件', major: true, milestone: flag });
+  if (choices && choices.length > 0) {
+    const c = choices[Math.floor(Math.random() * choices.length)];
+    if (c && c.effect) setTimeout(() => c.effect(), 100);
+  }
+}
+function takeDamage(n) {
+  modAttr('con', -n);
+  if ((gameState.attrs.con || 0) <= 0) death('事件链战斗中伤重不治');
+}
+
+// ==================== S巢逃亡事件链 ====================
+function eventChainSNestEscape(age) {
+  if (!gameState.alive || gameState.dead) return;
+  if (hasTalent('nest_s_scholar') || hasTalent('nest_s_branded') || hasTalent('ryi_martial') || gameState.birthPlace === 's_nest') {
+    const stages = [
+      { age: 6, condition: () => !getFlag('sNest_6'),
+        text: 'S巢的清晨总是被钟鼓声唤醒。你站在科举考场的长队中，周围都是面色苍白的孩子。考官的目光如刀，扫过每一张稚嫩的脸。这就是S巢——不学无术者，连呼吸都是罪。',
+        choices: [
+          { text: '拼命背诵经书', effect: () => { gameState.attrs.int = (gameState.attrs.int||0)+1; gameState.happiness = Math.max(0,(gameState.happiness||0)-1); setFlag('sNest_6','study'); } },
+          { text: '偷偷观察其他考生的作弊手法', effect: () => { gameState.attrs.int = (gameState.attrs.int||0)+1; setFlag('sNest_6','observe'); } }
+        ]
+      },
+      { age: 10, condition: () => !getFlag('sNest_10'),
+        text: 'S巢的武科考试开始了。你看到一名孩子因成绩不佳被当众打下削弱烙印——那种烙印会永久削弱气力。烙铁接触皮肤的声音在考场回荡。考官冷冷地说："下一个。"',
+        choices: [
+          { text: '咬牙参加武科考试', effect: () => { if (rollCheck('con', 2)) { gameState.attrs.con = (gameState.attrs.con||0)+1; setFlag('sNest_10','martial_pass'); addLog('你通过了武科初试，虽然遍体鳞伤。'); } else { gameState.attrs.con = Math.max(0,(gameState.attrs.con||0)-1); gameState.happiness = Math.max(0,(gameState.happiness||0)-2); setFlag('sNest_10','martial_fail'); addLog('你没能通过武科，所幸没有被烙印。'); } } },
+          { text: '转向文科，用智力取胜', effect: () => { gameState.attrs.int = (gameState.attrs.int||0)+2; setFlag('sNest_10','literary'); addLog('你在文科考试中名列前茅。'); } }
+        ]
+      },
+      { age: 14, condition: () => !getFlag('sNest_14'),
+        text: '一个深夜，你从禁书库中翻到了一份记录S巢底层真相的卷轴——所谓的科举不过是筛选合格"零件"的系统，通过者被送往各巢的翼公司。而你，从未被选中。',
+        choices: [
+          { text: '趁夜色逃出S巢', effect: () => { setFlag('sNest_14','escape'); setFlag('escaped',true); gameState.happiness = Math.max(0,(gameState.happiness||0)-3); addLog('你翻过了S巢的高墙，身后是追兵的火把。'); } },
+          { text: '留下来继续假装不知道', effect: () => { gameState.attrs.wil = (gameState.attrs.wil||0)+1; gameState.happiness = Math.max(0,(gameState.happiness||0)-2); setFlag('sNest_14','stay'); } }
+        ]
+      },
+      { age: 18, condition: () => getFlag('sNest_14') === 'escape',
+        text: '逃亡途中，你遇到了一位自称"收尾人"的年轻人。他说后巷虽然危险，但至少是自由的。S巢的追兵已经搜到了这条街巷。',
+        choices: [
+          { text: '跟随收尾人进入后巷', effect: () => { setFlag('sNest_18','backstreet'); gameState.birthPlace = 'backstreet'; addLog('你踏入了后巷，S巢的生活从此成为回忆。'); } },
+          { text: '独自面对追兵', effect: () => { if (rollCheck('wil', 3)) { setFlag('sNest_18','fight'); gameState.attrs.wil = (gameState.attrs.wil||0)+2; addLog('你以超乎年龄的意志震慑了追兵。'); } else { takeDamage(3); setFlag('sNest_18','wounded'); addLog('你被追兵重伤，但侥幸活了下来。'); } } }
+        ]
+      }
+    ];
+    for (const stage of stages) {
+      if (age === stage.age && stage.condition()) {
+        showEvent(stage.text, stage.choices, 'sNest_escape_' + stage.age);
+        return;
+      }
+    }
+  }
+}
+
+// ==================== C公司爪牙事件链 ====================
+function eventChainCCorpClaw(age) {
+  if (!gameState.alive || gameState.dead) return;
+  if (hasTalent('gregor_gcorp') || getFlag('gcorp_experiment')) {
+    const stages = [
+      { age: 4, condition: () => !getFlag('gcorp_4'),
+        text: 'G公司的实验室。白色的天花板，永不停息的嗡嗡声。你还不知道发生了什么，只是觉得身体里有什么东西在蠕动。虫。它们在你体内生长。研究人员在记录板上写写画画，偶尔低头看你一眼，目光像是在观察培养皿。',
+        choices: [
+          { text: '试图理解发生了什么', effect: () => { gameState.attrs.int = (gameState.attrs.int||0)+1; setFlag('gcorp_4','understand'); addLog('你开始理解身体的变化——这不是疾病，是改造。'); } },
+          { text: '恐惧地哭泣', effect: () => { gameState.happiness = Math.max(0,(gameState.happiness||0)-2); setFlag('gcorp_4','cry'); } }
+        ]
+      },
+      { age: 8, condition: () => !getFlag('gcorp_8'),
+        text: '你发现自己的手臂可以部分变形为甲壳质的镰刀。其他实验体孩子恐惧地躲着你。但G公司的研究员对此很满意——"G-0431号实验体，异形融合率达标。"',
+        choices: [
+          { text: '练习控制这种变化', effect: () => { gameState.attrs.con = (gameState.attrs.con||0)+2; setFlag('gcorp_8','control'); } },
+          { text: '隐藏这种能力', effect: () => { gameState.attrs.int = (gameState.attrs.int||0)+1; setFlag('gcorp_8','hide'); } }
+        ]
+      },
+      { age: 12, condition: () => !getFlag('gcorp_12'),
+        text: '实验室发生了事故。某个实验体失控，外骨骼完全展开，杀死了三名研究员。混乱中，你看到了通往外界的门——第一次。',
+        choices: [
+          { text: '趁乱逃出实验室', effect: () => { if (rollCheck('con', 2)) { setFlag('gcorp_12','escape'); setFlag('escaped',true); gameState.happiness = Math.min(10,(gameState.happiness||0)+2); addLog('你冲出了G公司的设施。自由——至少暂时是。'); } else { gameState.happiness = Math.max(0,(gameState.happiness||0)-3); setFlag('gcorp_12','caught'); addLog('你被安保抓住，关入了更深的实验室。'); } } },
+          { text: '帮助其他实验体逃跑', effect: () => { gameState.attrs.wil = (gameState.attrs.wil||0)+2; gameState.happiness = Math.max(0,(gameState.happiness||0)-1); setFlag('gcorp_12','help'); if (rollCheck('wil',3)) { setFlag('gcorp_12','help_success'); addLog('你帮助三名实验体逃出了设施。'); } else { addLog('只有你一个人逃了出来。'); } } }
+        ]
+      }
+    ];
+    for (const stage of stages) {
+      if (age === stage.age && stage.condition()) {
+        showEvent(stage.text, stage.choices, 'gcorp_claw_' + stage.age);
+        return;
+      }
+    }
+  }
+}
+
+// ==================== B公司眼线事件链 ====================
+function eventChainBCorpEye(age) {
+  if (!gameState.alive || gameState.dead) return;
+  if (hasTalent('honglu_eye') || getFlag('bcorp_eye')) {
+    const stages = [
+      { age: 5, condition: () => !getFlag('bcorp_5'),
+        text: '你从记事起就知道自己左眼和别人的不一样。碧绿色的瞳孔像是某种玉石，母亲总是用布条遮住你的眼睛。"不要让别人看到，"她低声说，"仙人们在看着你。"',
+        choices: [
+          { text: '偷偷在镜子前观察自己的眼睛', effect: () => { gameState.attrs.int = (gameState.attrs.int||0)+1; setFlag('bcorp_5','observe'); addLog('碧绿色的瞳孔深处，你看到了某种旋转的纹路。'); } },
+          { text: '听从母亲的话，永远遮住它', effect: () => { gameState.attrs.wil = (gameState.attrs.wil||0)+1; setFlag('bcorp_5','hide'); } }
+        ]
+      },
+      { age: 9, condition: () => !getFlag('bcorp_9'),
+        text: '一个穿长袍的人出现在你家门口。他自称是"大观园的引路人"，说你的眼睛是仙人赐予的"观天之瞳"。大观园可以保护你，但条件是——你必须为仙人效力。',
+        choices: [
+          { text: '跟随引路人前往大观园', effect: () => { setFlag('bcorp_9','accept'); gameState.birthPlace = '大观园'; gameState.attrs.int = (gameState.attrs.int||0)+2; addLog('你踏入了大观园。碧玉般的花木在两侧延展。'); } },
+          { text: '拒绝并试图逃跑', effect: () => { if (rollCheck('wil',2)) { setFlag('bcorp_9','reject'); addLog('你拒绝了引路人。但你知道，仙人不会善罢甘休。'); } else { setFlag('bcorp_9','forced'); gameState.birthPlace = '大观园'; addLog('你被强行带走了。'); } } }
+        ]
+      },
+      { age: 14, condition: () => !getFlag('bcorp_14'),
+        text: '在大观园深处，你第一次用"观天之瞳"看到了不该看到的东西——都市的真实结构。天空中那些闪烁的不是星星，而是某种庞大的观测装置。你突然理解了"仙人"的真正含义——他们就是这些装置的维护者。',
+        choices: [
+          { text: '将这个发现告诉大观园的长老', effect: () => { gameState.attrs.int = (gameState.attrs.int||0)+2; setFlag('bcorp_14','tell'); addLog('长老沉默了很久。他说："你知道得太多了，但也正因为如此，你更加重要了。"'); } },
+          { text: '将这个秘密深埋心底', effect: () => { gameState.attrs.wil = (gameState.attrs.wil||0)+2; setFlag('bcorp_14','secret'); addLog('你决定独自背负这个真相。'); } }
+        ]
+      }
+    ];
+    for (const stage of stages) {
+      if (age === stage.age && stage.condition()) {
+        showEvent(stage.text, stage.choices, 'bcorp_eye_' + stage.age);
+        return;
+      }
+    }
+  }
+}
+
+// ==================== 鸿园继承事件链 ====================
+function eventChainHongluSuccession(age) {
+  if (!gameState.alive || gameState.dead) return;
+  if (hasTalent('outis_rebel') || gameState.birthPlace === '鸿园') {
+    const stages = [
+      { age: 7, condition: () => !getFlag('honglu_7'),
+        text: '鸿园的庭院中，长老们正在商议继承事宜。你是这一代最有潜力的继承人候选，但竞争对手们已经开始暗中行动。昨晚，你的侍从在食物中发现了微量的麻痹药剂。',
+        choices: [
+          { text: '公开揭露投毒者', effect: () => { gameState.attrs.wil = (gameState.attrs.wil||0)+1; gameState.attrs.int = (gameState.attrs.int||0)+1; setFlag('honglu_7','expose'); addLog('投毒者被处刑。你的果断赢得了部分长老的支持。'); } },
+          { text: '假装不知，暗中调查', effect: () => { gameState.attrs.int = (gameState.attrs.int||0)+2; setFlag('honglu_7','investigate'); addLog('你决定弄清楚幕后主使是谁。'); } }
+        ]
+      },
+      { age: 12, condition: () => !getFlag('honglu_12'),
+        text: '鸿园遭遇了一场突如其来的袭击。不明身份的武装势力突破了外层防线。你的忠仆们拼死抵抗，但人数悬殊。',
+        choices: [
+          { text: '亲自上阵指挥防御', effect: () => { if (rollCheck('wil',3)) { gameState.attrs.wil = (gameState.attrs.wil||0)+2; gameState.attrs.con = (gameState.attrs.con||0)+1; setFlag('honglu_12','lead'); addLog('你的指挥挽救了鸿园。追随者们对你的忠诚达到了顶峰。'); } else { takeDamage(2); setFlag('honglu_12','wounded'); addLog('你在战斗中负了伤，但鸿园保住了。'); } } },
+          { text: '从密道撤离，保存实力', effect: () => { gameState.attrs.int = (gameState.attrs.int||0)+1; setFlag('honglu_12','retreat'); addLog('你从密道撤离。等袭击结束后再回来收复失地。'); } }
+        ]
+      },
+      { age: 16, condition: () => !getFlag('honglu_16'),
+        text: '鸿园的长老们终于宣布了继承结果。你的多年经营得到了回报——但你发现，真正的权力并不在鸿园之内。都市的翼公司、后巷的帮派，都在注视着这座古老的园邸。',
+        choices: [
+          { text: '接受继承，开始整顿鸿园', effect: () => { gameState.attrs.wea = (gameState.attrs.wea||0)+3; setFlag('honglu_16','accept'); addLog('你成为了鸿园的主人。新的时代开始了。'); } },
+          { text: '放弃继承，带着追随者前往都市闯荡', effect: () => { setFlag('honglu_16','leave'); setFlag('honglu_followers',true); addLog('你选择了更广阔的世界。身后，数十名追随者默默跟随。'); } }
+        ]
+      }
+    ];
+    for (const stage of stages) {
+      if (age === stage.age && stage.condition()) {
+        showEvent(stage.text, stage.choices, 'honglu_succession_' + stage.age);
+        return;
+      }
+    }
+  }
+}
+
+// ==================== 黑兽事件链 ====================
+function eventChainBlackBeast(age) {
+  if (!gameState.alive || gameState.dead) return;
+  if (getFlag('head_shadow') || getFlag('black_beast_potential')) {
+    const stages = [
+      { age: 8, condition: () => !getFlag('beast_8'),
+        text: '你做了一个噩梦。梦中，你站在一片漆黑的原野上，有什么巨大的东西在地下移动。地面在震颤，裂缝中渗出黑色的液体。你醒来时，发现自己的床边出现了一道从未有过的裂痕——像是被某种力量从内部撕裂。',
+        choices: [
+          { text: '试图回忆梦中的一切', effect: () => { gameState.attrs.int = (gameState.attrs.int||0)+1; setFlag('beast_8','remember'); setFlag('black_beast_potential',true); addLog('你隐约记得那东西的名字——"黑兽"。'); } },
+          { text: '告诉照顾你的人', effect: () => { gameState.attrs.wil = (gameState.attrs.wil||0)+1; setFlag('beast_8','tell'); } }
+        ]
+      },
+      { age: 13, condition: () => !getFlag('beast_13'),
+        text: '一次暴怒中，你的影子突然膨胀了。周围的人都吓得后退——他们看到了你身后某种不可名状的轮廓。影子在几秒后恢复了正常，但你知道，那不是幻觉。',
+        choices: [
+          { text: '尝试主动控制这种力量', effect: () => { if (rollCheck('wil',3)) { gameState.attrs.wil = (gameState.attrs.wil||0)+2; gameState.attrs.con = (gameState.attrs.con||0)+1; setFlag('beast_13','control'); addLog('你感到了影子和自己的连接。某种古老的力量在服从你。'); } else { takeDamage(2); gameState.happiness = Math.max(0,(gameState.happiness||0)-2); setFlag('beast_13','lose'); addLog('力量失控了。你损坏了整个房间。'); } } },
+          { text: '压抑这种力量，不让它再次出现', effect: () => { gameState.attrs.wil = (gameState.attrs.wil||0)+1; gameState.happiness = Math.max(0,(gameState.happiness||0)-1); setFlag('beast_13','suppress'); } }
+        ]
+      },
+      { age: 20, condition: () => !getFlag('beast_20'),
+        text: '你偶然在一本被禁的古籍中找到了关于"黑兽"的记载——那是都市创世之初就被封印的存在，据说能吞噬一切光与规则。而你体内的力量，与黑兽有着某种联系。首脑……他知道这件事吗？',
+        choices: [
+          { text: '寻找更多关于黑兽的信息', effect: () => { gameState.attrs.int = (gameState.attrs.int||0)+2; setFlag('beast_20','research'); addLog('你知道了更多——但每一条信息都让你更加不安。'); } },
+          { text: '主动去找首脑，坦白一切', effect: () => { if (rollCheck('wil',4)) { setFlag('beast_20','confess'); gameState.attrs.wil = (gameState.attrs.wil||0)+3; addLog('首脑沉默了很久。最终他说："我知道。从我选中你的那一刻起，我就知道了。"'); } else { setFlag('beast_20','confess_fail'); takeDamage(3); addLog('你没能见到首脑。守卫将你拒之门外。'); } } }
+        ]
+      }
+    ];
+    for (const stage of stages) {
+      if (age === stage.age && stage.condition()) {
+        showEvent(stage.text, stage.choices, 'black_beast_' + stage.age);
+        return;
+      }
+    }
+  }
+}
+
+// ==================== 猎杀调律者事件链 ====================
+function eventChainTunerHunter(age) {
+  if (!gameState.alive || gameState.dead) return;
+  if (hasTalent('head_shadow') && getFlag('head_shadow') === 'rebel') {
+    const stages = [
+      { age: 16, condition: () => !getFlag('hunter_16'),
+        text: '你选择了背叛首脑。这意味着你将成为调律者的猎物。第一个来找你的是一位三级调律者——面无表情，手持一把能切断概念本身的武器。"首脑的影子不需要存在，"他说。',
+        choices: [
+          { text: '利用你对调律系统的了解进行反击', effect: () => { if (rollCheck('int',4)) { gameState.attrs.int = (gameState.attrs.int||0)+2; setFlag('hunter_16','counter'); addLog('你找到了调律者程序的弱点。三级调律者倒下了。'); } else { takeDamage(4); setFlag('hunter_16','injured'); addLog('你受了重伤，但勉强逃脱。'); } } },
+          { text: '逃跑，保存实力', effect: () => { gameState.attrs.con = (gameState.attrs.con||0)+1; setFlag('hunter_16','flee'); addLog('你消失在都市的缝隙中。'); } }
+        ]
+      },
+      { age: 22, condition: () => !getFlag('hunter_22'),
+        text: '你在逃亡中遇到了一群同样被都市系统追杀的人。他们自称"影之一族"，是由历代的叛逃调律者和被首脑抛弃的影子组成的组织。他们的领袖是一位失去了一切的二级调律者。',
+        choices: [
+          { text: '加入影之一族', effect: () => { setFlag('hunter_22','join'); setFlag('shadow_clan',true); gameState.attrs.wil = (gameState.attrs.wil||0)+2; addLog('你找到了同伴。在这座都市中，这是最珍贵的财富。'); } },
+          { text: '独行，不信任任何人', effect: () => { gameState.attrs.wil = (gameState.attrs.wil||0)+1; gameState.attrs.int = (gameState.attrs.int||0)+1; setFlag('hunter_22','solo'); } }
+        ]
+      },
+      { age: 30, condition: () => !getFlag('hunter_30') && getFlag('shadow_clan'),
+        text: '影之一族截获了一份情报：首脑即将发动一次大规模的"调律"——抹除整个区域的所有生命。而你的旧身份——首脑的影子——是阻止这一切的关键。',
+        choices: [
+          { text: '率领影之一族阻止调律', effect: () => { if (rollCheck('wil',5) && rollCheck('int',4)) { setFlag('hunter_30','success'); gameState.attrs.wil = (gameState.attrs.wil||0)+3; addLog('你做到了。数万人的生命因为你的行动而延续。首脑沉默了很久。'); } else { takeDamage(5); setFlag('hunter_30','fail'); addLog('你没能阻止调律。但幸存者记住了你的名字。'); } } },
+          { text: '让影之一族撤离，独自面对首脑', effect: () => { setFlag('hunter_30','solo'); gameState.attrs.wil = (gameState.attrs.wil||0)+4; takeDamage(3); addLog('你一个人站在了首脑面前。'); } }
+        ]
+      }
+    ];
+    for (const stage of stages) {
+      if (age === stage.age && stage.condition()) {
+        showEvent(stage.text, stage.choices, 'tuner_hunter_' + stage.age);
+        return;
+      }
+    }
+  }
+}
+
+// ==================== 身份转换事件链 ====================
+function eventChainIdentityShift(age) {
+  if (!gameState.alive || gameState.dead) return;
+  if (hasTalent('sinclair_mark') || hasTalent('heathcliff_rage') || hasTalent('demiyan_abyss')) {
+    const stages = [
+      { age: 7, condition: () => !getFlag('identity_7'),
+        text: '你额头上的血红印记开始发热。每到深夜，你都能听到低沉的耳语——它在讲述一个关于"该隐"与"亚伯"的故事。不是圣经中的版本，而是某种更加古老、更加残酷的真相。',
+        choices: [
+          { text: '尝试理解耳语的内容', effect: () => { gameState.attrs.int = (gameState.attrs.int||0)+1; setFlag('identity_7','listen'); } },
+          { text: '用手遮住印记，试图隔绝耳语', effect: () => { gameState.attrs.wil = (gameState.attrs.wil||0)+1; gameState.happiness = Math.max(0,(gameState.happiness||0)-1); setFlag('identity_7','block'); } }
+        ]
+      },
+      { age: 11, condition: () => !getFlag('identity_11'),
+        text: '你在街上遇到了另一个额头有印记的人——但他的印记是蓝色的。他看着你，笑了。"你是新生的该隐，"他说，"我是上一代的亚伯。我来告诉你，这两个印记意味着什么。"',
+        choices: [
+          { text: '听他讲述印记的真相', effect: () => { gameState.attrs.int = (gameState.attrs.int||0)+2; setFlag('identity_11','learn'); setFlag('knows_mark',true); addLog('你终于知道了——该隐与亚伯的印记是某种意志选择工具的标记。持有者将在命运的节点做出选择。'); } },
+          { text: '警惕地拒绝他', effect: () => { gameState.attrs.wil = (gameState.attrs.wil||0)+2; setFlag('identity_11','refuse'); addLog('你拒绝了陌生人。直觉告诉你事情没那么简单。'); } }
+        ]
+      },
+      { age: 16, condition: () => !getFlag('identity_16'),
+        text: '印记的力量觉醒了。你发现自己可以在短暂的时间内获得远超常人的力量——但每次使用后，印记都会变得更加灼热。你注意到使用后，附近的清道夫似乎……回避了你。',
+        choices: [
+          { text: '主动使用印记的力量', effect: () => { gameState.attrs.con = (gameState.attrs.con||0)+2; gameState.attrs.wil = (gameState.attrs.wil||0)+1; setFlag('identity_16','use'); addLog('力量如潮水般涌出。你感觉自己触碰到了都市规则的边缘。'); } },
+          { text: '克制使用，寻找控制的方法', effect: () => { gameState.attrs.int = (gameState.attrs.int||0)+2; gameState.attrs.wil = (gameState.attrs.wil||0)+1; setFlag('identity_16','control'); addLog('你选择理解而非盲从。印记似乎对你更加温和了。'); } }
+        ]
+      },
+      { age: 20, condition: () => !getFlag('identity_20'),
+        text: '你终于站在了命运的分岔路口。印记在灼烧，脑海中的声音越来越清晰——它要求你做出选择。这一刻将定义你此后的人生道路。你是该隐，是背叛者？还是亚伯，是牺牲者？或者……你将成为超越这一切的存在？',
+        choices: [
+          { text: '选择该隐之路——以力量改变都市', effect: () => { gameState.attrs.con = (gameState.attrs.con||0)+3; setFlag('identity_20','cain'); setFlag('mark_path','该隐'); addLog('你选择了该隐。背叛的力量在你体内共鸣。'); } },
+          { text: '选择亚伯之路——以牺牲守护重要之人', effect: () => { gameState.attrs.wil = (gameState.attrs.wil||0)+4; setFlag('identity_20','abel'); setFlag('mark_path','亚伯'); addLog('你选择了亚伯。某种温暖的力量守护着你和你在乎的人。'); } },
+          { text: '拒绝两者——开创自己的道路', effect: () => { if (rollCheck('wil',5)) { gameState.attrs.int = (gameState.attrs.int||0)+2; gameState.attrs.wil = (gameState.attrs.wil||0)+2; gameState.attrs.con = (gameState.attrs.con||0)+2; setFlag('identity_20','transcend'); setFlag('mark_path','超越者'); addLog('印记碎裂了。你不再是该隐，也不再是亚伯。你是全新的存在。'); } else { takeDamage(4); setFlag('identity_20','fail'); addLog('力量反噬。印记灼烧得更加剧烈。'); } } }
+        ]
+      }
+    ];
+    for (const stage of stages) {
+      if (age === stage.age && stage.condition()) {
+        showEvent(stage.text, stage.choices, 'identity_shift_' + stage.age);
+        return;
+      }
+    }
+  }
+}
+
+// ==================== 首脑调律者事件链 ====================
+function eventChainHeadTuner(age) {
+  if (!gameState.alive || gameState.dead) return;
+  if (hasTalent('head_shadow') || hasTalent('nest_a_tuner')) {
+    const stages = [
+      { age: 5, condition: () => !getFlag('tuner_5'),
+        text: '你不记得自己是从什么时候开始为首脑工作的。也许是从出生起。你的第一个任务是观察——观察一个后巷家庭的日常，记录每一个细节。首脑通过某种方式读取你的观察，然后做出"调律"的指令。',
+        choices: [
+          { text: '忠实执行观察任务', effect: () => { gameState.attrs.int = (gameState.attrs.int||0)+1; setFlag('tuner_5','loyal'); addLog('你像一台精密的仪器一样完成了任务。'); } },
+          { text: '在报告中隐瞒某些细节', effect: () => { gameState.attrs.wil = (gameState.attrs.wil||0)+1; setFlag('tuner_5','hide'); addLog('你第一次对首脑隐瞒了什么。一种微小的反抗。'); } }
+        ]
+      },
+      { age: 10, condition: () => !getFlag('tuner_10'),
+        text: '你亲眼见证了一次"调律"。一个区域的所有居民被同时"纠正"——他们的记忆被改写，行为被调整，仿佛从不是他们自己。而你，站在调律者的身旁，记录着每一个数据。那个区域里有个和你同龄的孩子，调律后，他看着自己的父母，眼中没有任何认出的光芒。',
+        choices: [
+          { text: '接受这就是你的使命', effect: () => { gameState.attrs.int = (gameState.attrs.int||0)+2; gameState.happiness = Math.max(0,(gameState.happiness||0)-2); setFlag('tuner_10','accept'); } },
+          { text: '感到不安但继续工作', effect: () => { gameState.attrs.wil = (gameState.attrs.wil||0)+1; gameState.attrs.int = (gameState.attrs.int||0)+1; setFlag('tuner_10','uneasy'); } }
+        ]
+      },
+      { age: 15, condition: () => !getFlag('tuner_15'),
+        text: '首脑给了你一个特殊的任务：前往一个即将被"调律"的区域，预先标记目标。但当你到达那里时，你发现这个区域中有一个你认识的人——可能是你的朋友、你的邻居，或者某个在黑暗中唯一对你微笑过的人。',
+        choices: [
+          { text: '如实标记所有人', effect: () => { gameState.attrs.int = (gameState.attrs.int||0)+2; setFlag('tuner_15','mark_all'); gameState.happiness = Math.max(0,(gameState.happiness||0)-3); addLog('你完成了任务。但那天晚上你第一次失眠了。'); } },
+          { text: '在标记中遗漏那个人', effect: () => { gameState.attrs.wil = (gameState.attrs.wil||0)+2; setFlag('tuner_15','spare'); addLog('你做出了选择。调律结束后，那个人是唯一保留原记忆的人。'); } },
+          { text: '拒绝任务，叛逃', effect: () => { setFlag('tuner_15','rebel'); setFlag('head_shadow','rebel'); gameState.happiness = Math.max(0,(gameState.happiness||0)+1); addLog('你转身离开了。从这一刻起，你就是首脑的叛徒了。'); } }
+        ]
+      }
+    ];
+    for (const stage of stages) {
+      if (age === stage.age && stage.condition()) {
+        showEvent(stage.text, stage.choices, 'head_tuner_' + stage.age);
+        return;
+      }
+    }
+  }
+}
+
+// ==================== 清道夫出生路线事件链 ====================
+function eventChainSweeperBirth(age) {
+  if (!gameState.alive || gameState.dead) return;
+  if (hasTalent('sweeper_desc') || getFlag('sweeper_birth')) {
+    const stages = [
+      { age: 3, condition: () => !getFlag('sweeper_3'),
+        text: '你出生的夜晚，清道夫正在清扫这片后巷。你的母亲在巷角的阴影中生下了你——不是医院，不是诊所，而是最肮脏的角落。但清道夫从你们身边经过时，停顿了一秒，然后……绕道了。你的母亲说那是奇迹。',
+        choices: [
+          { text: '无（婴儿，自动通过）', effect: () => { setFlag('sweeper_3','born'); addLog('你活过了第一个夜晚。在后巷，这本身就是奇迹。'); } }
+        ]
+      },
+      { age: 8, condition: () => !getFlag('sweeper_8'),
+        text: '你在后巷中长大。其他孩子不敢在深夜出门，但你可以。清道夫对你有着某种奇异的"认知"——它们不会攻击你，甚至会在你附近徘徊，像是某种扭曲的守护者。后巷的人开始叫你"清道夫的孩子"。',
+        choices: [
+          { text: '利用这种特性做后巷的信使', effect: () => { gameState.attrs.int = (gameState.attrs.int||0)+1; gameState.attrs.wea = (gameState.attrs.wea||0)+1; setFlag('sweeper_8','messenger'); addLog('深夜的信使——这个职业让你在后巷有了第一批客户。'); } },
+          { text: '研究清道夫为什么不会攻击你', effect: () => { gameState.attrs.int = (gameState.attrs.int||0)+2; setFlag('sweeper_8','research'); addLog('你开始记录清道夫的行为模式。你发现它们在接近你时会减速，然后绕行。这不是恐惧，更像是……辨认。'); } }
+        ]
+      },
+      { age: 14, condition: () => !getFlag('sweeper_14'),
+        text: '一个收尾人找到了你。他说都市中有一个关于"清道夫之子"的传说——每隔数十年，后巷中会诞生一个与清道夫有血脉联系的孩子。这样的孩子长大后会成为连接后巷与深宵的桥梁。他想知道你是不是传说中的那个。',
+        choices: [
+          { text: '与收尾人合作探索自己的身世', effect: () => { gameState.attrs.int = (gameState.attrs.int||0)+2; setFlag('sweeper_14','cooperate'); addLog('收尾人带你去了都市图书馆的地下层，那里记录着清道夫的起源——它们曾经是人。'); } },
+          { text: '拒绝收尾人，独自探索', effect: () => { gameState.attrs.wil = (gameState.attrs.wil||0)+2; gameState.attrs.con = (gameState.attrs.con||0)+1; setFlag('sweeper_14','solo'); } }
+        ]
+      },
+      { age: 20, condition: () => !getFlag('sweeper_20') && getFlag('sweeper_14') === 'cooperate',
+        text: '你和收尾人发现了真相：清道夫是首脑创造的第一批"调律工具"，它们被设计为清除都市中不符合规则的存在。但某个清道夫在执行任务时产生了自我意识，逃离了首脑的控制，融入了后巷——那就是你的祖先。你的血脉让你成为了"半个清道夫"。',
+        choices: [
+          { text: '接受这个身份，利用它保护后巷', effect: () => { gameState.attrs.con = (gameState.attrs.con||0)+2; gameState.attrs.wil = (gameState.attrs.wil||0)+2; setFlag('sweeper_20','accept'); setFlag('sweeper_protector',true); addLog('你成为了后巷的守护者。清道夫在你身边不再是威胁，而是盟友。'); } },
+          { text: '试图切断与清道夫的联系', effect: () => { if (rollCheck('wil',4)) { gameState.attrs.wil = (gameState.attrs.wil||0)+3; setFlag('sweeper_20','cut'); addLog('你用意志力压制了血脉中的召唤。但你偶尔仍能在深夜听到它们的低鸣。'); } else { takeDamage(3); setFlag('sweeper_20','fail'); addLog('你无法切断联系。血脉的力量比你想象的更加根深蒂固。'); } } }
+        ]
+      }
+    ];
+    for (const stage of stages) {
+      if (age === stage.age && stage.condition()) {
+        showEvent(stage.text, stage.choices, 'sweeper_birth_' + stage.age);
+        return;
+      }
+    }
+  }
+}
+
+// 时间裂缝解释系统
+function getTimeCrackExplanation(age) {
+  // 当玩家出生年份与都市事件时间不匹配时，用时间裂缝解释
+  if (!gameState.alive || gameState.dead) return;
+  const birthYear = gameState.birthYear || 900;
+
+  // 检测时间异常
+  const anomalies = [];
+  if (birthYear > 950 && age >= 20 && age <= 50) anomalies.push('WARP列车的发展');
+  if (birthYear < 880 && age >= 20) anomalies.push('都市现代科技');
+  if (birthYear > 970 && age < 30) anomalies.push('过早的都市事件');
+
+  if (anomalies.length > 0 && !getFlag('timeCrackExplained') && age === 15) {
+    addEvent({ text: '你注意到，你所经历的时间线似乎有些不连贯——你看到的都市事件似乎属于不同的时代。也许，WARP列车的空间裂缝不只是地理上的……时间，也会在这里折叠。', major: true, milestone: '时间裂缝' });
+    addMilestone('时间裂缝');
+    setFlag('timeCrackExplained', true);
+  }
+}
+
+// =============================
+// 特殊收尾人事件与体质数值事件
+// =============================
+function runSpecialFixerEvents(age) {
+  if (!gameState.alive || gameState.dead) return;
+  const bp = gameState.birthplace ? gameState.birthplace.id : 'backstreet';
+  const tags = gameState.talentTags || [];
+
+  // === 大湖收尾人事件 ===
+  if (age >= 20 && age <= 50 && (bp === 'greatlake' || bp === 'unest' || hasTag('大湖')) && chance(0.08)) {
+    if (!getFlag('greatlake_fixer_1')) {
+      setFlag('greatlake_fixer_1', true);
+      addEvent({ text: "大湖上的雾气常年不散。你站在U巢的港口，看着那些驾着破旧船只出海的收尾人——他们是『大湖收尾人』，在这片比都市更古老的危险水域上讨生活。", effect: "encounter", effText: "大湖收尾人", major: true, milestone: "大湖收尾人" });
+      addMilestone("大湖收尾人");
+      modAttr('con', 1);
+      modAttr('wil', 1);
+    } else if (getFlag('greatlake_fixer_1') && !getFlag('greatlake_fixer_2') && age >= 25 && chance(0.06)) {
+      setFlag('greatlake_fixer_2', true);
+      addEvent({ text: "你的船被一头小型鲸鱼撞击了。在大湖上，鲸鱼不是猎物而是猎手。你拼尽全力将船桨刺入它的眼睛，在船沉没前逃回了港口。", effect: "combat", effText: "体质+2，意志+1", major: true, milestone: "大湖猎杀" });
+      addMilestone("大湖猎杀");
+      modAttr('con', 2);
+      modAttr('wil', 1);
+    }
+  }
+
+  // === 管家收尾人事件 ===
+  if (age >= 18 && age <= 60 && (hasTag('收尾人') || hasTag('协会')) && chance(0.05)) {
+    if (!getFlag('butler_fixer')) {
+      setFlag('butler_fixer', true);
+      addEvent({ text: "你与一个古老的家族签订了长期收尾人合同——你成为了『管家收尾人』。合同规定你必须为家族服务至少十年，但完成后你将拥有接受土地转让的权利。你的自由被合同束缚，但你的未来也因此得到了保障。", effect: "contract", effText: "家境+2，意志+1", major: true, milestone: "管家收尾人" });
+      addMilestone("管家收尾人");
+      modAttr('wea', 2);
+      modAttr('wil', 1);
+    } else if (getFlag('butler_fixer') && !getFlag('butler_legacy') && age >= 40 && chance(0.04)) {
+      setFlag('butler_legacy', true);
+      addEvent({ text: "你签订的管家合同比想象中更加长久。你的子嗣也被纳入了合同之中，世袭为管家收尾人。家族的领地成为了你后代的家园——虽然你们从未真正自由过。", effect: "inherit", effText: "家境+3", major: true, milestone: "管家世袭" });
+      addMilestone("管家世袭");
+      modAttr('wea', 3);
+    }
+  }
+
+  // === 血魔猎人事件 ===
+  if (age >= 16 && age <= 55 && (hasTag('血魔') || hasTag('夜') || getFlag('bloodmoon_seen')) && chance(0.07)) {
+    if (!getFlag('vampire_hunter')) {
+      setFlag('vampire_hunter', true);
+      addEvent({ text: "深夜，你遇到了一位血魔猎人。他的眼中燃烧着对血魔的憎恶与怒火，精通专门针对血魔的杀戮技艺。『夜晚是血魔的猎场，但也是猎人的猎场。』他留下了一些对付血魔的技巧。", effect: "train", effText: "体质+1，意志+2", major: true, milestone: "血魔猎人" });
+      addMilestone("血魔猎人");
+      modAttr('con', 1);
+      modAttr('wil', 2);
+    }
+  }
+
+  // === 数值体质事件 ===
+  if (age >= 10 && age <= 40 && chance(0.05)) {
+    const conEvents = [
+      { text: "你在废墟中发现了一个废弃的强化训练装置。虽然老旧，但仍然可以使用。你花了数周时间进行残酷的自虐式训练，肌肉与骨骼都在痛苦中变得更加坚韧。", effText: "体质+2", mod: {con: 2} },
+      { text: "一位来自六协会的老兵看中了你。他教给你如何在实战中最大化利用自己的肉体力量——不是技巧，而是纯粹的、原始的暴力。", effText: "体质+2，意志+1", mod: {con: 2, wil: 1} },
+      { text: "你参加了一场地下搏击比赛。没有规则，没有裁判，只有胜者才能站起来。你赢了——虽然代价是断了两根肋骨和一只眼睛周围的淤青。", effText: "体质+2，快乐-1", mod: {con: 2} },
+      { text: "后巷的某处正在进行廉价的肉体改造手术。虽然风险极高，但你决定赌一把。手术后的你感觉自己的骨骼中多了某种金属成分，动作虽然变得沉重，但抗击打能力大幅提升。", effText: "体质+3，智力-1", mod: {con: 3, int: -1} },
+      { text: "你意外食用了一种来自郊区的奇特蘑菇。之后的一周里，你的身体经历了剧烈的排异反应——但当一切平息后，你发现自己的力量和耐力都有了显著提升。", effText: "体质+2", mod: {con: 2} },
+      { text: "一位工坊技师为你打造了一套外骨骼辅助装置作为报酬。虽然不能完全替代真正的肉体锻炼，但它让你的每一次动作都能发挥出更大的力量。", effText: "体质+1，家境+1", mod: {con: 1, wea: 1} },
+      { text: "你在后巷遭遇了一场清道夫深宵的扫荡。在那种极致的恐惧中，你的肾上腺素突破了身体的极限。你活了下来——但更重要的是，你的身体记住了那种极限状态。", effText: "体质+2，意志+1，快乐-2", mod: {con: 2, wil: 1} },
+      { text: "你被一个帮派俘虏，被迫在矿洞中劳作数月。恶劣的环境和繁重的劳动几乎摧毁了你——但也锻造了你。你逃出来时，比之前强壮得多。", effText: "体质+3，快乐-2", mod: {con: 3} }
+    ];
+    const ev = conEvents[Math.floor(Math.random() * conEvents.length)];
+    addEvent({ text: ev.text, effect: "train", effText: ev.effText, major: false });
+    if (ev.mod.con) modAttr('con', ev.mod.con);
+    if (ev.mod.int) modAttr('int', ev.mod.int);
+    if (ev.mod.wil) modAttr('wil', ev.mod.wil);
+    if (ev.mod.wea) modAttr('wea', ev.mod.wea);
+    if (ev.effText.includes('快乐-')) {
+      const match = ev.effText.match(/快乐-(\d+)/);
+      if (match) gameState.happiness = Math.max(0, (gameState.happiness || 0) - parseInt(match[1]));
+    }
+  }
+}
+
+// =============================
+// 设置与成就系统
+// =============================
+let gameSettings = {
+  mode: 'normal', // normal, free, notalent
+  fastSkip: false,
+};
+
+function setGameMode(mode) {
+  gameSettings.mode = mode;
+}
+
+function updateSetting(key, value) {
+  gameSettings[key] = value;
+}
+
+function showSettings() {
+  hideAllPhases();
+  showPhase('phase-settings');
+}
+
+function showAchievements() {
+  hideAllPhases();
+  showPhase('phase-achievements');
+  renderAchievements();
+}
+
+function backToTitle() {
+  hideAllPhases();
+  showPhase('phase-title');
+}
+
+function renderAchievements() {
+  const container = document.getElementById('achievement-list');
+  const rarityColors = { common: '#7a7a7a', rare: '#4a7fb5', epic: '#9b59b6', legend: '#f1c40f' };
+  const rarityLabels = { common: '普通', rare: '稀有', epic: '史诗', legend: '传说' };
+
+  let html = `<div style="margin-bottom:16px;color:#7a6f5a;text-align:center;font-size:0.9rem;">点击成就查看设定词条</div>`;
+  for (const ach of ACHIEVEMENTS) {
+    const unlocked = gameState && gameState.milestones && checkAchievement(ach, gameState);
+    const color = rarityColors[ach.rarity] || '#7a7a7a';
+    const label = rarityLabels[ach.rarity] || '普通';
+    const opacity = unlocked ? '1' : '0.35';
+    const lockIcon = unlocked ? '&#10022;' : '&#128274;';
+    const loreHtml = ach.lore ? ach.lore.replace(/"/g, '&quot;') : '';
+    html += `
+      <div class="achievement-card" data-lore="${loreHtml}" data-name="${ach.name}" data-color="${color}" onclick="toggleAchievementLore(this)" style="padding:12px;margin:8px 0;background:#111;border:1px solid ${color};border-radius:6px;opacity:${opacity};cursor:pointer;transition:opacity 0.2s;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-weight:bold;color:${color};">${lockIcon} ${ach.name}</span>
+          <span style="font-size:0.8rem;color:${color};">${label}</span>
+        </div>
+        <div style="color:#b8a99a;font-size:0.9rem;margin-top:4px;">${ach.desc}</div>
+        <div class="achievement-lore" style="display:none;margin-top:8px;padding:8px;background:#1a0a0a;border-left:3px solid ${color};border-radius:0 4px 4px 0;color:#c8b898;font-size:0.85rem;line-height:1.6;"></div>
+      </div>
+    `;
+  }
+  container.innerHTML = html || '<div style="color:#7a6f5a;text-align:center;padding:20px;">暂无已解锁的成就</div>';
+}
+
+function toggleAchievementLore(el) {
+  const lore = el.dataset.lore;
+  const name = el.dataset.name;
+  const color = el.dataset.color;
+  const loreDiv = el.querySelector('.achievement-lore');
+  if (!loreDiv) return;
+  if (loreDiv.style.display === 'block') {
+    loreDiv.style.display = 'none';
+    loreDiv.innerHTML = '';
+  } else {
+    // Close other open lore panels
+    document.querySelectorAll('.achievement-lore').forEach(d => { d.style.display = 'none'; d.innerHTML = ''; });
+    loreDiv.style.display = 'block';
+    loreDiv.innerHTML = `<div style="font-weight:bold;color:${color};margin-bottom:4px;">&#10022; ${name} — 设定词条 &#10022;</div>${lore}`;
+  }
+}
+
+function checkAchievement(ach, gs) {
+  if (!ach.condition) return false;
+  return ach.condition(gs);
 }
 
 </script>
