@@ -1846,6 +1846,46 @@ const ACHIEVEMENTS = [
     lore:'都市中有12+1个收尾人协会，从Hana（第一）到第十三协会（扭曲处理）。每个协会负责不同的领域。' },
   { id:'l_corp_visit', name:'L公司接触', desc:'接触过前脑叶公司或图书馆。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('joinedLCompany')||getFlag('library_invite'),
     lore:'前L公司（脑叶公司）位于第十二区，通过管理异想体提取脑啡肽。倒台后图书馆在迷雾中建立，邀请都市来宾。' },
+
+  // ====== 新增成就 ======
+  { id:'reverb_encounter', name:'残响乐团遭遇', desc:'遭遇残响乐团成员。', rarity:RARITY.EPIC, condition:(gs)=>['普鲁托的契约','血红之夜','八点半马戏团','塔尼娅的忠告','爱之小镇','哭泣之子','齿轮教团','格蕾塔的飨宴','不莱梅乐队'].some(m=>gs.milestones.includes(m)),
+    lore:'残响乐团由苍蓝残响阿尔加利亚组建，成员均为扭曲个体。包括普鲁托（契约）、伊莲娜（血红之夜）、奥斯瓦尔德（马戏团）、在宪（爱之小镇）、菲利普（哭泣之子）、艾琳（齿轮教团）、格蕾塔（飨宴）、不莱梅（音乐家）。' },
+  { id:'pluto_full_story', name:'普鲁托的悲剧', desc:'完整见证普鲁托的故事线。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('pluto_stage1')&&getFlag('pluto_stage4'),
+    lore:'普鲁托曾是一名收尾人，暗地为O公司偷运脑啡肽。罗兰以保护名义签订合同欺骗了他，导致普鲁托失去一切后扭曲。阿尔加利亚将他收入残响乐团。' },
+  { id:'jaeheon_full_story', name:'在宪的悲剧', desc:'完整见证在宪的故事线。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('jaeheon_stage1')&&getFlag('jaeheon_stage5'),
+    lore:'在宪曾是一名公司研究员，与儿子相依为命。儿子死于再开发工地后，他试图用缝合肉体复活儿子。罗兰失去安吉丽卡后烧毁了他的工作室。在宪最终加入残响乐团。' },
+  { id:'love_town_truth', name:'爱之小镇居民', desc:'了解爱之小镇的全部真相。', rarity:RARITY.RARE, condition:(gs)=>getFlag('warp_love_town')&&getFlag('love_town_memory')&&getFlag('warp_restore'),
+    lore:'爱之小镇由UW-212号WARP列车5到14号车厢的乘客构成。他们在漫长岁月中接受在宪和伊莲娜的改造，丧失了记忆和正常思维，成为听从命令的畸形居民。' },
+  { id:'warp_danger_seen', name:'WARP清扫见证者', desc:'了解WARP列车危险等级和清扫真相。', rarity:RARITY.RARE, condition:(gs)=>getFlag('warp_restore')&&getFlag('warp_cleaner')&&getFlag('warp_danger'),
+    lore:'WARP公司真正奇点是「现状还原」。列车在异空间行驶数千年，乘客在漫长岁月中互相残杀，清扫人员将血肉摆放回原位后进行现状还原。' },
+  { id:'roland_elena', name:'罗兰与安吉丽卡', desc:'目睹罗兰与安吉丽卡联手击败伊莲娜。', rarity:RARITY.RARE, condition:(gs)=>getFlag('roland_vs_elena'),
+    lore:'罗兰与安吉丽卡曾联手击败血红之夜伊莲娜。安吉丽卡作为漆黑噤默，罗兰作为九阶收尾人，那场战斗成为了都市传说。' },
+  { id:'mustard_defeated', name:'漆黑芥末击败者', desc:'击败漆黑芥末（食指模仿者）。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('漆黑芥末·食指模仿者')&&gs.alive,
+    lore:'漆黑芥末是食指成员，被指令模仿漆黑噤默罗兰的疯狂。他使用多多蓝尔、黑工坊、木树工坊、良邪工坊、小女孩工坊、八拉斯工坊、无稽工作室、皮埃尔塔工作室、转盘重工、Orlando等模仿武器。' },
+  { id:'fixer_retired', name:'退役收尾人', desc:'从收尾人行业正式退役。', rarity:RARITY.RARE, condition:(gs)=>getFlag('retire_fixer')&&getFlag('retire_downgrade'),
+    lore:'收尾人的身体条件终会下降。协会评估员会建议退役或接受降级。退休金是都市中最后的仁慈。' },
+  { id:'smog_meet', name:'烟霾战争同期', desc:'在烟霾战争期间结识罗兰和萨尔瓦多。', rarity:RARITY.RARE, condition:(gs)=>getFlag('smog_war_meet'),
+    lore:'烟霾战争持续超过70天，旧L公司和前G公司倒台。罗兰和萨尔瓦多是查尔斯事务所的收尾人。萨尔瓦多后来为保护罗兰而牺牲。' },
+  { id:'scallion_couple', name:'葱饼夫妇的客人', desc:'被罗兰和安吉丽卡邀请吃葱饼。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('葱饼夫妇的招待'),
+    lore:'安吉丽卡亲手制作火腿砰砰的葱饼。罗兰为客人倒最廉价的酒。在后巷中，能坐在他们的餐桌旁已是奇迹般的幸福。' },
+  { id:'blood_war_time_travel', name:'穿越血魔战争', desc:'穿越到血红之夜时期并生还。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('blood_war_time')&&getFlag('blood_war_survive'),
+    lore:'血红之夜是都市之星伊莲娜释放血魔眷属的夜晚。一代血魔的力量远超普通血魔，朱红十字被控制为血袋。从那个时代归来的人，灵魂上永远带着血红的印记。' },
+  { id:'distortion_witness', name:'扭曲见证者', desc:'遭遇3种以上不同类型的扭曲。', rarity:RARITY.RARE, condition:(gs)=>Object.keys(gs.flags||{}).filter(f=>f.startsWith('dist_')).length>=3,
+    lore:'扭曲是光之种后都市的普遍现象。气球、音乐、时间、共鸣、镜像、聚合、玫瑰、孩童……扭曲的类型多种多样，每一种都是绝望的独特形态。' },
+  { id:'life_extended', name:'延寿者', desc:'通过任意方法延长寿命。', rarity:RARITY.RARE, condition:(gs)=>(gs.lifeExtended||0)>0,
+    lore:'K公司再生安瓿、机械义体替换、血魔转化、鸿园仙道、未来人寿保险肉体再造……在都市中，延长寿命的方法各有各的代价。' },
+  { id:'salvador_legacy', name:'萨尔瓦多的遗志', desc:'见证萨尔瓦多的牺牲和罗兰的继承。', rarity:RARITY.RARE, condition:(gs)=>getFlag('salvador_legacy'),
+    lore:'萨尔瓦多是查尔斯事务所的前辈收尾人。他在一次委托中为保护罗兰而牺牲。罗兰继承了事务所，那是萨尔瓦多留给他的最后一份礼物。' },
+  { id:'index_finger_orders', name:'食指代行者', desc:'执行过食指指令。', rarity:RARITY.RARE, condition:(gs)=>getFlag('index_finger_member'),
+    lore:'食指的信条是「谨遵指令之意」。白袍佩剑，苦行者、代行者、传令员、纺织者各司其职。所有领地居民必须完成指令，否则被代行者按指令处理。' },
+  { id:'abno_witness', name:'异想体遭遇者', desc:'遭遇异想体并存活。', rarity:RARITY.COMMON, condition:(gs)=>Object.keys(gs.flags||{}).filter(f=>f.startsWith('abno_')).length>=1,
+    lore:'异想体是人类潜意识的具现化。当都市居民的精神积累到极限，某些形态会固定下来成为异想体。遭遇它们并存活，本身就是一种奇迹。' },
+  { id:'gang_war_veteran', name:'帮派冲突老兵', desc:'经历五指冲突或帮派战斗。', rarity:RARITY.COMMON, condition:(gs)=>['五指冲突','帮派挑战','事务所挑战','中指复仇','环指画廊'].some(m=>gs.milestones.includes(m)),
+    lore:'后巷帮派冲突是日常。五指之间通过「拉勾」会议维持表面和平，但下属帮派之间的摩擦从未真正停止。拇指对食指、小指与环指的冲突屡见不鲜。' },
+  { id:'connoisseur', name:'火腿砰砰的葱饼', desc:'在后巷酒吧遇到罗兰并品尝葱饼。', rarity:RARITY.COMMON, condition:(gs)=>gs.milestones.includes('后巷酒吧的邂逅'),
+    lore:'火腿砰砰是后巷知名的快餐品牌。罗兰——那个自称普通九阶收尾人的男人——总在酒吧点一份火腿砰砰的葱饼。他说：「做收尾人最重要的是做完活之后，还能走进这种破酒吧。」' },
+  { id:'color_roller', name:'色彩千面', desc:'获得色彩级称号。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('colorTitleGenerated'),
+    lore:'在结算时获得独特的色彩称号。每一种色彩组合都反映了你一生中最重要的特质和经历。' },
 ];
 function checkAchievements(gs) {
   const unlocked = [];
@@ -3671,31 +3711,32 @@ function generateAdultEvents(age, a, f, bp, tags) {
     modAttr('wil', 1);
   }
 
-  // 漆黑芥末事件
+  // 漆黑芥末事件（食指成员被指令模仿漆黑噤默罗兰）
   if (age >= 30 && chance(0.04) && !hasMilestone('漆黑芥末')) {
     events.push(
       evt(
-        '你闻到了一股刺鼻的味道。发狂的漆黑芥末——那团漆黑的、蠕动的物质正在向你逼近。它曾经也是一个人。',
+        '你遇到了一个身穿漆黑装备的食指成员。代号「漆黑芥末」——他接到的指令是模仿漆黑噤默罗兰的疯狂。他的战斗方式极为诡异，拿出的武器分明是对罗兰所用工坊武器的拙劣模仿：多多蓝尔、黑工坊、木树工坊、良邪工坊、小女孩工坊、八拉斯工坊、无稽工作室、皮埃尔塔工作室、转盘重工、Orlando……每种武器都像是一个拙劣的玩笑，但组合起来却形成了恐怖的攻击波。',
         'black_mustard',
         '',
         true,
-        '发狂的漆黑芥末'
+        '漆黑芥末·食指模仿者'
       )
     );
     if ((a.con || 0) >= 8 && (a.wil || 0) >= 6) {
       events.push(
         evt(
-          '你拼命逃跑，用尽全力跳入了附近的水中。漆黑芥末在岸边徘徊了一阵，最终离去。你活下来了。',
-          'mustard_escape',
-          '意志+1',
+          '你发现漆黑芥末的武器虽然是模仿品，但组合使用的节奏极其混乱。你抓住了他切换武器的间隙，一击制胜。那具穿着漆黑装备的躯体倒下后，你才看清——那只是一个被指令驱使的普通食指成员。他的眼中早已没有了任何属于人类的光芒。',
+          'mustard_defeat',
+          '体质+1，意志+1',
           false
         )
       );
+      modAttr('con', 1);
       modAttr('wil', 1);
     } else if ((a.con || 0) >= 5) {
       events.push(
         evt(
-          '你虽然受了重伤，但侥幸从漆黑芥末手中逃脱。那团黑色的噩梦将永远留在你的记忆中。',
+          '漆黑芥末的模仿武器接连不断地袭来——多多蓝尔的粗钝斩击、转盘重工的重炮、无稽工作室的陷阱……你勉强招架，身负重伤后逃入了后巷的暗巷中。身后那些滑稽的武器名称在你脑海中回荡——那不是玩笑，那是食指对漆黑噤默的拙劣解读。',
           'mustard_injured',
           '体质-2',
           false
@@ -3705,11 +3746,11 @@ function generateAdultEvents(age, a, f, bp, tags) {
     } else {
       events.push(
         evt(
-          '你试图逃跑，但漆黑芥末的速度远超你的想象。那团黑色的物质吞噬了你，连一声惨叫都没有留下。',
+          '漆黑芥末的模仿攻击将你彻底压倒。皮埃尔塔工作室的火焰配合Orlando的精准射击封锁了你所有的退路。你倒在那堆滑稽武器碎片中，而那个漆黑芥末已经转身走向下一个目标——他的指令还远未完成。',
           'mustard_death',
           '死亡',
           true,
-          '被漆黑芥末吞噬'
+          '被漆黑芥末击败'
         )
       );
       death('漆黑芥末');
