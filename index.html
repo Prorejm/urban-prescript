@@ -547,18 +547,43 @@ body::after {
 .event-effect .eff-good { color: #5a9e6f; }
 .event-effect .eff-bad { color: var(--accent-red-bright); }
 
-/* Major event styling */
+@keyframes eventMajorIn {
+  0% { opacity: 0; transform: translateX(-20px); border-left: 0px solid var(--accent-gold); }
+  40% { opacity: 1; transform: translateX(0); border-left: 3px solid var(--accent-gold); }
+  100% { opacity: 1; transform: translateX(0); border-left: 0px solid rgba(201,168,76,0.3); }
+}
 .event-entry.major {
-  background: rgba(139,0,0,0.05);
-  padding: 14px 12px;
-  margin: 4px -8px;
-  border-left: 3px solid var(--accent-red);
+  background: rgba(201,168,76,0.06) !important;
+  border-left: 3px solid var(--accent-gold);
+  padding-left: 16px;
+}
+.event-entry.major .event-age {
+  color: var(--accent-gold);
+  text-shadow: 0 0 8px rgba(201,168,76,0.3);
+}
+.event-entry.major .event-text {
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
-.event-entry.major .event-text {
-  color: #e8d5c4;
-  font-weight: 700;
+@keyframes milestoneFlash {
+  0% { background: rgba(201,168,76,0); }
+  20% { background: rgba(201,168,76,0.15); }
+  100% { background: rgba(201,168,76,0); }
 }
+@keyframes deathFlash {
+  0% { background: rgba(192,57,43,0); }
+  20% { background: rgba(192,57,43,0.2); }
+  100% { background: rgba(192,57,43,0); }
+}
+@keyframes twistFlash {
+  0% { background: rgba(142,68,173,0); }
+  20% { background: rgba(142,68,173,0.15); }
+  100% { background: rgba(142,68,173,0); }
+}
+#event-log.flash-milestone { animation: milestoneFlash 1.5s ease; }
+#event-log.flash-death { animation: deathFlash 2s ease; }
+#event-log.flash-twist { animation: twistFlash 1.5s ease; }
 
 /* Typing cursor */
 .typing-cursor::after {
@@ -2845,6 +2870,17 @@ function startSimulation() {
 
 function nextYear() {
   if (!gameState.alive) return;
+
+  // 年份推进视觉效果
+  var ageDisplay = document.getElementById('sim-age');
+  if (ageDisplay) {
+    ageDisplay.style.transform = 'scale(1.2)';
+    ageDisplay.style.color = '#c9a84c';
+    setTimeout(function() {
+      ageDisplay.style.transform = 'scale(1)';
+      ageDisplay.style.color = '';
+    }, 300);
+  }
 
   const events = generateEvents(gameState.age);
   // Store pending events for one-by-one display
@@ -5319,6 +5355,126 @@ function generateAdultEvents(age, a, f, bp, tags) {
     events.push(evt('你从一位年迈的旅人口中听到了关于『星星』的传闻——都市郊区之外，存在着超越人类理解的存在。它们会以神秘的方式实现人类的愿望。旅人浑浊的眼睛中闪过一丝光芒：『星星不会真正满足你的愿望，它们只会以自己的方式实现——代价远超你的想象。』', 'lore', '智力+1', false, '星星传闻'));
   }
 
+  // ===== 稀有不限定时间事件（壮年期） =====
+  if (chance(0.015) && !getFlag('rare_singularity_encounter')) {
+    setFlag('rare_singularity_encounter', true);
+    var singEncounters = [
+      '你在一次偶然的机会中接触到了某家翼公司的奇点技术——那是一种超越常理的力量，让你对世界的认知产生了动摇。',
+      '你在黑市上看到了一份关于奇点科技的理论文档。虽然大部分内容你无法理解，但其中关于『意识可以被数字化』的论述让你久久不能忘怀。',
+      '某个翼公司的实验事故在你附近发生。奇点失控的瞬间，你看到了空间扭曲、时间停滞——然后一切恢复正常，仿佛什么都没有发生过。'
+    ];
+    events.push(evt(pick(singEncounters), 'lore', '智力+1', false, '奇点接触'));
+  }
+  if (chance(0.012) && !getFlag('rare_color_fixer_witness')) {
+    setFlag('rare_color_fixer_witness', true);
+    var colorWitness = [
+      '你在远处目睹了一名色彩级收尾人的战斗。那个人身上的光芒如同燃烧的火焰，所到之处敌人纷纷倒下。你屏住呼吸，不敢发出任何声音——那是你第一次亲眼见到色彩的威光。',
+      '街角爆发了一场短暂的战斗。两名收尾人对峙，其中一人身上的气息让你窒息——那是色彩级独有的压迫感。战斗在一瞬间结束，胜者头也不回地离开了。',
+      '你在巢内看到了一位色彩级收尾人的公告板悬赏——上面写着令人咋舌的数字。那个人被称为都市之星，是所有势力都渴望消灭或利用的存在。'
+    ];
+    events.push(evt(pick(colorWitness), 'encounter', '', true, '目睹色彩'));
+  }
+  if (chance(0.01) && !getFlag('rare_deep_ruins')) {
+    setFlag('rare_deep_ruins', true);
+    events.push(evt('你在都市的地下发现了一处被遗忘的废墟——那是都市建立之前的建筑残骸，墙壁上刻满了无人能读懂的文字。废墟深处传来微弱的震动，仿佛有什么东西还活着。你决定立刻离开这个地方。', 'explore', '智力+2', true, '地下废墟'));
+  }
+  if (chance(0.01) && !getFlag('rare_urban_star_bounty')) {
+    setFlag('rare_urban_star_bounty', true);
+    events.push(evt('都市之星的悬赏名单更新了。你发现自己——或者你认识的人——出现在了名单上。在都市中，被指定为都市之星意味着你的力量已经引起了各方势力的注意。这不是荣耀，而是死亡通知书。', 'danger', '', true, '悬赏名单'));
+  }
+  if (chance(0.015) && !getFlag('rare_finger_conflict')) {
+    setFlag('rare_finger_conflict', true);
+    var fingerConflicts = [
+      '拇指和食指在后巷发生了冲突。两方人马的战斗波及了无辜的居民，你不得不躲藏在一处废墟中等待战斗结束。当一切安静下来，街面上已是一片狼藉。',
+      '小指和环指的战争在你的街区爆发。玻璃窗技术和罪孽之物的碰撞产生了诡异的能量波动，空气中弥漫着不属于这个世界的东西。',
+      '五指之间的某次秘密会谈破裂了，消息泄露导致多个手指同时出动。后巷陷入了前所未有的混乱，你只能紧闭门窗等待风暴过去。'
+    ];
+    events.push(evt(pick(fingerConflicts), 'war', '体质-1', false, '五指冲突'));
+  }
+  if (chance(0.012) && !getFlag('rare_wing_collapse')) {
+    setFlag('rare_wing_collapse', true);
+    events.push(evt('一条消息震惊了整个都市——某家翼公司宣布破产。爪牙的到来如同一阵黑色的风暴，在一天之内清算了一切。巢内的居民被驱逐，后巷的秩序被重组。你亲眼目睹了一个帝国的崩塌，只用了不到二十四小时。', 'history', '意志-1', true, '翼公司破产'));
+  }
+  if (chance(0.01) && !getFlag('rare_distortion_sight')) {
+    setFlag('rare_distortion_sight', true);
+    var distSights = [
+      '你在街角看到了一个人在扭曲——他的身体以违背物理法则的方式变形、膨胀，最终变成了一个不可名状的怪物。扭曲——这是都市中最恐怖的现象之一。你拼命逃跑，身后传来了怪物的咆哮。',
+      '一个普通的上班族在你面前突然扭曲了。他的公文包变成了钳子，他的西装变成了甲壳。同事们的尖叫和哭喊声中，那个怪物缓缓走向了远方。都市扭曲现象正在变得越来越频繁。',
+      '扭曲的波纹扫过了你的街区。你看到建筑物在震动中变形，路面出现了不自然的裂纹。幸运的是，这次扭曲波纹没有在你身边停留——但它留下的精神冲击让你整晚做噩梦。'
+    ];
+    events.push(evt(pick(distSights), 'distortion', '意志-1', true, '目睹扭曲'));
+  }
+  if (chance(0.008) && !getFlag('rare_abnormality_leak')) {
+    setFlag('rare_abnormality_leak', true);
+    events.push(evt('某家翼公司的设施发生了异想体泄漏。那些从光中分离的独立存在突破了收容，在巢内造成了巨大的混乱。协会紧急派遣了收尾人前去处理，但官方消息封锁了一切。你只是从某个幸存者的只言片语中拼凑出了真相。', 'danger', '智力+1', true, '异想体泄漏'));
+  }
+  if (chance(0.012) && !getFlag('rare_fixer_duel')) {
+    setFlag('rare_fixer_duel', true);
+    events.push(evt('你在后巷目睹了一场收尾人决斗。两位收尾人在月光下对决，刀光剑影交织成一幅致命的画面。战斗结束得很快——胜利者连看都没有多看对手一眼。在这个都市里，收尾人的世界就是如此残酷而美丽。', 'encounter', '武器+1', false, '收尾人决斗'));
+  }
+  if (chance(0.015) && !getFlag('rare_taboo_violation')) {
+    setFlag('rare_taboo_violation', true);
+    var tabooViolations = [
+      '你亲眼目睹了一个人违反了枪械禁忌——他在后巷掏出了一把不属于这个时代的武器。几分钟内，禁忌猎人就到了。没有人知道他们是从哪里出现的，但违反者的惨叫声回荡了整条街。',
+      '有人在你面前违反了克隆人禁忌——一个与另一个人长得一模一样的人出现在后巷。禁忌猎人的反应比你想象的更快、更残忍。',
+      '一条关于非人知性体的消息在你所在的区域传播。有人声称在后巷深处发现了不属于人类的智慧存在。眼线的监控立刻加强了十倍——在都市中，有些东西是绝对不能触碰的。'
+    ];
+    events.push(evt(pick(tabooViolations), 'taboo', '', true, '禁忌违反'));
+  }
+  if (chance(0.01) && !getFlag('rare_claw_enforcement')) {
+    setFlag('rare_claw_enforcement', true);
+    events.push(evt('爪牙——C公司的执行力量——出现在了你所在的区域。那是一道黑色的影子，没有人看清它的真面目。所有违反禁忌的证据在几分钟内被清除得一干二净，而违反者本人则永远地消失了。这就是爪牙的效率。', 'fear', '意志-2', true, '爪牙执行'));
+  }
+  if (chance(0.008) && !getFlag('rare_eye_surveillance')) {
+    setFlag('rare_eye_surveillance', true);
+    events.push(evt('你能感觉到B公司——眼线的监控无处不在。街角的摄像头、空气中微妙的波动、甚至是某个路人看似不经意的一瞥。在这个都市里，没有任何地方是真正私密的——除非你走入了后巷的最深处。', 'surveillance', '', false, '眼线监控'));
+  }
+  if (chance(0.01) && !getFlag('rare_black_beast')) {
+    setFlag('rare_black_beast', true);
+    events.push(evt('清道夫——都市中最令人恐惧的存在之一——出现在了你的视野中。它们以人类为食，无法用常理理解。你拼命地藏了起来，不敢发出任何声响。当清道夫的脚步声终于远去时，你发现自己的衣服已经被冷汗浸透了。', 'fear', '意志-1', true, '遭遇清道夫'));
+  }
+  if (chance(0.008) && !getFlag('rare_vampire_encounter')) {
+    setFlag('rare_vampire_encounter', true);
+    events.push(evt('你在深夜的街道上遇到了一个皮肤苍白、目光如血的人。他注视了你片刻，然后转身消失在黑暗中。空气中残留着一丝血腥味——那是血魔的气味。你知道自己今晚很幸运，因为他还不需要吸血。', 'encounter', '', true, '遭遇血魔'));
+  }
+  if (chance(0.01) && !getFlag('rare_head_presence')) {
+    setFlag('rare_head_presence', true);
+    events.push(evt('那一瞬间，你感受到了一种压倒性的存在感——仿佛整个世界都被注视了一下。那是一种无法用语言描述的、来自A公司——首脑的注视。它可能只是一个随机的扫描，也可能是一种警告。你的脊背发凉，手脚冰凉。', 'fear', '意志-2', true, '首脑注视'));
+  }
+  if (chance(0.012) && !getFlag('rare_tax_enforcement')) {
+    setFlag('rare_tax_enforcement', true);
+    events.push(evt('眼线的税务审计队出现在了你的街区。他们以一种冷漠而高效的方式检查每一笔交易记录——在都市中，连偷税漏税都是禁忌的一种延伸。违规者的下场与违反禁忌者一样：消失。', 'tax', '家境-1', false, '税务审计'));
+  }
+  if (chance(0.008) && !getFlag('rare_reverberation')) {
+    setFlag('rare_reverberation', true);
+    events.push(evt('余响——那个扭曲的大脑所创造的概念——出现在了你的生活中。你看到一些人对『审判』的概念产生了异常的执着，仿佛被某种力量驱使。余响在都市中传播的方式比扭曲更加隐蔽，但也更加危险。', 'reverb', '', true, '余响传播'));
+  }
+  if (chance(0.01) && !getFlag('rare_ego_manifest')) {
+    setFlag('rare_ego_manifest', true);
+    events.push(evt('有人在你的面前展开了神备——那是异想体武装的最高形态，被称为E.G.O的存在。光芒万丈的装甲和武器让他看起来不像人类，而像是一个从光中诞生的神祇。你目睹了短暂而辉煌的战斗，然后一切归于沉寂。', 'encounter', '武器+1', true, '目睹神备'));
+  }
+  if (chance(0.012) && !getFlag('rare_library_book')) {
+    setFlag('rare_library_book', true);
+    events.push(evt('你在某个旧书店的角落发现了一本泛黄的书。书名已经模糊不清，但翻开第一页时，你的手开始颤抖——这是来自图书馆的书籍，记录着某个曾经踏入图书馆的人的一生。你合上了书，决定不去读它。有些知识是不该被人类窥探的。', 'library', '智力+1', true, '发现图书馆书籍'));
+  }
+  if (chance(0.01) && !getFlag('rare_golden_branch')) {
+    setFlag('rare_golden_branch', true);
+    events.push(evt('你在一次冒险中找到了金枝的碎片——那散发着温暖金色光芒的树枝碎片，蕴含着不可估量的力量。边狱公司正在四处搜集这些东西。你犹豫了很久，最终决定将它藏了起来——有些东西不是普通人能拥有的。', 'item', '智力+1', true, '金枝碎片'));
+  }
+  if (chance(0.008) && !getFlag('rare_river_town')) {
+    setFlag('rare_river_town', true);
+    events.push(evt('你偶然到达了一个被遗忘的都市角落——这里流淌着一条微光闪烁的河流。传说中的河流确实存在：饮下河水的人会忘却一切，而沐浴河水的人据说可以获得长生。你蹲在河边，陷入了深深的沉思。', 'legend', '智力+1', true, '神秘河流'));
+  }
+  if (chance(0.01) && !getFlag('rare_workshop_master')) {
+    setFlag('rare_workshop_master', true);
+    var workshopTales = [
+      '你在后巷遇到了一位传奇工坊大师。他打造的作品——无论是武器还是E.G.O——都被视为艺术品。他用残缺的手指轻抚着你带来的材料，摇了摇头：『还差一点。不过，你很有天赋。』',
+      '某个无名工坊的传人在街头摆摊。他的作品虽然简陋，但每一件都蕴含着独特的技术。你从他那里学到了关于工坊的基础知识——在都市中，工匠是一种不可或缺的存在。',
+      '你参观了后巷最大的工坊之一。熔炉的高温、锤击的节奏、金属碰撞的声音——工坊就是一座小型工厂。你了解到，都市中大部分武器都出自这些隐藏在后巷的工坊之中。'
+    ];
+    events.push(evt(pick(workshopTales), 'craft', '', false, '工坊大师'));
+  }
+
   return events;
 }
 
@@ -5733,6 +5889,53 @@ function generateMiddleAgeEvents(age, a, f, bp, tags) {
   }
   if (age >= 65 && age <= 75 && chance(0.03) && bp === 'north') {
     events.push(evt('北方的寒冷对老年人尤其致命。你的身体不再能像年轻时那样抵御严寒，但你选择留在这里——这是你生活了一辈子的地方。邻居们互相照应，在这个寒冷的城市中维持着微弱的温暖。', 'weather', '意志+1', false));
+  }
+
+  // ===== 稀有不限定时间事件（中年期） =====
+  if (chance(0.015) && !getFlag('rare_old_war_memory')) {
+    setFlag('rare_old_war_memory', true);
+    events.push(evt('年岁渐长，烟霾战争的记忆再次浮现。那场战争的每一个细节都清晰如昨日——炮火、血腥、死亡。你知道，在都市的历史中，烟霾战争只是无数次冲突中的一场。但对你来说，它定义了你的人生。', 'memory', '意志+1', false, '战争回忆'));
+  }
+  if (chance(0.012) && !getFlag('rare_mentor_young')) {
+    setFlag('rare_mentor_young', true);
+    events.push(evt('一个年轻人找到了你，恳求你收他为徒。他的眼神中有着你年轻时的影子——那种不服输的倔强。你犹豫了很久，最终决定将自己的经验传授给他。在都市中，知识就是生存的本钱。', 'teach', '快乐+1', false, '收徒'));
+  }
+  if (chance(0.01) && !getFlag('rare_wing_product')) {
+    setFlag('rare_wing_product', true);
+    var wingProducts = [
+      '你使用了一款T公司的时间压缩装置——它能让你在一小时内完成十个小时的工作。压缩后的疲劳感仍然存在，但效率的提升是显而易见的。',
+      '你在黑市上买到了K公司的再生安瓿——一剂可以治愈几乎任何伤病的神奇药物。在都市中，这是最昂贵的奢侈品之一。',
+      '你体验了一次W公司的现状还原——不小心被划伤的手指在一瞬间恢复如初。W公司的奇点让时间倒流，让伤害消失。这种力量让你感到敬畏。'
+    ];
+    events.push(evt(pick(wingProducts), 'product', '体质+1', false, '翼产品'));
+  }
+  if (chance(0.01) && !getFlag('rare_distorted_become')) {
+    setFlag('rare_distorted_become', true);
+    if (a.wil >= 7) {
+      events.push(evt('扭曲的波纹触碰了你的意识。你感受到了自己的负面情绪在膨胀——恐惧、愤怒、悲伤——它们试图吞噬你的理智。但你凭借着钢铁般的意志将其击退。你知道，扭曲之所以可怕，是因为每个人的心中都潜藏着怪物。', 'resist', '意志+2', true, '抵抗扭曲'));
+    } else {
+      events.push(evt('扭曲的波纹触碰了你的意识。你的负面情绪在一瞬间爆发——你想尖叫、想毁灭、想吞噬一切。好在这波纹只是擦过，没有真正地将你扭曲。但你知道，下一次也许就不会这么幸运了。', 'danger', '意志-2', true, '扭曲擦过'));
+    }
+  }
+  if (chance(0.01) && !getFlag('rare_old_friends_reunion')) {
+    setFlag('rare_old_friends_reunion', true);
+    events.push(evt('在都市的某个街角，你意外遇到了一个多年未见的老朋友。岁月在你们脸上留下了痕迹，但那份默契还在。你们坐在路边的小摊上，喝着廉价的茶，聊着过去的那些年。在这个残酷的世界里，能再次见到故人，本身就是一种奢侈的幸福。', 'social', '快乐+2', true, '故人重逢'));
+  }
+  if (chance(0.008) && !getFlag('rare_near_death')) {
+    setFlag('rare_near_death', true);
+    events.push(evt('你在一次意外中死里逃生。在濒死的那一刻，你的眼前闪过了走马灯——过去所有的重要记忆在一瞬间掠过。当你醒来时，你发现自己变了——对生命的理解更深了，对死亡的恐惧更少了。', 'survive', '意志+2', true, '濒死体验'));
+  }
+  if (chance(0.01) && !getFlag('rare_limbus_encounter')) {
+    setFlag('rare_limbus_encounter', true);
+    events.push(evt('你在巢内看到了一辆造型诡异的巴士——梅菲斯托费勒斯。那辆巴士正在载着边狱公司的罪人执行某项任务。你远远地看到了驾驶座上沉默的身影——那是卡戎，一个从环指实验中诞生的存在。都市中有太多的秘密是你永远不会了解的。', 'encounter', '', false, '边狱公司目击'));
+  }
+  if (chance(0.012) && !getFlag('rare_underground_city')) {
+    setFlag('rare_underground_city', true);
+    events.push(evt('你听说都市的地下深处隐藏着一座被遗忘的城市——从都市建立之前就存在的遗迹。有人声称在那里看到了不属于人类的建筑风格，以及一种超越奇点科技的能量。没有人敢深入调查——因为在那里，连眼线的监控也无法到达。', 'legend', '智力+1', false, '地下城市'));
+  }
+  if (chance(0.008) && !getFlag('rare_star_gazing')) {
+    setFlag('rare_star_gazing', true);
+    events.push(evt('在某个异常宁静的夜晚，你抬头望向了都市郊区之外的天空。在那无尽的黑暗中，你似乎看到了一点微光——那是星星吗？在都市的传说中，星星会实现人类的愿望。你闭上眼睛，许下了一个心愿。也许星星听到了，也许没有。', 'wish', '快乐+1', false, '仰望星星'));
   }
 
   return events;
@@ -7265,6 +7468,33 @@ function generateTeenEvents(age, a, f, bp, tags) {
     if (tev.e.includes('wea-1')) modAttr('wea', -1);
   }
 
+  // ===== 稀有不限定时间事件（少年期） =====
+  if (chance(0.012) && !getFlag('rare_first_fixer_dream')) {
+    setFlag('rare_first_fixer_dream', true);
+    events.push(evt('你做了一个关于收尾人的梦——在梦中，你挥舞着武器，击败了强大的敌人，成为了都市的传奇。醒来后，你发现自己握紧了拳头。你知道，那个梦不仅仅是一个梦——它是你内心深处对力量的渴望。', 'dream', '武器+1', false, '收尾人之梦'));
+  }
+  if (chance(0.01) && !getFlag('rare_backstreet_rules')) {
+    setFlag('rare_backstreet_rules', true);
+    events.push(evt('你从老一辈后巷居民口中了解了后巷的潜规则：不要在深夜独自行走、不要直视任何人的眼睛、不要打听不属于你的事情、不要相信任何人的好意。这些规则简单粗暴，但在这个弱肉强食的世界中，遵守它们能让你活得更久。', 'survival', '意志+1', false, '后巷潜规则'));
+  }
+  if (chance(0.008) && !getFlag('rare_hidden_market')) {
+    setFlag('rare_hidden_market', true);
+    events.push(evt('你偶然发现了一个隐藏在普通店铺后面的黑市。那里出售着各种违禁品——从翼公司的科技残片到禁忌的药物，应有尽有。你没有足够的钱购买任何东西，但你知道了这个地方的存在——在都市中，信息就是力量。', 'discover', '智力+1', false, '发现黑市'));
+  }
+  if (chance(0.01) && !getFlag('rare_wing_news')) {
+    setFlag('rare_wing_news', true);
+    var wingNews = [
+      '新闻报道称W公司的列车发生了异常事故，部分车厢被紧急关闭。官方声明中使用了大量模糊的措辞，你知道——在都市中，越模糊的声明意味着越严重的事件。',
+      'T公司宣布调整时间政策——从每天四个小时缩短为三个小时。巢内的居民们发出了不满的声音，但没有人敢于真正反抗翼公司的决定。',
+      'K公司发布了新型再生安瓿，号称能治愈以往无法治疗的疾病。但价格令人咋舌——只有巢内的上层阶级才能负担。'
+    ];
+    events.push(evt(pick(wingNews), 'news', '智力+1', false, '翼公司新闻'));
+  }
+  if (chance(0.008) && !getFlag('rare_forbidden_zone')) {
+    setFlag('rare_forbidden_zone', true);
+    events.push(evt('你和朋友打赌进入了都市的一个禁区——那是一片被翼公司封锁的区域，据说里面隐藏着不能被公众知道的秘密。你们在禁区边缘就被安保系统发现了，所幸只是被警告后就放走了。但那一瞥之间的景象，让你永远忘不了。', 'danger', '智力+1，意志-1', false, '禁区探险'));
+  }
+
   return events;
 }
 
@@ -8150,6 +8380,42 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
     events.push(evt('都市内部存在着十几种通用语言。尽管各地区有着各自的方言，但所有都市居民都可以几乎没有阻碍地相互交流。不过有些语言至今无法被理解——比如清道夫特有的嘶嘶声。你在成长过程中逐渐掌握了多种语言的 basics。', 'culture', '智力+1', false));
   }
 
+  // ===== 稀有不限定时间事件（青年期） =====
+  if (chance(0.015) && !getFlag('rare_first_kill')) {
+    setFlag('rare_first_kill', true);
+    if (bp === 'backstreet') {
+      events.push(evt('在都市的后巷，暴力是日常的一部分。今天是你第一次——为了生存——不得不伤害了另一个人。对方倒下的瞬间，你的手在颤抖，但你的眼神变得冰冷。这就是都市教给你的第一课：适者生存。', 'first', '意志-1，武器+1', true, '首次战斗'));
+    } else {
+      events.push(evt('你在一次委托中第一次面对了真正的战斗。训练室里的对练和实战完全不同——鲜血、惨叫、死亡的气息。你用颤抖的手挡住了对手的攻击，然后反击。你活下来了，但那个夜晚你做了很久的噩梦。', 'first', '意志-1，武器+1', true, '首次战斗'));
+    }
+  }
+  if (chance(0.012) && !getFlag('rare_singularity_touch')) {
+    setFlag('rare_singularity_touch', true);
+    var singTouches = [
+      '你在一次事故中接触到了T公司的奇点——时间在一瞬间被压缩了，你感觉自己过了好几个小时，但现实只过去了十秒。那种时间错位的感觉让你头晕目眩。',
+      'K公司的再生安瓿在一次医疗急救中救了你一命。那种从死亡边缘被拉回来的感觉让你对K公司的奇点充满了敬畏。',
+      '你误入了一个使用W公司空间技术的区域——空间的折叠和扭曲让你完全迷失了方向。你在错乱的空间中走了好几个小时才找到出口。'
+    ];
+    events.push(evt(pick(singTouches), 'singularity', '智力+1', false, '奇点接触'));
+  }
+  if (chance(0.01) && !getFlag('rare_finger_recruit')) {
+    setFlag('rare_finger_recruit', true);
+    var fingerRecruits = [
+      '五指中的一个——你不确定是哪个——注意到了你的才能。一个神秘的信使递给你一张没有署名的邀请函：加入我们，你将获得后巷中无人敢想象的权力和保护。',
+      '某个手指的成员在街角拦住了你。他上下打量了你一番，然后递给你一枚硬币：『如果你有兴趣，来这里找我。后巷需要像你这样的人。』',
+      '你在一次帮派冲突中展现出的实力引起了手指组织的关注。第二天，一份加入邀请出现在了你的门缝里。在都市中，被手指相中意味着危险，但也意味着机会。'
+    ];
+    events.push(evt(pick(fingerRecruits), 'recruit', '', true, '五指邀请'));
+  }
+  if (chance(0.01) && !getFlag('rare_association_test')) {
+    setFlag('rare_association_test', true);
+    events.push(evt('你决定尝试参加某家协会的入会考核。考核内容包括战斗能力、情报搜集和应变能力。如果你通过了，就能成为一名正式的收尾人——拥有协会的保护和委托优先权。考核的标准出奇地严格，你需要全力以赴。', 'career', '', false, '协会考核'));
+  }
+  if (chance(0.008) && !getFlag('rare_headless_exhibition')) {
+    setFlag('rare_headless_exhibition', true);
+    events.push(evt('你在都市的某个角落看到了一个没有头的人——不，准确地说，是头被某种力量『抹消』了的存在。他还能行动，还能通过某种方式交流，但他的头颅位置空空如也。这是都市中经常被忽视的恐怖——奇点技术的副作用无处不在。', 'horror', '意志-1', true, '无头者'));
+  }
+
   return events;
 }
 
@@ -8162,15 +8428,26 @@ function addEvent(ev) {
   const log = document.getElementById('event-log');
   const entry = document.createElement('div');
   entry.className = 'event-entry' + (ev.major ? ' major' : '');
-  entry.innerHTML = `
-    <div class="event-age">${gameState.age}岁</div>
-    <div>
-      <div class="event-text">${formatEventText(ev.text)}</div>
-      ${ev.effText ? `<div class="event-effect"><span class="${getEffectClass(ev.effText)}">${ev.effText}</span></div>` : ''}
-    </div>
-  `;
+  if (ev.major) {
+    entry.style.animation = 'eventMajorIn 0.6s cubic-bezier(0.16,1,0.3,1) forwards';
+  } else {
+    entry.style.animation = 'fadeIn 0.4s ease forwards';
+  }
+  entry.innerHTML = '<div class="event-age">' + gameState.age + '岁</div><div><div class="event-text">' + formatEventText(ev.text) + '</div>' + (ev.effText ? '<div class="event-effect"><span class="' + getEffectClass(ev.effText) + '">' + ev.effText + '</span></div>' : '') + '</div>';
   log.appendChild(entry);
-  // Scroll to bottom
+  // 特殊事件flash动画
+  if (ev.milestone) {
+    log.classList.remove('flash-milestone');
+    void log.offsetWidth;
+    log.classList.add('flash-milestone');
+    setTimeout(function() { log.classList.remove('flash-milestone'); }, 1500);
+  }
+  if (ev.effect === 'death' || ev.effect === 'twist') {
+    log.classList.remove(ev.effect === 'death' ? 'flash-death' : 'flash-twist');
+    void log.offsetWidth;
+    log.classList.add(ev.effect === 'death' ? 'flash-death' : 'flash-twist');
+    setTimeout(function() { log.classList.remove(ev.effect === 'death' ? 'flash-death' : 'flash-twist'); }, 2000);
+  }
   window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 }
 
