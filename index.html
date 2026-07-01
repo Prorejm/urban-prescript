@@ -837,6 +837,19 @@ body::after {
 </style>
 </head>
 <body>
+<div id="loading-screen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0a;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.8s ease;">
+  <div id="ls-line" style="width:2px;height:0;background:linear-gradient(to bottom,transparent,#c9a84c,transparent);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);transition:height 1.5s ease;"></div>
+  <div id="ls-text" style="color:#c9a84c;font-size:1.1rem;letter-spacing:4px;opacity:0;transition:opacity 1s ease 0.5s;font-family:var(--font-en);">CITY LIFE RESTART</div>
+  <div id="ls-sub" style="color:#666;font-size:0.75rem;letter-spacing:2px;opacity:0;transition:opacity 1s ease 1s;margin-top:8px;">都市人生重开模拟器</div>
+  <div id="ls-dots" style="display:flex;gap:8px;margin-top:32px;opacity:0;transition:opacity 1s ease 1.5s;">
+    <span class="ls-dot" style="width:4px;height:4px;background:#c9a84c;border-radius:50%;animation:lsPulse 1.2s ease-in-out infinite;"></span>
+    <span class="ls-dot" style="width:4px;height:4px;background:#c9a84c;border-radius:50%;animation:lsPulse 1.2s ease-in-out 0.3s infinite;"></span>
+    <span class="ls-dot" style="width:4px;height:4px;background:#c9a84c;border-radius:50%;animation:lsPulse 1.2s ease-in-out 0.6s infinite;"></span>
+  </div>
+</div>
+<style>
+@keyframes lsPulse { 0%,100%{opacity:0.2;transform:scale(0.8)} 50%{opacity:1;transform:scale(1.2)} }
+</style>
 
 <div id="app">
   <!-- Phase: Title -->
@@ -858,13 +871,13 @@ body::after {
   <!-- Phase: Talent -->
   <div id="phase-talent" class="phase hidden">
     <div class="phase-header">
-      <div class="phase-title">TALENT SELECTION</div>
-      <div class="phase-title-cn">&#10022; 天赋选择 &#10022;</div>
-      <div class="talent-subtitle">这会决定你未来的流向</div>
+      <div class="phase-title">CITY'S WILL</div>
+      <div class="phase-title-cn">&#10022; 此为都市之意 &#10022;</div>
+      <div class="talent-subtitle">选择属于你的可能性，顺从还是逆反流向</div>
     </div>
     <div id="talent-grid" class="talent-grid"></div>
     <div class="selected-talents">
-      <h3>已选择天赋 (0/3)</h3>
+      <h3>已选择可能性 (0/3)</h3>
       <div id="selected-talent-list" class="selected-list"></div>
     </div>
     <div class="phase-actions">
@@ -15639,6 +15652,30 @@ function checkAchievement(ach, gs) {
   return ach.condition(gs);
 }
 
+// ===== 初始加载动画 =====
+(function() {
+  window.addEventListener('load', function() {
+    requestAnimationFrame(function() {
+      var line = document.getElementById('ls-line');
+      var text = document.getElementById('ls-text');
+      var sub = document.getElementById('ls-sub');
+      var dots = document.getElementById('ls-dots');
+      var screen = document.getElementById('loading-screen');
+      if (line) line.style.height = '120px';
+      if (text) text.style.opacity = '1';
+      if (sub) sub.style.opacity = '1';
+      if (dots) dots.style.opacity = '1';
+      setTimeout(function() {
+        if (screen) {
+          screen.style.opacity = '0';
+          setTimeout(function() {
+            if (screen.parentNode) screen.parentNode.removeChild(screen);
+          }, 800);
+        }
+      }, 2800);
+    });
+  });
+})();
 </script>
 </body>
 </html>
