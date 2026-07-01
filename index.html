@@ -608,6 +608,37 @@ body::after {
   font-weight: 700;
   font-size: 0.8rem;
 }
+.sim-loading-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+}
+.sim-loading-bar {
+  width: 240px;
+  height: 6px;
+  background: #222;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.sim-loading-progress {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #c9a84c, #f0d78c);
+  border-radius: 3px;
+  transition: width 2.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.sim-loading-text {
+  color: #b8a99a;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  animation: simPulse 1.2s ease-in-out infinite;
+}
+@keyframes simPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
 
 .sim-controls.hidden { display: none; }
 
@@ -1074,6 +1105,7 @@ const ALL_TALENTS = [
   { id:'w98', name:'K公司的三级员工', rarity:'white', desc:'你是K公司的三级员工，大部分时间待在玻璃管中。你的意识被暂停以适应安瓿。', effect:'体质+2，智力-1', con:2, int:-1, wil:0, wea:0, tag:'K公司' },
   { id:'w99', name:'S公司的科举考生', rarity:'white', desc:'你参加了S公司的科举考试。肉、血、骨三党的争斗让你明白了权力的游戏。', effect:'智力+1，S公司事件略有优势', con:0, int:1, wil:0, wea:0, tag:'S公司' },
   { id:'w100', name:'X公司的魔窟矿工', rarity:'white', desc:'你在X公司的魔窟中挖掘特殊合金。你挖到过一些……不该存在的东西。', effect:'体质+1，智力+1，废墟事件略有优势', con:1, int:1, wil:0, wea:0, tag:'X公司' },
+  { id:'w_new1', name:'保育院孤儿', rarity:'white', desc:'你在后巷的保育院中度过了童年。那段经历让你早早学会了在都市中生存的本领。', effect:'意志+1，童年事件中有微小优势', con:0, int:0, wil:1, wea:0, tag:'童年' },
 
   // ==================== 蓝色天赋 (60个) ====================
   { id:'b1', name:'后巷的孩子', rarity:'blue', desc:'你在后巷长大，从小就学会了生存的法则。', effect:'体质+2，后巷相关事件有优势', con:2, int:0, wil:0, wea:0, tag:'背景' },
@@ -1196,6 +1228,17 @@ const ALL_TALENTS = [
   { id:'p46', name:'深宵幸存者', rarity:'purple', desc:'你在后巷深宵的清道夫三波扫荡中幸存了下来。那80分钟的无法律地狱，你永远忘不了。清道夫与首脑有着某种联系，受其命令时甚至可不分时段出动——这是你最深的恐惧来源。', effect:'体质+2，意志+2，深宵事件免疫', con:2, int:0, wil:2, wea:0, tag:'深宵' },
   { id:'p47', name:'灰烬之翼的遗物', rarity:'purple', desc:'你持有从烟霾战争中回收的遗物。它散发着惨白浓烟的残留气息，偶尔会在你手中微微震动。', effect:'智力+2，烟霾战争事件有特殊优势', con:0, int:2, wil:1, wea:0, tag:'烟霾战争' },
   { id:'p48', name:'愿力罐持有者', rarity:'purple', desc:'你持有一个愿力罐，它可以吸取并储存"愿力"。在关键时刻释放愿力可以改变命运。', effect:'家境+2，关键时刻获得幸运加成', con:0, int:0, wil:1, wea:3, tag:'遗物' },
+  { id:'p_new1', name:'鸿园仙皇虫体质', rarity:'purple', desc:'你的身体中流淌着鸿园仙皇虫的些许血脉，对各种药物和毒素有异于常人的抗性。', effect:'体质+2，中毒/药物类事件抗性提升', con:2, int:0, wil:0, wea:0, tag:'鸿园' },
+  { id:'p_new2', name:'都市英雄传人', rarity:'purple', desc:'你自幼听着都市英雄谭的故事长大，梦想有朝一日成为传说中的收尾人。', effect:'体质+1，武器+1，收尾人相关事件有优势', con:1, int:0, wil:0, wea:1, tag:'收尾人' },
+  { id:'p_new3', name:'卡门的研究助手', rarity:'purple', desc:'你曾有幸在卡门的研究所中担任助手，接触过Cogito的初步研究。', effect:'智力+2，对都市病有独特理解', con:0, int:2, wil:0, wea:0, tag:'研究所' },
+  { id:'p_new4', name:'烟霾战争老兵·拇指阵营', rarity:'purple', desc:'你曾在烟霾战争中为拇指而战，亲眼见证了蛆虫王子和飞蛾公主的恐怖。', effect:'体质+2，意志+1，拇指相关事件有优势', con:2, int:0, wil:1, wea:0, tag:'烟霾战争' },
+  { id:'p_new5', name:'烟霾战争老兵·G公司遗存', rarity:'purple', desc:'你曾是前G公司的士兵，亲眼见证了决战兵器的毁灭与G公司的覆灭。', effect:'体质+2，武器+1，遭遇G公司遗留事件时有特殊反应', con:2, int:0, wil:0, wea:1, tag:'烟霾战争' },
+  { id:'p_new6', name:'光之种剧本执行者', rarity:'purple', desc:'你曾是脑叶公司光之种计划中的一名职员，亲身经历了异想体收容的日常。', effect:'智力+2，意志+1，脑叶公司/异想体事件有深度反应', con:0, int:2, wil:1, wea:0, tag:'脑叶公司' },
+  { id:'p_new7', name:'白夜黑昼目击者', rarity:'purple', desc:'你亲眼见证了那三天极昼四天极夜的异象，光之种的光芒改变了你对世界的认知。', effect:'意志+2，对光/暗相关事件有特殊感知', con:0, int:0, wil:2, wea:0, tag:'白夜黑昼' },
+  { id:'p_new8', name:'拇指指挥官', rarity:'purple', desc:'你在拇指中拥有指挥官级别的地位，手下有忠诚的士兵可以调动。', effect:'体质+1，武器+2，拇指相关事件有绝对优势', con:1, int:0, wil:0, wea:2, tag:'五指' },
+  { id:'p_new9', name:'维吉利乌斯的弟子', rarity:'purple', desc:'你曾是银红凝视维吉利乌斯事务所中的一员，从他身上学到了『望』的技术。', effect:'体质+1，意志+2，战斗中可使用『心望』能力', con:1, int:0, wil:2, wea:0, tag:'收尾人' },
+  { id:'p_new10', name:'梅菲斯托费勒斯乘员', rarity:'purple', desc:'你是边狱公司巴士梅菲斯托费勒斯的乘员之一，与十二名罪人同行。', effect:'体质+1，智力+1，边狱公司相关事件自动触发', con:1, int:1, wil:0, wea:0, tag:'边狱公司' },
+  { id:'p_new11', name:'玻璃窗实验体', rarity:'purple', desc:'你曾被环指掳走，成为玻璃窗技术的实验体。虽然幸存，但身体留下了不可逆的变化。', effect:'体质-1，智力+3，对扭曲/罪孽有异常抗性', con:-1, int:3, wil:0, wea:0, tag:'环指' },
 
   // ==================== 金色天赋 (16个) ====================
   { id:'g1', name:'首脑的注视', rarity:'gold', desc:'你隐约感觉到首脑的存在。在都市的某个角落，你的每一次呼吸似乎都在被A公司所记录。这让你如履薄冰。', effect:'全属性+2，首脑事件极大提升', con:2, int:2, wil:2, wea:2, tag:'传说' },
@@ -1218,6 +1261,11 @@ const ALL_TALENTS = [
   { id:'g18', name:'边狱巴士的乘客', rarity:'gold', desc:'你乘坐了边狱公司的梅菲斯特巴士。但丁的星盘在你眼前闪耀，十三个罪人的命运与你交织。', effect:'全属性+1，罪孽事件极大提升', con:1, int:1, wil:1, wea:1, tag:'边狱' },
   { id:'g19', name:'残响乐团的指挥', rarity:'gold', desc:'你跟随苍蓝残响组建了残响乐团。你们收集扭曲实体，演奏都市最深处的悲伤。', effect:'智力+2，意志+3，扭曲事件极大提升', con:0, int:2, wil:3, wea:0, tag:'残响乐团' },
   { id:'g20', name:'十三协会的创立者', rarity:'gold', desc:'你推动成立了第十三协会——专门处理扭曲的收尾人协会。堇紫泪滴伊织的理念在你身上得到了实现。', effect:'意志+3，智力+2，扭曲事件极大提升', con:0, int:2, wil:3, wea:0, tag:'十三协会' },
+  { id:'g_new1', name:'星星的注视', rarity:'gold', desc:'在都市的边界，星星曾注视过你。你不知道这意味着什么，但你的命运似乎与常人不同。', effect:'全属性+1，郊区/星星相关事件有独特触发', con:1, int:1, wil:1, wea:1, tag:'郊区' },
+  { id:'g_new2', name:'殷红迷雾的目击者', rarity:'gold', desc:'你亲眼见证了最强之人卡莉绽放神备的那一瞬间。那殷红的雾气至今仍在你的记忆中回荡。', effect:'体质+2，意志+2，战斗类事件有显著优势', con:2, int:0, wil:2, wea:0, tag:'传说' },
+  { id:'g_new3', name:'钢琴家的听众·存活者', rarity:'gold', desc:'你是钢琴家事件的幸存者之一。那旋律杀死了三十万人，却奇迹般地放过了你。', effect:'意志+3，音乐/声音相关事件有特殊反应', con:0, int:0, wil:3, wea:0, tag:'扭曲' },
+  { id:'g_new4', name:'都市之星·等级评定中', rarity:'gold', desc:'你被协会指定为都市之星候补。这意味着你是都市中最危险的存在之一，所有协会和手指都会关注你。', effect:'武器+2，体质+1，会触发被追杀事件', con:1, int:0, wil:0, wea:2, tag:'都市之星' },
+  { id:'g_new5', name:'边狱公司罪人', rarity:'gold', desc:'你是边狱公司LCB部门的罪人之一，被梅菲斯托费勒斯载着在都市中搜集金枝。', effect:'体质+2，智力+1，意志+1，边狱公司事件链自动触发', con:2, int:1, wil:1, wea:0, tag:'边狱公司' },
 
   // ==================== 传说天赋 (5个) ====================
   { id:'l1', name:'都市的奇点', rarity:'legend', desc:'你本身就是都市的奇迹，超越了所有规则与限制。', effect:'全属性+5，所有事件获得极大加成', con:5, int:5, wil:5, wea:5, tag:'超越' },
@@ -1227,6 +1275,9 @@ const ALL_TALENTS = [
   { id:'l5', name:'命运剧本', rarity:'legend', desc:'你编写着都市的命运，一切尽在掌控之中。', effect:'全属性+4，可以预知并改变关键事件', con:4, int:4, wil:4, wea:4, tag:'超越' },
   // === 边狱公司情报天赋 ===
   { id:'lx1', name:'边狱巴士的乘客', rarity:'legend', desc:'你乘坐了边狱公司的梅菲斯特巴士。但丁的星盘在你眼前闪耀，十三个罪人的命运与你交织。星盘可以储存金枝、与命运共鸣产生五种现实效果——PIGRITIA、SUPERBIA、MOROSITAS等。', effect:'全属性+1，罪孽事件极大提升', con:1, int:1, wil:1, wea:1, tag:'边狱' },
+  { id:'l_new1', name:'血魔初代眷属血脉', rarity:'legend', desc:'你的血管中流淌着第一代眷属的血液。血魔的渴望与人类理智的斗争，从你出生的那一天就开始了。', effect:'体质+3，意志+2，吸血事件有特殊分支，可触发拉曼却领事件链', con:3, int:0, wil:2, wea:0, tag:'血魔' },
+  { id:'l_new2', name:'漆黑噤默·疑似', rarity:'legend', desc:'南部流传着关于你的恐怖传说。漆黑的面具、沉默的处刑、不留活路的屠杀——人们说，漆黑噤默回来了。', effect:'武器+4，体质+2，南部事件有特殊走向，会被协会追杀', con:2, int:0, wil:0, wea:4, tag:'都市之星' },
+  { id:'l_new3', name:'卡戎的血脉', rarity:'legend', desc:'你是环指实验的幸存者，被改造为了卡戎——引导罪人的摆渡人。你的肉体已经不再属于人类。', effect:'体质+3，智力+2，武器+1，边狱公司相关事件深度参与', con:3, int:2, wil:0, wea:1, tag:'环指' },
   // === 耗子相关 ===
   { id:'r1', name:'耗子群的一员', rarity:'white', desc:'你是后巷街头混混——耗子群的一员。组织松散，靠遗弃废品苟活。你们常从弃尸中剖出内脏贩卖。', effect:'家境+1，体质-1', con:-1, int:0, wil:0, wea:1, tag:'底层身份' },
   { id:'r2', name:'弃尸翻找者', rarity:'white', desc:'你学会了在后巷的弃尸中翻找值钱的内脏来贩卖。这是耗子最基本的生存技能。', effect:'家境+1，意志-1', con:0, int:0, wil:-1, wea:1, tag:'底层身份' },
@@ -2348,6 +2399,27 @@ const ACHIEVEMENTS = [
   // === 集体扭曲成就 ===
   { id:'whale_mermaid_transformed', name:'人鱼化', desc:'被鲸油吞噬转化为了人鱼。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('鲸油遭遇') && gs.milestones.includes('穴掌鲸遭遇'),
     lore:'被活鲸油脂吞没会变成鲸的人鱼。被比自己体积更大的死鲸油脂吞没则自我逐渐稀薄消散。人鱼转化可被阻滞——需在完全转化前成为"鲸鱼"，让同伴成为无条件服从自己的"美人鲸"。' },
+  // --- 新增世界观时间线成就 ---
+  { id:'ach_river', name:'河流的低语', desc:'听闻了世界最底层那条古老暗流的传说。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('河流的传说') },
+  { id:'ach_star', name:'星星的孩子', desc:'得知了都市郊区之外星星的存在。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('星星的俯瞰') },
+  { id:'ach_hongluan', name:'鸿园来客', desc:'了解了大观园仙皇虫的传说。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('大观园传说') },
+  { id:'ach_hero', name:'英雄谭的听众', desc:'听过了都市英雄谭的传说。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('都市英雄谭') },
+  { id:'ach_carmen', name:'卡门的追随者', desc:'得知了卡门与灵魂治疗的故事。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('卡门巡回演讲') },
+  { id:'ach_redMist', name:'殷红迷雾的传说', desc:'听说了最强之人卡莉的故事。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('殷红迷雾') },
+  { id:'ach_lab', name:'研究所的幸存者', desc:'得知了加里翁袭击研究所的事件。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('加里翁袭击') },
+  { id:'ach_smog_end', name:'烟霾战争终结者', desc:'见证了烟霾战争的结束。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('烟霾战争结束') },
+  { id:'ach_angela', name:'安吉拉的诞生', desc:'得知了安吉拉诞生的故事。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('安吉拉诞生') },
+  { id:'ach_southern', name:'南部大地震', desc:'见证了南部巨变的混乱。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('南部巨变') },
+  { id:'ach_library_inc', name:'图书馆的阴影', desc:'经历了图书馆插曲的动荡。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('图书馆插曲') },
+  { id:'ach_2nd_wn', name:'二次白夜', desc:'见证了光之种的再次发射。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('二次白夜') },
+  { id:'ach_head_recv', name:'首脑的来访', desc:'得知了首脑传送图书馆的事件。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('最后的接待') },
+  { id:'ach_vergilius', name:'银红凝视', desc:'得知了维吉利乌斯的活跃事迹。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('维吉利乌斯活跃') },
+  { id:'ach_auction', name:'玻璃窗之下', desc:'得知了拍卖会作战的事件。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('拍卖会作战') },
+  { id:'ach_l_mancha', name:'拉·曼却的悲歌', desc:'得知了拉曼却领建立与封闭的故事。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('拉曼却领') },
+  { id:'ach_k_corp', name:'流泪之物', desc:'得知了K公司崛起背后的故事。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('K公司崛起') },
+  { id:'ach_t_corp', name:'时间的代价', desc:'得知了T公司崛起背后的故事。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('T公司崛起') },
+  { id:'ach_blood_war', name:'血魔之战', desc:'得知了二百年前血魔与人类的战争。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('血魔之战') },
+  { id:'ach_carmen_death', name:'浴缸中的终结', desc:'得知了卡门之死的悲剧。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('卡门之死') },
 ];
 function checkAchievements(gs) {
   const unlocked = [];
@@ -3093,6 +3165,20 @@ function generateEvents(age) {
   const tags = gameState.talentTags || [];
   window.bp = bp; // 供子代理代码使用
 
+  // === 隐藏判定系统：限制特殊事件频率 ===
+  if (!gameState.hiddenChecks) gameState.hiddenChecks = {};
+  function hiddenCheck(key, maxPerGame) {
+    if (!gameState.hiddenChecks[key]) gameState.hiddenChecks[key] = 0;
+    return gameState.hiddenChecks[key] < maxPerGame;
+  }
+  function recordHidden(key) {
+    if (!gameState.hiddenChecks[key]) gameState.hiddenChecks[key] = 0;
+    gameState.hiddenChecks[key]++;
+  }
+  // 限制每个年龄段最多触发3个特殊 flagged 事件
+  if (!gameState.ageEventCount) gameState.ageEventCount = {};
+  if (!gameState.ageEventCount[age]) gameState.ageEventCount[age] = 0;
+
   const events = [];
 
   // 事件互斥检查：如果前置事件已发生，阻止后续相关事件
@@ -3103,6 +3189,75 @@ function generateEvents(age) {
   // 安吉丽卡存活 → 阻止悲伤罗兰遭遇
   if (getFlag('aliveAfterPianist') && age >= 30 && age <= 50) {
     setFlag('blockSadRoland', true);
+  }
+
+  // ====== 双轨时序约束系统 ======
+  // 第一轨：后续阻断先前（更晚时代的事件已发生 → 不触发更早时代的事件）
+  // 含义：如果你已经经历了图书馆时代的事，就不应该再经历脑叶公司之前的事
+
+  // 脑叶公司已成立 → 烟霾战争不再触发（烟霾战争在脑叶公司之前）
+  if (getFlag('lCorpFounded')) {
+    setFlag('blockSmokeWar', true);
+    setFlag('blockCarmenEra', true);
+  }
+  // 白夜黑昼已发生 → 烟霾战争、脑叶公司成立不再触发
+  if (getFlag('whiteNightEvent')) {
+    setFlag('blockSmokeWar', true);
+    setFlag('blockCarmenEra', true);
+    setFlag('blockLCorp', true);
+  }
+  // 图书馆已出现 → 白夜黑昼、脑叶公司、烟霾战争不再触发
+  if (getFlag('libraryAppeared') || getFlag('library_invite')) {
+    setFlag('blockSmokeWar', true);
+    setFlag('blockCarmenEra', true);
+    setFlag('blockLCorp', true);
+    setFlag('blockWhiteNight', true);
+  }
+  // 二次白夜已发生 → 图书馆前期事件不再触发
+  if (getFlag('secondWhiteNight')) {
+    setFlag('blockSmokeWar', true);
+    setFlag('blockCarmenEra', true);
+    setFlag('blockLCorp', true);
+    setFlag('blockWhiteNight', true);
+    setFlag('blockLibrary', true);
+  }
+  // 边狱公司已成立 → 几乎所有旧时代事件不再触发
+  if (getFlag('limbusFounded')) {
+    setFlag('blockSmokeWar', true);
+    setFlag('blockCarmenEra', true);
+    setFlag('blockLCorp', true);
+    setFlag('blockWhiteNight', true);
+    setFlag('blockLibrary', true);
+    setFlag('blockPianist', true);
+  }
+
+  // 第二轨：先前接续后续（更早时代的事件已发生 → 解锁更晚时代的事件）
+  // 含义：如果你经历了烟霾战争，之后才可能遇到脑叶公司的事
+  // （通过各事件函数内部的 getFlag 前置检查实现，此处设置全局解锁标记）
+
+  // 烟霾战争已结束 → 解锁脑叶公司时代
+  if (getFlag('smogWarEnd') || getFlag('war_survivor')) {
+    setFlag('era_smog_done', true);
+  }
+  // 脑叶公司已成立 → 解锁白夜黑昼时代
+  if (getFlag('lCorpFounded') || getFlag('joinedLCompany')) {
+    setFlag('era_lobotomy_active', true);
+  }
+  // 白夜黑昼已发生 → 解锁图书馆时代
+  if (getFlag('whiteNightEvent')) {
+    setFlag('era_whiteNight_done', true);
+  }
+  // 图书馆已出现 → 解锁南部巨变/图书馆插曲
+  if (getFlag('libraryAppeared') || getFlag('library_invite')) {
+    setFlag('era_library_active', true);
+  }
+  // 二次白夜已发生 → 解锁后图书馆时代
+  if (getFlag('secondWhiteNight')) {
+    setFlag('era_postLibrary', true);
+  }
+  // 钢琴家事件已发生 → 解锁南部巨变
+  if (getFlag('pianistEventFired') || getFlag('pianist_witness')) {
+    setFlag('era_pianist_done', true);
   }
 
   // 运行特殊开局与组合标签系统（0岁时检测组合线）
@@ -3211,13 +3366,23 @@ function generateEvents(age) {
   if (typeof eventChainPluto === 'function') eventChainPluto(age);
   if (typeof eventChainJaeheon === 'function') eventChainJaeheon(age);
   if (typeof eventChainWarpLoveTown === 'function') eventChainWarpLoveTown(age);
-  if (typeof runSpecialFixerEvents === 'function') runSpecialFixerEvents(age);
-  if (typeof runRatFingerFixerEvents === 'function') runRatFingerFixerEvents(age);
+  // 记录本年龄开始时的flag数量
+  const flagsBefore = Object.keys(gameState.flags).length;
+  const milestonesBefore = gameState.milestones.length;
+  
+    if (typeof runSpecialFixerEvents === 'function') runSpecialFixerEvents(age);
+    if (typeof runRatFingerFixerEvents === 'function') runRatFingerFixerEvents(age);
     if (typeof runLoreDetailEvents === 'function') runLoreDetailEvents(age);
-  if (typeof runImmortalEvents === 'function') runImmortalEvents(age);
-  if (typeof runReverberationEvents === 'function') runReverberationEvents(age);
-  if (typeof runAssociationSectionEvents === 'function') runAssociationSectionEvents(age);
-  if (typeof runChildhoodSpecialEvents === 'function') runChildhoodSpecialEvents(age);
+    if (typeof runImmortalEvents === 'function') runImmortalEvents(age);
+    if (typeof runReverberationEvents === 'function') runReverberationEvents(age);
+    if (typeof runAssociationSectionEvents === 'function') runAssociationSectionEvents(age);
+    if (typeof runChildhoodSpecialEvents === 'function') runChildhoodSpecialEvents(age);
+    if (typeof runExtendedRoutes === 'function') runExtendedRoutes(age);
+    if (typeof runWorldLoreChainEvents === 'function') runWorldLoreChainEvents(age);
+  
+  // 更新本年龄的特殊事件计数
+  if (!gameState.ageEventCount) gameState.ageEventCount = {};
+  gameState.ageEventCount[age] = (Object.keys(gameState.flags).length - flagsBefore) + (gameState.milestones.length - milestonesBefore);
 
   // 时间裂缝解释（最后加载）
   getTimeCrackExplanation(age);
@@ -4359,7 +4524,7 @@ function generateAdultEvents(age, a, f, bp, tags) {
   if (age >= 25 && chance(0.04) && !hasMilestone('推奴人')) {
     events.push(
       evt(
-        '推奴人找到了你。他们是拇指下属的奴隶贩子，专门捕捉后巷的弱者卖给各种势力。',
+        '推奴人找到了你。他们是S公司管辖下的推奴人，专门负责捕捉和管理奴婢——都市中一种被系统化奴役的存在。你身上的某种特质引起了他们的注意。',
         'slave_hunter',
         '',
         true,
@@ -4390,7 +4555,7 @@ function generateAdultEvents(age, a, f, bp, tags) {
     } else {
       events.push(
         evt(
-          '推奴人抓住了你。你被卖给了某个不知名的势力，从此失去了自由。',
+          '推奴人抓住了你。你被烙上了奴婢的印记，成为了S公司管辖下的奴婢。烙印灼烧着你的皮肤，提醒你从此失去了自由。',
           'slave_caught',
           '意志-2，家境-1',
           true,
@@ -5029,6 +5194,78 @@ function generateAdultEvents(age, a, f, bp, tags) {
     if (aev.e.includes('wea-1')) modAttr('wea', -1);
   }
 
+  // ===== 地理与文化事件 =====
+  // 东部中古东亚风格
+  if (age >= 31 && age <= 50 && bp === 'east' && chance(0.06) && !getFlag('east_culture')) {
+    setFlag('east_culture', true);
+    events.push(evt('东部的风带着一种古朴的韵味。这里的穿搭和风俗都倾向于中古东亚的风格。你看到一位穿着传统服饰的收尾人走过，腰间挂着两把精制的剑——东部十剑的评选即将开始。街边的茶馆里，老人们下着象棋，仿佛战争的阴影与他们无关。', 'culture', '快乐+1', false, '东部风情'));
+  }
+  // 西部中古西欧风格
+  if (age >= 31 && age <= 50 && bp === 'west' && chance(0.06) && !getFlag('west_culture')) {
+    setFlag('west_culture', true);
+    events.push(evt('西部散发着中古西欧的气息。骑士团在街道上巡逻，穿着铠甲的收尾人看起来像是从中世纪穿越而来。一家酒馆里传出吟游诗人的歌声，歌中讲述着都市英雄谭的传说。你在石板路上行走，感受着这个地区独有的庄重与浪漫。', 'culture', '快乐+1', false, '西部风情'));
+  }
+  // 南部热带风格
+  if (age >= 31 && age <= 50 && bp === 'south' && chance(0.06) && !getFlag('south_culture')) {
+    setFlag('south_culture', true);
+    events.push(evt('南部的热带气息扑面而来。这里的人们穿着轻便的衣物，海盗团的旗帜在远处的海域飘扬。大湖的水面上偶尔可以看到巨大的阴影——据说那是鲸鱼人在迁徙。南部的混乱是出了名的，但自由也是。', 'culture', '', false, '南部风情'));
+  }
+  // 北部寒带风格
+  if (age >= 31 && age <= 50 && bp === 'north' && chance(0.06) && !getFlag('north_culture')) {
+    setFlag('north_culture', true);
+    events.push(evt('北部刺骨的寒风让你裹紧了大绒袄。这里的一切都被冰雪覆盖，温度低得让人几乎无法呼吸。北方的居民们早已习惯了这种极端的气候，他们粗犷、坚韧，像这片土地一样。你听说北方的后巷里藏着一座被遗忘的废墟，从都市建立之前就存在于此。', 'culture', '体质-1，意志+1', false, '北部风情'));
+  }
+  // 郊区高墙
+  if (age >= 31 && age <= 50 && chance(0.04) && !getFlag('outer_wall')) {
+    setFlag('outer_wall', true);
+    events.push(evt('你远远地看到了都市外围的高墙。那道墙限制了郊区与都市之间的人口流动——郊区的人类必须经过数十种手续才能进入都市，而郊区生活的怪物也几乎不可能越过墙进入都市。没有人知道这道墙是谁建造的，又为什么存在。', 'lore', '智力+1', false, '高墙'));
+  }
+  // 郊区铁道
+  if (age >= 31 && age <= 50 && chance(0.03) && !getFlag('frontier_rail')) {
+    setFlag('frontier_rail', true);
+    events.push(evt('你听说在都市外围存在铁道设施，行于郊区之间。扭曲侦探曾展示的早期地图上画有火车巡回运作的形象。郊区居民可以从行于郊区的铁道上获得罕见的物品。那些物品的价值往往令人咋舌——但获取它们的代价，可能是一条命。', 'lore', '智力+1', false, '郊区铁道'));
+  }
+  // 地下废墟
+  if (age >= 35 && age <= 55 && chance(0.03) && !getFlag('underground_ruins')) {
+    setFlag('underground_ruins', true);
+    events.push(evt('都市的地下深处存在未知的废墟——可能包含废弃的巢、都市建立之前的人类建筑、某些组织的绝密设施。你偶然发现了一个通往地下的入口，黑暗中传来不明生物的低吼声。你决定还是不要冒险下去了。', 'explore', '智力+1', false, '地下废墟'));
+  }
+  // 河流的传说
+  if (age >= 40 && age <= 60 && chance(0.02) && !getFlag('river_encounter')) {
+    setFlag('river_encounter', true);
+    events.push(evt('在都市的某个鲜为人知的角落，你找到了一条流淌着的神秘河流。传说中，这些河流具有各种奇异的作用——使人忘却一切、使人长生不老、使某些死者化为幽灵徘徊。你蹲在河边，犹豫着是否要触碰那泛着微光的水面。最终，你只是洗了洗手——手上的水很快蒸发了，什么也没有发生。', 'lore', '意志+1', false, '神秘河流'));
+  }
+  // 杀人不受处罚的都市伦理
+  if (age >= 31 && age <= 50 && chance(0.04) && !getFlag('kill_ethics')) {
+    setFlag('kill_ethics', true);
+    events.push(evt('在都市中，杀害他人并不自动构成犯罪——首脑并未设立关于杀人的禁忌。必须考虑杀人的地点和受害者的数量、人际关系，才有可能使杀人者受到某个势力的审判。你亲眼看到有人在后巷被杀害，而路人只是冷漠地绕行而过。这就是都市的道德。', 'lore', '意志-1', false, '都市伦理'));
+  }
+  // 人体实验传闻
+  if (age >= 35 && age <= 55 && chance(0.03) && !getFlag('human_experiment')) {
+    setFlag('human_experiment', true);
+    events.push(evt('人体实验——这是都市中人们闭口不言但长久存在的事实。无论是后巷的帮派还是巢内的翼公司，都可能为了利益将手伸向无辜的居民。你听说某个后巷的诊所其实是某个组织的实验场，进去的病人很少有能完好地走出来的。', 'lore', '意志-1', false, '人体实验传闻'));
+  }
+  // 货币"眼"的日常
+  if (age >= 31 && age <= 50 && chance(0.05) && !getFlag('eye_currency')) {
+    setFlag('eye_currency', true);
+    events.push(evt('三枚眼。这就是一碗热汤的价格。你在后巷的小摊上掏出皱巴巴的纸币——都市的货币名为『眼』，购买力令人心酸。隔壁桌的巢内来客随手扔下的零钱，比你一个月的收入还多。你默默地把汤喝完，每一口都是生活的重量。', 'life', '', false, '货币眼'));
+  }
+  // 空间扭曲的日常生活
+  if (age >= 31 && age <= 50 && chance(0.04) && !getFlag('space_twist_daily')) {
+    setFlag('space_twist_daily', true);
+    events.push(evt('都市中使用了多种空间扭曲技术，实际利用的空间面积远远超过占地面积。你走进了一条看似普通的街道，走了十分钟却发现自己在另一个区域。空间扭曲在这里就像空气一样理所当然——没有人会为此大惊小怪。', 'culture', '智力+1', false, '空间扭曲'));
+  }
+  // A巢正中心
+  if (age >= 35 && age <= 55 && chance(0.03) && !getFlag('a_nest_visit')) {
+    setFlag('a_nest_visit', true);
+    events.push(evt('你有幸接近了A巢——都市的正中心，首脑的所在地。这里的建筑高耸入云，街道一尘不染，空气中弥漫着一种令人窒息的秩序感。没有人敢在这里大声说话，更不敢有任何越界的行为。你感觉到一种无处不在的目光在注视着你——那是眼线的监控。', 'lore', '智力+1，意志-1', false, 'A巢'));
+  }
+  // 星星的传闻
+  if (age >= 40 && age <= 60 && chance(0.02) && !getFlag('star_rumor')) {
+    setFlag('star_rumor', true);
+    events.push(evt('你从一位年迈的旅人口中听到了关于『星星』的传闻——都市郊区之外，存在着超越人类理解的存在。它们会以神秘的方式实现人类的愿望。旅人浑浊的眼睛中闪过一丝光芒：『星星不会真正满足你的愿望，它们只会以自己的方式实现——代价远超你的想象。』', 'lore', '智力+1', false, '星星传闻'));
+  }
+
   return events;
 }
 
@@ -5398,6 +5635,53 @@ function generateMiddleAgeEvents(age, a, f, bp, tags) {
     if (mev.e.includes('wea-1')) modAttr('wea', -1);
   }
 
+  // ===== 中年期日常补充 =====
+  if (age >= 51 && age <= 60 && chance(0.05)) {
+    events.push(evt('五十岁了。在都市中，这意味着你要么已经成功了，要么已经认命了。大多数后巷居民属于后者。你坐在自己经营多年的小店里，看着门口来来往往的年轻人，感慨着岁月如梭。', 'age', '', false));
+  }
+  if (age >= 52 && age <= 62 && chance(0.04) && bp === 'backstreet') {
+    events.push(evt('后巷的中年人是最辛苦的群体——既没有年轻人的体力和冲劲，又没有老人的豁达和经验。你每天在帮派和生计之间挣扎，身体的旧伤开始发作，但你不能停下来。停下来就意味着死亡。', 'struggle', '体质-1', false));
+  }
+  if (age >= 53 && age <= 63 && chance(0.04) && bp === 'nest') {
+    events.push(evt('在巢内，五十多岁是一个尴尬的年龄。翼公司的强制退休年龄临近，你必须为自己的下一步做打算。有些人选择在后巷开店，有些人选择加入收尾人事务所，还有些人选择了更黑暗的道路。', 'career', '智力+1', false));
+  }
+  if (age >= 55 && age <= 65 && chance(0.04) && isGang()) {
+    events.push(evt('在帮派中混了这么多年，你终于坐到了一个不算太低的位置。年轻人对你既敬畏又嫉妒，但你知道这个位置的危险——在帮派中，地位越高，盯着你的刀子就越多。', 'gang', '武器+1，意志-1', false));
+  }
+  if (age >= 55 && age <= 65 && chance(0.04) && isAssociation()) {
+    events.push(evt('作为协会的老兵，你已经从一线退了下来，转而负责训练新人。年轻收尾人们的眼中满是崇拜，但你见过太多有天赋的年轻人死在第一次任务中。你只希望他们能活得久一点。', 'assoc', '智力+1', false));
+  }
+  if (age >= 55 && age <= 70 && chance(0.04) && isFingerOrg()) {
+    events.push(evt('在手指组织中，五十多岁意味着你已经是老资历了。你见过无数次权力更迭和背叛，知道如何在刀刃上保持平衡。年轻的成员们看你的眼神中带着敬畏——在这个吃人的组织中能活到这个年纪，本身就是一种实力。', 'finger', '智力+1，意志+1', false));
+  }
+  if (age >= 56 && age <= 66 && chance(0.04) && bp === 'east') {
+    events.push(evt('东部的文化中，五十岁是一个受人尊敬的年龄。你被邀请参加社区的聚会，年轻人们向你请教人生经验。在东亚风格的庭院中，你品着茶，讲述着年轻时的故事——当然，省去了那些血腥的部分。', 'culture', '快乐+1', false));
+  }
+  if (age >= 56 && age <= 66 && chance(0.04) && bp === 'south') {
+    events.push(evt('南部的海盗团中流传着一个说法：过了五十岁还活着的海盗，都是被大海选中的人。你不知道这是赞美还是诅咒，但你知道南方的生活没有一天是安全的。大湖的风暴越来越频繁了。', 'culture', '体质-1', false));
+  }
+  if (age >= 58 && age <= 68 && chance(0.04)) {
+    events.push(evt('你的膝盖开始疼了。在都市中，医疗资源是按阶层分配的——巢内的人可以换人工关节，而后巷的人只能用劣质的止痛药。你选择了后者，忍受着日渐加重的疼痛继续工作。', 'health', '体质-1', false));
+  }
+  if (age >= 60 && age <= 70 && chance(0.04) && gameState.happiness >= 3) {
+    events.push(evt('六十岁了，你还算幸福。在都市中这简直是个奇迹。你回顾自己的一生——虽然充满了坎坷，但你至少还活着，还有在乎的人。你决定不再抱怨，珍惜剩下的每一天。', 'happy', '意志+1，快乐+1', false));
+  }
+  if (age >= 60 && age <= 70 && chance(0.04) && getFlag('charles_join')) {
+    events.push(evt('你想起了查尔斯事务所的日子。那已经是几十年前的事了，但那些记忆依然鲜活——罗兰的沉默、安吉丽卡的微笑、前辈们的背影。事务所早已解散，那些人各奔东西。你不知道他们现在在哪里，是否还活着。', 'memory', '', false));
+  }
+  if (age >= 62 && age <= 72 && chance(0.03) && bp === 'west') {
+    events.push(evt('西部的骑士团在五十多岁已经不再接纳新成员了。你的身体不再适合穿铠甲，但你的剑术依然精湛。偶尔有年轻骑士来向你请教，你在庭院中演示了几招，他们惊叹不已。也许老了也有老的价值。', 'culture', '武器+1', false));
+  }
+  if (age >= 63 && age <= 73 && chance(0.03) && getFlag('lcb_sinner')) {
+    events.push(evt('边狱公司的旅途已经告一段落。你从梅菲斯托费勒斯上下来了，但那些记忆——金枝的光芒、与其他罪人并肩战斗的日子——永远不会消失。你在都市的某个角落定居下来，过着看似普通的生活。但你知道，你早已不再是普通人了。', 'memory', '意志+1', false));
+  }
+  if (age >= 65 && age <= 75 && chance(0.03)) {
+    events.push(evt('你开始考虑自己的后事。在都市中，死后能有一块墓地是奢侈的——大多数人死后被扔进清道夫经过的街道，连尸骨都不剩。你省下了一些眼，买了一个小小的墓穴位置。至少死后能有个人在的时候。', 'prepare', '', false));
+  }
+  if (age >= 65 && age <= 75 && chance(0.03) && bp === 'north') {
+    events.push(evt('北方的寒冷对老年人尤其致命。你的身体不再能像年轻时那样抵御严寒，但你选择留在这里——这是你生活了一辈子的地方。邻居们互相照应，在这个寒冷的城市中维持着微弱的温暖。', 'weather', '意志+1', false));
+  }
+
   return events;
 }
 
@@ -5708,6 +5992,56 @@ function generateElderEvents(age, a, f, bp, tags) {
     if (eev.e.includes('wil-1')) modAttr('wil', -1);
     if (eev.e.includes('wea+1')) modAttr('wea', 1);
     if (eev.e.includes('wea-1')) modAttr('wea', -1);
+  }
+
+  // ===== 晚年期日常补充 =====
+  if (age >= 71 && age <= 80 && chance(0.06)) {
+    events.push(evt('你已经七十多岁了。在都市中能活到这个年纪实属罕见。你的身体不再像年轻时那样强壮，但几十年的经验让你拥有了年轻人无法比拟的洞察力。你坐在窗前，看着后巷的日落，回忆着这一生。', 'age', '', false));
+  }
+  if (age >= 72 && age <= 85 && chance(0.05) && bp === 'backstreet') {
+    events.push(evt('后巷的老人是多余的存在。帮派不会善待没有利用价值的人，你每一天都在为生存而挣扎。年轻时积累的技能和人脉是你唯一的依靠——如果那些还在的话。', 'struggle', '意志-1', false));
+  }
+  if (age >= 73 && age <= 90 && chance(0.05) && bp === 'nest') {
+    events.push(evt('巢内的养老体系还算完善——至少对于那些有积蓄的人来说。你每天在巢内的公园中散步，看着年轻人们匆匆走过。他们在追逐自己的未来，而你的未来，已经变成了回忆。', 'life', '快乐+1', false));
+  }
+  if (age >= 75 && age <= 90 && chance(0.04)) {
+    events.push(evt('你开始整理自己一生的经历。在都市活了这么多年，你见证了太多——烟霾战争、白夜黑昼、图书馆事件、扭曲爆发……你决定把这一切记录下来，也许将来会有人读到。', 'memoir', '智力+1', false));
+  }
+  if (age >= 75 && age <= 95 && chance(0.04) && getFlag('war_survivor')) {
+    events.push(evt('烟霾战争的噩梦偶尔还会在深夜来访。几十年过去了，那些惨烈的战场记忆依然清晰如昨日。你看到战友在眼前倒下，听到T公司衰老弹的爆炸声。你庆幸自己活了下来，但也永远背负着那些死去之人的重量。', 'trauma', '意志-1', false));
+  }
+  if (age >= 78 && age <= 95 && chance(0.03) && getFlag('whiteNightEvent')) {
+    events.push(evt('白夜黑昼的光芒在你记忆中依然刺眼。那三天的极昼和四天的极夜改变了很多东西——包括你。你有时候会想，那道光中蕴含的温暖，到底有没有实现它的承诺？都市似乎没有变得更好。', 'memory', '意志-1', false));
+  }
+  if (age >= 80 && age <= 100 && chance(0.04)) {
+    events.push(evt('八十岁。在后巷，这意味着你比99%的人都活得长。年轻人看着你的眼神中混杂着敬畏和不解——他们无法想象在这个弱肉强食的世界中生存了八十年需要什么样的运气和实力。你只是微笑，什么也不说。', 'age', '快乐+1', false));
+  }
+  if (age >= 80 && age <= 100 && chance(0.04) && a.wil >= 7) {
+    events.push(evt('你的意志力随着年龄不降反升。在都市中，弱者早已在年轻时就被淘汰了——能活到八十岁的，没有一个是简单的。你是后巷的传奇，虽然没人会这么说。', 'power', '意志+1', false));
+  }
+  if (age >= 82 && age <= 100 && chance(0.03) && bp === 'east') {
+    events.push(evt('东部的老人们有一个传统：在八十岁时将自己一生中最重要的一课传授给年轻人。你选择了一个看起来还算可靠的年轻人，告诉他：在这个都市里，最重要的不是力量，不是智慧，而是知道什么时候该逃跑。', 'teach', '', false));
+  }
+  if (age >= 85 && age <= 100 && chance(0.03) && bp === 'north') {
+    events.push(evt('北方的严寒在冬天变得更加致命。你的身体已经无法像从前那样抵御寒冷，但几十年的适应让你的血液似乎比常人更稠。北方的老人说：能熬过北方八十个冬天的，就是真正的北方人了。', 'weather', '体质-1，意志+1', false));
+  }
+  if (age >= 85 && age <= 100 && chance(0.03)) {
+    events.push(evt('你听说了一个关于『河流』的传说——在都市的某些角落，流淌着能让人忘却一切或长生不老的神秘河流。作为一个行将就木的老人，你对此产生了兴趣。也许该去找找看？也许那只是都市中又一个美丽的谎言。', 'legend', '', false));
+  }
+  if (age >= 88 && age <= 105 && chance(0.03)) {
+    events.push(evt('你的身体在衰老，但你的精神似乎在某个临界点后反而变得更加清晰。你开始能看到年轻人看不到的东西——阴影中的异常、空气中的波动、人群中的危险气息。也许这就是活得太久的副作用。', 'age', '智力+1，体质-1', false));
+  }
+  if (age >= 90 && age <= 110 && chance(0.04)) {
+    events.push(evt('九十岁。在都市的历史中，能活到这个年纪的人屈指可数。你已经不在乎什么禁忌和规则了——让爪牙来吧，你活够本了。你反而开始享受这种无所畏惧的自由感，像一个真正的都市老灵魂。', 'age', '快乐+2，意志+1', false));
+  }
+  if (age >= 90 && age <= 110 && chance(0.03) && getFlag('urbanStar')) {
+    events.push(evt('作为一个曾经的都市之星，你在晚年选择了隐姓埋名。没有人记得你当年的赫赫威名，也没有人知道你现在就住在这个不起眼的角落里。你觉得这样很好——都市之星的光环太沉重了，老了以后，安静才是最好的归宿。', 'retire', '快乐+1', false));
+  }
+  if (age >= 95 && age <= 120 && chance(0.03)) {
+    events.push(evt('接近百岁的你在都市中已经是一个异类的存在。年轻人见到你会停下脚步，就像在动物园看到一只罕见的动物。你不在乎——在都市活了将近一个世纪，你早就不在意别人的目光了。', 'age', '', false));
+  }
+  if (age >= 100 && chance(0.04)) {
+    events.push(evt('一百岁。你站在这座都市的某个角落，回望着过去的一个世纪。烟霾战争的硝烟、白夜黑昼的光芒、图书馆的邀请函、手指的追杀……一切都像是一场漫长的梦。而你，还站在这里。', 'century', '智力+1，意志+1', true, '百岁人生'));
   }
 
   return events;
@@ -6276,6 +6610,56 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     if (cev.e.includes('wea-1')) modAttr('wea', -1);
   }
 
+  // ===== 幼年期日常补充 =====
+  if (age >= 0 && age <= 2 && chance(0.08)) {
+    events.push(evt('你在襁褓中听到了远处的爆炸声。那是后巷帮派火并的声音。你大哭起来，母亲用疲惫的双臂紧紧抱着你，低声说：没事的，没事的。', 'baby', '', false));
+  }
+  if (age >= 1 && age <= 3 && chance(0.06) && bp === 'nest') {
+    events.push(evt('你在巢内的育婴室中度过了大部分时间。恒温系统维持着完美的温度，自动摇篮轻轻摇晃。巢内的孩子在出生那一刻就与后巷的孩子站在了不同的起跑线上——尽管他们还什么都不懂。', 'baby', '智力+1', false));
+  }
+  if (age >= 2 && age <= 4 && chance(0.06) && bp === 'backstreet') {
+    events.push(evt('后巷的孩子从小就学会了安静。哭声太大的婴儿会引来不该注意的目光。你在混乱的声响中渐渐学会了不哭泣——这不是勇敢，而是生存的本能。', 'survival', '意志+1', false));
+  }
+  if (age >= 3 && age <= 5 && chance(0.05)) {
+    var firstWords = ['妈妈', '爸爸', '眼', '不要', '怕'];
+    var fw = firstWords[Math.floor(Math.random() * firstWords.length)];
+    events.push(evt('你学会了说话。你的第一个词是"' + fw + '"。家人对此反应各异——在后巷，学会说"不要"的孩子往往能活得更久。', 'grow', '智力+1', false));
+  }
+  if (age >= 3 && age <= 6 && chance(0.05) && bp === 'east') {
+    events.push(evt('你在东部的庭院中玩耍。穿着传统服饰的长辈看着你，低声讨论着你的天赋。东部的孩子从小就浸润在古典文化的氛围中，武术、书法、诗词——这些在西部人看来过时的东西，在这里是生存的基本功。', 'culture', '智力+1', false));
+  }
+  if (age >= 4 && age <= 6 && chance(0.06) && !getFlag('child_first_injury')) {
+    setFlag('child_first_injury', true);
+    events.push(evt('你在玩耍时受了第一次伤。在后巷，没有消毒水和绷带这种奢侈品。伤口在疼痛中慢慢结痂，你学会了忍受痛苦——这将是你在都市生存中最有用的技能之一。', 'wound', '体质+1，意志+1', false));
+  }
+  if (age >= 4 && age <= 6 && chance(0.05) && bp === 'north') {
+    events.push(evt('北部的冬天格外漫长。你裹着厚厚的绒袄，看着窗外的雪花飘落。大人们说北方的寒冷不是天气，而是这片土地对你的考验——通过了，你就是北方人。', 'weather', '体质+1', false));
+  }
+  if (age >= 5 && age <= 6 && chance(0.06)) {
+    events.push(evt('你在电视上看到了关于收尾人的节目。屏幕上的收尾人挥舞着武器，击败了强大的敌人。你兴奋地挥舞着玩具剑，宣布自己将来要成为最厉害的收尾人。大人们相视苦笑——在这个都市里，每个孩子都有过这样的梦想。', 'dream', '', false));
+  }
+  if (age >= 5 && age <= 6 && chance(0.05) && gameState.happiness < -2) {
+    events.push(evt('你的家庭并不幸福。在都市中，有很多孩子和你一样——在破碎的家庭中长大。后巷的压力足以压垮最坚强的大人，而孩子往往是最先被牺牲的。你学会了不去期待什么，因为期待只会带来失望。', 'family', '意志+1', false));
+  }
+  if (age >= 3 && age <= 6 && chance(0.04) && bp === 'south') {
+    events.push(evt('南部的阳光总是很刺眼。你在大湖的海风长大，空气中有咸味和铁锈味。远处的海面上偶尔可以看到巨大的阴影——大人们告诉你那是鲸鱼人，不要靠近海边。', 'culture', '体质+1', false));
+  }
+  if (age >= 4 && age <= 6 && chance(0.04) && bp === 'west') {
+    events.push(evt('西部的小镇上经常能看到穿着铠甲巡逻的收尾人。他们骑着机械马，看起来像是中世纪的骑士。你追在后面跑，想要摸一摸那闪闪发光的铠甲，但收尾人只是沉默地走远了。', 'culture', '', false));
+  }
+  if (age >= 2 && age <= 5 && chance(0.03) && gameState.happiness < -5) {
+    events.push(evt('你经常一个人待在家里。大人们忙于生计，没有时间照顾你。你对着墙壁说话，把影子当作朋友。在都市的后巷，有很多像你一样被遗忘的孩子。', 'lonely', '意志-1', false));
+  }
+  if (age >= 5 && age <= 6 && chance(0.04)) {
+    events.push(evt('你在街角遇到了一个神秘的老人。他蹲下来看着你，说：你的眼睛里有光。不要让这个都市把它磨灭掉。然后他转身消失在人群中。你不太明白他的意思，但那句话一直留在了你的记忆中。', 'encounter', '智力+1', false));
+  }
+  if (age >= 4 && age <= 6 && chance(0.04) && bp === 'backstreet') {
+    events.push(evt('你在后巷的垃圾桶旁边找到了一个破旧的玩具。对一个后巷的孩子来说，这是稀世珍宝。你小心翼翼地把它藏在了自己的秘密基地里——那是你唯一拥有的东西。', 'life', '快乐+1', false));
+  }
+  if (age >= 5 && age <= 6 && chance(0.03) && bp === 'nest') {
+    events.push(evt('巢内的幼儿园里，你第一次接触到了关于奇点科技的启蒙教育。老师用简单的话解释了什么是『奇点』——一种如同神迹般的技术。你听得云里雾里，但觉得这个世界的魔法比你想象的还要多。', 'edu', '智力+1', false));
+  }
+
   return events;
 }
 
@@ -6387,6 +6771,58 @@ function generateTeenEvents(age, a, f, bp, tags) {
     ];
     events.push(evt(pick(schoolEvents), 'backstreet_school', '智力+1', false));
     modAttr('int', 1);
+  }
+
+  // ===== 老师教导事件 =====
+  // 老师讲述都市禁忌
+  if (age >= 7 && age <= 12 && chance(0.06) && !getFlag('teacher_taboo')) {
+    setFlag('teacher_taboo', true);
+    events.push(evt('老师在课堂上严肃地讲述了都市的禁忌：枪械限制、克隆人限制、非人知性体限制、后巷深宵。『这些是首脑制定的铁律，违反者将面临爪牙的处刑。』老师的声音中带着一丝恐惧。你第一次意识到，你生活的世界远比你想象的更加脆弱。', 'edu', '智力+1', false, '都市禁忌课'));
+  }
+  // 老师讲述翼公司
+  if (age >= 8 && age <= 14 && chance(0.06) && !getFlag('teacher_wings')) {
+    setFlag('teacher_wings', true);
+    events.push(evt('老师在课上介绍了几大翼公司：T公司的钟表让时间可以被压缩，K公司的再生安瓿可以治愈几乎任何伤势，W公司的列车可以撕裂空间进行运输。每一家翼公司的奇点都像是神迹——但老师说，这些奇迹的代价，没有人真正知道。', 'edu', '智力+2', false, '翼公司课'));
+  }
+  // 老师讲述后巷与巢
+  if (age >= 9 && age <= 15 && chance(0.05) && !getFlag('teacher_nest')) {
+    setFlag('teacher_nest', true);
+    events.push(evt('老师解释了巢与后巷的区别：巢是翼公司管辖的安全地带，生活在那里意味着稳定和秩序；后巷则是巢与巢之间的灰色地带，没有法律保护，弱肉强食。老师轻声补充了一句：『你们中的大多数人，将来会生活在后巷。』教室里沉默了很久。', 'edu', '智力+1，意志-1', false, '巢与后巷课'));
+  }
+  // 老师讲述收尾人
+  if (age >= 10 && age <= 16 && chance(0.05) && !getFlag('teacher_fixer')) {
+    setFlag('teacher_fixer', true);
+    events.push(evt('老师讲述了收尾人的世界：从一阶到九阶，从普通到色彩级。收尾人是都市中解决各种委托的职业，从找猫到暗杀无所不包。老师提到了传说中的殷红迷雾、漆黑噤默……下课时，几个同学已经开始讨论以后要当收尾人了。', 'edu', '武器+1，智力+1', false, '收尾人课'));
+  }
+  // 老师讲述手指
+  if (age >= 11 && age <= 17 && chance(0.05) && !getFlag('teacher_fingers')) {
+    setFlag('teacher_fingers', true);
+    events.push(evt('老师压低声音讲道：『拇指、食指、中指、环指、小指——五指，控制着后巷的一切。』他逐一介绍了每个手指的特征——拇指是暴力与控制、食指是指令与服从、中指是勒索与残忍、环指是艺术与疯狂、小指是神秘与未知。这堂课结束后，你对后巷有了全新的恐惧。', 'edu', '智力+1', false, '五指课'));
+  }
+  // 老师讲述协会
+  if (age >= 12 && age <= 18 && chance(0.05) && !getFlag('teacher_assoc')) {
+    setFlag('teacher_assoc', true);
+    events.push(evt('老师介绍了都市中的协会系统：Zwei、Liu、Qi、Cinq、Shi、Seven、Hana、Neco、Tres……每个协会都由一名色彩级收尾人领导，下辖多个科室，负责特定类型的委托。老师特别提到了Shi协会和S巢的推奴人——那些负责管理奴婢的禁忌猎人。', 'edu', '智力+2', false, '协会课'));
+  }
+  // 老师讲述首脑·眼线·爪牙
+  if (age >= 13 && age <= 18 && chance(0.05) && !getFlag('teacher_abc')) {
+    setFlag('teacher_abc', true);
+    events.push(evt('这是最重要的一课。老师讲述了A公司——首脑，B公司——眼线，C公司——爪牙。三家公司构成了都市秩序的基础。首脑制定禁忌、眼线负责监控、爪牙负责执行。没有人见过他们，但所有人都知道他们的存在。老师说：『在这个都市里，真正的统治者只有一个。』', 'edu', '智力+2', false, 'ABC公司课'));
+  }
+  // 老师讲述货币与经济
+  if (age >= 10 && age <= 16 && chance(0.04) && !getFlag('teacher_money')) {
+    setFlag('teacher_money', true);
+    events.push(evt('老师解释了都市的经济体系：货币名为『眼』，是都市内唯一的一般等价物，购买力大致相当于现实中的韩元。三枚眼就能买到一顿简陋的饭菜。老师说：『在这个都市里，连时间和运气都无法与眼比拟。』你低头看了看口袋里空空的手，沉默不语。', 'edu', '智力+1', false, '货币课'));
+  }
+  // 老师讲述地理
+  if (age >= 11 && age <= 17 && chance(0.05) && !getFlag('teacher_geo')) {
+    setFlag('teacher_geo', true);
+    events.push(evt('老师在黑板上画出了都市的地图：以螺旋状排列的25个地区，正中心是A巢。南部临海，海域名为大湖。北部寒冷。都市外围有高墙限制郊区与都市之间的人口流动。郊区之外，是超越人类理解的未知领域——存在着被称为『星星』的存在。你第一次意识到，都市是多么渺小。', 'edu', '智力+2', false, '地理课'));
+  }
+  // 老师讲述都市人口
+  if (age >= 12 && age <= 18 && chance(0.04) && !getFlag('teacher_pop')) {
+    setFlag('teacher_pop', true);
+    events.push(evt('老师在课上提到了一个令人窒息的数字：都市的总人口大约六十四亿。六十四亿人生活在30528平方公里的土地上，如果不算空间扭曲技术实际扩展的面积。平均每平方公里两万多人。你第一次意识到，你只是这六十四亿中的微不足道的一个。', 'edu', '智力+1', false, '人口课'));
   }
 
   // 第一次目击异想体/深宵/清道夫
@@ -6987,8 +7423,8 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
     }
   }
 
-  // 烟霾战争事件
-  if (age >= 22 && age <= 26 && chance(0.06) && !hasMilestone('烟霾战争')) {
+  // 烟霾战争事件（时序约束：必须在脑叶公司成立之前，且未被阻断）
+  if (age >= 22 && age <= 26 && chance(0.06) && !hasMilestone('烟霾战争') && !getFlag('lCorpFounded') && !getFlag('blockSmokeWar')) {
     events.push(
       evt(
         '烟霾战争爆发了。你被征召入伍，被迫卷入翼公司之间的战争。',
@@ -7148,8 +7584,8 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
     }
   }
 
-  // 白夜黑昼
-  if (age >= 25 && age <= 30 && chance(0.06) && !hasMilestone('白夜黑昼')) {
+  // 白夜黑昼（时序约束：必须在脑叶公司成立之后，且未被阻断）
+  if (age >= 25 && age <= 30 && chance(0.06) && !hasMilestone('白夜黑昼') && getFlag('lCorpFounded') && !getFlag('blockWhiteNight')) {
     events.push(
       evt(
         '白夜黑昼降临了。三天极昼，四天极夜。太阳不再落下，然后永不再升起。整个都市陷入了混乱。',
@@ -7182,8 +7618,8 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
     }
   }
 
-  // 图书馆邀请函
-  if (age >= 22 && chance(0.05) && !hasMilestone('图书馆邀请函')) {
+  // 图书馆邀请函（时序约束：必须在白夜黑昼之后，且未被阻断）
+  if (age >= 22 && chance(0.05) && !hasMilestone('图书馆邀请函') && getFlag('whiteNightEvent') && !getFlag('blockLibrary')) {
     events.push(
       evt(
         '一封金色的邀请函出现在你的面前。上面写着：「都市的来宾，图书馆邀请您。」署名是安吉拉。',
@@ -7521,6 +7957,146 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
     if (yev.e.includes('wea-1')) modAttr('wea', -1);
   }
 
+  // ===== 手指税收事件 =====
+  // 拇指保护费
+  if (age >= 19 && chance(0.06) && !getFlag('thumb_protection') && (bp === 'backstreet' || isGang())) {
+    setFlag('thumb_protection', true);
+    events.push(evt('拇指的保护费账单送到了你的面前。作为后巷居民，你必须按期向拇指缴纳奉纳——保护费或相关任务。金额高得离谱，但你别无选择：不缴纳的下场，是拇指的肃清。', 'tax', '家境-2', true, '拇指保护费'));
+  }
+  // 拇指未缴纳后果
+  if (age >= 20 && getFlag('thumb_protection') && !getFlag('thumb_fail') && chance(0.04)) {
+    setFlag('thumb_fail', true);
+    if (a.wea >= 6) {
+      events.push(evt('你未能按时缴纳拇指的保护费。拇指的打手们找上了门，但在一番战斗后，你侥幸击退了他们。不过你知道，这只是暂时的——他们还会再来，而且会带更多的人。', 'combat', '武器+1', true, '拇指追讨'));
+    } else {
+      events.push(evt('你未能按时缴纳拇指的保护费。拇指的打手们找上了门，你被打得半死不活，所有积蓄被洗劫一空。从那以后，你再也不敢拖欠哪怕一分钱的奉纳。', 'wound', '体质-2，家境-1', true, '拇指肃清'));
+    }
+  }
+  // 食指指令
+  if (age >= 20 && chance(0.05) && !getFlag('index_finger_order') && (bp === 'backstreet' || bp === 'south')) {
+    setFlag('index_finger_order', true);
+    var orders = ['将你所在街区的所有居民名单上交给代行者', '在三天内完成一次特定的物资搬运任务', '交出你最近交易的所有记录'];
+    var orderText = orders[Math.floor(Math.random() * orders.length)];
+    events.push(evt('食指的代行者出现在你面前，下达了一条指令：' + orderText + '。在食指的势力范围内，所有人都必须完成获得的指令。否则——代行者会带队按照指令处理你。你颤抖着答应了。', 'tax', '', true, '食指指令'));
+  }
+  // 中指保护费勒索者
+  if (age >= 21 && chance(0.05) && !getFlag('middle_finger_extortion') && bp === 'backstreet') {
+    setFlag('middle_finger_extortion', true);
+    events.push(evt('你所在的后巷区域出现了中指设置的保护费勒索者。他们替中指索取居民的财富，态度傲慢而暴力。有人试图反抗，结果被中指残忍地处决了——尸体悬挂在街口作为警示。你默默地交出了钱财。', 'tax', '家境-2', true, '中指勒索'));
+  }
+  // 中指杀死勒索者的后果
+  if (age >= 22 && getFlag('middle_finger_extortion') && !getFlag('middle_finger_kill') && chance(0.03)) {
+    setFlag('middle_finger_kill', true);
+    if (a.con >= 7 && a.wea >= 5) {
+      events.push(evt('你无法忍受中指勒索者的行径，一怒之下杀死了他。然而，第二天中指的处刑队就到了——他们对整个街区进行了屠戮。你侥幸逃脱，但从那以后，中指在你的名字上画了一个红色的圈。', 'danger', '体质-1，武器+1', true, '杀死中指勒索者'));
+    } else {
+      events.push(evt('你曾目睹有人试图杀死中指的勒索者。第二天，中指的处刑队就到了，将那个勇敢的人和所有目击者一并残忍处决。你选择了沉默和遗忘。', 'witness', '意志-1', true));
+    }
+  }
+  // 环指艺术考试
+  if (age >= 19 && chance(0.06) && !getFlag('ring_finger_exam') && bp === 'backstreet') {
+    setFlag('ring_finger_exam', true);
+    events.push(evt('环指的年度艺术考试到来了。在环指的领地上，所有居民必须定期参加——作品获得C+以上的评价才能继续居住。你绞尽脑汁地创作，用你能找到的一切素材……在都市的某些角落，『素材』本身就是最残酷的考验。', 'tax', '', true, '环指艺术考试'));
+  }
+  // 环指艺术考试不及格
+  if (age >= 20 && getFlag('ring_finger_exam') && !getFlag('ring_finger_fail') && chance(0.06)) {
+    setFlag('ring_finger_fail', true);
+    if (a.int >= 6) {
+      events.push(evt('你的艺术作品勉强获得了C+的评价——刚好及格。环指的考官面无表情地在你的档案上盖了章。你松了一口气，但你知道，下次考试也许就没有这么幸运了。在环指的领地，艺术不是创作，而是生存。', 'survive', '智力+1', true, '环指考试及格'));
+    } else {
+      events.push(evt('你的艺术作品只获得了D——不及格。这是你第一次被给予警告。环指的考官冷冷地告诉你：第二次不及格，你将失去环指的保护。第三次……你不敢想象。你必须想办法提高自己的作品水平。', 'warning', '家境-1', true, '环指考试警告'));
+    }
+  }
+
+  // ===== 都市教育事件 =====
+  // 巢的大学考试
+  if (age >= 18 && age <= 19 && chance(0.08) && !getFlag('nest_exam')) {
+    setFlag('nest_exam', true);
+    if (a.int >= 7) {
+      events.push(evt('巢的年度大学能力考试——决定大部分都市人命运的一刻。你坐在考场中，面对着改变人生的试卷。成绩公布后，你获得了巢内大学的录取资格。这几乎意味着你拥有了进入翼公司的最低条件——但学费和生活费仍然是一笔沉重的负担。', 'exam', '智力+1，家境+1', true, '巢大学录取'));
+    } else if (a.int >= 4) {
+      events.push(evt('巢的大学能力考试结束了。你的成绩不够理想，只能去后巷的大学。在那里，无论你付出多少努力，最终都一事无成。后巷大学的文凭在巢内不值一文——这是都市残酷的现实。', 'exam', '', false, '后巷大学'));
+    } else {
+      events.push(evt('你甚至没有通过巢的大学能力考试的基本门槛。从那一刻起，你的命运几乎被注定了——后巷的生活、帮派的争斗、永无止境的挣扎。你的家庭因为教育的失败而背上了沉重的精神压力。', 'exam', '家境-2，意志-1', true, '考试落榜'));
+    }
+  }
+  // 教育压力
+  if (age >= 7 && age <= 16 && chance(0.05) && !getFlag('edu_pressure')) {
+    setFlag('edu_pressure', true);
+    events.push(evt('你的家庭因为教育而承受着巨大的精神压力。每一场考试都关系着能不能进入巢的大学，能不能拥有进入翼公司的资格。父母的期望如同一座大山压在你的肩上。在都市的某些地区，教育甚至导致了集体性的扭曲。', 'stress', '意志-1，智力+1', false));
+  }
+  // 线上教育
+  if (age >= 10 && chance(0.04) && !getFlag('online_edu') && a.int >= 4) {
+    setFlag('online_edu', true);
+    events.push(evt('都市存在稳定的线上教育系统。你通过网络课程学习到了许多巢内学校才会教授的知识。虽然线上教育的含金量不如巢内大学，但对于后巷居民来说，这已经是弥足珍贵的机会了。', 'edu', '智力+1', false));
+  }
+  // 家族产业教育
+  if (age >= 12 && chance(0.03) && !getFlag('family_edu') && gameState.happiness < -3) {
+    setFlag('family_edu', true);
+    events.push(evt('你所在的帮派/家族内部有专门的教育体系。虽然不像巢内学校那样系统，但你从中学到了许多在都市生存不可或缺的技能——战斗、谈判、信息搜集。这些技能在后巷远比数学和文学有用。', 'edu', '武器+1，智力+1', false));
+  }
+
+  // ===== 都市娱乐事件 =====
+  // 饮食文化
+  if (age >= 15 && chance(0.04) && !getFlag('food_culture')) {
+    setFlag('food_culture', true);
+    if (bp === 'nest') {
+      events.push(evt('你在巢内的高级餐厅享用了一顿晚餐。菜品精美得如同艺术品，但价格足以与后巷居民半年的住房相当。在巢内，这就是日常——上流社会的餐桌上，一盘菜与一栋后巷公寓等价是司空见惯的事情。', 'food', '快乐+1', false));
+    } else if (bp === 'district_23') {
+      events.push(evt('你在二十三区的一家餐馆用餐。在这里，任何食材都能公然贩卖与烹饪——普通的人肉已经是其中相对容易接受的类别。你选择不去想盘子里的东西究竟是什么，只是默默地吃完了这顿饭。', 'food', '体质-1，意志-1', false, '二十三区用餐'));
+    } else {
+      events.push(evt('后巷的一家快餐店，火腿嘭嘭的三明治是你的午餐。虽然简陋，但能填饱肚子。在都市中，美食花样繁复，但对于后巷居民来说，能吃饱已经是最大的奢侈了。', 'food', '体质+1', false));
+    }
+  }
+  // 游戏与赌博
+  if (age >= 16 && chance(0.04) && !getFlag('urban_game')) {
+    setFlag('urban_game', true);
+    if (a.int >= 6 && a.wil >= 5) {
+      events.push(evt('你参加了一场后巷的地下扑克大赛。从花扎扑克到麻将，都市中几乎没什么游戏是找不到的。但问题是——都市的许多游戏都与参与者的身家性命挂钩。你凭借聪明才智赢了一笔可观的奖金，但也惹来了不少嫉妒的目光。', 'game', '家境+1', false, '地下扑克'));
+    } else {
+      events.push(evt('你在一款电子游戏中投入了大量的时间和金钱。从手机直播到线上对战，都市的电子游戏产业已经普及到了后巷。但游戏的代价有时远超你的想象——有人因为游戏负债累累，最终走上了不归路。', 'game', '家境-1，快乐+1', false));
+    }
+  }
+  // 收尾人亚文化
+  if (age >= 14 && age <= 25 && chance(0.04) && !getFlag('fixer_culture')) {
+    setFlag('fixer_culture', true);
+    events.push(evt('以收尾人为主题的亚文化在都市中颇为兴盛。传奇收尾人被制作成了各种各样的影片和专属周边，宛如现实中的偶像。你收藏了一些色彩级收尾人的纪念品——就连某些手指成员也乐在其中。都市的娱乐文化就是这样荒诞。', 'culture', '快乐+1', false));
+  }
+  // 药物滥用：烟气
+  if (age >= 18 && chance(0.04) && !getFlag('smoke_substance') && bp === 'backstreet') {
+    setFlag('smoke_substance', true);
+    events.push(evt('烟气——都市中长期存在、能作为武器使用的物质。你在后巷接触到了这种东西，它会同时影响你的精神和肉体。吸食后的一瞬间，世界变得柔和而美好；但清醒之后，你发现自己的体质和精神都变得更差了。', 'drug', '体质-1，意志-1，快乐+1', false, '烟气吸食'));
+  }
+  // 药物滥用：脑啡肽
+  if (age >= 20 && chance(0.03) && !getFlag('cognitope_use') && bp === 'backstreet') {
+    setFlag('cognitope_use', true);
+    if (a.wil >= 6) {
+      events.push(evt('有人在黑市上向你推销脑啡肽——脑叶公司时代的遗物。据说它能带来精神的安定，但会腐蚀肉体。你忍住了诱惑。在都市中，太多的诱惑最终导向毁灭。', 'resist', '', false));
+    } else {
+      events.push(evt('你服用了脑啡肽——本应用作能源的物质。精神安定的同时，你的肉体开始腐蚀。皮肤变得苍白，四肢变得虚弱。你知道这在白夜黑昼后并不罕见——太多人在用这种方式逃避都市的现实。', 'drug', '意志+1，体质-2', false, '脑啡肽服用'));
+    }
+  }
+  // 玻璃窗接触
+  if (age >= 22 && chance(0.03) && !getFlag('glass_window_contact') && getFlag('whiteNightEvent')) {
+    setFlag('glass_window_contact', true);
+    events.push(evt('黑市上出现了被称为玻璃窗的物品——基于九人会的发明，能让人感受其他世界。白夜黑昼后，这类技术在见不得光的交易中流通。你远远地看了一眼，感受到一种令人不安的诱惑。卖家在低声推销：『只要试一次，你就能忘记一切烦恼。』', 'item', '', false, '玻璃窗接触'));
+  }
+  // 经验罐头
+  if (age >= 20 && chance(0.03) && !getFlag('exp_can')) {
+    setFlag('exp_can', true);
+    events.push(evt('N公司在都市广泛售卖『经验罐头』——能让人获得一段极为可信的记忆。你听说有人因为过度使用经验罐头而逐渐迷失了自己真正经历的事件。真实的和虚假的记忆交织在一起，再也无法分辨。你决定远离这种东西。', 'item', '', false, '经验罐头'));
+  }
+  // 书籍与影片
+  if (age >= 12 && chance(0.04) && !getFlag('book_culture')) {
+    setFlag('book_culture', true);
+    events.push(evt('都市中存在着各式各样的书籍报刊、电影和电视剧。在帮派和企业的内部，有专门为成员分发的闲暇读物。你偶然翻到了一本关于收尾人传奇故事的杂志，上面记载着殷红迷雾的传说、漆黑噤默的事迹……这些故事让你对都市有了更深的理解。', 'culture', '智力+1', false));
+  }
+  // 都市语言
+  if (age >= 8 && age <= 12 && chance(0.05) && !getFlag('city_language')) {
+    setFlag('city_language', true);
+    events.push(evt('都市内部存在着十几种通用语言。尽管各地区有着各自的方言，但所有都市居民都可以几乎没有阻碍地相互交流。不过有些语言至今无法被理解——比如清道夫特有的嘶嘶声。你在成长过程中逐渐掌握了多种语言的 basics。', 'culture', '智力+1', false));
+  }
+
   return events;
 }
 
@@ -7652,7 +8228,20 @@ function endSimulation() {
   if (gameState.simTimer) clearTimeout(gameState.simTimer);
   const ctrl = document.getElementById('sim-controls');
   ctrl.classList.remove('hidden');
-  ctrl.innerHTML = '<button class="btn btn-sm btn-gold" onclick="showResults()" style="font-size:1.1em;padding:12px 32px;">查看人生总结</button>';
+  ctrl.innerHTML = '<div class="sim-loading-wrap"><div class="sim-loading-bar"><div class="sim-loading-progress" id="sim-loading-progress"></div></div><div class="sim-loading-text" id="sim-loading-text">正在整理人生档案...</div></div>';
+  const progressBar = document.getElementById('sim-loading-progress');
+  const loadingText = document.getElementById('sim-loading-text');
+  requestAnimationFrame(function() { if (progressBar) progressBar.style.width = '100%'; });
+  var texts = ['正在整理人生档案...', '正在计算成就...', '正在生成人生总结...'];
+  var textIdx = 0;
+  var textInterval = setInterval(function() {
+    textIdx = (textIdx + 1) % texts.length;
+    if (loadingText) loadingText.textContent = texts[textIdx];
+  }, 800);
+  setTimeout(function() {
+    clearInterval(textInterval);
+    ctrl.innerHTML = '<button class="btn btn-sm btn-gold" onclick="showResults()" style="font-size:1.1em;padding:12px 32px;">查看人生总结</button>';
+  }, 2500);
 }
 
 // =============================
@@ -10720,10 +11309,216 @@ function timelineEvents(age) {
   const currentYear = gameState.birthYear + age;
   if (getFlag("timeline_" + currentYear)) return; // 同一年不重复触发
 
-  //  pianoist ~957
-  if (currentYear === 957 && !getFlag("pianistEventFired")) {
+  // pianoist ~957 (removed, now handled in chronological order below)
+
+
+  // ===== 按月亮计划官方时间线排列的历史事件 =====
+  // 时间线：远古 → 血魔之战 → 卡门时代 → 烟霾战争 → 脑叶公司 → 白夜黑昼 → 图书馆 → 二次白夜 → 边狱公司
+
+  // --- 远古时代 (birthYear ~ 785-800) ---
+  // 河流的传说
+  if (currentYear >= 786 && currentYear <= 790 && !getFlag("riverLegend") && chance(0.03)) {
+    setFlag("riverLegend", true);
+    addEvent({ text: "你在古老的文献残片中读到了一段不可思议的文字——在世界的最底层，有一条古老的暗流。它或许无始无终，或许生死并存，是万事万物的源头。没有人知道这是传说还是真相。", effect: "lore", effText: "", major: true, milestone: "河流的传说" });
+    addMilestone("河流的传说");
+    return;
+  }
+
+  // 星星的俯瞰
+  if (currentYear >= 788 && currentYear <= 793 && !getFlag("starGaze") && chance(0.02)) {
+    setFlag("starGaze", true);
+    addEvent({ text: "都市的郊区边界之外，据说有『星星』的存在。那宛若不可理解的神明，会赐予人类奇迹——以祂的方式实现人类的愿望。但除此以外，没有人知道星星究竟是什么。", effect: "lore", effText: "", major: true, milestone: "星星的俯瞰" });
+    addMilestone("星星的俯瞰");
+    return;
+  }
+
+  // 都市建立
+  if (currentYear >= 790 && currentYear <= 795 && !getFlag("cityFounded") && chance(0.05)) {
+    setFlag("cityFounded", true);
+    addEvent({ text: "A公司——首脑，B公司——眼线，C公司——爪牙。三家公司构成了都市现今的秩序基础。首脑设置了不可触碰的都市禁忌，眼线负责监控，爪牙负责执行。二十六个区域、六十多亿居民，皆在其统治之下。", effect: "lore", effText: "", major: true, milestone: "都市秩序建立" });
+    addMilestone("都市秩序建立");
+    return;
+  }
+
+  // 大观园建立
+  if (currentYear >= 792 && currentYear <= 798 && !getFlag("hongluanLegend") && chance(0.03)) {
+    setFlag("hongluanLegend", true);
+    addEvent({ text: "第八区的大观园，是鸿园家族世代经营的土地。第一任家主将自身炼制为了可以传承知识与见闻的仙皇虫，从此在每代继任家主的身上流转，使得鸿园长盛不衰。铁槛寺中，历代仙人静默地注视着这片土地。", effect: "lore", effText: "", major: true, milestone: "大观园传说" });
+    addMilestone("大观园传说");
+    return;
+  }
+
+  // 宅邸事件（血魔诞生）
+  if (currentYear >= 793 && currentYear <= 799 && !getFlag("mansionEvent") && chance(0.03)) {
+    setFlag("mansionEvent", true);
+    addEvent({ text: "很久以前，在一处宅邸浸满血液的瞬间开始，血魔诞生了。他们开始像对待金钱一样对待人类的血液，为此克制——或为此疯狂。这就是血魔的起源，没有人知道那座宅邸究竟发生了什么。", effect: "lore", effText: "", major: true, milestone: "血魔诞生" });
+    addMilestone("血魔诞生");
+    return;
+  }
+
+  // 都市英雄谭
+  if (currentYear >= 795 && currentYear <= 805 && !getFlag("heroTales") && chance(0.04)) {
+    setFlag("heroTales", true);
+    addEvent({ text: "都市465年，犀牛树大战，『清天收尾人』大获全胜。都市505年，收尾人岳飞完成了他最著名的战斗。不知何时，Zwei协会的埃葵斯带队前往大湖历险。不知何时，缃碧少女从D巢启程，成为了伟大的收尾人。这些名字在都市的角落里流传。", effect: "lore", effText: "", major: true, milestone: "都市英雄谭" });
+    addMilestone("都市英雄谭");
+    return;
+  }
+
+  // 血魔之战（约200年前）
+  if (currentYear >= 800 && currentYear <= 815 && !getFlag("bloodDemonWar") && chance(0.03)) {
+    setFlag("bloodDemonWar", true);
+    addEvent({ text: "大约二百年前，部分血魔决定与正常人类交战，战争旷日持久。然而拉曼却领长老堂吉诃德选择支持人类而参战，正常人类最终取得了胜利，将敌对的血魔驱逐和消灭。", effect: "lore", effText: "", major: true, milestone: "血魔之战" });
+    addMilestone("血魔之战");
+    return;
+  }
+
+  // 拉曼却领的建立与封闭
+  if (currentYear >= 810 && currentYear <= 830 && !getFlag("laManchaLegend") && chance(0.03)) {
+    setFlag("laManchaLegend", true);
+    addEvent({ text: "长老堂吉诃德与其子嗣开发的血棒使血魔不需吸血也能生存。由此，由血液铸就的游乐园拉·曼却领建立了。然而，当第一次事故产生受害者时，一切走向了悲剧——堂吉诃德独自面对疯狂的眷属，被钉在摩天轮底部，永远地关闭了乐园。", effect: "lore", effText: "", major: true, milestone: "拉曼却领" });
+    addMilestone("拉曼却领");
+    return;
+  }
+
+  // --- 卡门时代 ---
+  // K公司崛起（星空事件）
+  if (currentYear >= 825 && currentYear <= 840 && !getFlag("kCorpRise") && chance(0.03)) {
+    setFlag("kCorpRise", true);
+    addEvent({ text: "K公司创始人史蒂芬内特曾与无名男孩前往郊区边界探险。那个男孩因『拯救他人』的强烈渴望，在星星的注视下化为了名为『眼球』的存在——即『流泪之物』。其分泌的绿色液体，成为了日后K公司再生安瓿的根源。", effect: "lore", effText: "", major: true, milestone: "K公司崛起" });
+    addMilestone("K公司崛起");
+    return;
+  }
+
+  // T公司崛起
+  if (currentYear >= 830 && currentYear <= 845 && !getFlag("tCorpRise") && chance(0.03)) {
+    setFlag("tCorpRise", true);
+    addEvent({ text: "名为赫伯特的男人前往郊区边界，向星星许愿满足自身『停止时间』的理想。结果是——他成为了T公司的现任代表，推动了T巢每天至少拥有四个小时的福利政策。没有人知道那个愿望的代价是什么。", effect: "lore", effText: "", major: true, milestone: "T公司崛起" });
+    addMilestone("T公司崛起");
+    return;
+  }
+
+  // 卡门巡回演讲
+  if (currentYear >= 835 && currentYear <= 848 && !getFlag("carmenLecture") && chance(0.04)) {
+    setFlag("carmenLecture", true);
+    addEvent({ text: "一位名叫卡门的医生在都市中巡回演讲，她发现了一种会让人走向自我毁灭的疾病——『都市病』。她在此基础上提出了『灵魂治疗』的理论，开始在都市获得知名度，并吸引了一批志同道合的追随者。", effect: "lore", effText: "", major: true, milestone: "卡门巡回演讲" });
+    addMilestone("卡门巡回演讲");
+    return;
+  }
+
+  // 研究所初建
+  if (currentYear >= 840 && currentYear <= 852 && !getFlag("labBuilt") && chance(0.04)) {
+    setFlag("labBuilt", true);
+    addEvent({ text: "在都市郊区，因位于郊区而可尽可能规避禁忌的研究所建立了。卡门、艾因、本杰明三人成为核心，伊利亚、加百列、米切莉、双子丽萨和伊诺、乔凡尼、卡莉、丹尼尔——一群被命运牵引的人们聚集在此。", effect: "lore", effText: "", major: true, milestone: "研究所建立" });
+    addMilestone("研究所建立");
+    return;
+  }
+
+  // 殷红迷雾传说
+  if (currentYear >= 845 && currentYear <= 855 && !getFlag("redMistLegend") && chance(0.04)) {
+    setFlag("redMistLegend", true);
+    addEvent({ text: "都市中流传着『殷红迷雾』的传说。卡门将实验中偶然提取的血肉大刀赠送给了收尾人卡莉，她在使用这把怪刀的过程中觉醒了被称为『神备』的力量。单杀五个食指代行者和三个传令员、随手砍灭大规模帮派斗争——她成为了最强之人。", effect: "lore", effText: "", major: true, milestone: "殷红迷雾" });
+    addMilestone("殷红迷雾");
+    return;
+  }
+
+  // 卡门之死
+  if (currentYear >= 850 && currentYear <= 858 && !getFlag("carmenDeath") && chance(0.04)) {
+    setFlag("carmenDeath", true);
+    addEvent({ text: "卡门的研究需要人体试验，而双子中较为成熟的男孩伊诺自愿成为实验体。第一次实验命运般地失败。女孩对卡门的哭喊刺破了卡门内心最后一道防线，浑浊的几日后，卡门在浴缸中自杀。灵魂治疗的研究，陷入了漫长的停滞。", effect: "lore", effText: "", major: true, milestone: "卡门之死" });
+    addMilestone("卡门之死");
+    return;
+  }
+
+  // 加里翁袭击研究所
+  if (currentYear >= 855 && currentYear <= 862 && !getFlag("garionAttack") && chance(0.04)) {
+    setFlag("garionAttack", true);
+    addEvent({ text: "首脑——调律者加里翁带着至少两位爪牙光临了研究所。加里翁使用F公司的妖灵奇点如入无人之境，迫使丹尼尔释放了所有异想体。卡莉击杀了两位爪牙后，用生命作为代价刺穿了加里翁的胸口。幸存的艾因与本杰明保存了这位首脑几乎死亡的肉身。", effect: "lore", effText: "", major: true, milestone: "加里翁袭击" });
+    addMilestone("加里翁袭击");
+    return;
+  }
+
+  // --- 烟霾战争 ---
+  // 烟霾战争爆发
+  if (currentYear >= 858 && currentYear <= 863 && !getFlag("smogWarStart")) {
+    setFlag("smogWarStart", true);
+    addEvent({ text: "烟霾战争爆发了。野心家狄亚斯和本杰明的合作使得旧L公司的奇点机密无法被遏制地泄露，诡异烟雾包裹了L巢并不断扩展，最终覆盖了大半个都市。R公司第四集团军、前G公司、I公司、拇指等诸多势力被引诱卷入。", effect: "history", effText: "", major: true, milestone: "烟霾战争爆发" });
+    addMilestone("烟霾战争爆发");
+    return;
+  }
+
+  // 烟霾战争白热化
+  if (currentYear >= 864 && currentYear <= 869 && getFlag("smogWarStart") && !getFlag("smogWarPeak")) {
+    setFlag("smogWarPeak", true);
+    addEvent({ text: "烟霾战争进入了最惨烈的阶段。G公司出动了决战个体——蛆虫王子、飞蛾公主、苍蝇之王。T公司投放了使人急剧衰老的炸弹。拇指重新启用了前二老板瓦伦希娜。每一天都有无数人在你面前死去，天空被浓烟遮蔽，连阳光都成了奢侈品。", effect: "history", effText: "", major: true, milestone: "烟霾战争白热化" });
+    if (gameState.attrs.con < 6 && chance(0.2)) {
+      addEvent({ text: "一枚流弹击中了你的藏身之处。你没有死在敌人的手中，而是死在了战争的随机性里。", effect: "death", effText: "死亡", major: true });
+      death("烟霾战争");
+    } else {
+      modAttr("wil", -1);
+      modAttr("con", -1);
+    }
+    return;
+  }
+
+  // 烟霾战争结束
+  if (currentYear >= 870 && currentYear <= 875 && getFlag("smogWarPeak") && !getFlag("smogWarEnd")) {
+    setFlag("smogWarEnd", true);
+    addEvent({ text: "烟霾战争结束了。前L公司、前G公司等势力倒台消失，拇指成为了胜利方。烟杆造型的E.G.O持有者摩西因战争的惨剧而怀疑自己的使命，带着新人以斯拉远离了狄亚斯，成为了Seven协会的收尾人。", effect: "history", effText: "", major: true, milestone: "烟霾战争结束" });
+    setFlag("war_survivor", true);
+    return;
+  }
+
+  // 安吉拉诞生
+  if (currentYear >= 873 && currentYear <= 878 && !getFlag("angelaBorn") && chance(0.04)) {
+    setFlag("angelaBorn", true);
+    addEvent({ text: "本杰明出于安慰艾因的目的，参与了以卡门形象和部分遗留为基础的人工智能生命项目。在完工后，艾因赋予了她『安吉拉』的名字。但本杰明在与艾因产生冲突后出走，留下了安吉拉独自面对百万年的循环。", effect: "lore", effText: "", major: true, milestone: "安吉拉诞生" });
+    addMilestone("安吉拉诞生");
+    return;
+  }
+
+  // --- 脑叶公司时代 ---
+  // L公司成立
+  if (currentYear >= 878 && currentYear <= 883 && !getFlag("lCorpFounded")) {
+    setFlag("lCorpFounded", true);
+    addEvent({ text: "L公司——脑叶公司在第十二区的巢中成立了。艾因将原先保存的同伴与仇人以全义体的形式复活，安吉拉被输入了光之种剧本。地下设施完工，TT2协议成熟——一切准备就绪，光之种剧本正式开始。", effect: "history", effText: "", major: true, milestone: "L公司成立" });
+    addMilestone("L公司成立");
+    return;
+  }
+
+  // 白夜黑昼（光之种发射后，安吉拉觉醒）
+  if (currentYear >= 883 && currentYear <= 888 && getFlag("lCorpFounded") && !getFlag("whiteNightEvent")) {
+    setFlag("whiteNightEvent", true);
+    addEvent({ text: "白夜降临了。金黄的光柱照亮黑夜，向全都市散布理论上可以让每个人充分展现自我的温暖光芒。然而安吉拉在主管消弭于光芒之际开始了自主行动，部长们与安吉拉和Binah的战斗持续了三天。三天的极昼、四天的极夜深远地影响了整个都市——这就是白夜黑昼事件。", effect: "history", effText: "", major: true, milestone: "白夜黑昼" });
+    addMilestone("白夜黑昼");
+    if (gameState.attrs.wil < 7 && chance(0.2)) {
+      addEvent({ text: "白夜的声音直接在你的脑海中响起。你无法抵抗那种『拯救』的诱惑，你的理智在信仰与怀疑之间崩溃。", effect: "twist", effText: "意志-3", major: true });
+      modAttr("wil", -3);
+      if (gameState.attrs.wil <= 0) {
+        addEvent({ text: "你彻底屈服于白夜的意志，成为了又一名盲目的信徒。", effect: "death", effText: "精神崩溃", major: true });
+        death("白夜黑昼精神崩溃");
+      }
+    }
+    return;
+  }
+
+  // 图书馆建立
+  if (currentYear >= 888 && currentYear <= 893 && getFlag("whiteNightEvent") && !getFlag("libraryAppeared")) {
+    setFlag("libraryAppeared", true);
+    addEvent({ text: "L公司崩溃后，一座神秘的图书馆在废墟中拔地而起。安吉拉收获了属于自己的E.G.O——图书馆，能将设施的一切按自己意志重组的力量。她与部长们签订协议，通过邀请函邀请来宾，胜者获得书籍，输者成为书籍。", effect: "history", effText: "", major: true, milestone: "图书馆出现" });
+    addMilestone("图书馆出现");
+    // 小概率直接收到邀请函
+    if (gameState.attrs.con + gameState.attrs.int + gameState.attrs.wil >= 20 && chance(0.06)) {
+      setFlag("library_invitation", true);
+      addEvent({ text: "一封烫金的邀请函出现在你的门前。图书馆向你敞开了大门——无论那是机遇还是陷阱。", effect: "invite", effText: "收到图书馆邀请函", major: true, milestone: "收到图书馆邀请函" });
+      addMilestone("收到图书馆邀请函");
+    }
+    return;
+  }
+
+  // 钢琴家事件
+  if (currentYear >= 893 && currentYear <= 898 && getFlag("libraryAppeared") && !getFlag("pianistEventFired")) {
     setFlag("pianistEventFired", true);
-    addEvent({ text: "公元957年。钢琴师的旋律响彻了都市的南部。那不是音乐，而是死亡的安魂曲。无数人在音符中失去了生命，整片区域化为废墟。", effect: "history", effText: "", major: true, milestone: "钢琴师事件" });
+    addEvent({ text: "都市的第一起扭曲事件——钢琴家的独奏。落魄的酒吧钢琴师在被推搡离开钢琴后步入疯狂，他的旋律可以使人失去生命，成为这乐器与乐章的一部分。多达三十万人因此而死，已退休的收尾人『漆黑噤默』在已有身孕的情况下前往处理，最终死亡。", effect: "history", effText: "", major: true, milestone: "钢琴师事件" });
     addMilestone("钢琴师事件");
     // 如果玩家在南部/后巷，有死亡风险
     const bp = gameState.birthplace ? gameState.birthplace.id : 'backstreet';
@@ -10737,98 +11532,76 @@ function timelineEvents(age) {
     return;
   }
 
-  // 烟霾战争 ~878-985 (跨度很长，取关键节点)
-  if (currentYear === 878 && !getFlag("smogWarStart")) {
-    setFlag("smogWarStart", true);
-    addEvent({ text: "公元878年。烟霾战争爆发了。那是都市历史上最惨烈的冲突之一，N公司、K公司、T公司……无数势力卷入其中，后巷变成了人间地狱。", effect: "history", effText: "", major: true, milestone: "烟霾战争爆发" });
-    addMilestone("烟霾战争爆发");
+  // 南部巨变
+  if (currentYear >= 898 && currentYear <= 905 && getFlag("pianistEventFired") && !getFlag("southernUpheaval")) {
+    setFlag("southernUpheaval", true);
+    addEvent({ text: "南部陷入了大地震。被识别为『漆黑噤默』的神秘人大开杀戒，毁灭了齿轮绑架犯、傀儡研究员、南部中指的一半、拇指下属的努马诺斯集团。与此同时，特色收尾人『苍蓝残响』也在南部进行着愈发出格的活动，收集扭曲事件所演变的个体。", effect: "history", effText: "", major: true, milestone: "南部巨变" });
+    addMilestone("南部巨变");
     return;
   }
-  if (currentYear === 920 && getFlag("smogWarStart") && !getFlag("smogWarPeak")) {
-    setFlag("smogWarPeak", true);
-    addEvent({ text: "烟霾战争进入了最惨烈的阶段。你所在的城市区域被卷入了战火。每一天都有人在你面前死去，天空被浓烟遮蔽，连阳光都成了奢侈品。", effect: "history", effText: "", major: true, milestone: "烟霾战争白热化" });
-    if (gameState.attrs.con < 6 && chance(0.2)) {
-      addEvent({ text: "一枚流弹击中了你的藏身之处。你没有死在敌人的手中，而是死在了战争的随机性里。", effect: "death", effText: "死亡", major: true });
-      death("烟霾战争");
-    } else {
-      modAttr("wil", -1);
-      modAttr("con", -1);
+
+  // 图书馆插曲：爱之小镇/拇指覆灭/R公司宰杀
+  if (currentYear >= 903 && currentYear <= 912 && getFlag("southernUpheaval") && !getFlag("libraryIncidents")) {
+    setFlag("libraryIncidents", true);
+    addEvent({ text: "W列车头等舱大量乘客消失于图书馆，翼公司董事等权贵人士失踪。拇指二老板带领士兵前往图书馆后消失，剩余拇指成员被食指处以极刑。R公司渡鸦宰杀了全部第四集团军一万五千人。Zwei、Six、Seven、Hana协会南部各科先后在前往图书馆后消失。南部的大地，在颤抖。", effect: "history", effText: "", major: true, milestone: "图书馆插曲" });
+    addMilestone("图书馆插曲");
+    return;
+  }
+
+  // 二次白夜（光之种再次发射）
+  if (currentYear >= 910 && currentYear <= 918 && getFlag("libraryIncidents") && !getFlag("secondWhiteNight")) {
+    setFlag("secondWhiteNight", true);
+    addEvent({ text: "图书馆中，安吉拉的真理之书接近成型。罗兰坦白了他的复仇——是安吉拉的复仇导致了他爱人的死亡。个人对决整个图书馆的恶战开始了。最终，光之种再次发射。所有变成书的来宾将在都市中逐渐苏醒，但安吉拉也变回了之前的机械身躯。", effect: "history", effText: "", major: true, milestone: "二次白夜" });
+    addMilestone("二次白夜");
+    return;
+  }
+
+  // 最后的接待（首脑传送图书馆）
+  if (currentYear >= 915 && currentYear <= 922 && getFlag("secondWhiteNight") && !getFlag("headReception")) {
+    setFlag("headReception", true);
+    addEvent({ text: "首脑——调律者珍娜、爪牙——处刑者巴拉尔、眼线——凝视者鲁妲三人前来图书馆处理非人知性体安吉拉的问题。在与Geburah、罗兰、Binah交战后，按既定计划将整个图书馆传送离开都市，置于郊区某处。安吉拉选择继续经营图书馆，罗兰想要写一本记载自己见闻的书。", effect: "history", effText: "", major: true, milestone: "最后的接待" });
+    addMilestone("最后的接待");
+    return;
+  }
+
+  // 扭曲现象大规模爆发
+  if (currentYear >= 920 && currentYear <= 935 && !getFlag("distortionWave")) {
+    setFlag("distortionWave", true);
+    addEvent({ text: "扭曲现象在都市中大规模爆发。普通人毫无征兆地变成了怪物，负面情绪化为实体，后巷变成了噩梦的温床。各大翼公司开始正视扭曲带来的威胁。", effect: "history", effText: "", major: true, milestone: "扭曲大爆发" });
+    addMilestone("扭曲大爆发");
+    if (gameState.attrs.wil < 5 && chance(0.06)) {
+      addEvent({ text: "扭曲的波纹影响到了你。你的负面情绪开始具象化，你的影子在墙上扭曲成了不属于你的形状。", effect: "corrupt", effText: "意志-2", major: true });
+      modAttr("wil", -2);
     }
     return;
   }
 
-  // L Corp 脑叶公司成立/崩溃 ~939
-  if (currentYear === 939 && !getFlag("lCorpFounded")) {
-    setFlag("lCorpFounded", true);
-    addEvent({ text: "公元939年。L公司——脑叶公司在巢中成立了。没人知道这家公司真正的业务是什么，但所有人都知道，进入那栋建筑的人很少有能完整出来的。", effect: "history", effText: "", major: true, milestone: "L公司成立" });
-    addMilestone("L公司成立");
+  // 维吉利乌斯活跃期
+  if (currentYear >= 930 && currentYear <= 945 && !getFlag("vergiliusEra") && chance(0.03)) {
+    setFlag("vergiliusEra", true);
+    addEvent({ text: "以『银红凝视』之名为人称道的色彩级收尾人维吉利乌斯活跃在都市中。他曾参与对血红之夜的委托，以最危险的收尾人而举市闻名。然而，保育院被怪物摧毁的事件动摇了他的内心——已退休的堇紫泪滴伊织阻止了他抓住凶手。", effect: "lore", effText: "", major: true, milestone: "维吉利乌斯活跃" });
+    addMilestone("维吉利乌斯活跃");
     return;
   }
 
-  // 白夜黑昼 ~910 (WhiteNight & DarkDays)
-  if (currentYear === 910 && !getFlag("whiteNightEvent")) {
-    setFlag("whiteNightEvent", true);
-    addEvent({ text: "公元910年。白夜降临了。某个巢中出现了自称『白夜』的存在， followed by the Black Days. 信仰、疯狂、救赎与毁灭在同一天降临。", effect: "history", effText: "", major: true, milestone: "白夜黑昼" });
-    addMilestone("白夜黑昼");
-    if (gameState.attrs.wil < 7 && chance(0.2)) {
-      addEvent({ text: "白夜的声音直接在你的脑海中响起。你无法抵抗那种『拯救』的诱惑，你的理智在信仰与怀疑之间崩溃。", effect: "twist", effText: "意志-3", major: true });
-      modAttr("wil", -3);
-      if (gameState.attrs.wil <= 0) {
-        addEvent({ text: "你彻底屈服于白夜的意志，成为了又一名盲目的信徒。", effect: "death", effText: "精神崩溃", major: true });
-        death("白夜黑昼精神崩溃");
-      }
-    }
+  // 拍卖会作战
+  if (currentYear >= 940 && currentYear <= 955 && !getFlag("auctionWar") && chance(0.03)) {
+    setFlag("auctionWar", true);
+    addEvent({ text: "一次针对环指的拍卖会作战震惊了都市。维吉利乌斯的事务所试图获取环指掌握的奇点情报。然而背叛与战斗之后，环指大师占顺变为扭曲，加内特在玻璃窗技术下化为了罪孽之物。最终边狱公司LCA小队接收了环指的剩余研究资料。", effect: "lore", effText: "", major: true, milestone: "拍卖会作战" });
+    addMilestone("拍卖会作战");
     return;
   }
 
-  // 图书馆出现 ~943
-  if (currentYear === 943 && !getFlag("libraryAppeared")) {
-    setFlag("libraryAppeared", true);
-    addEvent({ text: "公元943年。L公司崩溃后，一座神秘的图书馆在废墟中拔地而起。安吉拉——那个非人的存在——开始向都市中的强者们发送烫金的邀请函。", effect: "history", effText: "", major: true, milestone: "图书馆出现" });
-    addMilestone("图书馆出现");
-    // 小概率直接收到邀请函
-    if (gameState.attrs.con + gameState.attrs.int + gameState.attrs.wil >= 20 && chance(0.06)) {
-      setFlag("library_invitation", true);
-      addEvent({ text: "一封烫金的邀请函出现在你的门前。图书馆向你敞开了大门——无论那是机遇还是陷阱。", effect: "invite", effText: "收到图书馆邀请函", major: true, milestone: "收到图书馆邀请函" });
-      addMilestone("收到图书馆邀请函");
-    }
-    return;
-  }
-
-  // 图书馆完结 ~961 (光之种发射)
-  if (currentYear === 961 && !getFlag("libraryEnded")) {
-    setFlag("libraryEnded", true);
-    addEvent({ text: "公元961年。图书馆的故事迎来了终结。光之种从图书馆的顶端射向天空，照亮了整个都市。那光芒中蕴含着救赎，也蕴含着毁灭。", effect: "history", effText: "", major: true, milestone: "光之种发射" });
-    addMilestone("光之种发射");
-    if (hasMilestone("图书馆释放者") || hasMilestone("光之种夺取者")) {
-      addEvent({ text: "你见证了光之种的发射。作为曾经踏入图书馆的人，你比任何人都更理解那光芒的意义。", effect: "blessing", effText: "意志+2", major: false });
-      modAttr("wil", 2);
-    }
-    return;
-  }
-
-  // 边狱公司 ~978
-  if (currentYear === 978 && !getFlag("limbusFounded")) {
+  // 边狱公司
+  if (currentYear >= 950 && currentYear <= 970 && !getFlag("limbusFounded")) {
     setFlag("limbusFounded", true);
-    addEvent({ text: "公元978年。边狱公司成立了。那辆名为梅菲斯托费勒斯的巴士开始在都市中穿梭，载着一群罪人前往未知的深渊。", effect: "history", effText: "", major: true, milestone: "边狱公司成立" });
+    addEvent({ text: "边狱公司成立了。由特色收尾人银红视线维吉里乌斯导游、环指实验幸存者卡戎驾驶的梅菲斯托费勒斯号巴士正载着包括失忆的管理者但丁在内的边狱公司LCB部门十三名罪人，进行着搜集金枝的工作。", effect: "history", effText: "", major: true, milestone: "边狱公司成立" });
     addMilestone("边狱公司成立");
     // 小概率成为边狱公司的罪人
     if (hasTag("边狱公司") || (gameState.attrs.con >= 6 && chance(0.06))) {
       addEvent({ text: "边狱公司找到了你。无论是因为你的罪行还是你的能力，你被选中登上了那辆巴士。从那一刻起，你的命运与十二名罪人紧紧相连。", effect: "join", effText: "成为边狱公司罪人", major: true, milestone: "边狱公司罪人" });
       addMilestone("边狱公司罪人");
       setFlag("lcb_sinner", true);
-    }
-    return;
-  }
-
-  // 扭曲现象大规模爆发 ~950
-  if (currentYear === 950 && !getFlag("distortionWave")) {
-    setFlag("distortionWave", true);
-    addEvent({ text: "公元950年。扭曲现象在都市中大规模爆发。普通人毫无征兆地变成了怪物，负面情绪化为实体，后巷变成了噩梦的温床。", effect: "history", effText: "", major: true, milestone: "扭曲大爆发" });
-    addMilestone("扭曲大爆发");
-    if (gameState.attrs.wil < 5 && chance(0.06)) {
-      addEvent({ text: "扭曲的波纹影响到了你。你的负面情绪开始具象化，你的影子在墙上扭曲成了不属于你的形状。", effect: "corrupt", effText: "意志-2", major: true });
-      modAttr("wil", -2);
     }
     return;
   }
@@ -11326,24 +12099,24 @@ function runSingularityEvents(age, a, f, bp, tags) {
     return;
   }
 
-  // ========== N公司奇点：禁止拍摄与空间折叠 ==========
+  // ========== N公司奇点：镜子与禁止拍摄 ==========
   if ((bp === 'n_nest' || hasTag('N公司')) && chance(0.08) && !getFlag('n_singularity_touched')) {
     setFlag('n_singularity_touched', true);
     const nEvents = pick([
       {
-        t: '你在N公司管辖的区域目睹了「空间折叠」——一条不到十米长的走廊，走进去却花了三个小时才出来。出口和入口明明在同一条街上，但穿过的距离是整个都市的周长。N公司的奇点科技让空间本身成为了迷宫。',
+        t: '你在N公司管辖的区域接触了被称为『镜子』的物品——它能让人感受其他世界。透过镜面，你看到了一个截然不同的都市：没有后巷，没有帮派，没有禁忌。但镜中的世界在扭曲、崩塌，最终化为漆黑。N公司的镜子奇点连接着另一个不可知的世界。',
         e: { int: 4, wil: -1 },
-        ms: 'N公司空间折叠'
+        ms: 'N公司镜子奇点'
       },
       {
-        t: '你在N公司附近偷偷拍了一张照片。闪光灯亮起的瞬间，一个穿着黑色制服的人出现在你面前——你甚至没看到他移动。「拍照是禁忌。」他面无表情地删除了照片，然后消失在你的视野中。你低头一看，你的影子不见了。三天后，影子才慢慢回来。',
+        t: '你在N公司附近偷偷拍了一张照片。闪光灯亮起的瞬间，一个穿着黑色制服的人出现在你面前——你甚至没看到他移动。『拍照是禁忌。』他面无表情地删除了照片，然后消失在你的视野中。你低头一看，你的影子不见了。三天后，影子才慢慢回来。',
         e: { wil: -3, int: 1 },
         ms: 'N公司禁忌拍照'
       },
       {
-        t: 'N公司向你展示了他们的「空间监狱」——一个外表只有一间房间大小的建筑，内部却能容纳一万人。犯人们被折叠在空间的不同层级中，互不相见，永远无法交流。你听到墙壁中有微弱的哭声。',
+        t: 'N公司的「经验罐头」出现在黑市上——能让人获得一段极为可信的记忆。你亲眼看到有人购买并使用后，脸上露出了幸福的表情，但他的眼神逐渐变得空洞。真实的与虚假的记忆交织在一起，他再也无法分辨哪段经历才是属于自己的。',
         e: { int: 3, wil: -2 },
-        ms: 'N公司空间监狱'
+        ms: 'N公司经验罐头'
       },
     ]);
     addEvent({ text: nEvents.t, effect: 'n_singularity', effText: 'N公司奇点', major: true, milestone: nEvents.ms });
@@ -11456,7 +12229,7 @@ function runSingularityEvents(age, a, f, bp, tags) {
   if (chance(0.04)) {
     const singEvents = pick([
       {
-        t: '你在黑市上发现了一份「奇点科技蓝图」，据说是某个翼公司研究员偷出来的。蓝图上画着一个装置，标注写着「空间折叠器——原型机」。你试图理解上面的公式，那些数学符号超出了你所有的知识储备，但你的直觉告诉你——这个东西一旦被制造出来，都市的规则将被改写。',
+        t: '你在黑市上发现了一份「奇点科技蓝图」，据说是某个翼公司研究员偷出来的。蓝图上画着一个装置，标注写着「空间扭曲器——原型机」。你试图理解上面的公式，那些数学符号超出了你所有的知识储备，但你的直觉告诉你——这个东西一旦被制造出来，都市的规则将被改写。',
         e: { int: 3 },
         ms: '奇点蓝图'
       },
@@ -11481,7 +12254,7 @@ function runSingularityEvents(age, a, f, bp, tags) {
         ms: '奇点展览事故'
       },
       {
-        t: '你的同事是个秘密的奇点科技研究者。他在自家车库里建造了一台「微型空间折叠装置」。成功的那一刻，他的车库消失了——连同车库里的所有东西。他的家人说他只是在车库工作，一会儿就出来。但他再也没有出来。你把车库的钥匙扔进了清道夫经过的街道。',
+        t: '你的同事是个秘密的奇点科技研究者。他在自家车库里建造了一台「微型空间扭曲装置」。成功的那一刻，他的车库消失了——连同车库里的所有东西。他的家人说他只是在车库工作，一会儿就出来。但他再也没有出来。你把车库的钥匙扔进了清道夫经过的街道。',
         e: { int: 3, wil: -2 },
         ms: '车库奇点事故'
       },
@@ -12414,6 +13187,7 @@ function getTimeCrackExplanation(age) {
 // =============================
 function runSpecialFixerEvents(age) {
   if (!gameState.alive || gameState.dead) return;
+  if (gameState.ageEventCount && gameState.ageEventCount[age] >= 3) return;
   // 事件冷却机制：初始化冷却对象
   if (!gameState.eventCooldown) gameState.eventCooldown = {};
   // 辅助函数：检查事件是否在冷却中
@@ -12717,6 +13491,7 @@ function runSpecialFixerEvents(age) {
 // =============================
 function runRatFingerFixerEvents(age) {
   if (!gameState.alive || gameState.dead) return;
+  if (gameState.ageEventCount && gameState.ageEventCount[age] >= 3) return;
   if (!gameState.eventCooldown) gameState.eventCooldown = {};
   function isOnCooldown(eventKey, cooldownYears) {
     const lastTrigger = gameState.eventCooldown[eventKey];
@@ -13169,10 +13944,231 @@ function runRatFingerFixerEvents(age) {
 }
 
 // =============================
+// 世界观时间线事件路线（12条路线）
+// =============================
+function runWorldLoreChainEvents(age) {
+  if (!gameState.alive || gameState.dead) return;
+  var a = gameState.attrs;
+
+  // === 1. 大观园路线 ===
+  if (age >= 10 && age <= 15 && !getFlag('hongluan_enter') && chance(0.04)) {
+    setFlag('hongluan_enter', true);
+    addEvent({ text: '你偶然踏入了第八区的大观园。华美的庭院中弥漫着奇异的香气，身穿华服的人们用异样的目光打量着你。一个老者低声告诉你：『鸿园的每一步棋，都关系着千万人的命运。』', effect: 'lore', effText: '智力+1', major: true, milestone: '进入鸿园' });
+    modAttr('int', 1);
+  }
+  if (age >= 18 && age <= 25 && getFlag('hongluan_enter') && !getFlag('hongluan_feast') && chance(0.06)) {
+    setFlag('hongluan_feast', true);
+    addEvent({ text: '鸿园举办了一场盛大的宴会。你看到了孔家的年轻天才们在展示制药成果，而史家的后裔们则面色不善地坐在角落。空气中弥漫着暗流涌动的紧张气息——鸿园的家主之位，似乎并不安稳。', effect: 'lore', effText: '', major: true, milestone: '鸿园宴会' });
+  }
+  if (age >= 28 && age <= 40 && getFlag('hongluan_feast') && !getFlag('hongluan_power') && chance(0.06)) {
+    setFlag('hongluan_power', true);
+    if (a.int >= 7) {
+      addEvent({ text: '史觅音——那个出身贫寒的天才——在鸿园家主评选中意外胜出，孔家灭门的因果已被种下。你亲眼见证了这场权力的更迭，大观园的格局从此改变。', effect: 'lore', effText: '智力+1', major: true, milestone: '鸿园易主' });
+      modAttr('int', 1);
+    } else {
+      addEvent({ text: '鸿园传来了家主更迭的消息。据说一个贫寒的天才击败了所有候选人，但没有人知道背后的真相。', effect: 'lore', effText: '', major: true });
+    }
+  }
+
+  // === 2. 血魔拉曼却路线 ===
+  if (age >= 15 && age <= 20 && !getFlag('lamancha_visit') && chance(0.03)) {
+    setFlag('lamancha_visit', true);
+    addEvent({ text: '你收到了一份来自拉·曼却领的邀请——一个由血液铸就的游乐园。在那里，血魔们以血棒技术维持生存，表面上与人类和谐共处。你看到了乐园中洋溢的笑容，但总觉得有什么不对。', effect: 'lore', effText: '', major: true, milestone: '拉曼却领参观' });
+  }
+  if (age >= 25 && age <= 35 && getFlag('lamancha_visit') && !getFlag('lamancha_truth') && chance(0.06)) {
+    setFlag('lamancha_truth', true);
+    addEvent({ text: '拉·曼却领的真相终于浮出水面——乐园因第一次事故产生受害者后走向了毁灭。堂吉诃德独自面对疯狂的眷属，被钉在摩天轮底部，永远地关闭了乐园。你感到一阵寒意：那些笑容背后，究竟隐藏着怎样的渴望？', effect: 'lore', effText: '意志+1', major: true, milestone: '拉曼却领真相' });
+    modAttr('wil', 1);
+  }
+
+  // === 3. 卡门研究所路线（时序约束：烟霾战争阻断） ===
+  if (age >= 20 && age <= 28 && !getFlag('carmen_meet') && !getFlag('blockCarmenEra') && chance(0.02)) {
+    setFlag('carmen_meet', true);
+    addEvent({ text: '你在都市的街头遇到了一位名叫卡门的医生。她的眼神中带着一种近乎执着的热情：『都市病正在蔓延，一种会让人走向自我毁灭的疾病。你愿意加入我的研究吗？』你被她的热情所打动，决定跟随她前往郊区的研究所。', effect: 'join', effText: '智力+2，加入研究所', major: true, milestone: '遇到卡门' });
+    modAttr('int', 2);
+    setFlag('labMember', true);
+  }
+  if (age >= 25 && age <= 32 && getFlag('labMember') && !getFlag('lab_daily') && chance(0.08)) {
+    setFlag('lab_daily', true);
+    addEvent({ text: '研究所的日常生活：伊利亚在照顾所有人的饮食，加百列在严格地检查数据，米切莉怯怯地躲在角落里，双子丽萨和伊诺在一起低声讨论着什么。卡莉——那位传说级的收尾人——偶尔会来视察。一切都井然有序，但空气中弥漫着不安。', effect: 'lore', effText: '', major: true, milestone: '研究所日常' });
+  }
+  if (age >= 30 && age <= 40 && getFlag('lab_daily') && !getFlag('lab_tragedy') && chance(0.06)) {
+    setFlag('lab_tragedy', true);
+    if (a.wil >= 6) {
+      addEvent({ text: '研究所遭遇了毁灭性的打击——首脑的爪牙突袭了设施。异想体被释放，混乱中你的同事一个接一个地倒下。卡莉用生命为代价击退了敌人。你活了下来，但一切已回不到从前。你带着伊因的研究笔记消失在了都市的夜色中。', effect: 'survive', effText: '意志+2，体质-1', major: true, milestone: '研究所幸存' });
+      modAttr('wil', 2);
+      modAttr('con', -1);
+      setFlag('war_survivor', true);
+    } else {
+      addEvent({ text: '首脑的爪牙突袭了研究所。异想体的咆哮、同事的惨叫、墙壁的崩塌……你在混乱中失去了意识。当你醒来时，一切都已结束，你幸存了下来，但失去了那段记忆。', effect: 'trauma', effText: '智力-1', major: true, milestone: '研究所幸存' });
+      modAttr('int', -1);
+      setFlag('war_survivor', true);
+    }
+  }
+
+  // === 4. 烟霾战争扩展路线（时序约束：脑叶公司阻断） ===
+  if (age >= 22 && age <= 26 && !getFlag('smog_draft') && !getFlag('war_survivor') && !getFlag('blockSmokeWar') && chance(0.05)) {
+    setFlag('smog_draft', true);
+    addEvent({ text: '烟霾战争征兵的传单塞满了后巷的每一个角落。你不幸（或幸运地）被征召加入了战争的行列。前线的景象超出了你的想象——天空被浓烟遮蔽，地面布满了弹坑和残骸。', effect: 'war', effText: '体质+1', major: true, milestone: '被征召入伍' });
+    modAttr('con', 1);
+  }
+  if (age >= 23 && age <= 27 && getFlag('smog_draft') && !getFlag('smog_bug') && chance(0.08)) {
+    setFlag('smog_bug', true);
+    if (a.con >= 7) {
+      addEvent({ text: '前G公司的决战兵器——蛆虫王子出现在战场上。那巨大的蠕虫状生物所到之处寸草不生，你凭借着过人的体质在它的攻击下幸存。战后，你在废墟中找到了一枚G公司的旧徽章。', effect: 'survive', effText: '武器+1', major: true, milestone: '遭遇蛆虫王子' });
+      modAttr('wea', 1);
+    } else {
+      addEvent({ text: '前G公司的虫人士兵如潮水般涌来。你在战斗中受了重伤，被战友从尸堆中拖了出来。T公司的衰老弹在你头顶炸开，你的身体在几秒内苍老了几十岁。', effect: 'wound', effText: '体质-2，智力-1', major: true, milestone: '烟霾战争重伤' });
+      modAttr('con', -2);
+      modAttr('int', -1);
+    }
+  }
+
+  // === 5. 南部巨变路线（时序约束：需白夜黑昼之后，钢琴家阻断） ===
+  if (age >= 25 && age <= 30 && !getFlag('pianist_witness') && getFlag('era_whiteNight_done') && !getFlag('blockPianist') && chance(0.04)) {
+    setFlag('pianist_witness', true);
+    addEvent({ text: '那旋律从第九巷的一间酒吧传出，起初只是美妙的钢琴声。然后，尖叫开始了。你拼命地逃跑，身后是无数人倒下的声音。那个钢琴师——不，那个扭曲——他的身体已经不再是人类的形状。你活了下来，但音乐从此成了你的噩梦。', effect: 'trauma', effText: '意志-1', major: true, milestone: '钢琴家目击' });
+    modAttr('wil', -1);
+  }
+  if (age >= 28 && age <= 35 && getFlag('pianist_witness') && !getFlag('black_silence_sight') && chance(0.04)) {
+    setFlag('black_silence_sight', true);
+    addEvent({ text: '南部陷入了更大的恐慌。一个戴着漆黑面具的身影在暗中猎杀人体改造者——齿轮绑架犯、傀儡研究员、努马诺斯集团……没有人知道他是谁，只知道他的刀快得连光都追不上。你远远地看到了那个身影，感受到了令人窒息的杀意。', effect: 'encounter', effText: '', major: true, milestone: '疑似漆黑噤默' });
+  }
+
+  // === 6. 保育院路线（无特定时序约束，但被边狱公司阻断） ===
+  if (age >= 5 && age <= 10 && !getFlag('orphanage_life') && chance(0.05)) {
+    setFlag('orphanage_life', true);
+    addEvent({ text: '你被遗弃在了后巷的一家小保育院中。院长是个善良的老人，尽管条件艰苦，他总是尽力让每个孩子都能吃饱穿暖。你在那里结识了几个同伴，虽然生活清贫，但至少有了一个可以称之为家的地方。', effect: 'life', effText: '意志+1', major: true, milestone: '保育院生活' });
+    modAttr('wil', 1);
+  }
+  if (age >= 12 && age <= 18 && getFlag('orphanage_life') && !getFlag('orphanage_attack') && chance(0.06)) {
+    setFlag('orphanage_attack', true);
+    if (a.con >= 6) {
+      addEvent({ text: '一个怪物袭击了保育院。你拼命保护年幼的孩子们，一位色彩级收尾人及时赶到——她被称为堇紫泪滴。在她的帮助下，怪物被击退了，但保育院已经化为废墟。你活了下来，那些孩子们也是。', effect: 'survive', effText: '体质+1', major: true, milestone: '保育院袭击幸存' });
+      modAttr('con', 1);
+    } else {
+      addEvent({ text: '一个怪物在夜里袭击了保育院。你从废墟中被救了出来，但有些同伴再也没有醒来。色彩级收尾人堇紫泪滴救下了幸存者，但她的表情凝重——她没能抓住那个凶手。', effect: 'trauma', effText: '意志-2', major: true, milestone: '保育院袭击幸存' });
+      modAttr('wil', -2);
+    }
+  }
+
+  // === 7. 查尔斯事务所路线（时序约束：被二次白夜阻断） ===
+  if (age >= 15 && age <= 22 && !getFlag('charles_join') && a.con + a.wea >= 8 && !getFlag('blockLibrary') && chance(0.03)) {
+    setFlag('charles_join', true);
+    addEvent({ text: '你的收尾人才能引起了查尔斯事务所的注意——那是由十二位顶尖收尾人组成的传奇事务所。在通过严格的考核后，你成为了其中的一员。你见到了各种各样的人物：沉默寡言的罗兰、温柔的安吉丽卡、以及令人敬畏的前辈们。', effect: 'join', effText: '武器+2，体质+1', major: true, milestone: '加入查尔斯事务所' });
+    modAttr('wea', 2);
+    modAttr('con', 1);
+  }
+  if (age >= 22 && age <= 30 && getFlag('charles_join') && !getFlag('charles_crimson') && chance(0.05)) {
+    setFlag('charles_crimson', true);
+    addEvent({ text: '血红之夜——都市之星伊莲娜的绑架与改造行动。查尔斯事务所接到了委托，你与同僚们一同迎战。战斗惨烈至极，但事务所最终解决了事件。然而，血魔伊莲娜并未被彻底杀死，这个隐患在所有人心中投下了阴影。', effect: 'war', effText: '武器+1', major: true, milestone: '血红之夜' });
+    modAttr('wea', 1);
+  }
+  if (age >= 30 && age <= 40 && getFlag('charles_crimson') && !getFlag('charles_disband') && chance(0.06)) {
+    setFlag('charles_disband', true);
+    addEvent({ text: '查尔斯事务所因未知原因解散了。十二收尾人各奔东西——奥利维耶加入了Hana协会，李拿度在收尾人世界中野心勃勃。你站在空荡荡的事务所门口，想起了那些并肩作战的日子。一切都结束了。', effect: 'lore', effText: '', major: true, milestone: '查尔斯事务所解散' });
+  }
+
+  // === 8. 蜘蛛巢路线 ===
+  if (age >= 18 && age <= 25 && !getFlag('spider_captured') && chance(0.02)) {
+    setFlag('spider_captured', true);
+    addEvent({ text: '你在后巷失踪了三天。醒来时，你发现自己身处一个巨大的蜘蛛巢穴——那是五指中小指的地盘。一群被称为父辈的人们正在培育一个能使用天杀星刀的完美工具。你被选中成为他们的培育对象之一。', effect: 'capture', effText: '体质-1，智力+1', major: true, milestone: '蜘蛛巢捕获' });
+    modAttr('con', -1);
+    modAttr('int', 1);
+  }
+  if (age >= 25 && age <= 35 && getFlag('spider_captured') && !getFlag('spider_escape') && chance(0.06)) {
+    setFlag('spider_escape', true);
+    if (a.wil >= 7) {
+      addEvent({ text: '一个名为良秀的少女决定为她的女儿阿赖耶逃离蜘蛛巢。她使用天杀星刀斩断了各个父辈的珍贵之物，在混乱中你找到了逃脱的机会。你从蜘蛛巢中逃了出来，身后是良秀逐渐消逝的背影——她把最后的记忆都用在了天杀星刀上。', effect: 'escape', effText: '意志+2', major: true, milestone: '蜘蛛巢逃脱' });
+      modAttr('wil', 2);
+    } else {
+      addEvent({ text: '蜘蛛巢发生了一场混乱。有人用天杀星刀斩断了重要的东西，在混乱中你趁机逃了出来。你不清楚发生了什么，只知道从那以后，蜘蛛巢的势力大为削弱。', effect: 'escape', effText: '', major: true, milestone: '蜘蛛巢逃脱' });
+    }
+  }
+
+  // === 9. 边狱公司路线（时序约束：需二次白夜之后） ===
+  if (age >= 25 && age <= 35 && !getFlag('mephisto_encounter') && getFlag('era_postLibrary') && (hasTag('边狱公司') || chance(0.04))) {
+    setFlag('mephisto_encounter', true);
+    addEvent({ text: '一辆造型诡异的巴士停在了你面前——梅菲斯托费勒斯。车门打开，一个银红眼瞳的男人对你点了点头：『上来吧。无论你过去做过什么，边狱公司需要你。』在你不由自主地踏上巴士的那一刻，一段未知的旅程开始了。', effect: 'join', effText: '体质+1，智力+1', major: true, milestone: '登上梅菲斯托费勒斯' });
+    modAttr('con', 1);
+    modAttr('int', 1);
+    setFlag('lcb_sinner', true);
+  }
+  if (age >= 28 && age <= 40 && getFlag('lcb_sinner') && !getFlag('golden_branch') && chance(0.06)) {
+    setFlag('golden_branch', true);
+    addEvent({ text: '在边狱公司的旅途中，你第一次见到了金枝的碎片。那金色的树枝散发着温暖的光芒，仅仅触碰就能感受到力量的涌入。维吉利乌斯告诉你：金枝是重构边狱公司力量的关键，每一根都蕴含着不可估量的价值。', effect: 'item', effText: '全属性+1', major: true, milestone: '金枝碎片' });
+    modAttr('con', 1);
+    modAttr('int', 1);
+    modAttr('wil', 1);
+    modAttr('wea', 1);
+  }
+
+  // === 10. 拍卖会路线 ===
+  if (age >= 30 && age <= 40 && !getFlag('auction_infiltrate') && a.int >= 6 && chance(0.03)) {
+    setFlag('auction_infiltrate', true);
+    addEvent({ text: '你收到了一份关于环指拍卖会的情报——据说拍卖品中有一盒记录着食指秘密研究的录像。维吉利乌斯的事务所决定潜入，你作为辅助人员参与了这次行动。拍卖会的安保出乎意料的严密，但你们还是成功混了进去。', effect: 'infiltrate', effText: '智力+1', major: true, milestone: '潜入拍卖会' });
+    modAttr('int', 1);
+  }
+  if (age >= 32 && age <= 42 && getFlag('auction_infiltrate') && !getFlag('glass_window') && chance(0.06)) {
+    setFlag('glass_window', true);
+    if (a.wil >= 7) {
+      addEvent({ text: '拍卖会的真相远比想象中可怕——环指的玻璃窗技术可以将人转化为纯粹的本能源体。你的同伴加内特在玻璃窗的作用下化为了本能的罪孽之物。环指大师占顺也变为了扭曲。你在维吉利乌斯的E.G.O保护下勉强幸存。', effect: 'trauma', effText: '意志+1，智力+1', major: true, milestone: '玻璃窗事件' });
+      modAttr('wil', 1);
+      modAttr('int', 1);
+    } else {
+      addEvent({ text: '玻璃窗——环指的技术将你同伴的内心扭曲成了实体。加内特化为了凝固的宝石，占顺变为了扭曲的怪物。你精神几近崩溃，幸存了下来，但那段记忆将永远折磨着你。', effect: 'trauma', effText: '意志-2', major: true, milestone: '玻璃窗事件' });
+      modAttr('wil', -2);
+    }
+  }
+
+  // === 11. 都市之星路线 ===
+  if (age >= 30 && age <= 45 && !getFlag('urban_star') && a.con + a.wea >= 14 && chance(0.02)) {
+    setFlag('urban_star', true);
+    addEvent({ text: '你被协会指定为都市之星。这意味着你的力量已经威胁到了都市的平衡，所有协会都将你视为必须消灭的存在。从这一刻起，你的名字将出现在所有收尾人的委托板上。逃亡，还是迎战？', effect: 'star', effText: '武器+2，体质+1', major: true, milestone: '都市之星' });
+    modAttr('wea', 2);
+    modAttr('con', 1);
+    setFlag('urbanStar', true);
+  }
+  if (age >= 32 && age <= 47 && getFlag('urbanStar') && !getFlag('star_battle') && chance(0.06)) {
+    setFlag('star_battle', true);
+    if (a.con * 0.4 + a.wil * 0.6 + a.wea * 0.3 >= 10) {
+      addEvent({ text: '一群收尾人循着都市之星的委托找到了你。战斗中你展现出了压倒性的力量，将挑战者一一击败。都市之星的名号更加响亮了。但你也知道，总有一天，会有更强的存在来挑战你。', effect: 'victory', effText: '武器+1', major: true, milestone: '都市之星保卫战' });
+      modAttr('wea', 1);
+    } else {
+      addEvent({ text: '收尾人们循着都市之星的委托找到了你。尽管你奋力战斗，但寡不敌众。你侥幸逃脱，但身负重伤。都市之星的光环已经不再安全——你决定隐姓埋名，消失在都市的暗处。', effect: 'defeat', effText: '体质-2', major: true });
+      modAttr('con', -2);
+      if (a.con <= 0) {
+        death('都市之星围剿');
+      }
+    }
+  }
+
+  // === 12. 脑叶公司扩展路线（时序约束：需烟霾战争之后，被图书馆阻断） ===
+  if (age >= 25 && age <= 32 && !getFlag('lobotomy_join') && a.int >= 6 && getFlag('era_smog_done') && !getFlag('blockLCorp') && chance(0.03)) {
+    setFlag('lobotomy_join', true);
+    addEvent({ text: '一封来自L公司的录用通知书出现在你的邮箱中。工作内容被标记为机密，薪资高得离谱。进入设施后，你被分配为一名员工——负责管理被称为『异想体』的神秘存在。部长们面带微笑地欢迎你，但你总觉得这里有什么不对。', effect: 'join', effText: '智力+2，加入脑叶公司', major: true, milestone: '加入脑叶公司' });
+    modAttr('int', 2);
+    setFlag('joinedLCompany', true);
+  }
+  if (age >= 28 && age <= 38 && getFlag('joinedLCompany') && !getFlag('lobotomy_work') && chance(0.08)) {
+    setFlag('lobotomy_work', true);
+    var abnorms = ['告白', '魔弹', '小王子', '审判鸟', '寄生', '天蝎'];
+    var abnorm = abnorms[Math.floor(Math.random() * abnorms.length)];
+    addEvent({ text: '今天的工作对象是' + abnorm + '。你按照Sephirah的指示执行工作，异想体在被满足需求后安静了下来。然而，每一次工作结束后，你都会感到一丝难以言喻的不安——这些被囚禁的存在，究竟在想什么？', effect: 'work', effText: '', major: true, milestone: '异想体工作' });
+  }
+  if (age >= 35 && age <= 45 && getFlag('joinedLCompany') && !getFlag('lobotomy_suppress') && chance(0.06)) {
+    setFlag('lobotomy_suppress', true);
+    addEvent({ text: '警报声回荡在整个设施——异想体突破了收容。走廊中充斥着异想体的咆哮和员工的惨叫。你拼命地跑向最近的避难所，身后是不属于这个世界的恐怖存在。在部长们的镇压下，危机暂时解除。但每个人都明白，下一次突破收容可能就是最后一次。', effect: 'danger', effText: '意志+1', major: true, milestone: '异想体突破收容' });
+    modAttr('wil', 1);
+  }
+}
+
+// =============================
 // 清道夫/血魔/鲸鱼/扭曲神备大罪详细事件
 // =============================
 function runLoreDetailEvents(age) {
   if (!gameState.alive || gameState.dead) return;
+  if (gameState.ageEventCount && gameState.ageEventCount[age] >= 3) return;
   if (!gameState.eventCooldown) gameState.eventCooldown = {};
   function isOnCooldown(eventKey, cooldownYears) {
     const lastTrigger = gameState.eventCooldown[eventKey];
@@ -13451,6 +14447,7 @@ function runLoreDetailEvents(age) {
 // =============================
 function runImmortalEvents(age) {
   if (!gameState.alive || gameState.dead) return;
+  if (gameState.ageEventCount && gameState.ageEventCount[age] >= 3) return;
   const bp = gameState.birthplace ? gameState.birthplace.id : 'backstreet';
   const a = gameState.attrs;
 
@@ -13662,6 +14659,7 @@ function runImmortalEvents(age) {
 // =============================
 function runReverberationEvents(age) {
   if (!gameState.alive || gameState.dead) return;
+  if (gameState.ageEventCount && gameState.ageEventCount[age] >= 3) return;
 
   // 普鲁托 - 契约事件
   if (age >= 20 && age <= 50 && !getFlag('pluto_contract') && chance(0.03)) {
@@ -13762,6 +14760,7 @@ let gameSettings = {
 // =============================
 function runAssociationSectionEvents(age) {
   if (!gameState.alive || gameState.dead) return;
+  if (gameState.ageEventCount && gameState.ageEventCount[age] >= 3) return;
   if (!gameState.eventCooldown) gameState.eventCooldown = {};
   const a = gameState.attrs;
   const bp = gameState.birthplace ? gameState.birthplace.id : 'backstreet';
@@ -14031,6 +15030,396 @@ function runChildhoodSpecialEvents(age) {
     modAttr('wea', -3);
     modAttr('wil', -2);
     setFlag('orphan', true);
+  }
+}
+
+// =============================
+// 扩展事件路线（30+条路线）
+// =============================
+function runExtendedRoutes(age) {
+  if (!gameState.alive || gameState.dead) return;
+  if (gameState.ageEventCount && gameState.ageEventCount[age] >= 3) return;
+  const a = gameState.attrs;
+  const bp = gameState.birthplace ? gameState.birthplace.id : 'backstreet';
+
+  // === 路线1：烟气上瘾者（脑啡肽/烟气相关） ===
+  if (age >= 18 && !getFlag('smog_route') && chance(0.03)) {
+    setFlag('smog_route', true);
+    addEvent({ text: '你第一次接触了烟气——都市中长期存在、能作为武器使用的物质。有人在后巷的小巷里兜售一种灰色粉末，吸入后能短暂提升精神集中力。你看到不少收尾人和帮派成员都在使用它。"老手们说烟气能让你在战斗中更加敏锐，但长期使用会侵蚀精神和肉体。"', effect: 'item', effText: '体质+1，意志-1', major: true, milestone: '烟气初试' });
+    addMilestone('烟气初试');
+    modAttr('con', 1);
+    modAttr('wil', -1);
+  }
+  if (age >= 22 && getFlag('smog_route') && !getFlag('smog_addict') && chance(0.04)) {
+    setFlag('smog_addict', true);
+    addEvent({ text: '你已经无法离开烟气了。每次战斗前你都需要吸入一管——没有它你的手会发抖，判断力会下降。烟气在你的肺部留下了灰色的纹路。你开始注意到自己的记忆力在衰退，但这不重要——战斗中的优势才是最重要的。', effect: 'addiction', effText: '体质+2，智力-1，意志-2', major: true, milestone: '烟气成瘾' });
+    addMilestone('烟气成瘾');
+    modAttr('con', 2);
+    modAttr('int', -1);
+    modAttr('wil', -2);
+  }
+  if (age >= 28 && getFlag('smog_addict') && !getFlag('smog_enkephalin') && chance(0.03)) {
+    setFlag('smog_enkephalin', true);
+    addEvent({ text: '一个地下贩子向你推荐了一种更高级的产品——脑啡肽。这是从L公司异想体中提取的能源物质，原本不应流向后巷。"脑啡肽比烟气强十倍，"他低声说，"精神安定，肉体腐蚀……但那感觉是无与伦比的。"你犹豫了。', effect: 'item', effText: '面临选择', major: true, milestone: '脑啡肽接触' });
+    addMilestone('脑啡肽接触');
+    if (chance(0.4)) {
+      addEvent({ text: '你拒绝了。烟气已经够多了，你不能让自己沉得更深。贩子耸了耸肩。你的肺部因长期使用烟气而隐隐作痛，但至少你还保持着清醒的头脑。', effect: 'refuse', effText: '意志+1', major: false, milestone: '拒绝脑啡肽' });
+      addMilestone('拒绝脑啡肽');
+      modAttr('wil', 1);
+    } else {
+      addEvent({ text: '你尝试了脑啡肽。那一刻，你的意识被拉入了一个无边的深渊——你看到了光、听到了声音、感受到了从未有过的平静。当你醒来时，你发现自己的嘴角挂着一丝微笑——和一缕血丝。', effect: 'use', effText: '智力+1，体质-1，意志-2', major: true, milestone: '脑啡肽使用' });
+      addMilestone('脑啡肽使用');
+      modAttr('int', 1);
+      modAttr('con', -1);
+      modAttr('wil', -2);
+    }
+  }
+
+  // === 路线2：应试村的挣扎（都市教育） ===
+  if (age >= 14 && age <= 18 && !getFlag('exam_village') && chance(0.04)) {
+    setFlag('exam_village', true);
+    addEvent({ text: '你的家人把你送到了"应试村"——一个拥挤而严苛的地方，成千上万的人聚集在这里为翼公司的入职考试做无休止的准备。每年一次的大学能力考试将决定大部分人的人生。成绩差的只能去后巷的大学然后一事无成。你想进入巢的大学——那是进入翼公司的最低条件。', effect: 'education', effText: '智力+1，意志-1', major: true, milestone: '应试村' });
+    addMilestone('应试村');
+    modAttr('int', 1);
+    modAttr('wil', -1);
+    if (checkCombat(6, 'int')) {
+      addEvent({ text: '你通过了考试！你的名字出现在了合格名单上。虽然只是后巷大学的录取，但这已经比大多数人好了。你至少获得了继续接受教育的机会。', effect: 'pass', effText: '智力+1，家境+1', major: false, milestone: '考试通过' });
+      addMilestone('考试通过');
+      modAttr('int', 1);
+      modAttr('wea', 1);
+    } else {
+      addEvent({ text: '你落榜了。考试的竞争远超你的想象。你看着合格名单上那些陌生的名字，感到一阵无力。在应试村的日子算是白费了。你只能回到后巷，另寻出路。', effect: 'fail', effText: '意志-1', major: false, milestone: '考试落榜' });
+      addMilestone('考试落榜');
+      modAttr('wil', -1);
+    }
+  }
+
+  // === 路线3：邻里守望组织 ===
+  if (age >= 20 && !getFlag('neighborhood_watch') && chance(0.03)) {
+    setFlag('neighborhood_watch', true);
+    addEvent({ text: '你的后巷成立了一个"邻里守望"组织——由当地居民自发组成的公共安全组织，最低限度地维持治安。你被邀请加入。"我们不需要英雄，"组织者说，"只需要愿意在深夜巡逻、遇到危险时互相帮助的人。"', effect: 'org', effText: '体质+1，意志+1', major: true, milestone: '邻里守望加入' });
+    addMilestone('邻里守望加入');
+    modAttr('con', 1);
+    modAttr('wil', 1);
+  }
+
+  // === 路线4：都市四大文化区域探索 ===
+  if (age >= 18 && !getFlag('eastern_culture') && chance(0.03)) {
+    setFlag('eastern_culture', true);
+    addEvent({ text: '你来到了都市东部——这里更倾向于中古东亚风格。你看到了身着传统服饰的收尾人、评选"东部十剑"的武道大会、以及典型的东亚封建朝廷式的翼公司办事处。空气中弥漫着茶香和刀锋的气息。', effect: 'culture', effText: '智力+1', major: false, milestone: '都市东部文化' });
+    addMilestone('都市东部文化');
+    modAttr('int', 1);
+  }
+  if (age >= 20 && !getFlag('western_culture') && chance(0.03)) {
+    setFlag('western_culture', true);
+    addEvent({ text: '你来到了都市西部——中古西欧风格的穿搭与风俗。穿着铠甲的骑士团收尾人在街道上巡逻。一座哥特式的协会分部矗立在巷口。你感受到了一种与东部截然不同的文化气息——庄重而古老。', effect: 'culture', effText: '智力+1', major: false, milestone: '都市西部文化' });
+    addMilestone('都市西部文化');
+    modAttr('int', 1);
+  }
+  if (age >= 22 && !getFlag('southern_culture') && chance(0.03)) {
+    setFlag('southern_culture', true);
+    addEvent({ text: '你来到了都市南部——热带风格的穿搭与风俗。组成海盗团的帮派在港口活动，穿着花衬衫的收尾人在椰子树下歇息。南部后巷靠近大湖，空气中带着咸湿的海风。', effect: 'culture', effText: '体质+1', major: false, milestone: '都市南部文化' });
+    addMilestone('都市南部文化');
+    modAttr('con', 1);
+  }
+  if (age >= 24 && !getFlag('northern_culture') && chance(0.03)) {
+    setFlag('northern_culture', true);
+    addEvent({ text: '你来到了都市北部——寒带风格的穿搭与风俗。大绒袄是这里的标准装备，呼出的气在冷空气中凝成白雾。北方异常寒冷，郊区的怪物也更加强大。只有最坚韧的收尾人才能在北方后巷长期生存。', effect: 'culture', effText: '体质+1，意志+1', major: false, milestone: '都市北部文化' });
+    addMilestone('都市北部文化');
+    modAttr('con', 1);
+    modAttr('wil', 1);
+  }
+
+  // === 路线5：翼间战争体验 ===
+  if (age >= 25 && !getFlag('wing_war') && chance(0.02)) {
+    setFlag('wing_war', true);
+    addEvent({ text: '翼间战争爆发了。两翼公司的利益冲突无法调和，巢内也化作了战场。你被困在了交战区域，头顶上翼公司的武装力量在交锋，地面的爆炸将建筑震得摇晃。"平民在翼间战争中没有任何意义——他们只是背景。"你拼尽全力寻找逃离的路线。', effect: 'war', effText: '意志+1', major: true, milestone: '翼间战争' });
+    addMilestone('翼间战争');
+    modAttr('wil', 1);
+    if (checkCombat(8, 'wil')) {
+      addEvent({ text: '你在翼间战争的炮火中幸存了下来。巢内一片废墟——建筑倒塌、道路断裂、到处是尸体。你踏过碎砖和血迹，终于逃出了交战区域。翼间战争的残酷让你第一次真正理解了"在都市中，普通人不过是一场大型游戏中的NPC"这句话的含义。', effect: 'survive', effText: '意志+1，体质+1', major: true, milestone: '翼间战争幸存' });
+      addMilestone('翼间战争幸存');
+      modAttr('wil', 1);
+      modAttr('con', 1);
+    } else {
+      addEvent({ text: '翼间战争的一枚流弹击中了你所在建筑的墙壁。碎片和冲击将你埋在了废墟下。当救援队挖出你时，你已经身负重伤。你在医院里躺了整整三个月。', effect: 'injury', effText: '体质-2，家境-1', major: true, milestone: '翼间战争受伤' });
+      addMilestone('翼间战争受伤');
+      modAttr('con', -2);
+      modAttr('wea', -1);
+    }
+  }
+
+  // === 路线6：收尾人亚文化 ===
+  if (age >= 18 && !getFlag('fixer_subculture') && chance(0.03)) {
+    setFlag('fixer_subculture', true);
+    addEvent({ text: '你发现都市中以收尾人为主题的亚文化颇为兴盛——有记者追踪采访知名收尾人，传奇收尾人被制作成影片和专属周边，宛如偶像。你甚至看到了一款印着"漆黑噤默·罗兰"的T恤在地下市场热销。就连五指成员也乐在其中。', effect: 'culture', effText: '家境+1', major: false, milestone: '收尾人亚文化' });
+    addMilestone('收尾人亚文化');
+    modAttr('wea', 1);
+  }
+
+  // === 路线7：禁忌猎人遭遇 ===
+  if (age >= 20 && !getFlag('taboo_hunter') && chance(0.03)) {
+    setFlag('taboo_hunter', true);
+    addEvent({ text: '你目睹了翼公司的禁忌猎人在行动。他们追杀一个违反了巢内禁忌的居民。禁忌猎人的手段极为高效——他们不需要确认目标是否真的违反了禁忌，只需要收到指令就会执行。被追杀者在绝望中奔跑，但禁忌猎人始终不紧不慢地跟在身后。', effect: 'encounter', effText: '意志+1', major: true, milestone: '禁忌猎人目击' });
+    addMilestone('禁忌猎人目击');
+    modAttr('wil', 1);
+  }
+
+  // === 路线8：崩塌的巢体验 ===
+  if (age >= 22 && !getFlag('collapsed_nest') && chance(0.02)) {
+    setFlag('collapsed_nest', true);
+    addEvent({ text: '你来到一座曾经辉煌的巢——但现在它的翼公司已经倒台了。巢内与后巷几乎无异，唯一不同的是不存在深宵。废弃的翼公司大楼矗立在灰暗的天际线下，昔日繁忙的街道上只剩下流浪者和小帮派。你在废墟中翻找，也许能找到一些有价值的遗留物。', effect: 'explore', effText: '智力+1，面临选择', major: true, milestone: '崩塌的巢' });
+    addMilestone('崩塌的巢');
+    modAttr('int', 1);
+    if (chance(0.5)) {
+      addEvent({ text: '你在废墟中找到了一份翼公司的旧文件——上面记录着该翼公司奇点技术的基础研究资料。这种信息在后巷的黑市上能卖出天价。', effect: 'loot', effText: '家境+2', major: false, milestone: '奇点资料发现' });
+      addMilestone('奇点资料发现');
+      modAttr('wea', 2);
+    } else {
+      addEvent({ text: '你没能找到什么有价值的东西。不过你在废墟中遇到了一些曾经是翼公司员工的难民——他们失去了工作、住所和身份。在都市中，翼公司倒台意味着这些人的一切都化为乌有。', effect: 'encounter', effText: '意志+1', major: false, milestone: '巢中难民' });
+      addMilestone('巢中难民');
+      modAttr('wil', 1);
+    }
+  }
+
+  // === 路线9：经验罐头副作用 ===
+  if (age >= 20 && !getFlag('exp_can_side_effect') && chance(0.03)) {
+    setFlag('exp_can_side_effect', true);
+    addEvent({ text: '你长期食用N公司西西弗百货的经验罐头。最近你开始感到困惑——你分不清哪些记忆是你自己的，哪些是罐头里的。一段在咖啡馆工作的记忆反复出现在你的脑海中，但你确定自己从未在咖啡馆工作过。"经验罐头副作用"正在侵蚀你的记忆。', effect: 'item', effText: '智力+1，意志-1', major: true, milestone: '经验罐头副作用' });
+    addMilestone('经验罐头副作用');
+    modAttr('int', 1);
+    modAttr('wil', -1);
+  }
+
+  // === 路线10：地下黑市 ===
+  if (age >= 20 && !getFlag('black_market') && chance(0.03)) {
+    setFlag('black_market', true);
+    addEvent({ text: '你进入了后巷的地下黑市。这里出售着各种违禁品：禁忌武器的蓝图、翼公司的奇点残骸、经验罐头的复制品、甚至传闻中有"光之种"的碎片。买家和卖家都戴着面具，没有人询问对方的身份。"在这里，眼就是唯一的语言。"', effect: 'explore', effText: '家境+1，面临选择', major: true, milestone: '地下黑市' });
+    addMilestone('地下黑市');
+    modAttr('wea', 1);
+    if (chance(0.4)) {
+      addEvent({ text: '你在黑市上买到了一件有趣的东西——一个发出微光的小型装置，据说能增强使用者的某种属性。', effect: 'buy', effText: '体质+1，家境-1', major: false, milestone: '黑市购物' });
+      addMilestone('黑市购物');
+      modAttr('con', 1);
+      modAttr('wea', -1);
+    } else {
+      addEvent({ text: '你只在黑市逛了一圈。虽然什么都没买，但你记住了几个有价值的摊位位置——也许以后会用到。', effect: 'look', effText: '智力+1', major: false, milestone: '黑市踩点' });
+      addMilestone('黑市踩点');
+      modAttr('int', 1);
+    }
+  }
+
+  // === 路线11：拇指月刊 ===
+  if (age >= 20 && !getFlag('thumb_monthly') && chance(0.02)) {
+    setFlag('thumb_monthly', true);
+    addEvent({ text: '你意外获得了一本《拇指月刊》——拇指内部流通的杂志。里面有晋升者的故事、阶级礼仪的最新解读、以及教父的最新训示。你还看到一篇报道：某位士兵因为撰写了出色的晋升感想而被刊登在月刊上，他的故事成为了所有拇指新人的教材。', effect: 'lore', effText: '智力+1', major: false, milestone: '拇指月刊' });
+    addMilestone('拇指月刊');
+    modAttr('int', 1);
+  }
+
+  // === 路线12：食指苦行者 ===
+  if (age >= 18 && !getFlag('index_ascetic') && chance(0.02)) {
+    setFlag('index_ascetic', true);
+    addEvent({ text: '你在街上遇到了一个蒙着黑布的食指苦行者。他赤脚走在碎玻璃上，步伐沉稳而缓慢。"指令是道路，"他低声说，"道路即信仰。"你注意到他身上的伤痕累累——这些都是他"完成指令"的代价。在食指中，指令就是一切。', effect: 'encounter', effText: '意志+1', major: true, milestone: '食指苦行者目击' });
+    addMilestone('食指苦行者目击');
+    modAttr('wil', 1);
+  }
+
+  // === 路线13：翼公司入职合同 ===
+  if (age >= 18 && !getFlag('wing_contract') && chance(0.03)) {
+    setFlag('wing_contract', true);
+    addEvent({ text: '你收到了一份翼公司的入职邀请。合同条款密密麻麻，核心内容是：签署后你将成为该翼的"羽毛"（雇员），享有巢内居住权和薪资，但必须遵守翼的所有禁忌。违反禁忌的后果……合同上用极小的字体写着："包括但不限于调律。"你拿着合同的手在颤抖。', effect: 'contract', effText: '面临选择', major: true, milestone: '翼公司合同' });
+    addMilestone('翼公司合同');
+    if (chance(0.5)) {
+      addEvent({ text: '你签了合同。从这一刻起，你成为了翼公司的"羽毛"。你获得了巢内居住权和稳定收入，但你的自由也受到了极大的限制。翼的禁忌像一张无形的网，笼罩着你的一切行为。', effect: 'sign', effText: '家境+2，意志-2', major: true, milestone: '翼公司入职' });
+      addMilestone('翼公司入职');
+      modAttr('wea', 2);
+      modAttr('wil', -2);
+      setFlag('isFeather', true);
+    } else {
+      addEvent({ text: '你放下了合同。"自由虽然危险，但被束缚更可怕。"你转身离开了翼公司的招聘处。', effect: 'refuse', effText: '意志+1', major: false, milestone: '拒绝翼合同' });
+      addMilestone('拒绝翼合同');
+      modAttr('wil', 1);
+    }
+  }
+
+  // === 路线14：烟战记忆 — 罗兰与萨尔瓦多 ===
+  if (age >= 25 && !getFlag('smoke_war_memory') && getFlag('roland_encounter') && chance(0.03)) {
+    setFlag('smoke_war_memory', true);
+    addEvent({ text: '罗兰在深夜找你喝酒。他喝了很多，终于开口说起烟霾战争的往事："那时候我和萨尔瓦多还只是无名小卒。我们在战场上并肩作战，看着同伴一个个倒下。"他的眼神变得空洞，"战争结束时，我们是仅有的幸存者。从那以后，我们走上了不同的道路——我成为了收尾人，他……成为了其他什么东西。"他没有继续说下去。', effect: 'story', effText: '智力+1，意志+1', major: true, milestone: '烟战记忆' });
+    addMilestone('烟战记忆');
+    modAttr('int', 1);
+    modAttr('wil', 1);
+  }
+
+  // === 路线15：G公司虫人士兵 ===
+  if (age >= 25 && !getFlag('g_corp_bug') && chance(0.02)) {
+    setFlag('g_corp_bug', true);
+    addEvent({ text: '你在废墟中遇到了G公司的虫人士兵——被改造为半人半虫的战斗兵器。它们的身体被奇点技术与昆虫融合，拥有惊人的再生能力和战斗本能。G公司在烟霾战争中大量使用虫人士兵作为决战兵器。战争结束后，残存的虫人士兵在废墟中游荡，失去了目标。', effect: 'encounter', effText: '面临选择', major: true, milestone: 'G公司虫人士兵' });
+    addMilestone('G公司虫人士兵');
+    if (checkCombat(7, 'con')) {
+      addEvent({ text: '你击倒了虫人士兵。它的身体在死亡后迅速分解为虫群散去。你从残骸中找到了一块仍在运作的奇点组件——也许能卖出好价钱。', effect: 'win', effText: '体质+1，家境+1', major: false, milestone: '虫人士兵击倒' });
+      addMilestone('虫人士兵击倒');
+      modAttr('con', 1);
+      modAttr('wea', 1);
+    } else {
+      addEvent({ text: '虫人士兵的再生能力太强了——你砍断了它的手臂，它又长了回来。你不得不撤退。在逃跑的路上你看到了更多虫人士兵的影子在废墟中蠕动。', effect: 'lose', effText: '体质-1', major: false, milestone: '虫人士兵败退' });
+      addMilestone('虫人士兵败退');
+      modAttr('con', -1);
+    }
+  }
+
+  // === 路线16：G公司决战兵器 ===
+  if (age >= 28 && !getFlag('g_corp_weapon') && chance(0.01)) {
+    setFlag('g_corp_weapon', true);
+    addEvent({ text: '你在郊区的深层发现了一座被遗弃的G公司武器库。里面陈列着烟霾战争的决战兵器——巨大的机械虫形战斗装置，已经锈蚀停止运转。但你注意到武器库的核心仍在发出微弱的光芒，似乎还没有完全失效。你小心翼翼地离开了——激活这种东西的后果不是你能承受的。', effect: 'lore', effText: '智力+2', major: true, milestone: 'G公司决战兵器' });
+    addMilestone('G公司决战兵器');
+    modAttr('int', 2);
+  }
+
+  // === 路线17：烟气来源追踪 ===
+  if (age >= 25 && !getFlag('smog_source') && getFlag('smog_route') && chance(0.02)) {
+    setFlag('smog_source', true);
+    addEvent({ text: '你试图追踪烟气的来源。经过一番调查，你发现烟气最初来源于翼公司的某项秘密研究——将奇点技术的副产品作为精神增强剂。但这些副产品具有极强的成瘾性和腐蚀性。翼公司否认了这些指控，但后巷的每个人都知道真相。', effect: 'investigate', effText: '智力+2', major: true, milestone: '烟气来源发现' });
+    addMilestone('烟气来源发现');
+    modAttr('int', 2);
+  }
+
+  // === 路线18：收尾人调查问卷 ===
+  if (age >= 25 && !getFlag('fixer_survey') && chance(0.03)) {
+    setFlag('fixer_survey', true);
+    addEvent({ text: '收尾人协会正在进行一年一度的调查问卷。你在后巷的公告栏上看到了问卷内容。其中一个问题是："你最不想牵扯到的帮派是哪个？"投票结果毫无悬念——拇指以压倒性的优势位居榜首。另一个问题是："你认为收尾人的社会地位如何？"大部分收尾人选择了"工具"选项。你填写了问卷，协会会根据结果调整政策。', effect: 'culture', effText: '智力+1', major: false, milestone: '收尾人调查问卷' });
+    addMilestone('收尾人调查问卷');
+    modAttr('int', 1);
+  }
+
+  // === 路线19：东部十剑 ===
+  if (age >= 22 && !getFlag('eastern_ten_swords') && chance(0.02)) {
+    setFlag('eastern_ten_swords', true);
+    addEvent({ text: '都市东部正在举办"东部十剑"评选——十个最强的东方风格收尾人将获得殊荣。你观看了一场精彩的比武大会，见识了各种传统武器的运用：刀、枪、弓、杖……每一场对决都充满了东方美学。最终，一位手持长枪的老者夺得了第一名。', effect: 'event', effText: '智力+1', major: false, milestone: '东部十剑评选' });
+    addMilestone('东部十剑评选');
+    modAttr('int', 1);
+  }
+
+  // === 路线20：南部海盗团 ===
+  if (age >= 22 && !getFlag('southern_pirates') && chance(0.02)) {
+    setFlag('southern_pirates', true);
+    addEvent({ text: '你在南部后巷遇到了一群海盗团帮派成员。他们以大湖为据点，在海上劫掠WARP列车的货物。穿着花衬衫的海盗头领对你笑着说："想加入吗？我们有酒、有肉、有大湖上的自由。"你考虑了他的提议。', effect: 'encounter', effText: '面临选择', major: true, milestone: '海盗团接触' });
+    addMilestone('海盗团接触');
+    if (chance(0.3)) {
+      addEvent({ text: '你加入了海盗团——虽然只是临时成员。大湖上的生活比后巷自由得多，但海盗团内部的规矩也很严格。你参与了一次劫掠行动，获得了一份不错的收获。', effect: 'join', effText: '家境+1，体质+1', major: false, milestone: '海盗团临时成员' });
+      addMilestone('海盗团临时成员');
+      modAttr('wea', 1);
+      modAttr('con', 1);
+    } else {
+      addEvent({ text: '你婉拒了海盗团的邀请。虽然大湖的自由很诱人，但你不确定自己能适应那种生活方式。', effect: 'refuse', effText: '意志+1', major: false, milestone: '拒绝海盗团' });
+      addMilestone('拒绝海盗团');
+      modAttr('wil', 1);
+    }
+  }
+
+  // === 路线21：都市河流的神秘 ===
+  if (age >= 30 && !getFlag('mysterious_river') && chance(0.01)) {
+    setFlag('mysterious_river', true);
+    addEvent({ text: '你在都市的某个传说区域发现了一条"河流"。它不像普通的河流——水面散发着微弱的光芒，流动的方向与地形不符。传说中，都市的一些神秘河流具有特殊功效："使人忘却一切"、"使人长生不老"、"使某些死者化为幽灵徘徊"。你犹豫了一下，最终没有触碰河水。但河水的光芒似乎在你眼前闪过了一幕不属于你的记忆——另一个"你"的片段。', effect: 'mystery', effText: '智力+2，意志+1', major: true, milestone: '神秘河流' });
+    addMilestone('神秘河流');
+    modAttr('int', 2);
+    modAttr('wil', 1);
+    unlockCodexEntry('river_recurrence');
+  }
+
+  // === 路线22：翼公司考试 ===
+  if (age >= 20 && !getFlag('wing_exam') && chance(0.03)) {
+    setFlag('wing_exam', true);
+    addEvent({ text: '你参加了某翼公司的入职考试。考试内容因翼公司而异——有的考体能，有的考智力，有的考忠诚度，有的甚至考运气（抽奖制）。你紧张地坐在考场中，等待考试开始。', effect: 'exam', effText: '面临检定', major: true, milestone: '翼公司考试' });
+    addMilestone('翼公司考试');
+    if (checkCombat(7, 'int')) {
+      addEvent({ text: '你通过了翼公司入职考试！你被分配了一个初级"羽毛"的职位，享有巢内的居住权和基本薪资。从今天起，你不再是后巷的流浪者了——至少名义上不是。', effect: 'pass', effText: '家境+2，意志-1', major: true, milestone: '翼公司入职' });
+      addMilestone('翼公司入职');
+      modAttr('wea', 2);
+      modAttr('wil', -1);
+    } else {
+      addEvent({ text: '你没有通过考试。考官面无表情地在你试卷上画了一个叉："下次再来。"你觉得不太可能有下次了——翼公司的入职考试每年只有一次。', effect: 'fail', effText: '意志+1', major: false, milestone: '翼公司落选' });
+      addMilestone('翼公司落选');
+      modAttr('wil', 1);
+    }
+  }
+
+  // === 路线23：环指画廊深度事件 ===
+  if (age >= 22 && !getFlag('ring_gallery_deep') && chance(0.02)) {
+    setFlag('ring_gallery_deep', true);
+    addEvent({ text: '你受邀参观了环指野兽派的核心画廊。馆内的展品令人震撼——有用活体生物制作的装置，有用人骨和血肉构成的雕塑，有用光影和声音编织的行为艺术。"美不是取悦，"讲解员面无表情地说，"美是真理。有些作品的前主人至今还活着——以某种形式存在于作品之中。"你感到一阵寒意。', effect: 'art', effText: '智力+2，意志-1', major: true, milestone: '环指画廊深度' });
+    addMilestone('环指画廊深度');
+    modAttr('int', 2);
+    modAttr('wil', -1);
+  }
+
+  // === 路线24：巢中巷探索 ===
+  if (age >= 16 && !getFlag('nest_alley') && chance(0.03)) {
+    setFlag('nest_alley', true);
+    addEvent({ text: '你进入了"巢中巷"——存在于巢缝隙之中的后巷区域。虽然与巢只有一步之遥，但这里仍然是后巷。巢中巷的居民比外巷稍微富裕一些，但生活条件仍然远不如巢内。你看到了在巢的灯光下投下的长长的阴影，以及那些渴望进入巢却永远无法企及的人们的面孔。', effect: 'explore', effText: '智力+1', major: false, milestone: '巢中巷' });
+    addMilestone('巢中巷');
+    modAttr('int', 1);
+  }
+
+  // === 路线25：收尾人等级考试 ===
+  if (age >= 18 && !getFlag('fixer_grade_exam') && chance(0.03)) {
+    setFlag('fixer_grade_exam', true);
+    const currentGrade = Math.max(9, Math.min(1, 10 - Math.floor((a.con + a.int + a.wil) / 4)));
+    addEvent({ text: '你参加了收尾人等级考核。收尾人从九阶（最低）到一阶（最高），每一次晋升都需要通过严格的考试。你目前的水平大约相当于' + (currentGrade === 9 ? '九阶（刚入门）' : currentGrade >= 7 ? '七阶左右（中等）' : currentGrade >= 4 ? '四阶左右（中坚）' : '二阶左右（精英）') + '。', effect: 'exam', effText: '面临检定', major: true, milestone: '收尾人等级考核' });
+    addMilestone('收尾人等级考核');
+    if (checkCombat(6, 'con')) {
+      addEvent({ text: '你成功通过了考核！你的收尾人等级获得了提升。新的等级证明书会在一周后寄到——如果你还活着的话。', effect: 'pass', effText: '体质+1，家境+1', major: false, milestone: '收尾人等级提升' });
+      addMilestone('收尾人等级提升');
+      modAttr('con', 1);
+      modAttr('wea', 1);
+    } else {
+      addEvent({ text: '你没能通过考核。考官摇了摇头："实力不够。回去再练练吧。"你感到沮丧，但也知道这是必须面对的现实。', effect: 'fail', effText: '意志+1', major: false, milestone: '收尾人等级考核失败' });
+      addMilestone('收尾人等级考核失败');
+      modAttr('wil', 1);
+    }
+  }
+
+  // === 路线26：都市人口64亿 ===
+  if (age >= 20 && !getFlag('city_population') && chance(0.03)) {
+    setFlag('city_population', true);
+    addEvent({ text: '你在一份旧文件上看到了都市的统计数据：总人口约64亿，占地面积约30528平方公里——大概相当于现实中的一个比利时。但由于空间扭曲技术的存在，实际利用空间远超占地。都市分为25个地区，以螺旋状排列，正中心是A巢。你突然意识到，在这64亿人中，你不过是沧海一粟。', effect: 'lore', effText: '智力+1', major: false, milestone: '都市人口' });
+    addMilestone('都市人口');
+    modAttr('int', 1);
+  }
+
+  // === 路线27：郊区铁道 ===
+  if (age >= 22 && !getFlag('outskirts_rail') && chance(0.02)) {
+    setFlag('outskirts_rail', true);
+    addEvent({ text: '你在郊区发现了一条废弃的铁道。据说这是都市外围限制郊区与都市内人口流动的分界线设施——郊区的怪物几乎不可能跨越这些铁道进入都市。但铁道上偶尔会出现罕见的物品，吸引了一些胆大的拾荒者。你沿着铁道走了一段路，捡到了一块发光的金属碎片。', effect: 'explore', effText: '家境+1，智力+1', major: true, milestone: '郊区铁道' });
+    addMilestone('郊区铁道');
+    modAttr('wea', 1);
+    modAttr('int', 1);
+  }
+
+  // === 路线28：地下废墟探索 ===
+  if (age >= 25 && !getFlag('underground_ruins') && chance(0.02)) {
+    setFlag('underground_ruins', true);
+    addEvent({ text: '你在一次偶然中发现了通往都市地下废墟的入口。地下废墟中可能包含已经废弃的巢、都市建立之前的人类建筑、某些组织势力的绝密设施。你小心翼翼地深入了几层——墙壁上的刻痕属于一种你无法辨认的文字。越往下走，空气越稀薄，周围的温度也在下降。你决定在走得太深之前返回。', effect: 'explore', effText: '智力+2', major: true, milestone: '地下废墟' });
+    addMilestone('地下废墟');
+    modAttr('int', 2);
+  }
+
+  // === 路线29：鞘中鞘收尾人 ===
+  if (age >= 20 && !getFlag('\u9791\u4e2d\u9791') && chance(0.02)) {
+    setFlag('\u9791\u4e2d\u9791', true);
+    addEvent({ text: '你在后巷遇到了一个鞘中鞘收尾人——一种极为罕见的存在。鞘中鞘是指以收尾人为主题的亚文化过度沉迷、以至于失去了自身身份的人。他穿着仿制收尾人装备的廉价服装，模仿着偶像的言行举止，眼神中充满了对虚构身份的执念。"我不是在cosplay，"他说，"我就是收尾人。"', effect: 'encounter', effText: '智力+1，意志+1', major: true, milestone: '鞘中鞘遭遇' });
+    addMilestone('鞘中鞘遭遇');
+    modAttr('int', 1);
+    modAttr('wil', 1);
+  }
+
+  // === 路线30：玻璃窗/镜子体验 ===
+  if (age >= 25 && !getFlag('glass_window') && chance(0.02)) {
+    setFlag('glass_window', true);
+    addEvent({ text: '黑市上有人向你推销一种被称为"玻璃窗"的物品——基于九人会的发明，能让人"感受其他世界"。你犹豫了一下，但没有尝试。"玻璃窗"和"镜子"这些白夜黑昼后出现的技术让人"感受其他世界"——听起来很诱人，但代价是什么？卖家没有告诉你，你也不敢问。', effect: 'encounter', effText: '智力+1', major: true, milestone: '玻璃窗接触' });
+    addMilestone('玻璃窗接触');
+    modAttr('int', 1);
   }
 }
 
