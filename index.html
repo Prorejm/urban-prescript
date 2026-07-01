@@ -696,6 +696,7 @@ body::after {
 .lamp-display { font-size:1.5rem; letter-spacing:12px; margin:8px 0; color:var(--accent-gold); }
 .lamp-name { font-size:1.2rem; color:var(--accent-gold); margin:4px 0; font-weight:700; }
 .lamp-desc { font-size:0.85rem; color:#888; margin-top:4px; }
+.identity-tag { padding:4px 10px; border:1px solid #4a7fb5; color:#4a7fb5; border-radius:4px; font-size:0.85rem; background:rgba(74,127,181,0.08); }
 
 .result-quote {
   font-size: 0.85rem;
@@ -1432,6 +1433,42 @@ const ALL_TALENTS = [
   { id:'nest_s_branded', name:'S巢·奴婢烙印', rarity:'purple', desc:'身上被打了削弱气力的烙印，活着本身就需要非人的意志。', effect:'全属性-1，但触发逆袭事件链', con:-1, int:-1, wil:-1, wea:-1, tag:'S巢,烙印,逆袭', startRoute:'S巢' },
   // ==================== 黑色可能性（特殊开局） ====================
   { id:'head_shadow', name:'首脑的影子', rarity:'black', desc:'出生即被首脑选中，注定成为调律者，一切都在那道目光的计算之中。', effect:'智力+4，意志+4，家境+5，触发专属事件线', con:0, int:4, wil:4, wea:5, tag:'首脑,调律者,特殊线', startRoute:'首脑的影' },
+  // ==================== 扩展可能性（白色-传说级） ====================
+  // 白色(white) - 5个
+  { id:'w_rats', name:'后巷老鼠', rarity:'white', desc:'你像后巷的老鼠一样顽强。被踩了一脚还能站起来。', effect:'体质+1', con:1, int:0, wil:0, wea:0, tag:'后巷' },
+  { id:'w_barehands', name:'赤手空拳', rarity:'white', desc:'你没有武器，只有拳头。但后巷教会了你拳头就是最好的武器。', effect:'体质+1', con:1, int:0, wil:0, wea:0, tag:'格斗' },
+  { id:'w_street_smart', name:'街头智慧', rarity:'white', desc:'你在后巷长大，知道哪条巷子能走哪条不能走。', effect:'智力+1', con:0, int:1, wil:0, wea:0, tag:'后巷' },
+  { id:'w_survival', name:'生存本能', rarity:'white', desc:'你的身体有着超越常人的求生本能。危险来临前你能感知到。', effect:'意志+1', con:0, int:0, wil:1, wea:0, tag:'生存' },
+  { id:'w_lucky_coin', name:'幸运硬币', rarity:'white', desc:'你口袋里总有一枚硬币。每次掷出都是你想要的那一面。', effect:'家境+1', con:0, int:0, wil:0, wea:1, tag:'运气' },
+  // 蓝色(blue) - 8个
+  { id:'b_abno_sense', name:'异化体直觉', rarity:'blue', desc:'你能隐约感知到异化体的存在。当异化体靠近时，你的皮肤会泛起鸡皮疙瘩。', effect:'体质+1，智力+1', con:1, int:1, wil:0, wea:0, tag:'异化体' },
+  { id:'b_quicklearn', name:'快速学习', rarity:'blue', desc:'你有着惊人的学习能力。别人需要一年学会的东西，你只需要一个月。', effect:'智力+2', con:0, int:2, wil:0, wea:0, tag:'天赋' },
+  { id:'b_gear_love', name:'齿轮信者', rarity:'blue', desc:'你从小就是齿轮教会的虔诚信徒。机械的韵律就是你的祈祷。', effect:'意志+1，智力+1', con:0, int:1, wil:1, wea:0, tag:'齿轮教会' },
+  { id:'b_warp_sens', name:'空间感知', rarity:'blue', desc:'你对空间的感知异常敏锐。WARP列车经过时你总能提前感觉到。', effect:'智力+1，意志+1', con:0, int:1, wil:1, wea:0, tag:'W公司' },
+  { id:'b_tough_skin', name:'铁皮体质', rarity:'blue', desc:'你的皮肤异常坚韧。普通的刀具很难伤到你。', effect:'体质+2', con:2, int:0, wil:0, wea:0, tag:'体质' },
+  { id:'b_market_rat', name:'市场嗅觉', rarity:'blue', desc:'你对交易和价格有着天生的敏感度。后巷的黑色市场中你如鱼得水。', effect:'智力+1，家境+1', con:0, int:1, wil:0, wea:1, tag:'商业' },
+  { id:'b_night_owl', name:'夜行性', rarity:'blue', desc:'你是天生的夜行动物。在黑暗中你的反应速度更快，感知更敏锐。', effect:'体质+1，智力+1', con:1, int:1, wil:0, wea:0, tag:'后巷' },
+  { id:'b_calm_heart', name:'冷静心脏', rarity:'blue', desc:'无论面对什么情况你的心跳都不会加速。这种冷静在后巷是稀缺品。', effect:'意志+2', con:0, int:0, wil:2, wea:0, tag:'意志' },
+  // 紫色(purple) - 10个
+  { id:'p_kcorp_res', name:'K公司研究体', rarity:'purple', desc:'你曾参与过K公司的再生实验。虽然不是正式员工，但你的身体留下了一些……变化。伤口愈合的速度比常人快得多。', effect:'体质+2，意志+1', con:2, int:0, wil:1, wea:0, tag:'K公司,奇点' },
+  { id:'p_city_radio', name:'都市广播员', rarity:'purple', desc:'你是都市地下广播网络的播音员。你的声音在某个频段上回响，传递着后巷不为人知的消息。', effect:'智力+2，家境+1', con:0, int:2, wil:0, wea:1, tag:'情报,后巷' },
+  { id:'p_war_veteran', name:'烟霾战争老兵', rarity:'purple', desc:'你的父辈是烟霾战争的幸存者。战争的记忆刻在你的基因里，让你对硝烟和恐惧有着异常的忍耐力。', effect:'体质+2，意志+2', con:2, int:0, wil:2, wea:0, tag:'烟霾战争' },
+  { id:'p_rev_heart', name:'共鸣之心', rarity:'purple', desc:'你的精神有着异常的共鸣性。当强烈情感爆发时，周围的人也会感受到你的情绪。', effect:'智力+1，意志+2', con:0, int:1, wil:2, wea:0, tag:'共鸣,扭曲' },
+  { id:'p_mirror_gene', name:'镜之血脉', rarity:'purple', desc:'N公司的镜之奇点在你的血脉中留下了痕迹。偶尔你会在镜中看到不属于你的倒影。', effect:'智力+2，体质+1', con:1, int:2, wil:0, wea:0, tag:'N公司,奇点' },
+  { id:'p_scorpion', name:'蝎之毒', rarity:'purple', desc:'你的血液中含有一种罕见的毒素抗体。这意味着你也携带了微量毒素——接触你皮肤的人会感到麻木。', effect:'体质+1，智力+1，意志+1', con:1, int:1, wil:1, wea:0, tag:'毒,体质' },
+  { id:'p_moon_child', name:'月夜之子', rarity:'purple', desc:'你出生在一个满月之夜。传说那一夜，都市的月亮比平时大了一圈。你不怕黑暗——事实上黑暗让你感到舒适。', effect:'意志+2，体质+1', con:1, int:0, wil:2, wea:0, tag:'月光,后巷' },
+  { id:'p_gourmet', name:'味之巷美食家', rarity:'purple', desc:'你在味之巷长大，对食物有着异常的执着和鉴赏力。你的味蕾能分辨出数百种不同的味道——包括那些不该被品尝的味道。', effect:'智力+1，家境+1，意志+1', con:0, int:1, wil:1, wea:1, tag:'味之巷,美食' },
+  { id:'p_singularity', name:'奇点感应', rarity:'purple', desc:'你能感知到奇点技术的运作。当接近某个翼的核心设施时，你的大脑会产生微弱的刺痛感。', effect:'智力+3', con:0, int:3, wil:0, wea:0, tag:'奇点' },
+  { id:'p_tcorp_timer', name:'T公司时光碎片', rarity:'purple', desc:'你体内嵌着一块T公司的时光碎片。偶尔时间会在你周围产生微妙的扭曲——子弹似乎慢了一瞬。', effect:'智力+1，体质+1，意志+1', con:1, int:1, wil:1, wea:0, tag:'T公司,奇点,时间' },
+  // 金色(gold) - 5个
+  { id:'g_head_gaze', name:'首脑凝视', rarity:'gold', desc:'你曾被首脑的『眼』注视过。你不知道为什么，但你活了下来。从那以后你能在人群中感受到某种视线。', effect:'智力+2，意志+2，体质+1', con:1, int:2, wil:2, wea:0, tag:'首脑,眼,禁忌' },
+  { id:'g_river_touched', name:'河流触碰', rarity:'gold', desc:'你曾接触过河流的水。那是一种无法用语言描述的体验——你感觉自己同时看到了过去和未来。', effect:'智力+3，意志+2', con:0, int:3, wil:2, wea:0, tag:'河流,奇点' },
+  { id:'g_ego_res', name:'E.G.O适格者', rarity:'gold', desc:'你的精神波长与某种E.G.O高度契合。在极端情绪下你可能会不自觉地manifest出E.G.O的形态。', effect:'智力+2，体质+2，意志+2', con:2, int:2, wil:2, wea:0, tag:'E.G.O,异化体,脑叶公司' },
+  { id:'g_distortion_seed', name:'扭曲种子', rarity:'gold', desc:'你的内心深处沉睡着一颗扭曲的种子。在极端的压力下它可能会觉醒——但也许你可以控制它。', effect:'意志+3，体质+2', con:2, int:0, wil:3, wea:0, tag:'扭曲,卡门' },
+  { id:'g_library_book', name:'图书馆之书', rarity:'gold', desc:'你的人生被记录在了图书馆的书页上。你知道那座图书馆的存在——而图书馆也知道你的存在。', effect:'智力+2，意志+1，家境+2', con:0, int:2, wil:1, wea:2, tag:'图书馆,希斯克利夫' },
+  // 传说级(legend) - 2个
+  { id:'l_black_beast', name:'黑兽之影', rarity:'legend', desc:'黑兽的血统在你体内沉睡。你不知道它何时会觉醒——也许永远不会。但当你愤怒时，阴影会在你脚下蠕动。', effect:'体质+4，意志+3', con:4, int:0, wil:3, wea:0, tag:'黑兽,郊区,禁忌' },
+  { id:'l_city_will', name:'都市意志', rarity:'legend', desc:'你感觉得到——整座都市有着自己的意志。而你，似乎是都市意志选中的载体。这意味着什么？你还不清楚。', effect:'体质+2，智力+3，意志+3，家境+2', con:2, int:3, wil:3, wea:2, tag:'都市,首脑,命运' },
 ];
 
 
@@ -1798,6 +1835,8 @@ let gameState = {
   weapon: null,       // 常用武器
   egoForm: null,      // E.G.O形态
   godEquip: null,     // 神备名称
+  identityHistory: [],  // 一生经历过的身份记录 [{age, identity, org, desc}]
+  alignmentData: { lawful: 0, chaotic: 0, good: 0, evil: 0 },  // 九宫格阵营数据
 };
 
 // =============================
@@ -1834,6 +1873,22 @@ const ORG_MUTEX = {
 function isFingerOrg(name) { return ['拇指','食指','中指','环指','小指'].includes(name); }
 function isAssociation(name) { return ['Zwei协会','Seven协会','六协会','し协会','Cinq协会','Hana协会'].includes(name); }
 function isGang(name) { return ['黑云会','剑契组','谢肉祭','不来梅乐队','笑面'].includes(name); }
+
+function addIdentity(name, org) {
+  if (!gameState.identities) gameState.identities = [];
+  var exists = gameState.identities.some(function(id) { return id.name === name; });
+  if (!exists) {
+    gameState.identities.push({ name: name, age: gameState.age, org: org || '' });
+  }
+}
+function getIdentityNames() {
+  return (gameState.identities || []).map(function(id) { return id.name; });
+}
+function shiftAlignment(dx, dy) {
+  if (!gameState.alignment) gameState.alignment = {x:0, y:0};
+  gameState.alignment.x = Math.max(-1, Math.min(1, gameState.alignment.x + dx));
+  gameState.alignment.y = Math.max(-1, Math.min(1, gameState.alignment.y + dy));
+}
 function getCurrentOrg() { return getFlag('org') || getFlag('finger_joined'); }
 function hasOrg(orgName) { return getFlag('org') === orgName || getFlag('finger_joined') === orgName; }
 function canJoinOrg(orgName) {
@@ -2553,7 +2608,8 @@ function _originalStartGame() {
     attrs:{con:0,int:0,wil:0,wea:0}, pointsLeft:20, birthplace:null,
     happiness:0, lifeExtended:0, age:0, alive:true, events:[], milestones:[], flags:{},
     simTimer:null, simAuto:false, talentTags:[],
-    weapon:null, egoForm:null, godEquip:null
+    weapon:null, egoForm:null, godEquip:null,
+    gender:null, identities:[], alignment:{x:0, y:0}
   };
   refreshTalents();
   showPhase('phase-talent');
@@ -2567,7 +2623,8 @@ function startGame() {
       attrs:{con:0,int:0,wil:0,wea:0}, pointsLeft:20, birthplace:null,
       happiness:0, lifeExtended:0, age:0, alive:true, events:[], milestones:[], flags:{},
       simTimer:null, simAuto:false, talentTags:[],
-      weapon:null, egoForm:null, godEquip:null
+      weapon:null, egoForm:null, godEquip:null,
+      gender:null, identities:[], alignment:{x:0, y:0}
     };
     gameState.flags.freeMode = true;
     gameState.attrs.con = 3; gameState.attrs.int = 3; gameState.attrs.wil = 3; gameState.attrs.wea = 2;
@@ -2582,7 +2639,8 @@ function startGame() {
       attrs:{con:0,int:0,wil:0,wea:0}, pointsLeft:20, birthplace:null,
       happiness:0, lifeExtended:0, age:0, alive:true, events:[], milestones:[], flags:{},
       simTimer:null, simAuto:false, talentTags:[],
-      weapon:null, egoForm:null, godEquip:null
+      weapon:null, egoForm:null, godEquip:null,
+      gender:null, identities:[], alignment:{x:0, y:0}
     };
     gameState.flags.noTalentMode = true;
     renderAttrPanel();
@@ -2812,6 +2870,10 @@ function confirmBirth() {
 
 function startSimulation() {
   gameState.age = 0;
+  gameState.gender = Math.random() < 0.5 ? 'male' : 'female';
+  gameState.identities = []; // 记录一生经历的身份
+  gameState.alignment = {x:0, y:0}; // 九宫格阵营坐标 x:守序(-1)~混乱(1), y:善良(-1)~邪恶(1)
+  gameState.alignmentData = { lawful: 0, chaotic: 0, good: 0, evil: 0 }; // 九宫格阵营数据
   gameState.happiness = 0;
   gameState.alive = true;
   gameState.events = [];
@@ -3102,6 +3164,20 @@ function hasTag(tag) {
 
 function modAttr(key, delta) {
   gameState.attrs[key] = (gameState.attrs[key] || 0) + delta;
+}
+
+function recordIdentity(age, identity, org, desc) {
+  var last = gameState.identityHistory.length > 0 ? gameState.identityHistory[gameState.identityHistory.length - 1] : null;
+  if (last && last.identity === identity && last.org === (org || '')) return;
+  gameState.identityHistory.push({ age: age, identity: identity, org: org || '', desc: desc || '' });
+  setFlag('last_identity', identity);
+}
+
+function addAlignment(lawful, chaotic, good, evil) {
+  gameState.alignmentData.lawful += (lawful || 0);
+  gameState.alignmentData.chaotic += (chaotic || 0);
+  gameState.alignmentData.good += (good || 0);
+  gameState.alignmentData.evil += (evil || 0);
 }
 
 function formatEventText(text) {
@@ -3476,6 +3552,102 @@ function generateEvents(age) {
   // 时间裂缝解释（最后加载）
   getTimeCrackExplanation(age);
 
+  // ==================== 扩展壮年期稀有事件 ====================
+  // 黑兽相关（10条）
+  if (chance(0.008) && !getFlag('black_beast_encounter')) { setFlag('black_beast_encounter', true); events.push(evt('黑兽——都市最可怕的灾厄之一——出现在了你所在的区域。天空变得漆黑，巨大的黑影在城市上空盘旋。你拼命逃跑，在混乱中被踩断了三根肋骨。', 'black_beast_encounter', '体质-2，意志+1', true, '黑兽目击')); modAttr('con', -2); modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('bb_s_survivor') && a.con >= 5) { setFlag('bb_s_survivor', true); events.push(evt('黑兽袭来时你没有逃跑——你冲向了黑兽经过的废墟，从瓦砾下救出了三个人。你的勇气在那天成为了传说。', 'bb_s_survivor', '体质-1，意志+3，快乐+2', true, '黑兽中救人')); modAttr('con', -1); modAttr('wil', 3); gameState.happiness += 2; }
+  if (chance(0.008) && !getFlag('bb_trace')) { setFlag('bb_trace'); events.push(evt('你在废墟中发现了黑兽留下的痕迹——巨大的爪印深入地面半米。空气中还残留着一种令人窒息的压迫感。你拍了张照，被N公司的禁忌猎人追了三条街。', 'bb_trace', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('bb_rumor')) { setFlag('bb_rumor'); events.push(evt('后巷流传着黑兽即将再次出现的传闻。人们开始囤积食物和武器，收尾人的委托价格翻了三倍。你趁机接了几个高价委托。', 'bb_rumor', '家境+2', false)); modAttr('wea', 2); }
+  if (chance(0.008) && !getFlag('bb_nest')) { setFlag('bb_nest'); events.push(evt('黑兽逼近了巢的边界。翼公司的防御系统全部激活，但没有人知道那是否有效。巢中的居民被紧急疏散，你在混乱中帮助了一个走失的孩子找到家人。', 'bb_nest', '意志+1，快乐+1', false)); modAttr('wil', 1); gameState.happiness += 1; }
+  if (chance(0.008) && !getFlag('bb_arena')) { setFlag('bb_arena'); events.push(evt('你在后巷的擂台赛中遇到了一个自称与黑兽交过手的人。他的身上满是伤疤，但眼神中有着你从未见过的疯狂。他只说了一句话：『不要直视它的眼睛。』', 'bb_arena', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('bb_outskirts')) { setFlag('bb_outskirts'); events.push(evt('有传言说黑兽是从郊区深处爬出来的。你想起了郊区的传说——那些被遗忘的存在、那些不该被释放的怪物。也许黑兽只是其中之一。', 'bb_outskirts', '', false)); }
+  if (chance(0.008) && !getFlag('bb_wing')) { setFlag('bb_wing'); events.push(evt('某个翼公司公开表示他们有应对黑兽的手段，但拒绝透露细节。后巷的人们议论纷纷——是真的有办法，还是只是为了稳定人心的谎言？', 'bb_wing', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('bb_lost') && a.wil < 4) { setFlag('bb_lost'); events.push(evt('黑兽经过后，你失去了三个朋友。他们在逃难中被踩踏致死。你在废墟中找到的只有他们破碎的武器。你把那些碎片收集起来，串成了项链挂在脖子上。', 'bb_lost', '快乐-3，意志+2', false)); gameState.happiness -= 3; modAttr('wil', 2); }
+  if (chance(0.008) && !getFlag('bb_caller')) { setFlag('bb_caller'); events.push(evt('有人说黑兽的出现不是随机的——它被某种东西召唤而来。你无意中在后巷听到了一段对话：『……再次吟唱……河边的……』你没有听清后面的内容。', 'bb_caller', '智力+1', false)); modAttr('int', 1); }
+
+  // 指头组织深度事件（10条）
+  if (chance(0.008) && !getFlag('finger_internal')) { setFlag('finger_internal'); events.push(evt('你无意中目睹了手指内部的权力斗争。一个手指的高层被暗杀，尸体被发现在后巷的垃圾堆中。新的权力更替正在进行，而你就是唯一的目击者。', 'finger_internal', '意志+1', false)); modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('thumb_purge_mass') && bp !== 'thumb') { setFlag('thumb_purge_mass'); events.push(evt('拇指在你的区域进行了一次大规模清剿。街道上到处是红色的光芒和惨叫声。你躲在下水道里，听到了上方沉重的脚步声。那一夜，整条街的人都消失了。', 'thumb_purge_mass', '意志+2，快乐-2', false)); modAttr('wil', 2); gameState.happiness -= 2; }
+  if (chance(0.008) && !getFlag('index_directive')) { setFlag('index_directive'); events.push(evt('一张白色信纸飘到了你的脚边。食指的指令——但你不是食指的成员。信上写着：『注视第七巷的钟楼。午时。』你没有去看。但你好奇信为什么会在你这里。', 'index_directive', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('middle_feud')) { setFlag('middle_feud'); events.push(evt('中指的某个家族与另一个家族爆发了大规模冲突。紫色的纹身在战斗中闪烁着诡异的光芒。后巷的居民们紧闭门窗，等待硝烟散去。', 'middle_feud', '', false)); }
+  if (chance(0.008) && !getFlag('ring_auction')) { setFlag('ring_auction'); events.push(evt('环指举办了一场秘密拍卖会。据说拍卖品包括翼公司的高级武器、稀有的奇点材料，甚至还有……来自郊区的活体标本。门票价格是你一年的收入。', 'ring_auction', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('little_secret')) { setFlag('little_secret'); events.push(evt('有人告诉你，小指之所以神秘，是因为他们掌握着都市中最大的秘密之一。没有人知道那个秘密是什么——知道的人都消失了。', 'little_secret', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('finger_summit')) { setFlag('finger_summit'); events.push(evt('五指罕见地召开了一次联合会议。所有手指的掌指都出席了。后巷人心惶惶——五指同时出现只意味着一件事：都市即将发生大事。', 'finger_summit', '', false)); }
+  if (chance(0.008) && !getFlag('finger_recruit_elite') && a.con >= 6 && a.int >= 5) { setFlag('finger_recruit_elite'); events.push(evt('多个手指同时向你发出了邀请。你的实力已经引起了所有人的注意。选择一个手指意味着与其他四个为敌——或者你可以全部拒绝，成为所有人的敌人。', 'finger_recruit_elite', '意志+2', false)); modAttr('wil', 2); }
+  if (chance(0.008) && !getFlag('finger_betrayal')) { setFlag('finger_betrayal'); events.push(evt('一个手指的叛逃者找到了你，请求你庇护。他带来了手指内部的重要情报。庇护他意味着与整个手指为敌，但情报的价值足以改变整个后巷的格局。', 'finger_betrayal', '智力+1，意志+1', false)); modAttr('int', 1); modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('finger_history')) { setFlag('finger_history'); events.push(evt('你在废墟中发现了一份古老的文件，记载着手指组织成立之初的历史。原来五指并非一开始就有现在的权力——他们的崛起与某个翼公司的衰落有着直接关系。', 'finger_history', '智力+2', false)); modAttr('int', 2); }
+
+  // 翼公司深度事件（10条）
+  if (chance(0.008) && !getFlag('wing_collapse')) { setFlag('wing_collapse'); events.push(evt('一个翼公司宣布破产。它的巢在几天之内变成了无人管辖的无主之地。后巷的势力开始瓜分这片区域，新的秩序在混乱中诞生。', 'wing_collapse', '家境-1', false)); modAttr('wea', -1); }
+  if (chance(0.008) && !getFlag('wing_experiment')) { setFlag('wing_experiment'); events.push(evt('你发现一个翼公司在后巷的秘密实验设施。实验体们在囚笼中哀嚎，他们的身体被奇点技术改造得面目全非。你选择了离开——有些事情你知道了就再也忘不掉。', 'wing_experiment', '快乐-2，智力+1', false)); gameState.happiness -= 2; modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('wing_whistleblower')) { setFlag('wing_whistleblower'); events.push(evt('一个翼公司的内部人员向你泄露了公司的机密信息。作为交换，他希望你帮他在后巷找到安全的藏身之处。你接下了这个委托——酬金是一笔你从未见过的数字。', 'wing_whistleblower', '家境+3', false)); modAttr('wea', 3); }
+  if (chance(0.008) && !getFlag('wing_raid')) { setFlag('wing_raid'); events.push(evt('后巷的帮派联合对某个翼公司的运输队发动了突袭。你在混乱中被卷入，用一把捡来的工坊武器击退了三个翼公司的安保人员。你不知道自己为什么能赢——也许只是运气。', 'wing_raid', '体质+1，家境+1', false)); modAttr('con', 1); modAttr('wea', 1); }
+  if (chance(0.008) && !getFlag('wing_singularity_leak')) { setFlag('wing_singularity_leak'); events.push(evt('某个翼公司的奇点技术发生了泄漏。半个街区的时间被加速了三倍——人们以三倍速生活了整整一个小时。当时间恢复正常后，很多人已经老了三小时。', 'wing_singularity_leak', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('wing_restructuring')) { setFlag('wing_restructuring'); events.push(evt('一个翼公司进行了大规模的机构重组。数千名员工被裁撤，涌入后巷。失业的翼公司员工在后巷形成了新的势力，他们的技术和知识让后巷的格局发生了变化。', 'wing_restructuring', '', false)); }
+  if (chance(0.008) && !getFlag('wing_monopoly')) { setFlag('wing_monopoly'); events.push(evt('某个翼公司开始在后巷扩张势力，试图垄断某个关键资源。后巷的帮派和手指同时感到了威胁——翼公司和后巷的势力从未如此接近全面冲突。', 'wing_monopoly', '', false)); }
+  if (chance(0.008) && !getFlag('wing_employee_missing')) { setFlag('wing_employee_missing'); events.push(evt('一个翼公司的高级员工在巢中人间蒸发了。没有任何线索，没有任何痕迹——就像他从未存在过一样。有人说他被首脑带走了，但没有人知道原因。', 'wing_employee_missing', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('wing_ancient_tech')) { setFlag('wing_ancient_tech'); events.push(evt('你在废墟深处发现了一个疑似上古奇点的残留装置。它的技术水平远远超过现有的任何翼公司。你试着激活了它——一阵微弱的蓝光闪过，你的左手暂时失去了知觉。', 'wing_ancient_tech', '智力+2，体质-1', false)); modAttr('int', 2); modAttr('con', -1); }
+  if (chance(0.008) && !getFlag('wing_ceo_speech')) { setFlag('wing_ceo_speech'); events.push(evt('某个翼公司的CEO在巢的广场上发表了公开演讲。数万人参加，他的声音通过奇点技术传遍了整个巢。你站在人群的边缘，感受到了奇点带来的微妙震颤。', 'wing_ceo_speech', '', false)); }
+
+  // 异化体深度事件（8条）
+  if (chance(0.008) && !getFlag('abno_breach')) { setFlag('abno_breach'); events.push(evt('一个收容设施发生了异化体突破事故。异化体冲入了后巷，你在逃难途中亲眼看到了那个存在——它超越了人类认知的边界，扭曲着周围的一切。', 'abno_breach', '意志+1，快乐-1', false)); modAttr('wil', 1); gameState.happiness -= 1; }
+  if (chance(0.008) && !getFlag('abno_egg')) { setFlag('abno_egg'); events.push(evt('你在废墟中发现了一枚异化体的卵。它散发着微弱的荧光，你能感觉到里面的生命正在缓慢地成形。你将卵带走——也许可以卖个好价钱，也许你会后悔这个决定。', 'abno_egg', '家境+1', false)); modAttr('wea', 1); }
+  if (chance(0.008) && !getFlag('abno_friendly')) { setFlag('abno_friendly'); events.push(evt('你遇到了一个不会攻击人类的异化体。它安静地蜷缩在后巷的角落里，用不属于人类的语言发出柔软的声音。你给它留了一些食物，第二天食物就不见了。', 'abno_friendly', '快乐+1', false)); gameState.happiness += 1; }
+  if (chance(0.008) && !getFlag('abno_merc')) { setFlag('abno_merc'); events.push(evt('你接到了一个猎杀异化体的委托。委托方是一个翼公司——他们告诉你异化体逃到了后巷。报酬丰厚得令人难以置信。当你找到目标时才发现，那个所谓的『异化体』只是一个患有奇点病变的普通人。', 'abno_merc', '快乐-2，意志+1', false)); gameState.happiness -= 2; modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('abno_ego_flash')) { setFlag('abno_ego_flash'); events.push(evt('在极端压力下，你的精神发生了短暂的E.G.O manifest。你看到了不属于这个世界的景象——漆黑的天空中燃烧着紫色的火焰，一个模糊的影子在火焰中向你伸出手。转瞬即逝。', 'abno_ego_flash', '智力+1，意志+1', false)); modAttr('int', 1); modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('abno_contain')) { setFlag('abno_contain'); events.push(evt('你帮助一个翼公司的小队收容了一只逃逸的异化体。过程惊心动魄，但你活了下来。作为报酬，翼公司给了你一件由异化体材料制成的护具。', 'abno_contain', '体质+1，家境+1', false)); modAttr('con', 1); modAttr('wea', 1); }
+  if (chance(0.008) && !getFlag('abno_study')) { setFlag('abno_study'); events.push(evt('你找到了一份关于异化体研究的秘密文件。上面的内容让你毛骨悚然——异化体并非随机产生，它们与人类的情感和恐惧有着某种深层联系。', 'abno_study', '智力+2', false)); modAttr('int', 2); }
+  if (chance(0.008) && !getFlag('abno_wave')) { setFlag('abno_wave'); events.push(evt('一波异化体潮涌事件发生了。数十只异化体同时涌入了后巷，各协会和帮派被迫暂时联手对抗。你在混乱中与一个Zwei协会的收尾人并肩作战，建立了一段短暂的友谊。', 'abno_wave', '体质+1，意志+1', false)); modAttr('con', 1); modAttr('wil', 1); }
+
+  // 都市传说与河流相关（8条）
+  if (chance(0.008) && !getFlag('river_whisper')) { setFlag('river_whisper'); events.push(evt('你在梦中听到了河流的低语。它告诉你：『所有人都会回到我这里。』你从梦中惊醒，发现自己的枕头湿了一片。', 'river_whisper', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('river_immortal')) { setFlag('river_immortal'); events.push(evt('你遇到了一个声称从河流中获得了长生不老的人。他看起来确实不像这个时代的人——他的衣着、语言、甚至气质都属于一个早已逝去的年代。', 'river_immortal', '智力+2', false)); modAttr('int', 2); }
+  if (chance(0.008) && !getFlag('river_sacrifice')) { setFlag('river_sacrifice'); events.push(evt('你目睹了一场河流祭祀。一群穿着古老仪式服装的人在后巷的某个隐秘角落进行着某种仪式。他们将一个人推入了地面上画出的河流图案中——那个人消失了，地面上只剩下一滩清水。', 'river_sacrifice', '快乐-1', false)); gameState.happiness -= 1; }
+  if (chance(0.008) && !getFlag('city_ghost')) { setFlag('city_ghost'); events.push(evt('你在深夜的后巷遇到了一个透明的人影。他向你诉说了他被翼公司抛弃后的遭遇——被实验、被遗忘、被从记录中抹去。当他消失时你才发现，他留下的只有一滴眼泪。', 'city_ghost', '意志+1', false)); modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('city_urban_legend')) { setFlag('city_urban_legend'); events.push(evt('后巷流传着一个新的都市传说：在特定的时间站在特定的路口，你可以看到已经死去的人。你不信——但你还是去了。什么都没发生。或者也许发生了什么，只是你不知道。', 'city_urban_legend', '', false)); }
+  if (chance(0.008) && !getFlag('city_mirror')) { setFlag('city_mirror'); events.push(evt('你在废墟中找到了一面完好的镜子。当你看向镜子时，镜中的你做出了与你不同的动作——它向你微笑了。你立刻打碎了镜子，但碎片中倒映的依然是那个微笑。', 'city_mirror', '意志+1，快乐-1', false)); modAttr('wil', 1); gameState.happiness -= 1; }
+  if (chance(0.008) && !getFlag('city_shadow')) { setFlag('city_shadow'); events.push(evt('最近你的影子似乎变得不太对劲。它在你不注意的时候会自己移动，而当你低头看时它又恢复了正常。也许是光线的问题——也许不是。', 'city_shadow', '', false)); }
+  if (chance(0.008) && !getFlag('city_singer')) { setFlag('city_singer'); events.push(evt('你在第九巷的废墟中听到了一首从未听过的钢琴曲。琴声悲伤而美丽，在空旷的废墟中回响。当你循声找去，那里只有一架布满灰尘的钢琴和一件折叠整齐的黑色大衣。', 'city_singer', '快乐+1', false)); gameState.happiness += 1; }
+
+  // 帮派深度事件（7条）
+  if (chance(0.008) && !getFlag('gang_war')) { setFlag('gang_war'); events.push(evt('后巷爆发了一场大规模的帮派战争。黑云会对剑契组、谢肉祭对不来梅——整个后巷变成了战场。你被迫选择一个阵营，或者夹在中间求生。', 'gang_war', '体质+1，意志+1', false)); modAttr('con', 1); modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('gang_betrayal')) { setFlag('gang_betrayal'); events.push(evt('你所在帮派的一个核心成员叛变了。他带着帮派的秘密投靠了敌对势力。你被指派去追杀他——但他曾经救过你的命。', 'gang_betrayal', '意志+2', false)); modAttr('wil', 2); }
+  if (chance(0.008) && !getFlag('gang_rise')) { setFlag('gang_rise'); events.push(evt('一个名不见经传的小帮派在短短几个月内崛起，吞并了周围数个小组织。他们的首领据说拥有某种奇点武器。后巷的人们在议论——下一个被吞并的会是谁？', 'gang_rise', '', false)); }
+  if (chance(0.008) && !getFlag('gang_laughter') && !getFlag('smile_member')) { setFlag('gang_laughter'); events.push(evt('你遇到了笑面的成员。他们的笑容令人毛骨悚然——那不是友好的微笑，而是一种让你从骨子里感到恐惧的表情。他们在后巷的某个角落建立了一个新的据点。', 'gang_laughter', '意志+1', false)); modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('gang_bremen') && !getFlag('bremen_encounter')) { setFlag('gang_bremen'); events.push(evt('不来梅乐队的音乐在后巷响起。所有听到音乐的人都停下了脚步，被旋律中蕴含的力量所摄。当音乐停止后，很多人发现自己不记得刚才做了什么。', 'gang_bremen', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('gang_feast') && !getFlag('carnival_encounter')) { setFlag('gang_feast'); events.push(evt('谢肉祭在后巷举办了一场『盛宴』。参与者的表情从恐惧逐渐变成了狂喜。你远远地看着那些疯狂的舞蹈和诡异的祭坛，决定不靠近。', 'gang_feast', '', false)); }
+  if (chance(0.008) && !getFlag('gang_kumo') && !getFlag('kumo_met')) { setFlag('gang_kumo'); events.push(evt('黑云会的首领——那个被称为『蜘蛛』的男人出现在了你的视野中。他沉默寡言，但每一个动作都透露着绝对的权威。据说他控制着后巷三分之一的地盘。', 'gang_kumo', '智力+1', false)); modAttr('int', 1); }
+
+  // 清扫人与色彩级事件（7条）
+  if (chance(0.008) && !getFlag('fixer_rank_up')) { setFlag('fixer_rank_up'); events.push(evt('你的收尾人等级提升了。新的等级意味着更好的委托和更高的报酬，但也意味着更危险的对手。你将新的徽章别在胸口——它是你实力的证明。', 'fixer_rank_up', '家境+1', false)); modAttr('wea', 1); }
+  if (chance(0.008) && !getFlag('fixer_duel_famous')) { setFlag('fixer_duel_famous'); events.push(evt('你与一名知名收尾人进行了一场公开决斗。赌注是名誉和委托权。在数百名观众的注视下，你以微弱的优势获胜。从今天起，你的名字开始在后巷流传。', 'fixer_duel_famous', '家境+2，体质+1', true, '收尾人决斗胜利')); modAttr('wea', 2); modAttr('con', 1); }
+  if (chance(0.008) && !getFlag('color_witness_battle')) { setFlag('color_witness_battle'); events.push(evt('你目睹了一场色彩级收尾人的战斗。那种力量超越了人类的极限——空间在他们的武器下扭曲，地面在他们脚下碎裂。你第一次真正理解了『色彩』的含义。', 'color_witness_battle', '智力+2', true, '目击色彩级战斗')); modAttr('int', 2); }
+  if (chance(0.008) && !getFlag('fixer_office_build') && a.wea >= 5) { setFlag('fixer_office_build'); events.push(evt('你决定建立自己的事务所。在后巷的一栋破旧建筑中，你挂上了自己的招牌。第一个月的委托少得可怜，但你相信这只是开始。', 'fixer_office_build', '家境-2，快乐+1', true, '建立事务所')); modAttr('wea', -2); gameState.happiness += 1; }
+  if (chance(0.008) && !getFlag('fixer_apprentice')) { setFlag('fixer_apprentice'); events.push(evt('一个年轻人找到你，请求成为你的学徒。他眼中的渴望让你想起了年轻时的自己。你收下了他——也许有一天他会超越你。', 'fixer_apprentice', '快乐+1', false)); gameState.happiness += 1; }
+  if (chance(0.008) && !getFlag('fixer_bounty_hunt')) { setFlag('fixer_bounty_hunt'); events.push(evt('一份天价悬赏令在后巷流传：目标是一个从翼公司偷走了机密的叛逃者。全都市的收尾人都在寻找他。你也在其中——但当你找到他时，你发现他只是一个被卷入阴谋的普通人。', 'fixer_bounty_hunt', '意志+1', false)); modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('fixer_code_name') && getFlag('fixer_rank_up')) { setFlag('fixer_code_name'); events.push(evt('你终于获得了一个属于自己的代号。在后巷，代号就是你的第二个名字。从今天起，人们不再叫你的本名——他们只叫你的代号。', 'fixer_code_name', '快乐+1，家境+1', true, '获得收尾人代号')); modAttr('wea', 1); gameState.happiness += 1; }
+
+  // 脑叶公司/图书馆事件（7条）
+  if (chance(0.008) && !getFlag('lcorp_agent_memory')) { setFlag('lcorp_agent_memory'); events.push(evt('你遇到了一个自称前脑叶公司员工的人。他的眼神空洞而悲伤，嘴里不断重复着一些你听不懂的词语—— Malkuth、Yesod、Hod、Netzach……你不知道这些名字意味着什么。', 'lcorp_agent_memory', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('lcorp_sephirah')) { setFlag('lcorp_sephirah'); events.push(evt('有人在后巷提到了『赛菲拉』这个词。据说那是脑叶公司中一种特殊的存在——曾经是人类，现在变成了与设施融为一体的管理者。你感到一阵寒意。', 'lcorp_sephirah', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('library_book_collection')) { setFlag('library_book_collection'); events.push(evt('你在后巷的黑市上发现了一批来自图书馆的书籍。翻开第一页的瞬间，文字开始蠕动——那不是普通的文字，而是活生生的记忆。你看到了书主人生前最后一天的景象。', 'library_book_collection', '智力+2', false)); modAttr('int', 2); }
+  if (chance(0.008) && !getFlag('library_invitation_found')) { setFlag('library_invitation_found'); events.push(evt('你在某个死去的人的口袋里找到了一封图书馆的邀请函。信封上写着你的名字。不——写着上一个持有者的名字。但当你翻过来时，背面多了一行字：『下一个是你。』', 'library_invitation_found', '意志+1，快乐-1', false)); modAttr('wil', 1); gameState.happiness -= 1; }
+  if (chance(0.008) && !getFlag('lcorp_light')) { setFlag('lcorp_light'); events.push(evt('你遇到了一个自称见证了『光之种』的人。他的眼睛中闪烁着不属于这个世界的光芒。他告诉你，那一天整座都市都沐浴在光芒中——然后一切都变了。', 'lcorp_light', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('lcorp_abnormality')) { setFlag('lcorp_abnormality'); events.push(evt('你听说了一个关于脑叶公司异化体的秘密：有些异化体在被收容之前是普通的人类。它们因为某种原因——恐惧、痛苦、绝望——发生了本质性的转变。你不禁想：自己离那个转变有多远？', 'lcorp_abnormality', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('lcorp_angelica_memorial')) { setFlag('lcorp_angelica_memorial'); events.push(evt('你在后巷的某个角落发现了一束干枯的花。花下有一张褪色的照片——一个微笑的金发女人和一个小男孩。花是后来人放的——即使是后巷，也有人记得那些被遗忘的人。', 'lcorp_angelica_memorial', '快乐+1', false)); gameState.happiness += 1; }
+
+  // 边狱公司/罪人相关（10条）
+  if (chance(0.008) && !getFlag('limbus_sinner_met')) { setFlag('limbus_sinner_met'); events.push(evt('你在后巷遇到了一群穿着统一制服的人。他们的身上散发着异样的气息——每个人都携带着武器，每个人的眼神中都带着某种共同的……疯狂。他们自称『罪人』。', 'limbus_sinner_met', '', false)); }
+  if (chance(0.008) && !getFlag('limbus_dante')) { setFlag('limbus_dante'); events.push(evt('你在后巷看到了一个脑袋上挂着一个巨大钟表的人。钟表的指针在不停旋转，发出滴答滴答的声音。那群罪人似乎对他——或者说它——十分尊敬。', 'limbus_dante', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('limbus_warp_mission')) { setFlag('limbus_warp_mission'); events.push(evt('你听说了一个关于WARP列车上的特殊任务。据说边狱公司的罪人们被派往WARP列车，执行某个与翼公司核心机密相关的任务。没有人知道任务的具体内容。', 'limbus_warp_mission', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('limbus_golden_bough')) { setFlag('limbus_golden_bough'); events.push(evt('有人在黑市上出售一种名为『金枝』的神秘物品。据说它能给持有者带来不可思议的力量——也有人说是诅咒。边狱公司似乎在大量收购这种东西。', 'limbus_golden_bough', '家境+1', false)); modAttr('wea', 1); }
+  if (chance(0.008) && !getFlag('limbus_sin')) { setFlag('limbus_sin'); events.push(evt('你遇到了边狱公司的某个罪人单独行动。他的行为异常古怪——时而疯狂大笑，时而陷入沉默。他告诉你：『每个人都有罪，只是有些人的罪更……显眼。』', 'limbus_sin', '意志+1', false)); modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('limbus_ego_manifest')) { setFlag('limbus_ego_manifest'); events.push(evt('你在远处目睹了一次E.G.O manifest。某个罪人的身体被光芒包裹，武器和装甲从虚空中凝聚成形。那种力量让你屏住了呼吸——E.G.O的力量远比你想象的更加恐怖。', 'limbus_ego_manifest', '智力+2', true, '目击E.G.O显现')); modAttr('int', 2); }
+  if (chance(0.008) && !getFlag('limbus_identity')) { setFlag('limbus_identity'); events.push(evt('你在调查中发现了边狱公司罪人们的真实身份——他们每个人都有着不为人知的过去。有些人是前收尾人，有些人是前翼员工，有些人的身份甚至让你不敢相信。', 'limbus_identity', '智力+2', false)); modAttr('int', 2); }
+  if (chance(0.008) && !getFlag('limbus_vergilius')) { setFlag('limbus_vergilius'); events.push(evt('你在后巷遇到了一个穿着深蓝色风衣的高大男人。他的身上散发着令人窒息的压迫感——你立刻认出了他。那是 Vergilius，色彩级收尾人『蓝色档案』。他在注视着那群罪人。', 'limbus_vergilius', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('limbus_risen')) { setFlag('limbus_risen'); events.push(evt('边狱公司在后巷的影响力越来越大。有人说他们已经收集了足够多的金枝，能够打开通往某个禁忌之地的大门。你不知道这意味着什么——但你知道，禁忌之地从不意味着好事。', 'limbus_risen', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('limbus_heathcliff')) { setFlag('limbus_heathcliff'); events.push(evt('你在后巷的酒馆里遇到了一个满身伤痕的年轻人。他喝了很多酒，嘴里不停念叨着『庄园』和『复仇』。他的战斗技巧是自学的——但那种狂暴的战斗风格让经验丰富的收尾人都感到畏惧。', 'limbus_heathcliff', '体质+1', false)); modAttr('con', 1); }
+
   return events;
 }
 
@@ -3501,6 +3673,7 @@ function generateAdultEvents(age, a, f, bp, tags) {
     modAttr('wea', 2);
     setFlag('color_title', title);
     addMilestone('色彩级');
+    recordIdentity(age, '色彩级', '');
 
     // 殷红迷雾彩蛋
     if (title === '殷红迷雾') {
@@ -3548,6 +3721,7 @@ function generateAdultEvents(age, a, f, bp, tags) {
       modAttr('wea', 3);
       modAttr('int', 1);
       setFlag('wing_executive', true);
+      recordIdentity(age, '协会高管', '');
     }
   }
 
@@ -3893,6 +4067,7 @@ function generateAdultEvents(age, a, f, bp, tags) {
     modAttr('int', 2);
     modAttr('wea', 1);
     setFlag('workshop_master', true);
+    recordIdentity(age, '工坊工匠', '工坊');
   }
 
   // 事务所事件
@@ -3909,6 +4084,7 @@ function generateAdultEvents(age, a, f, bp, tags) {
     modAttr('wea', 1);
     modAttr('wil', 1);
     setFlag('office_director', true);
+    recordIdentity(age, '事务所所长', '');
   }
 
   // 清道夫事件
@@ -3943,6 +4119,8 @@ function generateAdultEvents(age, a, f, bp, tags) {
         )
       );
       death('清道夫');
+
+
       return events;
     }
   }
@@ -5475,6 +5653,126 @@ function generateAdultEvents(age, a, f, bp, tags) {
     events.push(evt(pick(workshopTales), 'craft', '', false, '工坊大师'));
   }
 
+  // ===== 性别依赖事件（壮年期） =====
+  if (age >= 31 && age <= 50 && chance(0.012) && gameState.gender === 'male' && !getFlag('gender_ad_male_fixer_codename')) {
+    setFlag('gender_ad_male_fixer_codename', true);
+    events.push(evt('你成为了协会的正式收尾人，并有了属于自己的代号。从今以后，你不再是一个无名的后巷青年，而是一名被协会承认的专业人士。你的名字被记录在协会的花名册上——这意味着你同时获得了保护和责任。', 'career', '武器+2，家境+2', true, '收尾人代号'));
+    addIdentity('正式收尾人', '协会');
+  }
+  if (age >= 35 && age <= 50 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ad_male_finger_promote')) {
+    setFlag('gender_ad_male_finger_promote', true);
+    var fingerOrg = getFlag('finger_joined');
+    if (fingerOrg === '中指') {
+      events.push(evt('你在中指组织中获得了晋升，紫色的中指纹身被刻在了你的胸口。这意味着你不再是外围成员——你现在承载着家族世代恩怨的一部分。中指的首领看着你说：『从今天起，你的敌人就是家族的敌人。』', 'promotion', '体质+2，武器+1', true, '中指晋升'));
+    } else if (fingerOrg === '拇指') {
+      events.push(evt('你获得了拇指的红色大衣——那是拇指正式成员的标志。穿上大衣的那一刻，你感受到了一种沉重的历史感。无数曾穿过这件大衣的人已经死了，而你还活着。拇指的首领拍了拍你的肩膀：『别死了。』', 'promotion', '体质+2，武器+1', true, '拇指晋升'));
+    } else if (fingerOrg === '食指') {
+      events.push(evt('你被授予了食指的白色面具——那象征着你已经成为了食指指令的执行者。面具覆盖了你的面容，从此你不再是以个人的身份行动，而是作为食指意志的延伸。你第一次以面具的身份执行了指令。', 'promotion', '智力+2，意志+1', true, '食指晋升'));
+    }
+  }
+  if (age >= 35 && age <= 50 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ad_male_workshop_master')) {
+    setFlag('gender_ad_male_workshop_master', true);
+    events.push(evt('你在工坊中成为了大师级工匠。你的锻造技术已经达到了业界顶尖水平，工坊制造的武器上开始刻上你的名字作为品质保证。翼公司和协会都成为了你的客户——在都市中，没有哪个收尾人不渴望拥有一把你打造的武器。', 'career', '武器+3，家境+3', true, '大师工匠'));
+    addIdentity('工坊大师', '工坊');
+  }
+  if (age >= 36 && age <= 50 && chance(0.008) && gameState.gender === 'male' && !getFlag('gender_ad_male_sweeper_mission')) {
+    setFlag('gender_ad_male_sweeper_mission', true);
+    events.push(evt('作为清扫人，你执行了一次高难度任务——清除被异化体占据的整个街区。清道夫的红色光芒在你身后蔓延，你手持武器冲入了一片血腥的战场。任务持续了整整三天三夜，当你从废墟中走出来时，浑身浴血但依然站立。', 'combat', '体质+3，意志+2', true, '清扫人任务'));
+    addIdentity('清扫人', '');
+  }
+  if (age >= 33 && age <= 48 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ad_male_office')) {
+    setFlag('gender_ad_male_office', true);
+    events.push(evt('你在后巷建立了自己的事务所。门上挂着你的代号牌，桌上摆着委托簿。虽然事务所只有一间小房间，但这是你用二十多年的打拼换来的。第一个客户走进来的时候，你感到一种前所未有的踏实感。', 'career', '家境+2，快乐+1', false, '建立事务所'));
+    addIdentity('事务所老板', '');
+  }
+  if (age >= 35 && age <= 50 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ad_male_wing_manager')) {
+    setFlag('gender_ad_male_wing_manager', true);
+    events.push(evt('你在翼公司做到了中层管理的位置。你管理着一支由数十人组成的团队，负责维护翼公司设施的日常运转。工作虽然不如收尾人刺激，但薪水和稳定性远超后巷的一切。你有时会想起年少时的收尾人梦想，然后摇摇头继续处理报表。', 'career', '家境+3，智力+1', false));
+    addIdentity('翼公司管理层', '');
+  }
+  if (age >= 35 && age <= 50 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ad_male_pirate_fight')) {
+    setFlag('gender_ad_male_pirate_fight', true);
+    events.push(evt('你在出差途中遭遇了大湖海盗的袭击。敌人的船只从浓雾中冲出，甲板上站满了凶神恶煞的海盗。你拿起武器组织船员反击，在激烈的战斗中亲手击退了三个海盗。最终海盗撤退了，你浑身是伤但保住了所有人和货物。', 'combat', '体质+2，武器+1', true, '击退海盗'));
+  }
+  if (age >= 38 && age <= 50 && chance(0.008) && gameState.gender === 'male' && !getFlag('gender_ad_male_singularity_ruin')) {
+    setFlag('gender_ad_male_singularity_ruin', true);
+    events.push(evt('你在郊区深处发现了上古奇点的残留。那是一座半坍塌的建筑，墙壁上流动着无法用现有科学解释的能量。你小心翼翼地采集了一些样本带回都市——后巷的研究者们愿意为此付出天价。', 'discover', '智力+2，家境+2', true, '奇点残留'));
+  }
+  if (age >= 33 && age <= 48 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ad_male_gang_core')) {
+    setFlag('gender_ad_male_gang_core', true);
+    events.push(evt('你成为了某个帮派的核心成员。帮主对你十分信任，将许多重要事务交给你处理。你在帮派中的地位仅次于帮主本人，手下有数十号人听从你的指挥。在后巷的帮派世界里，你已经算是功成名就了。', 'career', '武器+2，家境+2', false, '帮派核心'));
+    addIdentity('帮派核心成员', '');
+  }
+  if (age >= 35 && age <= 50 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ad_male_white_night')) {
+    setFlag('gender_ad_male_white_night', true);
+    events.push(evt('白夜黑昼降临了。三天极昼的光芒中，你看到了一些不该看到的东西——光芒中隐藏着的扭曲身影、人们脸上诡异而幸福的表情、以及首脑所在方向传来的那个声音。你在光芒中失去了左眼——白夜的光灼烧了你的视网膜。但你的另一只眼睛，似乎看到了什么。', 'whiteNight', '体质-2，意志+2，智力+1', true, '白夜黑昼'));
+    setFlag('whiteNight', true);
+    setFlag('whiteNightEvent', true);
+  }
+  if (age >= 35 && age <= 50 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ad_male_teacher')) {
+    setFlag('gender_ad_male_teacher', true);
+    events.push(evt('你开始收徒弟了。几个对收尾人之路充满向往的年轻人找到了你，请求你传授技艺。你看着他们年轻的面孔，想起了曾经的自己。你决定倾囊相授——在都市中，传承比什么都重要。', 'teach', '智力+1，快乐+1', false));
+  }
+  if (age >= 31 && age <= 50 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ad_female_color_rare')) {
+    setFlag('gender_ad_female_color_rare', true);
+    events.push(evt('你成为了色彩级收尾人中稀有的女性。你的称号在都市中如雷贯耳，人们用敬畏的目光注视着你。在这个男性主导的收尾人世界中，你用绝对的实力证明了一切。有年轻的女孩看到你会说：『我将来也要像她一样。』', 'career', '武器+3，意志+2，家境+3', true, '女性色彩级'));
+    addIdentity('色彩级收尾人', '协会');
+  }
+  if (age >= 33 && age <= 50 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ad_female_ring_fame')) {
+    setFlag('gender_ad_female_ring_fame', true);
+    events.push(evt('你在环指的艺术圈中声名鹊起。你的作品——无论是绘画、雕塑还是行为艺术——都被认为是环指近年来最出色的创作。有评论家说：『她的作品中有一种只有经历过痛苦才能理解的美。』你已经是环指中最受瞩目的艺术家之一。', 'career', '智力+3，家境+2', true, '环指声名'));
+    addIdentity('环指艺术家', '环指');
+  }
+  if (age >= 35 && age <= 50 && chance(0.008) && gameState.gender === 'female' && !getFlag('gender_ad_female_nest_hunter')) {
+    setFlag('gender_ad_female_nest_hunter', true);
+    events.push(evt('你在N巢的禁忌猎人中有了一席之地。禁忌猎人是都市中最隐秘的组织之一，专门处理违反巢之规则的特殊案件。作为少数女性禁忌猎人，你的直觉和洞察力让你成为了团队中不可或缺的成员。', 'career', '智力+2，意志+2', false, '禁忌猎人'));
+    addIdentity('禁忌猎人', 'N巢');
+  }
+  if (age >= 33 && age <= 48 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ad_female_info_network')) {
+    setFlag('gender_ad_female_info_network', true);
+    events.push(evt('你在后巷经营着最大的情报网络。你的线人遍布都市的每个角落——从巢内的政府职员到后巷的帮派头目，从翼公司的工程师到手指组织的间谍。你可以出售任何信息，只要你认为值得。在后巷，你就是消息本身。', 'career', '智力+3，家境+3', true, '情报网络'));
+    addIdentity('情报女王', '');
+  }
+  if (age >= 36 && age <= 50 && chance(0.008) && gameState.gender === 'female' && !getFlag('gender_ad_female_head_notice')) {
+    setFlag('gender_ad_female_head_notice', true);
+    events.push(evt('你被首脑的眼线注意到了存在。你感到有人一直在暗中观察你——不是帮派、不是手指、也不是协会，而是某种更高层次的监视。但出乎意料的是，你并没有被打为杂质。也许是因为你的存在对首脑而言，尚在『容许的范围』内。', 'encounter', '意志+2', true, '首脑的眼线'));
+  }
+  if (age >= 35 && age <= 50 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ad_female_lcorp_manager')) {
+    setFlag('gender_ad_female_lcorp_manager', true);
+    events.push(evt('你在脑叶公司成为了清理部门的负责人。你的日常工作是处理从异想体收容中产生的各种异常状况。每一次进入收容设施，你都能感受到异想体注视的目光——那些被囚禁的非人类存在，拥有着超越人类理解的力量。', 'career', '智力+2，意志+2', true, '脑叶公司负责人'));
+    addIdentity('清理部门负责人', '脑叶公司');
+  }
+  if (age >= 37 && age <= 50 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ad_female_library')) {
+    setFlag('gender_ad_female_library', true);
+    events.push(evt('你收到了图书馆的邀请。那封邀请函不知何时出现在了你的桌上——上面写着：『你的故事值得被收藏。』你知道图书馆是什么，也知道接受邀请意味着什么。但在都市活了这么多年，你已经不再害怕了。你选择了接受。', 'choice', '智力+2', true, '图书馆邀请'));
+    setFlag('library', true);
+  }
+  if (age >= 35 && age <= 50 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ad_female_limbus_role')) {
+    setFlag('gender_ad_female_limbus_role', true);
+    events.push(evt('你在边狱公司中担任了一个重要角色。你负责协调罪人们的任务和后勤——虽然你不是罪人，但你的组织能力和情报分析能力让你成为了边狱公司不可或缺的一员。但丁对你的工作十分满意。', 'career', '智力+2，家境+2', false));
+    addIdentity('边狱公司协调者', '边狱公司');
+  }
+  if (age >= 36 && age <= 50 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ad_female_pirate_captain')) {
+    setFlag('gender_ad_female_pirate_captain', true);
+    events.push(evt('你在大湖成为了令人闻风丧胆的海盗船长。你的船队拥有三艘改装战船，手下有上百号忠于你的水手。商船见到你的旗帜就会主动降帆投降——不是因为你残忍，而是因为你的战术从未失败过。', 'career', '体质+2，武器+2，家境+3', true, '海盗船长'));
+    addIdentity('海盗船长', '');
+  }
+  if (age >= 38 && age <= 50 && chance(0.008) && gameState.gender === 'female' && !getFlag('gender_ad_female_outskirts_path')) {
+    setFlag('gender_ad_female_outskirts_path', true);
+    events.push(evt('你在郊区的废墟中找到了属于自己的道路。你不再追求都市的名利和权力，而是在与异化体和黑兽的战斗中找到了存在的意义。你是都市和郊区之间的桥梁——没有人比你更了解那片危险的土地。', 'life', '体质+2，意志+2，智力+1', true, '废墟之路'));
+  }
+  if (age >= 33 && age <= 48 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ad_female_distorted_hero')) {
+    setFlag('gender_ad_female_distorted_hero', true);
+    events.push(evt('扭曲的波纹再一次触碰了你的意识。但这一次，你没有被吞噬——你凭借着强大的意志和对自我的深刻认知，将扭曲的力量转化为了自身的养分。你活了下来，而扭曲在你身上留下的痕迹，反而让你变得更加强大。', 'resist', '意志+3，体质+1', true, '扭曲免疫'));
+  }
+  if (age >= 34 && age <= 50 && chance(0.008) && gameState.gender === 'female' && !getFlag('gender_ad_female_smile_facade')) {
+    setFlag('gender_ad_female_smile_facade', true);
+    events.push(evt('你在后巷遇到了笑面的成员。他们脸上永远挂着让人不安的微笑，散发着一种诡异的快乐感。其中一个人对你说：『你看起来不太开心呢。要不要试试我们的方法？』你礼貌地拒绝了，但你注意到，笑面在你离开后依然在注视着你。', 'encounter', '意志+1', false));
+  }
+  if (age >= 35 && age <= 50 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ad_female_gear_church')) {
+    setFlag('gender_ad_female_gear_church', true);
+    events.push(evt('齿轮教会的传教士找到了你。他用机械化的语调向你讲述了齿轮教义：『血肉苦弱，机械永恒。将你的肉体替换为齿轮，你将获得不朽。』你婉拒了他的邀请，但齿轮教会的技术确实引起了你的兴趣。', 'encounter', '智力+1', false));
+  }
   return events;
 }
 
@@ -5498,6 +5796,7 @@ function generateMiddleAgeEvents(age, a, f, bp, tags) {
     );
     modAttr('wil', 1);
     addMilestone('退休');
+    recordIdentity(age, '退休者', '');
   }
 
   // 河流事件
@@ -5743,6 +6042,7 @@ function generateMiddleAgeEvents(age, a, f, bp, tags) {
     modAttr('wea', 3);
     setFlag('family_head', true);
     addMilestone('家主');
+    recordIdentity(age, '手指成员', '拇指·家主');
   }
 
   // 拇指晋升阶级（非家主路线）
@@ -5938,6 +6238,144 @@ function generateMiddleAgeEvents(age, a, f, bp, tags) {
     events.push(evt('在某个异常宁静的夜晚，你抬头望向了都市郊区之外的天空。在那无尽的黑暗中，你似乎看到了一点微光——那是星星吗？在都市的传说中，星星会实现人类的愿望。你闭上眼睛，许下了一个心愿。也许星星听到了，也许没有。', 'wish', '快乐+1', false, '仰望星星'));
   }
 
+
+  // ===== 性别依赖事件（中年期） =====
+  if (age >= 51 && age <= 70 && chance(0.012) && gameState.gender === 'male' && !getFlag('gender_ma_male_retire_plan')) {
+    setFlag('gender_ma_male_retire_plan', true);
+    events.push(evt('收尾人生涯的黄金期已经过去了。你的反应速度不如从前，伤疤在身上累积得越来越多。你开始考虑退休的事——也许在后巷开一家小店，也许回老家安度余生。但收尾人的身份就像纹身一样，是洗不掉的。', 'retire', '意志+1', false));
+  }
+  if (age >= 52 && age <= 65 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ma_male_training_hall')) {
+    setFlag('gender_ma_male_training_hall', true);
+    events.push(evt('你在后巷开了一家收尾人培训所。年轻的后巷孩子们慕名而来，想学习你数十年的战斗经验。你的教学方法严格而实用——你不教花哨的技巧，只教生存。培训所的招牌上写着：『活着回来，比什么都重要。』', 'career', '智力+1，家境+2', false, '收尾人培训所'));
+    addIdentity('培训所所长', '');
+  }
+  if (age >= 55 && age <= 68 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ma_male_revenge')) {
+    setFlag('gender_ma_male_revenge', true);
+    events.push(evt('你曾经的敌人找上门来复仇了。他带着帮手在深夜包围了你的住所。但你早已预料到这一天——数十年的经验让你对危险有着敏锐的直觉。你以一敌三，凭借经验和策略而非蛮力成功化解了这场危机。对方临死前看着你：『你……什么时候变得这么强了？』', 'combat', '体质+1，意志+2', true, '复仇化解'));
+  }
+  if (age >= 55 && age <= 70 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ma_male_assoc_advisor')) {
+    setFlag('gender_ma_male_assoc_advisor', true);
+    events.push(evt('你成为了协会的顾问级老前辈。年轻收尾人们遇到棘手的委托时会来请教你的意见，协会的高层在制定战略时也会参考你的经验。你的代号在协会中已经成为了一个传说——不是因为你有多强，而是因为你活得够久。', 'career', '智力+2，家境+1', false, '协会顾问'));
+    addIdentity('协会顾问', '协会');
+  }
+  if (age >= 53 && age <= 65 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ma_male_workshop_students')) {
+    setFlag('gender_ma_male_workshop_students', true);
+    events.push(evt('你在工坊中培养出了一批优秀的学徒。你的弟子们已经开始在各自的领域崭露头角，有的成为了翼公司的技师，有的独立开设了工坊。看着他们成长，你感到了一种做父亲般的满足感——传承，也许比创造更伟大。', 'teach', '快乐+2，智力+1', false));
+  }
+  if (age >= 55 && age <= 70 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ma_male_war_aftermath')) {
+    setFlag('gender_ma_male_war_aftermath', true);
+    events.push(evt('烟霾战争的后遗症开始显现了。当年暴露在烟霾中的你的身体，如今出现了各种并发症——咳嗽、呼吸困难、偶尔的失忆。你知道T公司的衰老弹虽然已经停用多年，但它造成的伤害是永久的。', 'illness', '体质-2，意志+1', false));
+  }
+  if (age >= 58 && age <= 70 && chance(0.008) && gameState.gender === 'male' && !getFlag('gender_ma_male_rare_material')) {
+    setFlag('gender_ma_male_rare_material', true);
+    events.push(evt('你在郊区深处找到了一种罕见的奇点材料。它在黑暗中散发着幽蓝的光芒，触感冰凉如水。你知道这种材料在黑市上价值连城，但你也知道，拥有它意味着承担巨大的风险。你权衡了很久，最终决定将其交给了一个值得信任的工坊。', 'item', '智力+1，家境+2', true, '奇点材料'));
+  }
+  if (age >= 55 && age <= 68 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ma_male_wing_advisor')) {
+    setFlag('gender_ma_male_wing_advisor', true);
+    events.push(evt('翼公司注意到了你的丰富经验，邀请你担任技术顾问。你在翼公司的设施中看到了最前沿的奇点科技，也见识到了翼公司内部复杂的权力斗争。你保持中立，专注于技术咨询——这是你多年后巷生涯学到的最重要的一课。', 'career', '智力+2，家境+3', false, '翼公司顾问'));
+    addIdentity('翼公司技术顾问', '');
+  }
+  if (age >= 56 && age <= 70 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ma_male_wounded_memory')) {
+    setFlag('gender_ma_male_wounded_memory', true);
+    events.push(evt('你在梦中反复经历着年轻时最惨烈的一场战斗。那场战斗的细节早已模糊，但身体上的旧伤疤却忠实地记录着一切。你从梦中惊醒，摸着胸口那道最长的伤疤——那是你作为收尾人的勋章。', 'memory', '意志+1', false));
+  }
+  if (age >= 53 && age <= 65 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ma_male_old_weapon')) {
+    setFlag('gender_ma_male_old_weapon', true);
+    events.push(evt('你从仓库中翻出了年轻时使用的第一把武器。它已经锈迹斑斑，刀刃上满是缺口。你握住它的手柄，回忆涌上心头——有多少次，这把武器救了你的命？你决定将它挂在家中最显眼的位置。', 'memory', '快乐+1', false));
+  }
+  if (age >= 51 && age <= 70 && chance(0.012) && gameState.gender === 'female' && !getFlag('gender_ma_female_legend')) {
+    setFlag('gender_ma_female_legend', true);
+    events.push(evt('你在都市中成为了传说级别的存在。人们提起你的名字时会压低声音，仿佛你的名字本身就拥有某种力量。你早已不在乎这些虚名——活到这个岁数的你，已经看透了都市的一切繁华与衰败。', 'reputation', '意志+2，快乐+1', true, '传说之名'));
+  }
+  if (age >= 53 && age <= 65 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ma_female_orphan_adopt')) {
+    setFlag('gender_ma_female_orphan_adopt', true);
+    events.push(evt('你收养了一个后巷的孤儿——一个瘦弱的小女孩，和你年轻时一样在后巷挣扎求生。你教她如何在都市中生存，如何辨别危险，如何保护自己。她看着你的眼神中满是崇拜：『你是世界上最厉害的人。』你笑了笑，心想：『不，我只是活得最久的那个人。』', 'family', '快乐+2，意志+1', false, '收养孤儿'));
+  }
+  if (age >= 55 && age <= 70 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ma_female_oldest_fixer')) {
+    setFlag('gender_ma_female_oldest_fixer', true);
+    events.push(evt('你在协会中成为了最年长的活跃收尾人。年轻收尾人们对你怀着复杂的感情——既敬佩你的实力和经验，又不理解你为什么一把年纪还在前线拼命。你的回答永远是：『因为我还没有找到放弃的理由。』', 'career', '体质+1，意志+2', false, '最年长收尾人'));
+    addIdentity('资深收尾人', '协会');
+  }
+  if (age >= 55 && age <= 70 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ma_female_ring_immortal')) {
+    setFlag('gender_ma_female_ring_immortal', true);
+    events.push(evt('你在环指中被称为『不朽的艺术家』。你的作品跨越了几十年依然被奉为经典，每一件都是艺术市场的抢手货。年轻艺术家们争相模仿你的风格，但没有人能复制你作品中的灵魂——那是一个女人在都市中用一生换来的感悟。', 'career', '智力+3，家境+3', true, '不朽艺术家'));
+    addIdentity('环指不朽艺术家', '环指');
+  }
+  if (age >= 53 && age <= 65 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ma_female_bloodfiend_elder')) {
+    setFlag('gender_ma_female_bloodfiend_elder', true);
+    events.push(evt('你在拉·曼却领成为了血魔长老。你活了足够长的岁月，见证了太多人类的兴衰。年轻的血魔们对你充满了敬畏——你身上那种超越时间的气质，是只有活了数十年的人才能拥有的。你偶尔会在月光下独饮血棒，回忆着年轻时的人和事。', 'life', '体质+2，智力+2', true, '血魔长老'));
+    addIdentity('血魔长老', '拉·曼却领');
+  }
+  if (age >= 55 && age <= 68 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ma_female_sanctuary')) {
+    setFlag('gender_ma_female_sanctuary', true);
+    events.push(evt('你在后巷开了一家安全的避难所。任何人——无论是否有能力支付——都可以在这里获得庇护。你用自己的积蓄维持着避难所的运转，亲自为受伤者包扎伤口，为饥饿者提供食物。在后巷的黑暗中，你的避难所是一盏永不熄灭的灯。', 'career', '快乐+3，家境-1', false, '避难所'));
+    addIdentity('避难所管理者', '');
+  }
+  if (age >= 56 && age <= 70 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ma_female_mediator')) {
+    setFlag('gender_ma_female_mediator', true);
+    events.push(evt('你被多个组织邀请担任调停者——帮派之间的纷争、手指组织内部的矛盾、甚至协会之间的摩擦，都希望你能出面调解。你的中立立场和丰富的人脉让你成为了都市中最重要的调停者之一。你不属于任何阵营，而正是这种独立性让所有人信任你。', 'career', '智力+2，家境+2', false, '调停者'));
+    addIdentity('调停者', '');
+  }
+  if (age >= 58 && age <= 70 && chance(0.008) && gameState.gender === 'female' && !getFlag('gender_ma_female_ruins_secret')) {
+    setFlag('gender_ma_female_ruins_secret', true);
+    events.push(evt('你在废墟中发现了一个可能改变都市的秘密。那是一座被掩埋在地下的设施，内部运行着某种仍然活跃的奇点技术。你没有告诉任何人这个发现——因为你知道，一旦消息走漏，翼公司、手指和帮派都会为此大打出手。你把它当作了自己的秘密。', 'discover', '智力+3', true, '废墟秘密'));
+  }
+  if (age >= 53 && age <= 65 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ma_female_abnormality_bond')) {
+    setFlag('gender_ma_female_abnormality_bond', true);
+    events.push(evt('你在一次委托中与一只低级异想体建立了奇妙的联系。那是一只有着人类眼睛的鸟形异想体，它不攻击你，反而对你表现出了一种类似于依恋的行为。你不知道该如何解释这种联系，但你选择不去深究——有些事情，不知道反而更安全。', 'encounter', '智力+1，快乐+1', true, '异想体联系'));
+  }
+  if (age >= 55 && age <= 70 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ma_female_foundation_director')) {
+    setFlag('gender_ma_female_foundation_director', true);
+    events.push(evt('你在都市中建立了一个半公开的基金会，专门援助后巷的贫困儿童和受伤的收尾人。基金会的资金来源于你多年积累的财富和捐助。你亲自管理每一笔支出，确保每一枚眼都花在了该花的地方。', 'career', '家境-1，快乐+2', false, '基金会'));
+  }
+  if (age >= 56 && age <= 68 && chance(0.008) && gameState.gender === 'female' && !getFlag('gender_ma_female_bremen_encounter')) {
+    setFlag('gender_ma_female_bremen_encounter', true);
+    events.push(evt('不来梅乐队在一场街头演出中邀请你加入。那些戴着动物面具的音乐家们用奇异的旋律述说着都市的故事。你虽然不是音乐家，但他们说：『我们需要的不只是音乐——我们需要故事。而你，有最好的故事。』', 'encounter', '智力+1，快乐+1', false));
+  }
+
+  // ==================== 扩展中年期稀有事件 ====================
+  // 战争后遗症(5)
+  if (chance(0.008) && !getFlag('war_trauma_mid')) { setFlag('war_trauma_mid'); events.push(evt('烟霾战争的记忆在某个深夜突然袭来。你在梦中又回到了那片灰色的天空下，烟雾中是无数倒下的身影。你惊醒后发现枕头已经被冷汗浸透。几十年的时光，并没有让那些记忆变淡。', 'war_trauma_mid', '意志+1', false)); modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('war_reunion_mid')) { setFlag('war_reunion_mid'); events.push(evt('你在后巷偶遇了一个烟霾战争时期的战友。你们在酒馆里喝了一整夜，回忆着那段生死与共的日子。第二天他消失了——就像从未出现过一样。', 'war_reunion_mid', '快乐+1', false)); gameState.happiness += 1; }
+  if (chance(0.008) && !getFlag('war_grave_mid')) { setFlag('war_grave_mid'); events.push(evt('你找到了当年战争中死去朋友的墓。墓碑上的名字已经模糊不清，但你记得。你在墓前站了很久，说了声『我替你活下来了』。', 'war_grave_mid', '', false)); }
+  if (chance(0.008) && !getFlag('war_legacy_mid')) { setFlag('war_legacy_mid'); events.push(evt('你决定把战争年代的经历写成一本回忆录。不是为了出版，而是为了那些被遗忘的人——他们的故事值得被记录。你写了一整年，手稿堆满了整个书桌。', 'war_legacy_mid', '智力+1，快乐+1', false)); modAttr('int', 1); gameState.happiness += 1; }
+  if (chance(0.008) && !getFlag('war_teache_mid')) { setFlag('war_teache_mid'); events.push(evt('年轻的收尾人找到你，想听你讲战争的故事。你犹豫了很久——那些记忆对你来说是痛苦，但对年轻一代来说是宝贵的经验。你决定说出来。', 'war_teache_mid', '意志+1，快乐+1', false)); modAttr('wil', 1); gameState.happiness += 1; }
+
+  // 奇点副作用(5)
+  if (chance(0.008) && !getFlag('sing_side_1') && getFlag('kcorp_touched')) { setFlag('sing_side_1'); events.push(evt('K公司再生安瓿的长期副作用终于显现了。你的伤口愈合速度异常地快，但你发现——你越来越难感受到疼痛了。这到底是幸运还是诅咒？', 'sing_side_1', '体质+1，意志-1', false)); modAttr('con', 1); modAttr('wil', -1); }
+  if (chance(0.008) && !getFlag('sing_side_2') && getFlag('tcorp_timer')) { setFlag('sing_side_2'); events.push(evt('T公司时间奇点的副作用让你的时间感知出现了偏差。有时候你觉得一秒钟过了很久，有时候一整天就像一瞬间。你开始怀疑自己的时间是否还在正常流逝。', 'sing_side_2', '智力+1，体质-1', false)); modAttr('int', 1); modAttr('con', -1); }
+  if (chance(0.008) && !getFlag('sing_side_3')) { setFlag('sing_side_3'); events.push(evt('你在接触奇点技术多年后发现自己的身体发生了微妙的异变。你的影子有时会比你本人慢半拍，而在某些光线条件下你会看到自己身体边缘有微弱的光晕。', 'sing_side_3', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('sing_side_4')) { setFlag('sing_side_4'); events.push(evt('你在一个翼公司的旧设施中发现了被遗弃的奇点实验记录。记录显示，长期接触某些奇点技术会导致人的精神逐渐『数字化』——丧失情感但获得无限的认知能力。你赶紧合上了文件夹。', 'sing_side_4', '智力+2，快乐-1', false)); modAttr('int', 2); gameState.happiness -= 1; }
+  if (chance(0.008) && !getFlag('sing_side_5')) { setFlag('sing_side_5'); events.push(evt('你的身体开始衰老——这是所有接触过奇点技术的人都要面对的问题。但你的衰老方式与常人不同：某些部位的细胞反而变得更加年轻，而另一些则加速老化。奇点的代价终究是要偿还的。', 'sing_side_5', '体质-1，智力+1', false)); modAttr('con', -1); modAttr('int', 1); }
+
+  // 师徒传承(5)
+  if (chance(0.008) && !getFlag('mentor_last')) { setFlag('mentor_last'); events.push(evt('你的师父——那个教会你一切的老收尾人——终于还是走了。在他的葬礼上，你发现整个后巷都来送行。你继承了他的武器和未完成的委托。', 'mentor_last', '快乐-2，意志+2，家境+1', false)); modAttr('wil', 2); modAttr('wea', 1); gameState.happiness -= 2; }
+  if (chance(0.008) && !getFlag('proud_student')) { setFlag('proud_student'); events.push(evt('你的学生终于成为了正式的收尾人。他/她来到你面前，深深地鞠了一躬。你看到了自己年轻时的影子——但更加耀眼。你知道，后巷又多了一个能保护他人的人。', 'proud_student', '快乐+2', false)); gameState.happiness += 2; }
+  if (chance(0.008) && !getFlag('teach_secret')) { setFlag('teach_secret'); events.push(evt('你决定把毕生所学中最关键的一个秘密传授给你最信任的学生。那个秘密关乎后巷的生存法则——知道了它，就能在后巷活得更好。但知道它的人越多，它就越不值钱。', 'teach_secret', '意志+1', false)); modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('student_betrays')) { setFlag('student_betrays'); events.push(evt('你最信任的学生背叛了你。他带着你传授的所有技能和秘密投靠了你的敌人。你站在空荡荡的训练场里，第一次感到了年老的无力。', 'student_betrays', '快乐-3', false)); gameState.happiness -= 3; }
+  if (chance(0.008) && !getFlag('legacy_weapon')) { setFlag('legacy_weapon'); events.push(evt('你决定将自己最珍视的武器交给下一代。那把武器陪伴了你几十年，上面的每一道伤痕都是一段故事。交接仪式很简单——你把武器递过去，他/她接住。沉默中有着千言万语。', 'legacy_weapon', '快乐+1', false)); gameState.happiness += 1; }
+
+  // 都市传说(5)
+  if (chance(0.008) && !getFlag('legend_head_appear')) { setFlag('legend_head_appear'); events.push(evt('有人说首脑本人出现在了某个巢中。消息无法被证实，但那个巢的居民们坚信——那天的天空确实与往常不同。首脑的注视像是一种可以触摸到的存在。', 'legend_head_appear', '意志+1', false)); modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('legend_eye_everywhere')) { setFlag('legend_eye_everywhere'); events.push(evt('你在都市的每个角落都感到了那种被注视的感觉。不是偏执——你确信有人在看着你。也许是首脑的眼线，也许只是后巷的紧张感在作祟。但你不禁想：如果首脑真的在看着每个人……那他看到了什么？', 'legend_eye_everywhere', '', false)); }
+  if (chance(0.008) && !getFlag('legend_buried_city')) { setFlag('legend_buried_city'); events.push(evt('你在废墟深处发现了一个被埋葬的地下城市。那里有完整的建筑、街道，甚至还有路灯——但一切都是石质的，像是用某种奇点技术瞬间石化。这里曾经有人居住。', 'legend_buried_city', '智力+2', false)); modAttr('int', 2); }
+  if (chance(0.008) && !getFlag('legend_last_fixer')) { setFlag('legend_last_fixer'); events.push(evt('你听说了一个关于『最后的色彩级』的传说——据说当一个时代的所有色彩级都消失后，都市将会迎来终结。现在活着的色彩级已经屈指可数了。', 'legend_last_fixer', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('legend_river_door')) { setFlag('legend_river_door'); events.push(evt('你在梦中看到了一扇门。门的另一边是河流——那条传说中的、流经整个都市的河流。你伸手去推门，门开了——然后你醒了。但你的手上确实湿了。', 'legend_river_door', '智力+1', false)); modAttr('int', 1); }
+
+  // 阵营深度(5)
+  if (chance(0.008) && !getFlag('faction_leader_age') && a.wil >= 7 && a.int >= 6) { setFlag('faction_leader_age'); events.push(evt('你所在的势力推举你成为新的领袖。几十年的经验和人脉让你成为了最合适的人选。你站在众人面前，感受到了责任的重量——也感受到了权力的诱惑。', 'faction_leader_age', '家境+3，意志+1', true, '成为势力领袖')); modAttr('wea', 3); modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('faction_retire')) { setFlag('faction_retire'); events.push(evt('你决定从活跃的前线退下来，担任顾问的角色。年轻人们对你的尊敬让你感到满足——虽然偶尔还是会怀念拿起武器冲锋的感觉。', 'faction_retire', '快乐+1，意志+1', false)); modAttr('wil', 1); gameState.happiness += 1; }
+  if (chance(0.008) && !getFlag('faction_collapse_old')) { setFlag('faction_collapse_old'); events.push(evt('你曾经效力过的组织在你离开后逐渐衰落。你回去看了一次——那些曾经繁华的据点现在只剩下断壁残垣。你默默转身离开，有些东西一旦失去就再也回不来了。', 'faction_collapse_old', '快乐-1', false)); gameState.happiness -= 1; }
+  if (chance(0.008) && !getFlag('faction_rebuild')) { setFlag('faction_rebuild'); events.push(evt('你决定重建一个已经覆灭的组织。用你多年积累的资源和人脉，你召集了一批志同道合的人。也许这次能做得更好——也许不会。但至少你要试试。', 'faction_rebuild', '家境-2，意志+2', false)); modAttr('wea', -2); modAttr('wil', 2); }
+  if (chance(0.008) && !getFlag('faction_peace')) { setFlag('faction_peace'); events.push(evt('在你和几个老友的斡旋下，后巷的两个宿敌势力达成了脆弱的和平协议。你知道这种和平不会持续太久——但在它持续的时候，至少有少数人可以安稳地睡一觉。', 'faction_peace', '快乐+1', false)); gameState.happiness += 1; }
+
+  // 生死感悟(5)
+  if (chance(0.008) && !getFlag('death_near_miss_old')) { setFlag('death_near_miss_old'); events.push(evt('你又一次与死神擦肩而过。这一次你不再感到恐惧——只有一种奇怪的平静。在都市活了这么多年，你已经看透了生死。也许死亡不过是回到了河流的怀抱。', 'death_near_miss_old', '意志+2', false)); modAttr('wil', 2); }
+  if (chance(0.008) && !getFlag('death_will_old')) { setFlag('death_will_old'); events.push(evt('你写下了遗嘱。在后巷，很少有人能活到需要写遗嘱的年纪。你的遗嘱很简单——把有用的东西给学生，把故事留给后巷，把名字还给都市。', 'death_will_old', '意志+1', false)); modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('death_reflect')) { setFlag('death_reflect'); events.push(evt('某个深夜你回顾了一生。你做了什么？改变了什么？后巷因为你的存在变得好了一点，还是坏了一点？你想了很久——也许两者都有。这就是人生。', 'death_reflect', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('death_friend_old')) { setFlag('death_friend_old'); events.push(evt('又一个老朋友离开了。后巷送走了又一位老人。你在空荡荡的酒馆里独自喝了一杯——这个酒馆只剩下你和回忆了。', 'death_friend_old', '快乐-2', false)); gameState.happiness -= 2; }
+  if (chance(0.008) && !getFlag('death_accept')) { setFlag('death_accept'); events.push(evt('你终于接受了死亡的必然性。这不是放弃——这是一种深刻的平静。在都市的混乱中活了这么多年，你知道自己已经活得够本了。剩下的每一天都是bonus。', 'death_accept', '快乐+2，意志+1', false)); modAttr('wil', 1); gameState.happiness += 2; }
+
   return events;
 }
 
@@ -5952,6 +6390,11 @@ function generateElderEvents(age, a, f, bp, tags) {
   if (ext.extended) {
     events.push(...ext.events);
     return events;
+  }
+
+  // 后巷长老身份
+  if (age === 71 && (bp === 'backstreet' || bp === 'nine')) {
+    recordIdentity(age, '后巷长老', '');
   }
 
   // 死亡判定逐年增加
@@ -6300,6 +6743,49 @@ function generateElderEvents(age, a, f, bp, tags) {
     events.push(evt('一百岁。你站在这座都市的某个角落，回望着过去的一个世纪。烟霾战争的硝烟、白夜黑昼的光芒、图书馆的邀请函、手指的追杀……一切都像是一场漫长的梦。而你，还站在这里。', 'century', '智力+1，意志+1', true, '百岁人生'));
   }
 
+
+  // ===== 性别依赖事件（晚年期） =====
+  if (age >= 71 && age <= 100 && chance(0.012) && gameState.gender === 'male' && !getFlag('gender_elder_male_quiet')) {
+    setFlag('gender_elder_male_quiet', true);
+    events.push(evt('你在都市的某个不起眼角落安静地度过了余生的大部分时光。门前的小花园是你精心打理的成果——在钢铁丛林中，那一小片绿色显得格外珍贵。偶尔有路人停下来看你浇花，你对他们微笑。这就是你选择的生活方式。', 'life', '快乐+1', false));
+  }
+  if (age >= 75 && age <= 100 && chance(0.012) && gameState.gender === 'male' && !getFlag('gender_elder_male_teacher')) {
+    setFlag('gender_elder_male_teacher', true);
+    events.push(evt('年轻一代的收尾人们尊称你为『老师』。他们定期来看望你，请教各种问题——从战斗技巧到人生哲理。你坐在椅子上，用沙哑的声音讲述着过去的经历。他们听得入迷，而你则在讲述中重新活了过来。', 'respect', '快乐+2', false, '老师'));
+  }
+  if (age >= 73 && age <= 95 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_elder_male_tavern_stories')) {
+    setFlag('gender_elder_male_tavern_stories', true);
+    events.push(evt('你在后巷的老酒馆里讲述当年的冒险故事。围坐的听众们时而惊叹、时而大笑。你讲到了白夜黑昼的光芒、讲到了黑兽的恐怖、讲到了色彩级收尾人的传说。酒馆的老板免费给你续了一杯酒：『老爷子的故事，比任何收尾人的委托都精彩。』', 'social', '快乐+2，家境+1', false));
+  }
+  if (age >= 75 && age <= 100 && chance(0.008) && gameState.gender === 'male' && !getFlag('gender_elder_male_weapon_show')) {
+    setFlag('gender_elder_male_weapon_show', true);
+    events.push(evt('一群年轻混混试图在你面前耍横。你缓缓站起来，从墙上取下了那把跟随了你几十年的武器。虽然动作已经不再利落，但当你挥出第一刀的时候，所有的混混都安静了。那个瞬间，他们看到了——刀锋中蕴含的不只是力量，更是岁月。', 'combat', '体质+1，快乐+1', false, '不减当年'));
+  }
+  if (age >= 71 && age <= 100 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_elder_female_nest_peace')) {
+    setFlag('gender_elder_female_nest_peace', true);
+    events.push(evt('你在巢的安宁中回忆一生的波澜。窗外的巢在夕阳中显得格外美丽——规整的建筑、有序的人群、安全的街道。这些都是你用一生换来的平静。你坐在窗前，手中捧着一杯热茶，嘴角挂着满足的微笑。', 'life', '快乐+2', false));
+  }
+  if (age >= 73 && age <= 100 && chance(0.012) && gameState.gender === 'female' && !getFlag('gender_elder_female_guardian')) {
+    setFlag('gender_elder_female_guardian', true);
+    events.push(evt('后巷的居民们把你视为守护者。虽然你已经不再战斗，但你的存在本身就是一种威慑——所有人都知道，这个看似慈祥的老太太，曾经是都市中最令人畏惧的存在之一。孩子们在她的门前玩耍，因为她守护的这条街，是整个后巷最安全的地方。', 'respect', '快乐+2', false, '后巷守护者'));
+  }
+  if (age >= 75 && age <= 100 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_elder_female_inherit_network')) {
+    setFlag('gender_elder_female_inherit_network', true);
+    events.push(evt('你把毕生经营的情报网络传承给了继承人——一个你观察了多年的年轻女子。她有着和你年轻时一样的锐利眼神和冷静头脑。在交接仪式上，你将最后一本联络簿交到她手中：『记住，情报的力量不在于拥有它，而在于知道何时使用它。』', 'legacy', '智力+1，快乐+1', false, '情报传承'));
+  }
+  if (age >= 73 && age <= 95 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_elder_female_bloodfiend_teach')) {
+    setFlag('gender_elder_female_bloodfiend_teach', true);
+    events.push(evt('你在拉·曼却领教导年轻的血魔后代。你告诉他们血魔的历史、血棒的炼制方法、以及在都市中生存的智慧。年轻的血魔们敬畏地聆听你的每一句话——你是活着的历史，是血魔一族数百年传承的见证者。', 'teach', '智力+1，快乐+1', false));
+  }
+  if (age >= 76 && age <= 100 && chance(0.008) && gameState.gender === 'female' && !getFlag('gender_elder_female_final_art')) {
+    setFlag('gender_elder_female_final_art', true);
+    events.push(evt('你创作了人生中最后一幅作品。那是一幅自画像——画中的你，年轻而坚韧，眼中闪烁着不灭的光芒。你将这幅画挂在了工作室的最中央，然后关上了门。环指的同行们称这幅画为『不朽之镜』，因为它完美地捕捉了一个人一生的灵魂。', 'art', '智力+1，快乐+2', true, '最后的画作'));
+  }
+  if (age >= 74 && age <= 100 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_elder_female_letter')) {
+    setFlag('gender_elder_female_letter', true);
+    events.push(evt('你写了一封长信，收件人是多年前的自己。你在信中写道：『如果你知道未来会发生什么，你还会做出同样的选择吗？』你想了很久，最终在信的末尾写道：『会的。因为正是那些选择，成就了现在的我。』你将信折好，放在了抽屉深处。', 'memory', '意志+1，快乐+1', false));
+  }
+
   return events;
 }
 
@@ -6311,10 +6797,11 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
 
   // 出生事件（仅0-1岁）
   if (age <= 1) {
+    var genderText = gameState.gender === 'male' ? '是一个男孩。家人看着襁褓中的你，期待着这个新生命在都市中的命运。' : '是一个女孩。家人看着襁褓中的你，期待着这个新生命在都市中的命运。';
     if (bp === 'lnest') {
       events.push(
         evt(
-          '你在L巢出生。窗外的迷雾终年不散，远处隐约可见一座散发着微光的建筑——图书馆。',
+          '你在L巢出生。窗外的迷雾终年不散，远处隐约可见一座散发着微光的建筑——图书馆。 你' + genderText,
           'none',
           '',
           true,
@@ -6324,7 +6811,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else if (bp === 'knest') {
       events.push(
         evt(
-          '你在K巢出生。医院的墙壁上流淌着淡绿色的光芒，再生安瓿的液体在走廊中缓缓流动。',
+          '你在K巢出生。医院的墙壁上流淌着淡绿色的光芒，再生安瓿的液体在走廊中缓缓流动。 你' + genderText,
           'none',
           '',
           true,
@@ -6345,7 +6832,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else if (bp === 'tnest') {
       events.push(
         evt(
-          '你在T巢出生。你的父母告诉你，在这里，每天至少有四个小时是完全属于你自己的。',
+          '你在T巢出生。你的父母告诉你，在这里，每天至少有四个小时是完全属于你自己的。 你' + genderText,
           'none',
           '',
           true,
@@ -6355,7 +6842,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else if (bp === 'rnest') {
       events.push(
         evt(
-          '你在R巢出生。街道上整齐划一的脚步声是你最初的摇篮曲。',
+          '你在R巢出生。街道上整齐划一的脚步声是你最初的摇篮曲。 你' + genderText,
           'none',
           '',
           true,
@@ -6365,7 +6852,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else if (bp === 'wnest') {
       events.push(
         evt(
-          '你在W巢出生。巨大的WARP列车从你家的窗户前驶过，前往未知的目的地。',
+          '你在W巢出生。巨大的WARP列车从你家的窗户前驶过，前往未知的目的地。 你' + genderText,
           'none',
           '',
           true,
@@ -6375,7 +6862,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else if (bp === 'unest' || bp === 'greatlake') {
       events.push(
         evt(
-          '你在大湖沿岸出生。海风是你最初的记忆，远处帆船的帆影在你的眼中摇曳。',
+          '你在大湖沿岸出生。海风是你最初的记忆，远处帆船的帆影在你的眼中摇曳。 你' + genderText,
           'none',
           '',
           true,
@@ -6385,7 +6872,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else if (bp === 'nine') {
       events.push(
         evt(
-          '你在第九巷出生。夜晚的霓虹灯和音乐声从未停歇，但你也听说了钢琴家的传说。',
+          '你在第九巷出生。夜晚的霓虹灯和音乐声从未停歇，但你也听说了钢琴家的传说。 你' + genderText,
           'none',
           '',
           true,
@@ -6395,7 +6882,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else if (bp === 'twentythree') {
       events.push(
         evt(
-          '你在味之巷出生。空气中永远弥漫着一股说不出的味道，那是谢肉祭纺织面料的气息。',
+          '你在味之巷出生。空气中永远弥漫着一股说不出的味道，那是谢肉祭纺织面料的气息。 你' + genderText,
           'none',
           '',
           true,
@@ -6405,7 +6892,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else if (bp === 'fourteen') {
       events.push(
         evt(
-          '你在第十四巷出生。这里的孩子从会说话起就开始背诵考试资料。',
+          '你在第十四巷出生。这里的孩子从会说话起就开始背诵考试资料。 你' + genderText,
           'none',
           '',
           true,
@@ -6415,7 +6902,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else if (bp === 'eight') {
       events.push(
         evt(
-          '你在第八巷出生。鸿园的古老传说伴随着你的童年，仙皇虫的故事让你夜不能寐。',
+          '你在第八巷出生。鸿园的古老传说伴随着你的童年，仙皇虫的故事让你夜不能寐。 你' + genderText,
           'none',
           '',
           true,
@@ -6425,7 +6912,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else if (bp === 'ramancha') {
       events.push(
         evt(
-          '你在拉·曼却领出生。血棒是你最初的辅食，游乐园的旋转木马是你的摇篮。',
+          '你在拉·曼却领出生。血棒是你最初的辅食，游乐园的旋转木马是你的摇篮。 你' + genderText,
           'none',
           '',
           true,
@@ -6435,7 +6922,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else if (bp === 'ruins') {
       events.push(
         evt(
-          '你在废墟深处出生。你的父母是拾荒者，你的摇篮是一个废弃的奇点科技容器。',
+          '你在废墟深处出生。你的父母是拾荒者，你的摇篮是一个废弃的奇点科技容器。 你' + genderText,
           'none',
           '',
           true,
@@ -6445,7 +6932,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else if (bp === 'library') {
       events.push(
         evt(
-          '你在图书馆周边的迷雾中出生。据说你出生时，所有的书都自动翻开了第一页。',
+          '你在图书馆周边的迷雾中出生。据说你出生时，所有的书都自动翻开了第一页。 你' + genderText,
           'none',
           '',
           true,
@@ -6455,7 +6942,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else if (bp === 'thumb') {
       events.push(
         evt(
-          '你在拇指领地出生。你的第一个玩具是一把微型手枪，你的童谣是拇指的军歌。',
+          '你在拇指领地出生。你的第一个玩具是一把微型手枪，你的童谣是拇指的军歌。 你' + genderText,
           'none',
           '',
           true,
@@ -6465,7 +6952,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else if (bp === 'index') {
       events.push(
         evt(
-          '你在食指领地出生。每天清晨，白色的信纸会从门缝下塞进来，上面写着今天的「指令」。',
+          '你在食指领地出生。每天清晨，白色的信纸会从门缝下塞进来，上面写着今天的「指令」。 你' + genderText,
           'none',
           '',
           true,
@@ -6475,7 +6962,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else if (bp === 'middle') {
       events.push(
         evt(
-          '你在中指领地出生。你的家族纹章是紫色的中指，世代的恩怨从这一刻开始纠缠着你。',
+          '你在中指领地出生。你的家族纹章是紫色的中指，世代的恩怨从这一刻开始纠缠着你。 你' + genderText,
           'none',
           '',
           true,
@@ -6485,7 +6972,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else if (bp === 'ring') {
       events.push(
         evt(
-          '你在环指领地出生。你的第一幅涂鸦被一位环指艺术家称赞为「纯粹的扭曲之美」。',
+          '你在环指领地出生。你的第一幅涂鸦被一位环指艺术家称赞为「纯粹的扭曲之美」。 你' + genderText,
           'none',
           '',
           true,
@@ -6495,7 +6982,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else if (bp === 'workshop') {
       events.push(
         evt(
-          '你在工坊出生。锻造台的火花是你最初的夜灯，金属的敲击声是你的摇篮曲。',
+          '你在工坊出生。锻造台的火花是你最初的夜灯，金属的敲击声是你的摇篮曲。 你' + genderText,
           'none',
           '',
           true,
@@ -6505,7 +6992,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else if (bp === 'zwei') {
       events.push(
         evt(
-          '你在Zwei协会辖区出生。这里的治安比其他后巷好得多，你可以安心地在街上玩耍。',
+          '你在Zwei协会辖区出生。这里的治安比其他后巷好得多，你可以安心地在街上玩耍。 你' + genderText,
           'none',
           '',
           true,
@@ -6515,7 +7002,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else if (bp === 'hana') {
       events.push(
         evt(
-          '你在Hana协会辖区出生。你从小就知道，这里是都市中最强收尾人们聚集的地方。',
+          '你在Hana协会辖区出生。你从小就知道，这里是都市中最强收尾人们聚集的地方。 你' + genderText,
           'none',
           '',
           true,
@@ -6525,7 +7012,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else if (bp === 'outskirts') {
       events.push(
         evt(
-          '你在郊区边缘出生。远处的星空是你唯一的娱乐，怪物的嚎叫是你入睡的背景音。',
+          '你在郊区边缘出生。远处的星空是你唯一的娱乐，怪物的嚎叫是你入睡的背景音。 你' + genderText,
           'none',
           '',
           true,
@@ -6535,7 +7022,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else {
       events.push(
         evt(
-          '你在都市的一个普通角落出生。没有特别的奇迹，也没有特别的灾难——这本身就已经是一种幸运。',
+          '你在都市的一个普通角落出生。没有特别的奇迹，也没有特别的灾难——这本身就已经是一种幸运。 你' + genderText,
           'none',
           '',
           false
@@ -6588,6 +7075,48 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
         )
       );
       modAttr('con', 1);
+    }
+
+    // 家庭背景事件（0-1岁）
+    if (age === 0 && !getFlag('family_bg_set')) {
+      setFlag('family_bg_set', true);
+      var wea = a.wea || 0;
+      var families = [];
+      if (wea <= 2) {
+        families = [
+          { text: '你的家庭在后巷的最底层挣扎求生。父亲是一个失败的收尾人，母亲在黑市做些缝补的零工。你们住在一个废弃的管道里。', flag: 'family_poor_fixer' },
+          { text: '你是孤儿，被后巷的一个老收尾人捡到。他用粗犷的方式将你养大，教你的第一件事是如何握住一把刀。', flag: 'family_orphan_fixer' },
+          { text: '你的父母在一次委托中双双失踪。你被邻居们轮流照顾，但没有人真正想要你。你很早就学会了独立。', flag: 'family_missing_parents' },
+          { text: '你的家庭是后巷的拾荒者。每天天不亮，全家就出门在废墟中翻找任何能卖钱的东西。', flag: 'family_scavenger' },
+          { text: '你的母亲是后巷的一个酒馆女招待，父亲是谁她从不提起。你从小就学会了在嘈杂的酒馆角落里安静地待着。', flag: 'family_barmaid' },
+        ];
+      } else if (wea <= 4) {
+        families = [
+          { text: '你的家庭在后巷经营着一家小小的武器修理铺。虽然算不上富裕，但至少不用担心明天的饭。', flag: 'family_repair_shop' },
+          { text: '你的父亲是某个协会的低级收尾人，母亲是巢里一个普通职员。你们住在巢和后巷的交界处，两头都不算归属。', flag: 'family_border' },
+          { text: '你的家庭在后巷开了一家情报屋。从小你就学会了如何分辨真假消息——在后巷，这比任何武器都重要。', flag: 'family_info_shop' },
+          { text: '你的父母是工坊的底层工匠。你从小就在金属的敲击声中长大，对武器有着天然的亲切感。', flag: 'family_workshop_low' },
+          { text: '你的家庭经营着一家不起眼的杂货店。但你知道，柜台下面的抽屉里藏着的不只是零钱——还有情报和弹药。', flag: 'family_front_shop' },
+        ];
+      } else if (wea <= 6) {
+        families = [
+          { text: '你的家庭是巢中一个体面的中产家庭。父亲在翼公司担任中层管理，母亲是一位教师。你从小接受良好的教育。', flag: 'family_nest_middle' },
+          { text: '你的家族在小指的势力范围中经营着灰产生意。表面上你们是正经商人，但暗地里的交易才是真正的收入来源。', flag: 'family_little_finger' },
+          { text: '你的父亲是一位退休的1级收尾人，母亲是前协会的文员。他们用积蓄在后巷开了一家收尾人培训所。', flag: 'family_fixer_trainer' },
+          { text: '你的家庭在都市的某个巢中经营着一家颇具规模的运输公司。WARP列车是你的家庭最重要的合作伙伴。', flag: 'family_transport' },
+          { text: '你的父母都是工坊的中级工匠，专门为协会的收尾人提供武器装备。你从小就接触到了各种精良的武器。', flag: 'family_workshop_mid' },
+        ];
+      } else {
+        families = [
+          { text: '你的家庭是巢中的名门望族。你的父亲在翼公司担任高级顾问，母亲出身于一个有百年历史的收尾人世家。', flag: 'family_nest_upper' },
+          { text: '你的家族与某个手指有着深厚的渊源。虽然你未必会加入手指，但那份血脉中的联系给你带来了不少便利。', flag: 'family_finger_ties' },
+          { text: '你的家庭是Hana协会的前成员家庭。你的祖父曾是Hana协会的色彩级收尾人，虽然他已退休，但他的名声依然在都市中回响。', flag: 'family_hana_legacy' },
+          { text: '你的家族经营着一个跨巢的商业帝国。月长石、再生安瓿、奇点技术——你的家庭与多个翼公司有着密切的商业关系。', flag: 'family_merchant_empire' },
+          { text: '你的血统可以追溯到都市建城之初。你的家族曾见证过河流的传说、首脑的诞生、翼公司的崛起。这段历史既是荣耀也是枷锁。', flag: 'family_ancient_lineage' },
+        ];
+      }
+      var fam = families[Math.floor(Math.random() * families.length)];
+      events.push(evt(fam.text, fam.flag, '', true, '家庭背景'));
     }
   }
 
@@ -6914,6 +7443,49 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
   }
   if (age >= 5 && age <= 6 && chance(0.03) && bp === 'nest') {
     events.push(evt('巢内的幼儿园里，你第一次接触到了关于奇点科技的启蒙教育。老师用简单的话解释了什么是『奇点』——一种如同神迹般的技术。你听得云里雾里，但觉得这个世界的魔法比你想象的还要多。', 'edu', '智力+1', false));
+  }
+
+
+  // ===== 性别依赖事件（幼年期） =====
+  if (age >= 3 && age <= 6 && chance(0.015) && gameState.gender === 'male' && !getFlag('gender_boy_bully')) {
+    setFlag('gender_boy_bully', true);
+    events.push(evt('你在后巷被几个大孩子欺负了。他们嘲笑你瘦弱的身体，抢走了你唯一的零食。你攥紧拳头，发誓要变得更强——总有一天，你要让他们知道后巷不是谁都可以欺负人的地方。', 'bully', '意志+1', false));
+  }
+  if (age >= 3 && age <= 6 && chance(0.012) && gameState.gender === 'male' && !getFlag('gender_boy_fixer_admire')) {
+    setFlag('gender_boy_fixer_admire', true);
+    events.push(evt('你在后巷看到了一个收尾人。他穿着整洁的制服，腰间别着工坊制造的武器，在后巷的人群中如鱼得水。你看得入了迷——那就是你想要成为的人。从那天起，你开始用木棍模仿收尾人的动作。', 'dream', '武器+1', false));
+  }
+  if (age >= 4 && age <= 6 && chance(0.012) && gameState.gender === 'male' && !getFlag('gender_boy_play_fixer')) {
+    setFlag('gender_boy_play_fixer', true);
+    events.push(evt('你和邻居家的小男孩们玩起了『收尾人和异化体』的游戏。你自告奋勇扮演收尾人，用废铁管当武器，把小伙伴们扮演的异化体打得落花流水。大人们看着你们笑了笑——在这个都市里，孩子的游戏就是未来的预演。', 'play', '体质+1', false));
+  }
+  if (age >= 4 && age <= 6 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_boy_workshop_show')) {
+    setFlag('gender_boy_workshop_show', true);
+    events.push(evt('你父亲带你去看了工坊的武器展览。虽然你个子小，只能从大人的腿缝中偷看，但那些闪着寒光的刀刃、精密的枪械和散发着奇异光芒的E.G.O残片让你目不转睛。你拉着父亲的手说：『爸爸，我以后也要造这个。』', 'edu', '智力+1，武器+1', false));
+  }
+  if (age >= 5 && age <= 6 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_boy_rusty_knife')) {
+    setFlag('gender_boy_rusty_knife', true);
+    events.push(evt('你在后巷的废墟里捡到了一把生锈的匕首。刀刃已经钝了，但你还是小心翼翼地把它藏在了衣服里。这是你第一次拥有『武器』——在后巷，没有武器的孩子就像没有壳的蜗牛。', 'item', '武器+1', false));
+  }
+  if (age >= 3 && age <= 6 && chance(0.015) && gameState.gender === 'female' && !getFlag('gender_girl_stalker')) {
+    setFlag('gender_girl_stalker', true);
+    events.push(evt('你在后巷被一个奇怪的大人跟踪了。你加快脚步，心跳如擂鼓，在巷子转角处钻进了一条只有孩子才能通过的缝隙。那个人在外面徘徊了很久才离开。从那天起，你学会了在后巷行走时永远要看身后。', 'danger', '意志+1', false));
+  }
+  if (age >= 4 && age <= 6 && chance(0.012) && gameState.gender === 'female' && !getFlag('gender_girl_mother_teach')) {
+    setFlag('gender_girl_mother_teach', true);
+    events.push(evt('你的母亲开始教你如何在后巷保护自己。她教你走路的姿态要坚定、不要在深夜出门、遇到危险时该往哪里跑。她说：『在都市里，女孩要学的东西比男孩多得多——这不公平，但这是事实。』', 'survival', '意志+1，体质+1', false));
+  }
+  if (age >= 4 && age <= 6 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_girl_craft_decor')) {
+    setFlag('gender_girl_craft_decor', true);
+    events.push(evt('你和几个小伙伴用废品制作装饰品。生锈的齿轮变成了项链，碎玻璃片变成了手链，废弃的电路板变成了发卡。在后巷，美丽是需要自己创造的——而你们小小的心灵中，已经种下了对美的执着。', 'craft', '智力+1', false));
+  }
+  if (age >= 4 && age <= 6 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_girl_color_fixer')) {
+    setFlag('gender_girl_color_fixer', true);
+    events.push(evt('你在后巷看到了一位色彩级女收尾人经过。她的存在本身就是一种宣言——在这个男性主导的都市中，她用实力证明了自己的价值。她的背影在夕阳中格外耀眼，你目送她消失在巷子尽头，心中涌起了一种说不清的向往。', 'admire', '意志+1', false, '色彩级的背影'));
+  }
+  if (age >= 5 && age <= 6 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_girl_mirror')) {
+    setFlag('gender_girl_mirror', true);
+    events.push(evt('你在后巷的角落里发现了一面完好的镜子。镜面上蒙着灰尘，但擦干净后，你看到了自己的脸。在后巷，照镜子是一种奢侈——大多数人甚至不在意自己长什么样。但你从那天起记住了自己的样子，发誓不要被都市磨灭掉。', 'life', '智力+1', false));
   }
 
   return events;
@@ -7495,6 +8067,93 @@ function generateTeenEvents(age, a, f, bp, tags) {
     events.push(evt('你和朋友打赌进入了都市的一个禁区——那是一片被翼公司封锁的区域，据说里面隐藏着不能被公众知道的秘密。你们在禁区边缘就被安保系统发现了，所幸只是被警告后就放走了。但那一瞥之间的景象，让你永远忘不了。', 'danger', '智力+1，意志-1', false, '禁区探险'));
   }
 
+
+  // ===== 性别依赖事件（少年期） =====
+  if (age >= 13 && age <= 18 && chance(0.012) && gameState.gender === 'male' && !getFlag('gender_teen_boy_stress')) {
+    setFlag('gender_teen_boy_stress', true);
+    events.push(evt('巢入学考试的压力让你喘不过气来。你和几个朋友偷偷溜到后巷发泄——在后巷的地下拳击场打了几轮。拳头砸在身上的疼痛反而让你清醒了不少。你知道，压力是都市给你的第一堂课。', 'stress', '体质+1，意志+1', false));
+  }
+  if (age >= 15 && age <= 18 && chance(0.012) && gameState.gender === 'male' && !getFlag('gender_teen_boy_assoc_train')) {
+    setFlag('gender_teen_boy_assoc_train', true);
+    events.push(evt('你决定加入协会，开始了艰苦的体能训练。每天凌晨四点起床跑步、白天练习格斗、晚上研究武器手册。训练的强度远超你的想象，但每一次突破极限的瞬间都让你感到一种奇怪的快感。', 'training', '体质+2，武器+1', false));
+  }
+  if (age >= 14 && age <= 17 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_teen_boy_gang_recruit')) {
+    setFlag('gender_teen_boy_gang_recruit', true);
+    events.push(evt('你在后巷赌场附近被一群混混拉拢。他们看中了你灵活的身手和锐利的眼神，许诺给你金钱和地位。你犹豫了很久——在后巷，加入帮派是很多人唯一的出路。但你最终摇了摇头，转身离开了。', 'choice', '意志+1', false));
+  }
+  if (age >= 14 && age <= 18 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_teen_boy_thumb')) {
+    setFlag('gender_teen_boy_thumb', true);
+    events.push(evt('你在街头第一次见到了拇指的成员。那件标志性的红色大衣在灰暗的后巷中格外刺眼，他经过时，所有人都自觉让出了道路。你感受到了一股无形的压迫感——那是纯粹的力量所散发出的气场。', 'encounter', '', false));
+  }
+  if (age >= 15 && age <= 18 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_teen_boy_pianist')) {
+    setFlag('gender_teen_boy_pianist', true);
+    events.push(evt('你在第九巷听到了钢琴家的演奏。那旋律穿透了你的灵魂，你站在原地，一动不动，直到最后一个音符消散在夜色中。你不知道什么是『扭曲』，但你感觉到那个音乐中蕴含着某种超越人类理解的力量。', 'music', '智力+1，意志+1', true, '聆听钢琴家'));
+  }
+  if (age >= 15 && age <= 18 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_teen_boy_pusher')) {
+    setFlag('gender_teen_boy_pusher', true);
+    events.push(evt('你在S巢附近被推奴人盘问。他们冷漠地扫视着你的证件，盘问你的目的和行踪。虽然你只是路过，但那种被审视的感觉让你脊背发凉——在S巢，没有人可以自由地来去。', 'fear', '意志+1', false));
+  }
+  if (age >= 14 && age <= 17 && chance(0.008) && gameState.gender === 'male' && !getFlag('gender_teen_boy_workshop_spy')) {
+    setFlag('gender_teen_boy_workshop_spy', true);
+    events.push(evt('你和朋友们偷偷潜入了一家工坊，想看看武器是怎么制造出来的。你们趴在通风管道上，看到了令人惊叹的场景——火花四溅的熔炉、精密的机械臂、以及正在进行测试的某种不明装置。你们看得入了迷，直到警报响起才仓皇逃走。', 'adventure', '智力+1，武器+1', false));
+  }
+  if (age >= 15 && age <= 18 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_teen_boy_outskirts_adventure')) {
+    setFlag('gender_teen_boy_outskirts_adventure', true);
+    events.push(evt('你和几个胆大的朋友偷偷溜到了郊区交界处冒险。你们在废墟中探索了几个小时，直到听到了某种沉重的脚步声——那不是人类的声音。你们拼命往回跑，差点就撞上了从郊区游荡出来的异化体。', 'danger', '意志+1，体质+1', false));
+  }
+  if (age >= 16 && age <= 18 && chance(0.008) && gameState.gender === 'male' && !getFlag('gender_teen_boy_arena')) {
+    setFlag('gender_teen_boy_arena', true);
+    events.push(evt('你在后巷的擂台赛上赢了第一场。对手比你高了半个头，但你利用速度优势绕到了他的盲区，一记勾拳将他击倒。观众们发出了惊叹声——虽然只是一场无名小卒的对决，但胜利的滋味让你热血沸腾。', 'combat', '体质+1，武器+1', false));
+  }
+  if (age >= 16 && age <= 18 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_teen_boy_weapon_learn')) {
+    setFlag('gender_teen_boy_weapon_learn', true);
+    events.push(evt('你开始在后巷的老兵那里学习使用工坊武器。虽然只是最基础的长刀和手枪，但握住武器的瞬间你感到一种前所未有的踏实。教官说：『武器不会背叛你——至少在它没坏之前不会。』', 'training', '武器+2', false));
+  }
+  if (age >= 13 && age <= 17 && chance(0.012) && gameState.gender === 'female' && !getFlag('gender_teen_girl_bully_fight')) {
+    setFlag('gender_teen_girl_bully_fight', true);
+    events.push(evt('你在学校被一群高年级女生霸凌。她们嘲笑你的出身和衣着，甚至抢走了你的课本。但你没有像其他受害者那样哭泣——你反手将书包抡在了带头者的脸上。从那天起，再也没有人敢欺负你了。', 'rebel', '意志+2，体质+1', false));
+  }
+  if (age >= 14 && age <= 18 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_teen_girl_index_letter')) {
+    setFlag('gender_teen_girl_index_letter', true);
+    events.push(evt('你收到了一张白色信纸。信纸上没有署名，只有一行字：『你的才能已被注意到。』这是食指的信——你知道这意味着什么。你的手微微颤抖，不知道这封看似平静的信纸背后隐藏着怎样的指令。', 'encounter', '智力+1，意志+1', false));
+  }
+  if (age >= 15 && age <= 18 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_teen_girl_middle_approach')) {
+    setFlag('gender_teen_girl_middle_approach', true);
+    events.push(evt('你在后巷遇到了一个穿着紫色衣物的人——那是中指的成员。他主动和你搭话，询问你是否对『家族』有兴趣。他的语气很温和，但你注意到他袖口下的纹身——紫色的中指印记，那是世仇与忠诚的象征。', 'encounter', '', false));
+  }
+  if (age >= 14 && age <= 17 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_teen_girl_fixer_aid')) {
+    setFlag('gender_teen_girl_fixer_aid', true);
+    events.push(evt('你在后巷遇到了一个受伤的收尾人。他的伤口在流血，却依然倔强地试图自行包扎。你走上前，用随身携带的绷带帮他处理了伤口。他看着你，露出了一个勉强的微笑：『谢谢，小姑娘。也许这个都市还没有完全烂掉。』', 'kindness', '意志+1，智力+1', false));
+  }
+  if (age >= 16 && age <= 18 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_teen_girl_nest_talent')) {
+    setFlag('gender_teen_girl_nest_talent', true);
+    events.push(evt('巢的选拔委员会注意到了你的天赋。在一次例行评估中，你的各项指标都远超同龄人。委员会的一位老者私下找到你，暗示你可能会获得进入翼公司实习的机会——对后巷的孩子来说，这几乎等同于中彩票。', 'opportunity', '智力+2，家境+1', false));
+  }
+  if (age >= 13 && age <= 16 && chance(0.012) && gameState.gender === 'female' && !getFlag('gender_teen_girl_exam_pressure')) {
+    setFlag('gender_teen_girl_exam_pressure', true);
+    events.push(evt('你在应试村承受着巨大的压力。每一天都是考试、学习、再考试，循环往复。你开始怀疑这一切的意义——难道人生的价值就由一纸试卷决定吗？但看到父母期待的眼神，你把疑问咽了回去，继续埋头苦读。', 'stress', '智力+1，意志-1', false));
+  }
+  if (age >= 15 && age <= 18 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_teen_girl_info_survive')) {
+    setFlag('gender_teen_girl_info_survive', true);
+    events.push(evt('你在后巷学会了利用情报生存。你注意到哪个帮派在什么时候巡逻、哪条巷子在深夜最安全、哪个商人卖的东西最划算。这些看似微不足道的信息，在后巷往往意味着生与死的差距。', 'survival', '智力+2', false));
+  }
+  if (age >= 15 && age <= 18 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_teen_girl_bloodstick')) {
+    setFlag('gender_teen_girl_bloodstick', true);
+    events.push(evt('你在拉·曼却领看到了血棒的制作过程。那些被称为血魔的存在在月光下提取着鲜血，将其凝固为散发着微光的血棒。你躲在暗处观察了一整夜，心中充满了好奇与恐惧交织的复杂情感。', 'discover', '智力+1', false));
+  }
+  if (age >= 16 && age <= 18 && chance(0.008) && gameState.gender === 'female' && !getFlag('gender_teen_girl_ring_notice')) {
+    setFlag('gender_teen_girl_ring_notice', true);
+    events.push(evt('你在后巷的墙壁上涂鸦时，一位环指的艺术家恰好路过。他停下来看了很久，然后说：『你的线条有一种原始的力量。』他递给你一张名片就离开了——那是你第一次被人认可为有才华的人。', 'talent', '智力+1，快乐+1', false));
+  }
+  if (age >= 16 && age <= 18 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_teen_girl_info_shop')) {
+    setFlag('gender_teen_girl_info_shop', true);
+    events.push(evt('你在后巷开了一家小小的情报屋。说是情报屋，其实就是一张桌子、一把椅子和你收集的各种消息。但令人惊讶的是，竟然有人愿意花钱买你掌握的信息——在都市中，情报就是比眼更通用的货币。', 'career', '智力+1，家境+1', false));
+  }
+  if (age >= 14 && age <= 17 && chance(0.008) && gameState.gender === 'female' && !getFlag('gender_teen_girl_color_female')) {
+    setFlag('gender_teen_girl_color_female', true);
+    events.push(evt('你在新闻上看到了一位色彩级女收尾人的报道。她的称号是『绯红之翼』，据说能在瞬间将整个街区化为焦土。你盯着照片看了很久——她看起来并不强壮，但她的眼神中蕴含着令人生畏的决意。你暗暗下定决心，总有一天，你的名字也会出现在这样的报道中。', 'admire', '意志+2', false));
+  }
+
   return events;
 }
 
@@ -7536,12 +8195,14 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
           effects = { con: 1, int: 1, wea: 1 };
           setFlag('org', targetOrg);
           setFlag('org_rank', '九阶收尾人');
+          recordIdentity(age, '协会收尾人', targetOrg);
         } else if (isGang(targetOrg)) {
           joinText = `后巷的血脉在呼唤你。你顺理成章地加入了${targetOrg}。`;
           joinId = 'gang_talent_join_' + targetOrg;
           effects = { con: 2, wea: 1 };
           setFlag('org', targetOrg);
           setFlag('org_rank', '帮众');
+          recordIdentity(age, '帮派成员', targetOrg);
         } else if (targetOrg === '工坊') {
           joinText = '你对奇点技术的敏感让你进入了工坊。这里到处是未完成的实验品和疯狂的创意。';
           joinId = 'workshop_talent_join';
@@ -7562,6 +8223,7 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
           joinId = 'wing_talent_join';
           effects = { int: 2, wea: 3 };
           setFlag('org', '翼公司');
+          recordIdentity(age, '翼公司雇员', '翼公司');
         } else if (targetOrg === '齿轮教会') {
           joinText = '钢铁的呼唤在你的梦中回响。你找到了齿轮教会，他们早已等候多时。';
           joinId = 'gear_talent_join';
@@ -7657,6 +8319,7 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
         setFlag('finger_joined', finger.name);
         if (finger.name === '食指') setFlag('index_finger_member', true);
         addMilestone(`加入${finger.name}`);
+        recordIdentity(age, '手指成员', finger.name);
         break;
       }
     }
@@ -7703,6 +8366,7 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
       if (gang.eff.includes('wea+1')) modAttr('wea', 1);
       setFlag('gang_joined', gang.name);
       setFlag('org', gang.name);
+      recordIdentity(age, '帮派成员', gang.name);
     }
   }
 
@@ -8416,6 +9080,159 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
     events.push(evt('你在都市的某个角落看到了一个没有头的人——不，准确地说，是头被某种力量『抹消』了的存在。他还能行动，还能通过某种方式交流，但他的头颅位置空空如也。这是都市中经常被忽视的恐怖——奇点技术的副作用无处不在。', 'horror', '意志-1', true, '无头者'));
   }
 
+
+  // ===== 性别依赖事件（青年期） =====
+  if (age >= 19 && age <= 30 && chance(0.012) && gameState.gender === 'male' && !getFlag('gender_ya_male_assoc_candidate')) {
+    setFlag('gender_ya_male_assoc_candidate', true);
+    events.push(evt('你通过了协会的考核，成为了一名收尾人候补。虽然只是候补，但这个身份在后巷已经足够让你获得尊重。你领到了第一件工坊武器——一把标准的工坊长刀。握住它的那一刻，你感到一种莫名的使命感。', 'career', '武器+2，体质+1', false, '收尾人候补'));
+    addIdentity('收尾人候补', '协会');
+  }
+  if (age >= 20 && age <= 28 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ya_male_thumb_recruit')) {
+    setFlag('gender_ya_male_thumb_recruit', true);
+    events.push(evt('拇指注意到了你的战斗天赋。一个穿着红色大衣的拇指成员找到你，递给你一封血红色的信函：『拇指需要像你这样的人。加入我们，你会获得远超协会的力量。』你犹豫了——拇指的力量确实诱人，但代价你也心知肚明。', 'choice', '', false));
+  }
+  if (age >= 20 && age <= 30 && chance(0.012) && gameState.gender === 'male' && !getFlag('gender_ya_male_workshop_talent')) {
+    setFlag('gender_ya_male_workshop_talent', true);
+    events.push(evt('你在工坊学徒期间展现出了惊人的天赋。师傅看着你锻造的作品，沉默了很久，然后说：『你是我带过最好的学徒。也许有一天，你会超越我。』这既是夸奖，也是预言。', 'career', '武器+2，智力+1', false, '工坊天才'));
+    addIdentity('工坊学徒', '工坊');
+  }
+  if (age >= 22 && age <= 30 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ya_male_warp_emergency')) {
+    setFlag('gender_ya_male_warp_emergency', true);
+    events.push(evt('你乘坐的WARP列车遭遇了紧急事态——车厢内出现了异化体！乘客们惊恐地尖叫，列车员试图启动应急程序但失败了。你在混乱中拿起工坊武器，与其他几名收尾人一起制服了异化体。W公司事后给了你一笔不菲的奖金。', 'combat', '体质+1，武器+1，家境+1', false));
+  }
+  if (age >= 20 && age <= 28 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ya_male_gang_fighter')) {
+    setFlag('gender_ya_male_gang_fighter', true);
+    events.push(evt('你成为了某个帮派的打手。工作内容简单粗暴——替帮派解决那些不听话的人。报酬不高，但至少能让你在后巷活下去。你知道这不是长久之计，但人在江湖，身不由己。', 'career', '体质+2，武器+1', false));
+    addIdentity('帮派打手', '');
+  }
+  if (age >= 21 && age <= 29 && chance(0.012) && gameState.gender === 'male' && !getFlag('gender_ya_male_first_commission')) {
+    setFlag('gender_ya_male_first_commission', true);
+    events.push(evt('你在后巷接到了人生中第一个正式委托——帮一个商人追回被盗的货物。任务比预想的危险，你被几个看守打得不轻，但最终还是完成了委托。当你接过报酬的那一刻，你真正理解了什么是收尾人的生存方式。', 'career', '家境+2，意志+1', false, '第一个委托'));
+  }
+  if (age >= 22 && age <= 30 && chance(0.008) && gameState.gender === 'male' && !getFlag('gender_ya_male_color_eval')) {
+    setFlag('gender_ya_male_color_eval', true);
+    events.push(evt('你在执行委托时遇到了一位色彩级收尾人。他观察了你的战斗方式，留下了简短的评价：『技术粗糙，但本能不错。如果活下来的话，也许能成为像样的收尾人。』这个评价比任何赞扬都让你振奋。', 'encounter', '意志+2', false));
+  }
+  if (age >= 23 && age <= 30 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ya_male_black_beast')) {
+    setFlag('gender_ya_male_black_beast', true);
+    events.push(evt('你在郊区遭遇了黑兽。那庞大的身躯从废墟中升起，血红的眼眸盯着你，散发出令灵魂颤抖的威压。你拼命逃跑，利用地形优势勉强甩掉了追击。回到都市后，你浑身颤抖了整整一个晚上。', 'survival', '意志+2', true, '黑兽遭遇'));
+  }
+  if (age >= 20 && age <= 28 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ya_male_wing_employee')) {
+    setFlag('gender_ya_male_wing_employee', true);
+    events.push(evt('你被翼公司征召为基层员工。工作内容枯燥而危险——在翼公司的设施中维护设备、搬运货物、处理废料。但翼公司提供的薪水和安全保障是后巷无法比拟的。你开始了朝九晚五的翼公司生活。', 'career', '家境+2，体质+1', false));
+    addIdentity('翼公司员工', '');
+  }
+  if (age >= 24 && age <= 30 && chance(0.008) && gameState.gender === 'male' && !getFlag('gender_ya_male_ego_fragment')) {
+    setFlag('gender_ya_male_ego_fragment', true);
+    events.push(evt('你在第九巷的废墟中发现了一块散发着微弱光芒的金属碎片——那是E.G.O武器的残片！它虽然已经失去了大部分力量，但依然蕴含着某种奇点技术的痕迹。你将它小心地收了起来，也许有一天，它会有用武之地。', 'item', '武器+1，智力+1', true, 'E.G.O残片'));
+  }
+  if (age >= 20 && age <= 30 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_ya_male_hana_office')) {
+    setFlag('gender_ya_male_hana_office', true);
+    events.push(evt('你进入了Hana协会的收尾人事务所工作。作为都市最强协会的下属，你每天都能看到顶尖收尾人们出入事务所。你默默观察他们的战斗风格和行事方式，如饥似渴地学习着一切能学到的东西。', 'career', '武器+2，智力+1', false));
+    addIdentity('Hana协会事务员', 'Hana协会');
+  }
+  if (age >= 25 && age <= 30 && chance(0.008) && gameState.gender === 'male' && !getFlag('gender_ya_male_reverberation')) {
+    setFlag('gender_ya_male_reverberation', true);
+    events.push(evt('余响的概念波及了你。你突然对『审判』产生了异常的执念，脑海中不断回响着某个声音在宣读判决。你用了整整一周的时间才从这种状态中挣脱出来——你知道，余响的威胁比扭曲更加隐蔽和危险。', 'mental', '意志+1，智力-1', false));
+  }
+  if (age >= 19 && age <= 30 && chance(0.012) && gameState.gender === 'female' && !getFlag('gender_ya_female_first_mission')) {
+    setFlag('gender_ya_female_first_mission', true);
+    events.push(evt('作为一名女性收尾人，你在第一次任务中遭遇了危险。委托目标是清除巢外的异化体巢穴，但情报严重失误——巢穴中的异化体数量是预估的三倍。你在队友受伤的情况下冷静地指挥撤退，并亲手击杀了两只异化体。', 'combat', '体质+1，意志+2，武器+1', false, '冷静的指挥者'));
+  }
+  if (age >= 21 && age <= 28 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ya_female_ring_recruit')) {
+    setFlag('gender_ya_female_ring_recruit', true);
+    events.push(evt('环指的一位高级艺术家注意到了你的气质。她说：『你的眼神中有一种天生的扭曲之美，这是无法后天培养的。』她邀请你加入环指的表演者行列——在那里，痛苦和美学的边界将变得模糊。', 'choice', '智力+1，意志+1', false));
+  }
+  if (age >= 20 && age <= 30 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ya_female_workshop_female')) {
+    setFlag('gender_ya_female_workshop_female', true);
+    events.push(evt('你在工坊中成为了一名罕见的女性武器工匠。许多老一辈的工匠对你持有偏见，但你用作品证明了自己的实力。你锻造的武器比大多数男性工匠的作品更加精密，在工坊圈内引起了不小的轰动。', 'career', '武器+2，智力+1', false, '女性工匠'));
+    addIdentity('武器工匠', '工坊');
+  }
+  if (age >= 22 && age <= 30 && chance(0.012) && gameState.gender === 'female' && !getFlag('gender_ya_female_info_broker')) {
+    setFlag('gender_ya_female_info_broker', true);
+    events.push(evt('你在后巷以情报贩子的身份站稳了脚跟。你的情报网络从最初的两三个线人扩展到了遍布后巷的消息网。你掌握了帮派的动向、翼公司的秘密、甚至手指组织的内部消息。在信息就是力量的都市中，你成为了不可忽视的存在。', 'career', '智力+2，家境+2', false, '情报贩子'));
+    addIdentity('情报贩子', '');
+  }
+  if (age >= 23 && age <= 30 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ya_female_index_order')) {
+    setFlag('gender_ya_female_index_order', true);
+    events.push(evt('食指向你派发了一个特殊指令。信纸上用优雅的笔迹写着一个名字和一个地址——你需要找到那个人，并观察他的一切行为。指令没有说明原因，食指的指令从不解释原因。你默默将信纸烧毁，开始了任务。', 'mission', '智力+1，意志+1', false));
+  }
+  if (age >= 20 && age <= 28 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ya_female_hana_clerk')) {
+    setFlag('gender_ya_female_hana_clerk', true);
+    events.push(evt('你成为了Hana协会的一名文员。虽然工作内容只是整理委托和安排收尾人的日程，但你每天都在观察着那些顶尖收尾人的行动报告。你的内心深处渴望成为他们中的一员，而不是坐在办公桌后面。', 'career', '智力+1', false));
+    addIdentity('Hana协会文员', 'Hana协会');
+  }
+  if (age >= 22 && age <= 30 && chance(0.008) && gameState.gender === 'female' && !getFlag('gender_ya_female_kcorp_pharmacist')) {
+    setFlag('gender_ya_female_kcorp_pharmacist', true);
+    events.push(evt('你在K巢的医院成为了再生安瓿的调配师。这是一份高度机密的工作——你每天需要处理K公司奇点技术的核心产物。虽然只是调配阶段的工作，但你从中窥见了K公司奇点的一角，那让你对都市的科技有了全新的认识。', 'career', '智力+2，家境+2', false));
+    addIdentity('安瓿调配师', 'K公司');
+  }
+  if (age >= 24 && age <= 30 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ya_female_repair_shop')) {
+    setFlag('gender_ya_female_repair_shop', true);
+    events.push(evt('你在后巷开了一家小小的修理铺。你用从工坊学到的技术修理各种设备——从通讯器到工坊武器，从家用机器人到小型奇点装置。你的手艺在后巷有口皆碑，甚至有收尾人专程来找你修理他们的装备。', 'career', '智力+1，家境+1，武器+1', false));
+    addIdentity('修理铺店主', '');
+  }
+  if (age >= 23 && age <= 30 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ya_female_middle_entangle')) {
+    setFlag('gender_ya_female_middle_entangle', true);
+    events.push(evt('你被中指的世代恩怨波及了。一群中指成员误以为你是敌对家族的人，将你堵在了巷子里。凭借多年的后巷生存经验和一些运气，你利用地形成功脱身。从此你学会了：在手指的地盘上行走，永远不要放松警惕。', 'danger', '意志+2，体质+1', false));
+  }
+  if (age >= 25 && age <= 30 && chance(0.008) && gameState.gender === 'female' && !getFlag('gender_ya_female_greatlake_hunter')) {
+    setFlag('gender_ya_female_greatlake_hunter', true);
+    events.push(evt('你在大湖沿岸成为了一名独立猎人。你驾驶着小艇在湖面上追踪海盗和走私犯，为雇主执行各种危险的水上委托。大湖的风浪和危险让你变得更加坚韧，你也在这个过程中建立了自己的名声。', 'career', '体质+2，武器+1，家境+1', false, '大湖猎人'));
+    addIdentity('独立猎人', '');
+  }
+  if (age >= 22 && age <= 28 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ya_female_sephirot_encounter')) {
+    setFlag('gender_ya_female_sephirot_encounter', true);
+    events.push(evt('你在一次委托中意外接触到了脑叶公司的设施。虽然只是外围区域，但你感受到了设施中弥漫的奇异能量——那是异想体的气息。一个自称『管理者』的存在通过通讯器和你说了几句话，声音平静而机械。你匆匆离开了那个地方，但那个声音一直萦绕在你脑海中。', 'encounter', '智力+2', true, '脑叶公司接触'));
+  }
+  if (age >= 20 && age <= 30 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ya_female_ruins_explore')) {
+    setFlag('gender_ya_female_ruins_explore', true);
+    events.push(evt('你独自深入了都市的废墟区域。在倒塌的建筑和被遗弃的设施中，你发现了一些令人不安的痕迹——巨大的抓痕、不明生物的巢穴、以及一面写满了未知文字的墙壁。你将所有发现记录了下来，准备卖给感兴趣的买家。', 'explore', '智力+2', false));
+  }
+  if (age >= 25 && age <= 30 && chance(0.008) && gameState.gender === 'female' && !getFlag('gender_ya_female_tea_party')) {
+    setFlag('gender_ya_female_tea_party', true);
+    events.push(evt('你受邀参加了一场谢肉祭的茶会。茶会的场景荒诞而美丽——到处是鲜花、茶杯和面带微笑的人们。但你隐约感觉到，这场茶会背后隐藏着谢肉祭不为人知的另一面。那些微笑的客人们，似乎并非出于自愿。', 'social', '智力+1，意志+1', false));
+  }
+  if (age >= 22 && age <= 30 && chance(0.01) && gameState.gender === 'female' && !getFlag('gender_ya_female_twisted_witness')) {
+    setFlag('gender_ya_female_twisted_witness', true);
+    events.push(evt('你亲眼目睹了一个人在面前扭曲。前一秒他还是一个普通的后巷居民，下一秒他的身体就开始扭曲变形，发出不似人类的尖叫声，最终变成了一团不可名状的怪物。你呆立在原地，冷汗浸透了衣服。扭曲——都市中最令人恐惧的现象，就发生在你面前。', 'witness', '意志+1', true, '目击扭曲'));
+  }
+
+  // ==================== 扩展青年期稀有事件 ====================
+  // 初次经历(10)
+  if (chance(0.008) && !getFlag('first_warp_ride')) { setFlag('first_warp_ride'); events.push(evt('你第一次乘坐了WARP列车。当列车启动的瞬间，你的身体像是被撕碎又重组。几秒钟后你出现在了数百公里外的另一座巢。这种体验让你既兴奋又恐惧。', 'first_warp_ride', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('first_gang_meet')) { setFlag('first_gang_meet'); events.push(evt('你第一次与后巷的帮派正面接触。他们并不像传说中那么可怕——至少在你想加入之前。他们用审视猎物的眼神打量着你，最终给出了一个试炼任务。', 'first_gang_meet', '体质+1', false)); modAttr('con', 1); }
+  if (chance(0.008) && !getFlag('first_kill_regret')) { setFlag('first_kill_regret'); events.push(evt('你第一次在委托中杀了人。对方也是一个收尾人——只是运气比你差了一点。你看着他渐渐失去光泽的眼睛，第一次理解了收尾人这个职业的真正含义。', 'first_kill_regret', '意志+1，快乐-2', false)); modAttr('wil', 1); gameState.happiness -= 2; }
+  if (chance(0.008) && !getFlag('first_ego_resonate')) { setFlag('first_ego_resonate'); events.push(evt('你的精神第一次与E.G.O产生了共鸣。在某个极端情绪的瞬间，你感觉到一股力量从内心深处涌出。虽然你没有成功manifest出E.G.O，但那种感觉让你永生难忘。', 'first_ego_resonate', '智力+1，意志+1', false)); modAttr('int', 1); modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('first_nest_visit')) { setFlag('first_nest_visit'); events.push(evt('你第一次进入了巢。那种整洁、安全和秩序与后巷形成了鲜明对比。巢中的人们穿着干净的衣服，脸上带着你从未在后巷见过的表情——安逸。你不知道该羡慕还是愤怒。', 'first_nest_visit', '', false)); }
+  if (chance(0.008) && !getFlag('first_outskirts')) { setFlag('first_outskirts'); events.push(evt('你第一次踏入了郊区。后巷的混乱在这里不值一提——郊区是真正的绝望之地。空气中有一种让你本能地想要逃跑的气息。但你没有跑。你留了下来。', 'first_outskirts', '意志+2，体质+1', false)); modAttr('wil', 2); modAttr('con', 1); }
+  if (chance(0.008) && !getFlag('first_underground')) { setFlag('first_underground'); events.push(evt('你第一次进入了后巷的地下世界。地下是另一个完整的生态系统——有黑市、有赌场、有情报网络、有秘密组织。地上的后巷只是冰山一角。', 'first_underground', '智力+1，家境+1', false)); modAttr('int', 1); modAttr('wea', 1); }
+  if (chance(0.008) && !getFlag('first_love_ya')) { setFlag('first_love_ya'); events.push(evt('你第一次坠入了爱河。对方是你在后巷偶遇的一个人——一个普通的、在都市中挣扎求生的灵魂。你们的爱情简短而热烈，像后巷中难得的阳光。', 'first_love_ya', '快乐+2', false)); gameState.happiness += 2; }
+  if (chance(0.008) && !getFlag('first_betrayal_ya')) { setFlag('first_betrayal_ya'); events.push(evt('你第一次被人背叛。一个你信任的人把你的情报卖给了对手。你失去了一个重要委托，差点丢掉了性命。后巷的教训：信任比武器更昂贵。', 'first_betrayal_ya', '快乐-2，意志+1', false)); modAttr('wil', 1); gameState.happiness -= 2; }
+  if (chance(0.008) && !getFlag('first_miracle')) { setFlag('first_miracle'); events.push(evt('你第一次目睹了奇点技术的奇迹。一个断了腿的人在K公司的安瓿注射后几分钟内完全恢复。你站在旁边，看着骨骼和肌肉在肉眼可见的速度下重新生长。你不知道该赞叹还是恐惧。', 'first_miracle', '智力+1', false)); modAttr('int', 1); }
+
+  // 青年期世界观事件（20）
+  if (chance(0.008) && !getFlag('ya_pianist_hearing')) { setFlag('ya_pianist_hearing'); events.push(evt('你在第九巷远远地听到了钢琴家的演奏。那音乐中蕴含着某种让你无法移动的力量——你的身体在颤抖，眼泪不受控制地流下来。你不知道为什么一首钢琴曲会带来如此强烈的情感。', 'ya_pianist_hearing', '意志+1', false)); modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('ya_recruitment_ya')) { setFlag('ya_recruitment_ya'); events.push(evt('三个不同的组织在同一天向你发出了邀请：一个协会、一个帮派、一个手指。在后巷，同时被三方看中意味着你要么是天才，要么是麻烦。也许两者皆是。', 'ya_recruitment_ya', '家境+1', false)); modAttr('wea', 1); }
+  if (chance(0.008) && !getFlag('ya_black_market_deep')) { setFlag('ya_black_market_deep'); events.push(evt('你深入了后巷黑市的最底层。这里卖的东西远超你的想象——翼公司的机密、手指的内部情报、甚至来自郊区的活体异化体。你知道了太多——也许这本身就是一种危险。', 'ya_black_market_deep', '智力+2', false)); modAttr('int', 2); }
+  if (chance(0.008) && !getFlag('ya_mirror_terror')) { setFlag('ya_mirror_terror'); events.push(evt('你在N巢的禁区中不小心触发了一面禁忌之镜。镜中映出的不是你的倒影——而是一个扭曲的、不属于人类的身影。禁忌猎人在十秒内赶到，将你拖出了禁区。你被警告：永远不要再接近那里。', 'ya_mirror_terror', '意志+1，智力+1', false)); modAttr('wil', 1); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('ya_workshop_apprentice')) { setFlag('ya_workshop_apprentice'); events.push(evt('你成为了一个工坊的学徒。工坊主是一个沉默寡言的老人，他用最严格的标准要求你。但当你完成第一件作品时，他第一次露出了微笑。', 'ya_workshop_apprentice', '智力+1，家境+1', false)); modAttr('int', 1); modAttr('wea', 1); }
+  if (chance(0.008) && !getFlag('ya_wing_test')) { setFlag('ya_wing_test'); events.push(evt('一个翼公司对你进行了能力测试。测试内容包括战斗、智力、心理和奇点适应性。你不知道自己通过了多少项——他们不会告诉你结果。但至少你还活着。', 'ya_wing_test', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('ya_street_brawl')) { setFlag('ya_street_brawl'); events.push(evt('你卷入了一场大规模的街头斗殴。后巷的混混、帮派成员、低级收尾人混战在一起。你在一对三的情况下幸存了下来，虽然浑身是伤。这场斗殴的原因？据说是因为一碗面。', 'ya_street_brawl', '体质-1，意志+1', false)); modAttr('con', -1); modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('ya_forbidden_zone')) { setFlag('ya_forbidden_zone'); events.push(evt('你好奇心驱使你进入了后巷的一个禁区。禁区中央是一个巨大的空洞——通往更深处的洞穴系统。你听到了从深处传来的声音——不是人类的声音，也不是异化体的声音。是某种更古老的存在。', 'ya_forbidden_zone', '智力+1，意志+1', false)); modAttr('int', 1); modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('ya_tax_collect')) { setFlag('ya_tax_collect'); events.push(evt('收税日到了。手指的收税员来到你的住所，要求缴纳『保护费』。你交不起——他们留下了一个警告。如果你不尽快想办法，下一次来的就不是收税员了。', 'ya_tax_collect', '家境-1', false)); modAttr('wea', -1); }
+  if (chance(0.008) && !getFlag('ya_dream_river')) { setFlag('ya_dream_river'); events.push(evt('你做了一个奇怪的梦——梦中你站在河边，河水清澈见底。水中倒映的不是你的脸，而是另一个人的。那个人向你伸出手来，你刚要握住——梦醒了。', 'ya_dream_river', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('ya_first_abno')) { setFlag('ya_first_abno'); events.push(evt('你在委托中第一次面对了异化体。那种超越常理的存在让你感到前所未有的恐惧和渺小。但你活了下来——这本身就是一种胜利。', 'ya_first_abno', '意志+2，体质-1', false)); modAttr('wil', 2); modAttr('con', -1); }
+  if (chance(0.008) && !getFlag('ya_secret_library')) { setFlag('ya_secret_library'); events.push(evt('你在后巷发现了一个秘密图书馆——不是那个图书馆，而是一个由民间人士建立的地下图书室。里面收藏着翼公司的禁书、被抹去的历史和都市的未解之谜。', 'ya_secret_library', '智力+2', false)); modAttr('int', 2); }
+  if (chance(0.008) && !getFlag('ya_rescue_mission')) { setFlag('ya_rescue_mission'); events.push(evt('你接到了一个紧急委托——某个重要人物的孩子被绑架了。报酬足以让你在后巷安稳生活十年。但绑匪与某个手指有关联。你权衡了风险和回报，决定接下这个委托。', 'ya_rescue_mission', '意志+1', false)); modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('ya_warp_mission_own')) { setFlag('ya_warp_mission_own'); events.push(evt('你接受了WARP列车上的一个任务。列车穿越空间时的撕裂感让你差点失去意识，但当你在列车上站稳后，你看到了窗外不可思议的景象——空间被折叠成无限层叠。', 'ya_warp_mission_own', '智力+1，意志+1', false)); modAttr('int', 1); modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('ya_arena_champ')) { setFlag('ya_arena_champ'); events.push(evt('你在后巷的擂台赛上赢得了一连串的胜利，成为了街区的擂台冠军。你的名字被写在了擂台旁边的木板上——虽然只是小名气，但对年轻的你来说已经足够了。', 'ya_arena_champ', '体质+1，家境+1', true, '擂台冠军')); modAttr('con', 1); modAttr('wea', 1); }
+  if (chance(0.008) && !getFlag('ya_wing_product')) { setFlag('ya_wing_product'); events.push(evt('你第一次使用了翼公司的奇点产品。那种超越常识的效果让你震撼——都市的奇点技术远比你想象的更加深不可测。你开始理解为什么翼公司能统治都市。', 'ya_wing_product', '智力+1', false)); modAttr('int', 1); }
+  if (chance(0.008) && !getFlag('ya_orphan_rescue')) { setFlag('ya_orphan_rescue'); events.push(evt('你在后巷的废墟中发现了一个被遗弃的婴儿。你犹豫了很久——在后巷养大一个孩子的难度远超你的想象。但你还是把他/她抱了起来。', 'ya_orphan_rescue', '快乐+1，家境-1', false)); gameState.happiness += 1; modAttr('wea', -1); }
+  if (chance(0.008) && !getFlag('ya_exam_village')) { setFlag('ya_exam_village'); events.push(evt('你路过了应试村。那里的孩子们从小就埋头于书本，眼中只有巢的入学考试。你看到一个孩子因为压力过大而当场崩溃——他开始扭曲了。应试村的老师们面无表情地把扭曲的孩子拖走。', 'ya_exam_village', '快乐-1', false)); gameState.happiness -= 1; }
+  if (chance(0.008) && !getFlag('ya_finger_tax_witness')) { setFlag('ya_finger_tax_witness'); events.push(evt('你亲眼目睹了手指的收税过程。那些交不起税的人被拖走了——有些人再也没回来。这就是后巷的规则：你不交税，手指替你『处理』。', 'ya_finger_tax_witness', '意志+1', false)); modAttr('wil', 1); }
+  if (chance(0.008) && !getFlag('ya_limbus_encounter')) { setFlag('ya_limbus_encounter'); events.push(evt('你在后巷遇到了一群穿着统一制服的人。他们的领头人——脑袋上挂着一个钟表的存在——看了你一眼后继续前行。他们身后跟着的罪人们各自带着不同的武器，像是一支怪异的军队。', 'ya_limbus_encounter', '智力+1', false)); modAttr('int', 1); }
+
   return events;
 }
 
@@ -8433,7 +9250,9 @@ function addEvent(ev) {
   } else {
     entry.style.animation = 'fadeIn 0.4s ease forwards';
   }
-  entry.innerHTML = '<div class="event-age">' + gameState.age + '岁</div><div><div class="event-text">' + formatEventText(ev.text) + '</div>' + (ev.effText ? '<div class="event-effect"><span class="' + getEffectClass(ev.effText) + '">' + ev.effText + '</span></div>' : '') + '</div>';
+  var genderIcon = gameState.gender === 'male' ? '\u2642' : '\u2640';
+  var genderColor = gameState.gender === 'male' ? '#5dade2' : '#f1948a';
+  entry.innerHTML = '<span class="event-gender" style="color:' + genderColor + ';font-size:0.85rem;margin-right:4px;">' + genderIcon + '</span><div class="event-age">' + gameState.age + '岁</div><div><div class="event-text">' + formatEventText(ev.text) + '</div>' + (ev.effText ? '<div class="event-effect"><span class="' + getEffectClass(ev.effText) + '">' + ev.effText + '</span></div>' : '') + '</div>';
   log.appendChild(entry);
   // 特殊事件flash动画
   if (ev.milestone) {
@@ -8827,6 +9646,7 @@ function showResults() {
       <div class="result-stat"><div class="result-stat-label">智力 INT</div><div class="result-stat-val">${a.int}</div></div>
       <div class="result-stat"><div class="result-stat-label">意志 WIL</div><div class="result-stat-val">${a.wil}</div></div>
       <div class="result-stat"><div class="result-stat-label">家境 WEA</div><div class="result-stat-val">${a.wea}</div></div>
+      <div class="result-stat"><div class="result-stat-label">性别</div><div class="result-stat-val">${gameState.gender === 'male' ? '\u2642 男' : '\u2640 女'}</div></div>
     </div>
     ${(() => {
       const eq = [];
@@ -8839,6 +9659,46 @@ function showResults() {
           ${eq.join('')}
         </div>
       </div>` : '';
+    })()}
+    ${(() => {
+      var ih = gameState.identityHistory;
+      if (ih.length === 0) return '';
+      var items = ih.map(function(r) {
+        var label = r.age + '岁 - ' + r.identity + (r.org ? '（' + r.org + '）' : '');
+        var descHtml = r.desc ? '<div style="font-size:0.8rem;color:#888;margin-top:2px;">' + r.desc + '</div>' : '';
+        return '<div class="identity-tag">' + label + descHtml + '</div>';
+      }).join('');
+      return '<div class="result-identity" style="margin:20px 0;padding:15px;background:#111;border:1px solid #2a2a2a;border-radius:6px;">' +
+        '<h4 style="color:var(--accent-gold);margin-bottom:10px;text-align:center;">&#10022; 一生身份轨迹 &#10022;</h4>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;">' + items + '</div></div>';
+    })()}
+    ${(() => {
+      var ad = gameState.alignmentData;
+      var lx = ad.lawful - ad.chaotic;
+      var ly = ad.good - ad.evil;
+      var gridNames = [
+        ['守序善良','中立善良','混乱善良'],
+        ['守序中立','绝对中立','混乱中立'],
+        ['守序邪恶','中立邪恶','混乱邪恶']
+      ];
+      var col = lx >= 3 ? 0 : lx >= -2 ? 1 : 2;
+      var row = ly >= 3 ? 0 : ly >= -2 ? 1 : 2;
+      var gridHtml = '';
+      for (var r = 0; r < 3; r++) {
+        for (var c = 0; c < 3; c++) {
+          var isHighlight = (r === row && c === col);
+          var bg = isHighlight ? 'background:rgba(218,165,32,0.25);border:1px solid #daa520;' : 'background:rgba(255,255,255,0.03);border:1px solid #2a2a2a;';
+          var color = isHighlight ? 'color:#daa520;font-weight:bold;' : 'color:#888;';
+          gridHtml += '<div style="padding:6px 4px;text-align:center;font-size:0.75rem;' + bg + color + 'border-radius:3px;grid-row:' + (r+1) + ';grid-column:' + (c+1) + ';">' + gridNames[r][c] + '</div>';
+        }
+      }
+      var axisLabel = '<div style="grid-column:2;grid-row:4;font-size:0.65rem;color:#555;text-align:center;">守序 &#8596; 混乱</div>' +
+        '<div style="grid-row:2;grid-column:4;font-size:0.65rem;color:#555;writing-mode:vertical-rl;display:flex;align-items:center;justify-content:center;">善良 &#8597; 邪恶</div>';
+      return '<div class="result-alignment" style="margin:20px 0;padding:15px;background:#111;border:1px solid #2a2a2a;border-radius:6px;">' +
+        '<h4 style="color:var(--accent-gold);margin-bottom:10px;text-align:center;">&#10022; 阵营倾向 &#10022;</h4>' +
+        '<div style="display:grid;grid-template-columns:repeat(3,1fr) 20px;grid-template-rows:repeat(3,1fr) 20px;gap:3px;max-width:300px;margin:0 auto;">' +
+        gridHtml + axisLabel + '</div>' +
+        '<div style="text-align:center;margin-top:8px;font-size:0.8rem;color:#b8a99a;">当前阵营：<strong style="color:#daa520;">' + gridNames[row][col] + '</strong></div></div>';
     })()}
     ${storySection}
     ${highlightSection}
@@ -8854,6 +9714,7 @@ function showResults() {
       <h4>&#10022; 人生里程碑 &#10022;</h4>
       ${gameState.milestones.map(m => `<div class="milestone-item">${m}</div>`).join('')}
     </div>` : ''}
+
   `;
 
   if (gameState.flags.library && Math.random() < 0.3 && !gameState.flags.twisted && !libEnd) {
@@ -8883,31 +9744,163 @@ function showResults() {
       ${commonContent}
     `;
   }
+
     // ===== 灯系统：偏差度计算 =====
     var selectedTalents = gameState.selectedTalents || [];
     var talentExpectedScore = 0;
     selectedTalents.forEach(function(tid) {
-      var t = ALL_TALENTS.find(function(x) { return x.id === tid; });
-      if (t) {
-        var rarityScore = { white: 1, blue: 2, purple: 4, gold: 7, legend: 12 };
-        talentExpectedScore += (rarityScore[t.rarity] || 1);
-      }
+      var rarityScore = { white: 1, blue: 2, purple: 4, gold: 7, legend: 12 };
+      var r = tid.rarity || 'white';
+      talentExpectedScore += (rarityScore[r] || 1);
     });
     var achievementActualScore = 0;
     gameState.achievedAchievements.forEach(function(aid) {
-      var a = ACHIEVEMENTS.find(function(x) { return x.id === aid; });
-      if (a) {
-        var rarityScore = { [RARITY.COMMON]: 0, [RARITY.RARE]: 1, [RARITY.EPIC]: 2, [RARITY.LEGEND]: 4 };
-        achievementActualScore += (rarityScore[a.rarity] || 0);
+      var ac = ACHIEVEMENTS.find(function(x) { return x.id === aid; });
+      if (ac) {
+        var rarityScore = {};
+        rarityScore[RARITY.COMMON] = 0;
+        rarityScore[RARITY.RARE] = 1;
+        rarityScore[RARITY.EPIC] = 2;
+        rarityScore[RARITY.LEGEND] = 4;
+        achievementActualScore += (rarityScore[ac.rarity] || 0);
       }
     });
-    // 偏差度 = |实际成就分 - 预期可能性的影响|
     var deviation = Math.abs(achievementActualScore - talentExpectedScore * 0.8);
     var lampCount = deviation < 10 ? 1 : deviation < 25 ? 2 : 3;
     var lampNames = ['', '一灯', '二灯', '三灯'];
     var lampDescs = ['', '偏差极小——你忠实地走上了可能性预示的道路', '中度偏差——你偏离了预定的流向，但并非完全脱轨', '大幅偏差——你完全偏离了可能性的预想，走上了截然不同的道路'];
     var lampEmoji = ['', '&#9679;', '&#9679;&#9679;', '&#9679;&#9679;&#9679;'];
-    card.innerHTML += '<div class="result-lamps"><h4>&#10022; 偏差度评定 &#10022;</h4><div class="lamp-display">' + lampEmoji[lampCount] + '</div><div class="lamp-name">' + lampNames[lampCount] + '</div><div class="lamp-desc">' + lampDescs[lampCount] + '</div></div>';
+    var lampDiv = document.createElement('div');
+    lampDiv.className = 'result-lamps';
+    lampDiv.innerHTML = '<h4>&#10022; 偏差度评定 &#10022;</h4><div class="lamp-display">' + lampEmoji[lampCount] + '</div><div class="lamp-name">' + lampNames[lampCount] + '</div><div class="lamp-desc">' + lampDescs[lampCount] + '</div>';
+    card.appendChild(lampDiv);
+
+    // ===== 一生身份总结 =====
+    var ids = gameState.identities || [];
+    if (ids.length > 0) {
+      var idDiv = document.createElement('div');
+      idDiv.style.cssText = 'margin:16px 0;padding:15px;background:#111;border:1px solid #2a2a2a;border-radius:6px;';
+      var idHtml = '<h4 style="color:var(--accent-gold);margin-bottom:10px;text-align:center;">&#10022; 一生身份 &#10022;</h4>';
+      idHtml += '<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;">';
+      ids.forEach(function(id) {
+        var orgText = id.org ? ' (' + id.org + ')' : '';
+        var ageText = id.age + '岁';
+        idHtml += '<span style="padding:4px 10px;border:1px solid #c9a84c;color:#c9a84c;border-radius:4px;font-size:0.85rem;display:inline-block;">' + id.name + '<small style="color:#7a6f5a;margin-left:4px;">' + ageText + orgText + '</small></span>';
+      });
+      idHtml += '</div>';
+      idDiv.innerHTML = idHtml;
+      card.appendChild(idDiv);
+    }
+
+    // ===== 九宫格阵营 =====
+    var ax = (gameState.alignment || {}).x || 0;
+    var ay = (gameState.alignment || {}).y || 0;
+    var alignX = ax < -0.3 ? 'lawful' : ax > 0.3 ? 'chaotic' : 'neutral';
+    var alignY = ay < -0.3 ? 'good' : ay > 0.3 ? 'evil' : 'neutral';
+    // 都市阵营名称映射
+    var alignMap = {
+      'lawful_good': { name: '都市守序者', desc: '你遵循都市的规则，但也守护着后巷的弱者。在混乱的都市中，你是罕见的秩序之光。', color: '#5a9e6f' },
+      'lawful_neutral': { name: '翼之忠仆', desc: '你忠于某个翼或组织，严格执行规则。无论对错，命令就是你的信条。', color: '#4a7fb5' },
+      'lawful_evil': { name: '手指执棋人', desc: '你利用都市的规则和组织的权力来实现自己的目的。规则是你最好的武器。', color: '#c0392b' },
+      'neutral_good': { name: '后巷灯火', desc: '你不依附任何组织，但总是在需要的时候伸出援手。你是后巷中最温暖的存在。', color: '#f39c12' },
+      'neutral': { name: '都市浮萍', desc: '你在都市的洪流中随波逐流，没有被任何阵营或信念束缚。自由就是你的信仰。', color: '#95a5a6' },
+      'neutral_evil': { name: '暗巷猎手', desc: '你为利益而活，不择手段但也不主动制造混乱。在灰色地带中游刃有余。', color: '#8e44ad' },
+      'chaotic_good': { name: '叛逆之星', desc: '你无视都市的规则和禁忌，但出发点始终是保护他人。规则束缚不了你的正义。', color: '#e74c3c' },
+      'chaotic_neutral': { name: '自由收尾人', desc: '你不受任何人约束，自由地接取委托、自由地生活。都市的规则对你而言只是建议。', color: '#3498db' },
+      'chaotic_evil': { name: '杂质', desc: '你是都市的禁忌——不守规则、不择手段、为所欲为。首脑的眼线或许已在注视着你。', color: '#c0392b' }
+    };
+    var alignKey = alignX + '_' + alignY;
+    var alignInfo = alignMap[alignKey] || alignMap['neutral'];
+    var alignDiv = document.createElement('div');
+    alignDiv.style.cssText = 'margin:16px 0;padding:15px;background:#111;border:1px solid #2a2a2a;border-radius:6px;';
+    // 九宫格可视化
+    var gridHtml = '<h4 style="color:var(--accent-gold);margin-bottom:10px;text-align:center;">&#10022; 阵营判定 &#10022;</h4>';
+    gridHtml += '<div style="text-align:center;margin-bottom:8px;"><span style="font-size:1.2rem;font-weight:bold;color:' + alignInfo.color + ';">' + alignInfo.name + '</span></div>';
+    // 3x3 grid
+    gridHtml += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px;width:180px;height:180px;margin:0 auto 10px;">';
+    var gridPositions = [
+      {key:'lawful_good', label:'守序·善'}, {key:'neutral_good', label:'中立·善'}, {key:'chaotic_good', label:'混乱·善'},
+      {key:'lawful_neutral', label:'守序·中'}, {key:'neutral', label:'中立·中'}, {key:'chaotic_neutral', label:'混乱·中'},
+      {key:'lawful_evil', label:'守序·恶'}, {key:'neutral_evil', label:'中立·恶'}, {key:'chaotic_evil', label:'混乱·恶'}
+    ];
+    gridPositions.forEach(function(pos) {
+      var isActive = pos.key === alignKey;
+      var bgColor = isActive ? alignInfo.color : '#1a1a1a';
+      var borderColor = isActive ? alignInfo.color : '#333';
+      var textColor = isActive ? '#fff' : '#555';
+      gridHtml += '<div style="display:flex;align-items:center;justify-content:center;border:1px solid ' + borderColor + ';background:' + bgColor + ';border-radius:3px;font-size:0.7rem;color:' + textColor + ';">' + pos.label + '</div>';
+    });
+    gridHtml += '</div>';
+    gridHtml += '<div style="text-align:center;font-size:0.85rem;color:#888;line-height:1.6;">' + alignInfo.desc + '</div>';
+    // 坐标显示
+    gridHtml += '<div style="text-align:center;margin-top:6px;font-size:0.75rem;color:#555;">坐标：(' + ax.toFixed(2) + ', ' + ay.toFixed(2) + ')</div>';
+    alignDiv.innerHTML = gridHtml;
+    card.appendChild(alignDiv);
+
+    // ===== 都市MBTI分析 =====
+    var ga = gameState.attrs || {};
+    var gf = gameState.flags || {};
+    var ge = gameState.events || [];
+    // I/E: 内向/外向 — 基于社交相关事件数量
+    var socialEvents = ge.filter(function(e) { return e.text && (e.text.indexOf('协会') > -1 || e.text.indexOf('组织') > -1 || e.text.indexOf('朋友') > -1 || e.text.indexOf('帮派') > -1 || e.text.indexOf('团队') > -1 || e.text.indexOf('伙伴') > -1); }).length;
+    var aloneEvents = ge.filter(function(e) { return e.text && (e.text.indexOf('独自') > -1 || e.text.indexOf('一个人') > -1 || e.text.indexOf('独处') > -1 || e.text.indexOf('沉默') > -1); }).length;
+    var ieScore = socialEvents > aloneEvents + 2 ? 'E' : 'I';
+    // N/S: 直觉/实感 — 基于智力属性和奇点相关事件
+    var nsScore = ((ga.int || 0) >= 6 || gf.metStar || gf.metRiver) ? 'N' : 'S';
+    // T/F: 思考/情感 — 基于意志vs快乐
+    var tfScore = ((ga.wil || 0) > (gameState.happiness || 0) + 3) ? 'T' : 'F';
+    // J/P: 判断/感知 — 基于是否加入组织和遵循规则
+    var jpScore = (gf.joinedFinger || gf.joinedAssociation || gf.joinedWing) ? 'J' : 'P';
+    var mbtiType = ieScore + nsScore + tfScore + jpScore;
+    // 都市MBTI类型描述
+    var mbtiMap = {
+      'ISTJ': { name: '守巢者', desc: '你遵循秩序，忠于职责。都市中最可靠的存在，也是最容易在规则崩塌时迷茫的人。' },
+      'ISFJ': { name: '后巷守望者', desc: '你默默守护着身边的人，不求回报。在残酷的都市中，你的温柔是稀缺品。' },
+      'INFJ': { name: '河畔预言者', desc: '你有着超越常人的洞察力，能看到都市表象之下流淌的暗流。河流的低语只有你能听到。' },
+      'INTJ': { name: '首脑棋子', desc: '你以冷酷的逻辑规划一切，将都市视为棋盘。也许首脑已经注意到了你这个同类。' },
+      'ISTP': { name: '独狼收尾人', desc: '你独立、冷静、务实。不需要任何人，一把武器和一份委托就是你的全部。' },
+      'ISFP': { name: '巷角艺术家', desc: '你在都市的夹缝中寻找美。环指或许会对你感兴趣，但你的艺术不为任何人服务。' },
+      'INFP': { name: '理想主义者', desc: '你相信都市可以变得更好，尽管现实一次次证明你错了。你的梦想是这座都市最后的微光。' },
+      'INTP': { name: '奇点研究者', desc: '你对都市运转的机制充满好奇。奇点的本质、脑叶公司的秘密——你想要解开所有谜团。' },
+      'ESTP': { name: '后巷赌徒', desc: '你活在当下，在危险中寻找刺激。都市的风浪越大，你越兴奋。第十区就是你的舞台。' },
+      'ESFP': { name: '谢肉祭舞者', desc: '你热爱生活中的每一刻。在都市的黑暗中，你是那个还能笑出来的人。谢肉祭会喜欢你。' },
+      'ENFP': { name: '自由灵魂', desc: '你的热情感染着每一个人。在束缚重重的都市中，你是一阵无法被捕捉的风。' },
+      'ENTP': { name: '规则颠覆者', desc: '你享受挑战权威和打破常规。都市的规则对你而言只是一场有趣的游戏。' },
+      'ESTJ': { name: '手指执行官', desc: '你相信秩序和效率，以铁腕手段执行规则。在你的管辖范围内，一切井然有序。' },
+      'ESFJ': { name: '巢中调停者', desc: '你维护着社区的和谐，在各方势力之间寻找平衡。都市需要更多像你这样的人。' },
+      'ENFJ': { name: '拉·曼却骑士', desc: '你有着天生的领袖气质，能感召他人追随你的理想。也许你就是都市需要的那个英雄。' },
+      'ENTJ': { name: '翼之支配者', desc: '你有着掌控一切的野心和能力。在你的字典里没有不可能——只有尚未征服。' }
+    };
+    var mbtiInfo = mbtiMap[mbtiType] || { name: '未知类型', desc: '你在都市中无法被简单定义——也许这就是你最特别的地方。' };
+    var mbtiDiv = document.createElement('div');
+    mbtiDiv.style.cssText = 'margin:16px 0;padding:15px;background:#111;border:1px solid #2a2a2a;border-radius:6px;';
+    var mbtiHtml = '<h4 style="color:var(--accent-gold);margin-bottom:10px;text-align:center;">&#10022; 都市人格分析 &#10022;</h4>';
+    mbtiHtml += '<div style="text-align:center;margin-bottom:8px;">';
+    mbtiHtml += '<span style="font-size:2rem;font-weight:bold;letter-spacing:4px;color:#c9a84c;">' + mbtiType + '</span>';
+    mbtiHtml += '<div style="font-size:1rem;color:#b8a99a;margin-top:4px;">' + mbtiInfo.name + '</div>';
+    mbtiHtml += '</div>';
+    // 维度条形图
+    mbtiHtml += '<div style="max-width:300px;margin:10px auto;">';
+    var dims = [
+      { left: 'I 内向', right: 'E 外向', val: socialEvents, valR: aloneEvents, key: ieScore },
+      { left: 'S 实感', right: 'N 直觉', val: (ga.int || 0) < 6 ? 1 : 0, valR: (ga.int || 0) >= 6 ? 1 : 0, key: nsScore },
+      { left: 'F 情感', right: 'T 思考', val: (ga.wil || 0) <= (gameState.happiness || 0) + 3 ? 1 : 0, valR: (ga.wil || 0) > (gameState.happiness || 0) + 3 ? 1 : 0, key: tfScore },
+      { left: 'P 感知', right: 'J 判断', val: (!gf.joinedFinger && !gf.joinedAssociation && !gf.joinedWing) ? 1 : 0, valR: (gf.joinedFinger || gf.joinedAssociation || gf.joinedWing) ? 1 : 0, key: jpScore }
+    ];
+    dims.forEach(function(d) {
+      var leftActive = d.key === d.left.charAt(0);
+      var rightActive = d.key === d.right.charAt(0);
+      mbtiHtml += '<div style="display:flex;align-items:center;margin:4px 0;font-size:0.8rem;">';
+      mbtiHtml += '<span style="width:60px;text-align:right;color:' + (leftActive ? '#c9a84c' : '#555') + ';font-weight:' + (leftActive ? 'bold' : 'normal') + ';">' + d.left + '</span>';
+      mbtiHtml += '<div style="flex:1;height:4px;background:#222;margin:0 6px;border-radius:2px;"><div style="height:100%;width:50%;background:linear-gradient(90deg,' + (leftActive ? '#c9a84c' : '#333') + ',' + (rightActive ? '#c9a84c' : '#333') + ');border-radius:2px;"></div></div>';
+      mbtiHtml += '<span style="width:60px;color:' + (rightActive ? '#c9a84c' : '#555') + ';font-weight:' + (rightActive ? 'bold' : 'normal') + ';">' + d.right + '</span>';
+      mbtiHtml += '</div>';
+    });
+    mbtiHtml += '</div>';
+    mbtiHtml += '<div style="text-align:center;font-size:0.85rem;color:#888;line-height:1.6;margin-top:6px;">' + mbtiInfo.desc + '</div>';
+    mbtiDiv.innerHTML = mbtiHtml;
+    card.appendChild(mbtiDiv);
+
   showSummary();
 }
 
