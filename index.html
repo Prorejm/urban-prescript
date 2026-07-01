@@ -1773,6 +1773,7 @@ function startSimulation() {
   gameState.alive = true;
   gameState.events = [];
   gameState.milestones = [];
+  gameState.birthYear = Math.floor(Math.random() * 201) + 785; // 785~985
   gameState.flags = {
     whiteNight: false,
     crimsonNight: false,
@@ -1805,8 +1806,8 @@ function nextYear() {
     addEvent(ev);
   });
 
-  // If generateEvents set alive=false (river, etc.), end here
-  if (!gameState.alive) {
+  // If generateEvents caused death, end here
+  if (!gameState.alive || gameState.dead) {
     setTimeout(() => endSimulation(), 1500);
     return;
   }
@@ -1914,9 +1915,23 @@ function modAttr(key, delta) {
   gameState.attrs[key] = (gameState.attrs[key] || 0) + delta;
 }
 
-function death(cause) {
+function death(cause, silent) {
+  // 尝试生命保险/复活判定
+  if (typeof tryResurrection === 'function' && tryResurrection(cause)) {
+    return false;
+  }
   gameState.dead = true;
+  gameState.alive = false;
   gameState.deathCause = cause;
+  if (!silent) {
+    addEvent({ text: cause ? '死亡——' + cause : '你迎来了死亡。', effect: 'death', effText: '死亡', major: true });
+  }
+  return true;
+}
+
+// 子代理代码的事件适配函数
+function subEvt(arg1, arg2, text, major, milestone) {
+  addEvent({ text: text, major: !!major, milestone: milestone });
 }
 
 // ============================================================
@@ -1976,8 +1991,16 @@ function generateEvents(age) {
   const f = gameState.flags || (gameState.flags = {});
   const bp = gameState.birthplace ? gameState.birthplace.id : 'backstreet';
   const tags = gameState.talentTags || [];
+  window.bp = bp; // 供子代理代码使用
 
   const events = [];
+
+  // 运行特殊开局与组合标签系统（0岁时检测组合线）
+  if (typeof runAllSpecialStarts === 'function') {
+    runAllSpecialStarts(age);
+  }
+  // 若特殊开局导致死亡，提前返回
+  if (gameState.dead || !gameState.alive) return events;
 
   // ---------- 0-6岁 幼年期 ----------
   if (age <= 6) {
@@ -2030,6 +2053,22 @@ function generateEvents(age) {
     modAttr('con', 2);
     modAttr('wil', 2);
     addMilestone('漆黑噤默传承');
+  }
+
+  // 扩展事件：大湖捕鲸、工坊、图书馆、生命保险
+  if (typeof runExtendedEvents === 'function' && gameState.alive && !gameState.dead) {
+    runExtendedEvents();
+  }
+
+  // 衔接事件：年龄段过渡
+  if (typeof generateBridgeEvents === 'function' && gameState.alive && !gameState.dead) {
+    const bridge = generateBridgeEvents(age, a, f, bp, tags);
+    if (bridge && bridge.length) events.push(...bridge);
+  }
+
+  // 传奇收尾人遭遇与时间线历史事件
+  if (typeof runLegendEvents === 'function' && gameState.alive && !gameState.dead) {
+    runLegendEvents(age);
   }
 
   return events;
@@ -2172,52 +2211,100 @@ function generateAdultEvents(age, a, f, bp, tags) {
       );
       modAttr('int', 1);
     } else if (headEvent === '爪牙来袭') {
-      events.push(
-        evt(
-          '爪牙找上门来了。那非人的身躯和无法抵抗的力量，是都市规则的执行者。',
-          'claw_attack',
-          '',
-          true,
-          '爪牙来袭'
-        )
-      );
-      if ((a.con || 0) >= 10 && (a.int || 0) >= 10 && (a.wil || 0) >= 10 && (a.wea || 0) >= 10) {
+      const warnCount = getFlag('clawWarningCount') || 0;
+      if (warnCount === 0) {
+        setFlag('clawWarningCount', 1);
         events.push(
           evt(
-            '难以置信！你竟然击退了爪牙！你的力量已经超越了人类的极限。都市将永远记住这一天。',
-            'claw_defeated',
-            '全属性+1',
+            '某个夜晚，你感到一阵不寒而栗。街角的阴影中，有什么东西在注视着你——那是爪牙，都市规则的执行者。它没有动手，只是看了你一眼，然后消失在黑暗中。这是第一次警告。',
+            'claw_warn1',
+            '意志-1',
             true,
-            '击退爪牙'
+            '爪牙第一次警告'
           )
         );
-        modAttr('con', 1);
-        modAttr('int', 1);
-        modAttr('wil', 1);
-        modAttr('wea', 1);
-        addMilestone('击退爪牙');
-      } else if ((a.con || 0) >= 6) {
+        modAttr('wil', -1);
+      } else if (warnCount === 1) {
+        setFlag('clawWarningCount', 2);
         events.push(
           evt(
-            '你勉强从爪牙手中逃脱。你受了重伤，但保住了性命。',
-            'claw_escape',
-            '体质-1',
-            false
+            '爪牙再次出现了。这一次，它站在你的门前。那非人的身躯散发着令人窒息的压迫感。它伸出手指，点了点你的胸口——像是在标记，又像是在倒计时。第二次警告。',
+            'claw_warn2',
+            '意志-2',
+            true,
+            '爪牙第二次警告'
           )
         );
-        modAttr('con', -1);
+        modAttr('wil', -2);
+      } else if (warnCount === 2) {
+        setFlag('clawWarningCount', 3);
+        events.push(
+          evt(
+            '第三次了。爪牙不再隐藏。它站在街道的中央，所有的行人都仿佛看不见它一般从旁走过。它的目光锁定了你——这一次，不会再有警告了。',
+            'claw_warn3',
+            '意志-3',
+            true,
+            '爪牙最终警告'
+          )
+        );
+        modAttr('wil', -3);
       } else {
+        // 最终战斗
         events.push(
           evt(
-            '爪牙的力量是不可抵抗的。你被都市的规则抹除了。',
-            'claw_death',
-            '死亡',
+            '爪牙找上门来了。那非人的身躯和无法抵抗的力量，是都市规则的执行者。警告期已过，现在只剩下执行。',
+            'claw_attack',
+            '',
             true,
-            '被爪牙杀死'
+            '爪牙来袭'
           )
         );
-        death('爪牙');
-        return events;
+        // 三次警告后，玩家有机会通过高属性反杀或逃脱
+        const totalAttr = (a.con || 0) + (a.int || 0) + (a.wil || 0) + (a.wea || 0);
+        const hasSingularity = getFlag('singularity_mastered') || getFlag('equip_weapon_singularity');
+        const isColorFixer = hasMilestone('色彩级收尾人') || hasMilestone('漆黑静默') || hasMilestone('殷红迷雾');
+        if ((totalAttr >= 32 && chance(0.3)) || (isColorFixer && chance(0.25)) || (hasSingularity && totalAttr >= 28 && chance(0.2))) {
+          events.push(
+            evt(
+              '难以置信！你竟然击退了爪牙！在三次警告的极限压迫下，你爆发出了超越常理的力量。都市将永远记住这一天。',
+              'claw_defeated',
+              '全属性+2',
+              true,
+              '击退爪牙'
+            )
+          );
+          modAttr('con', 2);
+          modAttr('int', 2);
+          modAttr('wil', 2);
+          modAttr('wea', 2);
+          addMilestone('击退爪牙');
+          setFlag('clawWarningCount', 0); // 重置警告
+        } else if ((a.con || 0) >= 8 && (a.wil || 0) >= 7) {
+          events.push(
+            evt(
+              '你从爪牙的猎杀中奇迹般生还。虽然身负重伤，但你活了下来——至少这一次。',
+              'claw_escape',
+              '体质-2，意志-1',
+              true,
+              '爪牙猎杀中幸存'
+            )
+          );
+          modAttr('con', -2);
+          modAttr('wil', -1);
+          setFlag('clawWarningCount', 0);
+        } else {
+          events.push(
+            evt(
+              '爪牙的力量是不可抵抗的。三次警告后，都市的规则终于降临。你被抹除了——连同你存在过的一切痕迹。',
+              'claw_death',
+              '死亡',
+              true,
+              '被爪牙抹除'
+            )
+          );
+          death('爪牙执行都市规则');
+          return events;
+        }
       }
     }
   }
@@ -6021,6 +6108,2547 @@ document.addEventListener('keydown', (e) => {
     }
   }
 });
+
+// ============================================================
+// 子代理集成代码块开始
+// ============================================================
+
+/**
+ * ============================================================
+ * Project Moon 主题 · 人生重开模拟器 — 组合标签与特殊开局系统
+ * ============================================================
+ *
+ * 依赖外部环境与变量：
+ *   - gameState: { selectedTalents:[{id,name,tag}], flags:{}, attrs:{con,int,wil,wea}, milestones:[], events:[], age }
+ *   - hasTag(tag): boolean            — 检查是否持有某天赋标签
+ *   - getFlag(key): any               — 读取旗帜
+ *   - setFlag(key,val): void          — 设置旗帜
+ *   - modAttr(attr,delta): void       — 修改属性（con/int/wil/wea）
+ *   - evt(t,id,eff,major,ms): void    — 触发事件
+ *   - addMilestone(ms): void          — 添加人生里程碑
+ *   - death(cause): void              — 死亡结算
+ *   - chance(p): boolean              — 概率判定（p为0~1）
+ *   - pick(arr): any                  — 从数组中随机取一项
+ *   - bp: string                      — 出生地ID
+ *
+ * 导出（推荐挂载到 window / global）：
+ *   COMBO_LINES, checkComboLine, checkAllComboLines,
+ *   orphanStart, nonhumanStart, angelicaStart, albGabrielStart,
+ *   experimentStart, bloodfiendStart, firstGradeStart,
+ *   buyLifeInsurance, getFlowBonus, getAllFlowBonuses,
+ *   applyComboEffects, deepNightCleanerThreat
+ */
+
+// ============================================================
+// A. 组合标签检测系统
+// ============================================================
+
+/**
+ * 组合标签 → 特殊人生线定义
+ * 每条线由一组必须同时满足的天赋标签触发，触发后进入对应的专属人生剧本。
+ */
+const COMBO_LINES = [
+  // 双生子线 — 女性分支
+  {
+    tags: ['双生子', '女性'],
+    line: 'anglica',
+    name: '漆黑缄默·安吉莉卡',
+    desc: '你与兄长一同出生在郊区的废墟中，曾是翼的实验对象。你将拿起剑，成为都市传说中的漆黑噤默。',
+  },
+  // 双生子线 — 男性分支
+  {
+    tags: ['双生子', '男性'],
+    line: 'alb_gabriel',
+    name: '苍蓝残响·阿尔加利亚',
+    desc: '你与妹妹一同出生，在温柔的琴声中，你将成为都市 nightmares 的一部分。苍蓝色的余音将萦绕在你的指尖。',
+  },
+  // 孤儿线
+  {
+    tags: ['孤儿'],
+    line: 'orphan',
+    name: '后巷孤儿',
+    desc: '你没有父母，在后巷的废墟中独自求生。深宵的黑暗是你最早的摇篮，清道夫的脚步声是你最早的安眠曲。',
+  },
+  // 实验体线
+  {
+    tags: ['实验品'],
+    line: 'experiment',
+    name: '翼的实验体',
+    desc: '你生来就是某个翼公司的实验对象，你的身体里流淌着不属于自己的血液。痛苦是日常的注脚，异化是唯一的出路。',
+  },
+  // 非人之性体线
+  {
+    tags: ['非人之性体'],
+    line: 'nonhuman',
+    name: '非人之性体',
+    desc: '你不是人类，至少不是传统意义上的人类。首脑已经注意到了你的存在，他们的手指已经按在了处决按钮上。',
+  },
+  // 血魔后裔线
+  {
+    tags: ['血魔后裔'],
+    line: 'bloodfiend',
+    name: '血魔之子',
+    desc: '你的血脉中流淌着血魔的力量，那是两百年前血魔战争遗留的诅咒。饥渴与力量如影随形。',
+  },
+  // 一阶收尾人线
+  {
+    tags: ['收尾人', '一阶'],
+    line: 'first_grade',
+    name: '一阶收尾人之路',
+    desc: '你天生就拥有成为顶尖收尾人的潜质。都市的阴暗角落里，你的名字终将响彻每一个后巷。',
+  },
+  // 拇指相关组合
+  {
+    tags: ['拇指', '帮派'],
+    line: 'thumb_member',
+    name: '拇指候补',
+    desc: '你出生在拇指的势力范围内，从小听着枪声和等级制度长大。你的手指终将扣动扳机，或者被别人扣动。',
+  },
+  // 食指相关组合
+  {
+    tags: ['食指', '代行者'],
+    line: 'index_proxy',
+    name: '食指代行者',
+    desc: '你被食指选中，成为传达指令的代行者。指令不可违抗，这是刻在你骨髓中的铁律。',
+  },
+  // 血魔 + 非人之性体（隐藏线）
+  {
+    tags: ['血魔后裔', '非人之性体'],
+    line: 'true_bloodfiend',
+    name: '真祖之血',
+    desc: '你并非普通的血魔后裔，而是返祖的纯血血魔。你的存在本身就是对都市秩序的挑衅。',
+    hidden: true,
+  },
+];
+
+/**
+ * 检查单个组合标签是否匹配当前已选天赋
+ * @param {string[]} comboTags — 该组合线要求的标签列表
+ * @returns {boolean}
+ */
+function matchComboTags(comboTags) {
+  // 所有标签必须同时满足
+  return comboTags.every(tag => hasTag(tag));
+}
+
+/**
+ * 检查是否匹配某一条特定组合线
+ * @param {string} lineId — 组合线ID（如 'anglica'）
+ * @returns {object|null} — 匹配返回线定义，否则返回null
+ */
+function checkComboLine(lineId) {
+  const line = COMBO_LINES.find(l => l.line === lineId);
+  if (!line) return null;
+  if (matchComboTags(line.tags)) {
+    return line;
+  }
+  return null;
+}
+
+/**
+ * 检查所有组合线，返回所有匹配的结果（按优先级排序，隐藏线优先）
+ * @returns {object[]}
+ */
+function checkAllComboLines() {
+  const matched = COMBO_LINES.filter(line => matchComboTags(line.tags));
+  // 隐藏线排在前面（它们通常要求更严格）
+  matched.sort((a, b) => {
+    if (a.hidden && !b.hidden) return -1;
+    if (!a.hidden && b.hidden) return 1;
+    // 标签更多的组合排在前面（更具体）
+    return b.tags.length - a.tags.length;
+  });
+  return matched;
+}
+
+/**
+ * 应用组合线的初始效果（触发专属开局）
+ * @param {object} line — COMBO_LINES 中的线定义
+ */
+function applyComboEffects(line) {
+  setFlag('comboLine', line.line);
+  setFlag('comboName', line.name);
+  addMilestone(`触发特殊人生线：${line.name}`);
+  subEvt('special', `combo_${line.line}`, `${line.desc} [${line.tags.join('+')}]`, true, line.name);
+
+  // 根据线路设置初始旗帜与微量属性调整
+  switch (line.line) {
+    case 'anglica':
+      setFlag('hasBrother', true);
+      setFlag('charlesOfficeMember', false); // 尚未加入
+      modAttr('wil', 2);
+      break;
+    case 'alb_gabriel':
+      setFlag('hasSister', true);
+      setFlag('pianistEvent', false);
+      modAttr('int', 2);
+      break;
+    case 'orphan':
+      setFlag('orphan', true);
+      setFlag('independence', 0); // 独立性计数器
+      modAttr('con', 1);
+      modAttr('wil', 1);
+      break;
+    case 'experiment':
+      setFlag('experimentSubject', true);
+      setFlag('experimentCompany', pick(['H公司', '脑叶公司', 'N公司', 'T公司', 'K公司']));
+      setFlag('sideEffects', 0);
+      modAttr('con', pick([2, -1, 1])); // 实验可能强化也可能削弱体质
+      break;
+    case 'nonhuman':
+      setFlag('nonhuman', true);
+      setFlag('headNotice', true);
+      setFlag('exiledToOutskirts', false);
+      break;
+    case 'bloodfiend':
+      setFlag('bloodfiend', true);
+      setFlag('bloodThirst', 0); // 饥渴度
+      setFlag('bloodPower', 1);  // 血魔力量觉醒度
+      modAttr('con', 2);
+      modAttr('wil', -1); // 意志受血脉侵蚀
+      break;
+    case 'first_grade':
+      setFlag('firstGradePotential', true);
+      setFlag('fixerRank', '九阶');
+      modAttr('con', 1);
+      modAttr('int', 1);
+      modAttr('wil', 1);
+      break;
+    case 'thumb_member':
+      setFlag('thumbAffiliated', true);
+      modAttr('con', 1);
+      break;
+    case 'index_proxy':
+      setFlag('indexProxy', true);
+      setFlag('instructionCount', 0);
+      modAttr('wil', 2);
+      break;
+    case 'true_bloodfiend':
+      setFlag('trueBloodfiend', true);
+      setFlag('bloodThirst', 2);
+      setFlag('bloodPower', 3);
+      modAttr('con', 3);
+      modAttr('wil', -2);
+      subEvt('danger', 'head_extermination', '首脑对你的存在感到极度不安，清剿行动可能随时开始。', true, '真祖之血觉醒');
+      break;
+  }
+}
+
+// ============================================================
+// B. 特殊开局事件
+// ============================================================
+
+/**
+ * 孤儿开局（0-6岁）
+ * 没有父母保护，独自在后巷求生。深宵时无人保护，清道夫威胁更大。
+ * 但独立性强，意志成长更快。
+ *
+ * @param {number} age — 当前年龄（由外部调用者传入）
+ */
+function orphanStart(age) {
+  if (!getFlag('orphan')) return; // 未触发孤儿线则不执行
+
+  if (age === 0) {
+    subEvt('birth', 'orphan_birth', '你出生在第X巢的后巷，你的父母不知所踪。清道夫的嗡嗡声是你听到的第一种声音。', true, '后巷孤儿');
+    setFlag('independence', 1);
+  }
+  else if (age >= 1 && age <= 3) {
+    // 幼儿期：在废墟中爬行的日子
+    const events = [
+      '你在垃圾堆旁找到了半块发霉的面包，那是你今天的晚餐。',
+      '一只后巷的野狗向你龇牙，你学会了在威胁面前保持静止。',
+      '某个好心（或者说不够坏）的收尾人丢给你一枚眼。',
+    ];
+    subEvt('childhood', `orphan_age_${age}`, pick(events), false, '后巷求生');
+    modAttr('con', 0.5);
+    setFlag('independence', getFlag('independence') + 1);
+  }
+  else if (age >= 4 && age <= 6) {
+    // 童年早期：已经开始自力更生
+    const events = [
+      '你学会了从清道夫清扫过的废墟中搜集还能用的物品。',
+      '一群同龄的孩子试图抢走你的食物，你被打了一顿，但也学会了反击。',
+      '深宵降临时，你躲在废弃的管道里瑟瑟发抖，但活了下来。',
+    ];
+    subEvt('childhood', `orphan_age_${age}`, pick(events), false, '后巷求生');
+    modAttr('wil', 1);
+    setFlag('independence', getFlag('independence') + 1);
+
+    // 深宵额外威胁判定
+    if (chance(0.3)) {
+      deepNightCleanerThreat();
+    }
+  }
+}
+
+/**
+ * 深宵清道夫威胁（孤儿专属增强版）
+ * 孤儿在深宵时无人保护，死亡概率更高；但高独立性可以降低风险
+ */
+function deepNightCleanerThreat() {
+  const independence = getFlag('independence') || 0;
+  // 独立性越高，存活率越高
+  const survivalChance = 0.3 + independence * 0.08; // 基础30%，每点独立+8%
+
+  if (!chance(survivalChance)) {
+    death('深宵中无人庇护，被清道夫吞噬');
+    return;
+  }
+
+  // 存活下来了
+  const desc = independence >= 3
+    ? '深宵再次降临，但你已经熟悉了清道夫的规律。你冷静地躲过了它们的清扫路线。'
+    : '深宵降临，清道夫在街道上嗡嗡作响。你蜷缩在角落里，祈祷自己不会被发现。你活了下来，但恐惧加深了。';
+  subEvt('danger', 'deep_night_survive', desc, true, '深宵幸存');
+  modAttr('wil', 0.5);
+}
+
+/**
+ * 非人之性体开局
+ * 出生时被首脑发现，直接被抹杀（低概率存活，被扔到郊区）。
+ * 如果存活，在郊区长大，属性异于常人。
+ *
+ * @param {number} age — 当前年龄
+ */
+function nonhumanStart(age) {
+  if (!getFlag('nonhuman')) return;
+
+  if (age === 0) {
+    // 出生即面临处决
+    subEvt('birth', 'nonhuman_birth', '你降生的那一刻，首脑的目光便锁定了你。非人之物不应存在于巢中。', true, '非人之性体');
+
+    // 极低概率被某位眼线/爪牙"失误"放走，流放到郊区
+    const exileChance = 0.15; // 15%流放存活
+    if (chance(exileChance)) {
+      setFlag('exiledToOutskirts', true);
+      setFlag('headNotice', false); // 郊区的你暂时不在首脑视线内
+      subEvt('survival', 'nonhuman_exiled', '某位执行者"意外"地让你掉进了传送门。你醒来时，已经身在郊区。', true, '郊区流放');
+      modAttr('con', 2);
+      modAttr('wil', -1); // 恐惧留下烙印
+    } else {
+      // 被抹杀
+      death('被首脑判定为非人之物，执行抹杀');
+    }
+    return;
+  }
+
+  // 在郊区长大的日子
+  if (getFlag('exiledToOutskirts') && age <= 16) {
+    const events = [
+      '郊区的空气与巢不同，某种古老的力量在你体内躁动。',
+      '你遇到了郊区的原住民，他们把你当作怪物，也当作神明。',
+      '你发现自己不需要像人类一样进食，或者你进食的东西与人类不同。',
+    ];
+    subEvt('childhood', `nonhuman_outskirts_${age}`, pick(events), false, '郊区成长');
+
+    // 非人之体属性成长异于常人
+    modAttr('con', pick([1, 0, 1, 2]));
+    modAttr('int', pick([-1, 0, 1]));
+    modAttr('wil', pick([0, 1, -1]));
+
+    // 郊区也有危险
+    if (chance(0.2)) {
+      if (!chance(0.6)) {
+        death('郊区的某种存在发现了你，那比清道夫更加古老');
+      }
+    }
+  }
+}
+
+/**
+ * 安吉莉卡线（双生子+女性）
+ * 童年：与兄长在郊区废墟求生
+ * 少年：被翼实验后抛弃
+ * 青年：加入查尔斯事务所
+ * 成年：遇到罗兰，成为漆黑噤默
+ * 遭遇：钢琴师事件中可能死亡（但如果属性够高可存活改变历史）
+ *
+ * @param {number} age — 当前年龄
+ */
+function angelicaStart(age) {
+  if (!getFlag('comboLine') || getFlag('comboLine') !== 'anglica') return;
+
+  if (age === 0) {
+    subEvt('birth', 'anglica_birth', '你与兄长一同降生在郊区的废墟中。你们的啼哭声在空旷的荒野上回荡。', true, '双生子·安吉莉卡');
+    setFlag('brotherAlive', true);
+    setFlag('experimented', false);
+    setFlag('charlesOfficeMember', false);
+    setFlag('metRoland', false);
+    setFlag('pianistEvent', false);
+    setFlag('aliveAfterPianist', false);
+  }
+  else if (age >= 1 && age <= 7) {
+    const events = [
+      '兄长在废墟中找到了食物，先递给了你。你们相依为命。',
+      '郊区的风沙很大，兄长用身体为你挡住了刺骨的寒风。',
+      '你们在一座倒塌的建筑里搭建了简陋的庇护所。',
+    ];
+    subEvt('childhood', `anglica_age_${age}`, pick(events), false, '郊区废墟');
+    modAttr('con', 0.5);
+    modAttr('wil', 0.5);
+  }
+  else if (age >= 8 && age <= 14) {
+    // 少年期：被翼抓走实验
+    if (age === 8 && !getFlag('experimented')) {
+      setFlag('experimented', true);
+      subEvt('major', 'anglica_captured', '某个翼的公司发现了你们兄妹。实验很痛，但你们活了下来。最终，你们被当作废弃品丢弃在后巷。', true, '翼的实验');
+      modAttr('con', -1);
+      modAttr('wil', 2);
+    } else {
+      const events = [
+        '实验留下的疤痕隐隐作痛，但你学会了忍耐。',
+        '你与兄长在废弃的实验室里找到了一把还能用的剑。',
+        '后巷的孩子们嘲笑你们的疤痕，你第一次挥剑自卫。',
+      ];
+      subEvt('youth', `anglica_age_${age}`, pick(events), false, '后巷求生');
+      modAttr('con', 0.5);
+    }
+  }
+  else if (age >= 15 && age <= 19) {
+    // 青年期：加入查尔斯事务所
+    if (age === 15 && !getFlag('charlesOfficeMember')) {
+      setFlag('charlesOfficeMember', true);
+      subEvt('major', 'anglica_charles_office', '你展现出了惊人的剑术天赋。查尔斯事务所接纳了你们兄妹，你们成为了收尾人。', true, '查尔斯事务所');
+      modAttr('con', 2);
+      modAttr('int', 1);
+      modAttr('wil', 1);
+      setFlag('fixerRank', '五阶');
+    } else {
+      const events = [
+        '查尔斯事务所的日子里，你与兄长并肩作战。',
+        '你的剑越来越快了，快得像一道黑色的闪电。',
+        '某个委托中，你保护了无辜的后巷居民。他们叫你漆黑噤默。',
+      ];
+      subEvt('youth', `anglica_age_${age}`, pick(events), false, '收尾人生涯');
+      modAttr('con', 1);
+    }
+  }
+  else if (age >= 20 && age <= 28) {
+    // 成年：遇到罗兰
+    if (age === 20 && !getFlag('metRoland')) {
+      setFlag('metRoland', true);
+      subEvt('major', 'anglica_meet_roland', '你遇到了罗兰。那个总是带着微笑的男人，他的剑和你一样快。你们相爱了。', true, '相遇罗兰');
+      modAttr('wil', 2);
+      setFlag('marriedToRoland', true);
+    } else if (age >= 25 && age <= 28 && !getFlag('pianistEvent')) {
+      // 钢琴师事件 — 命运的分歧点
+      setFlag('pianistEvent', true);
+      angelicaPianistEvent();
+    } else {
+      const events = [
+        '与罗兰并肩作战的日子是你最幸福的时光。',
+        '你的剑术已经达到了一阶收尾人的水准。都市的传说开始流传你的名字。',
+        '兄长似乎有些忧虑，但他看到你的笑容，也微笑了。',
+      ];
+      subEvt('adult', `anglica_age_${age}`, pick(events), false, '漆黑噤默');
+      modAttr('con', 0.5);
+      modAttr('wil', 0.5);
+    }
+  }
+}
+
+/**
+ * 安吉莉卡 · 钢琴师事件（命运分歧点）
+ * 原作中安吉莉卡死于钢琴师事件，但如果属性足够高，可能存活并改变历史
+ */
+function angelicaPianistEvent() {
+  subEvt('major', 'anglica_pianist_start', '钢琴师的旋律在都市中回荡。那是死亡的安魂曲。查尔斯事务所接到了委托，你与罗兰一同前往。', true, '钢琴师事件');
+
+  // 存活判定：体质+意志的综合考验
+  const con = gameState.attrs.con || 0;
+  const wil = gameState.attrs.wil || 0;
+  const survivalScore = con * 0.4 + wil * 0.6;
+
+  // 需要综合评分达到阈值
+  const survive = chance(Math.min(0.7, survivalScore / 25));
+
+  if (survive) {
+    setFlag('aliveAfterPianist', true);
+    subEvt('major', 'anglica_pianist_survive', '钢琴师的音符切割着空气，但你的剑更快。你用漆黑噤默之名，斩断了死亡的旋律。你活了下来——历史在此改变。', true, '改变命运');
+    modAttr('con', 2);
+    modAttr('wil', 3);
+    addMilestone('在钢琴师事件中存活，历史分支改变');
+    // 罗兰不会因此黑化，后续剧情线完全改变
+    setFlag('rolandRemainsHappy', true);
+  } else {
+    subEvt('major', 'anglica_pianist_death', '钢琴师的旋律太美了，美得致命。你为了保护罗兰，挡在了那道音波之前。漆黑噤默，就此陨落。', true, '陨落');
+    // 给予罗兰相关的后日谈旗帜，然后死亡
+    setFlag('angelicaDiedInPianist', true);
+    death('钢琴师事件——为保护罗兰而牺牲');
+  }
+}
+
+/**
+ * 阿尔加利亚线（双生子+男性）
+ *
+ * @param {number} age — 当前年龄
+ */
+function albGabrielStart(age) {
+  if (!getFlag('comboLine') || getFlag('comboLine') !== 'alb_gabriel') return;
+
+  if (age === 0) {
+    subEvt('birth', 'alb_birth', '你与妹妹一同降生在郊区的废墟中。你发誓要保护她，无论付出什么代价。', true, '双生子·阿尔加利亚');
+    setFlag('sisterAlive', true);
+    setFlag('experimented', false);
+    setFlag('musicTalent', 1);
+  }
+  else if (age >= 1 && age <= 7) {
+    const events = [
+      '妹妹的笑声是你听过最美的音乐。',
+      '你在废墟中找到了一把破损的小提琴，修好后拉给妹妹听。',
+      '郊区的夜晚很冷，你抱着妹妹入睡。',
+    ];
+    subEvt('childhood', `alb_age_${age}`, pick(events), false, '郊区废墟');
+    modAttr('int', 0.5);
+    modAttr('wil', 0.5);
+  }
+  else if (age >= 8 && age <= 14) {
+    if (age === 8 && !getFlag('experimented')) {
+      setFlag('experimented', true);
+      subEvt('major', 'alb_captured', '某个翼的公司发现了你们兄妹。实验很痛，但你咬着牙没有哭——不能让妹妹看到你软弱的样子。', true, '翼的实验');
+      modAttr('wil', 2);
+      modAttr('con', -1);
+    } else {
+      const events = [
+        '你越来越擅长音乐了，那旋律能够安抚妹妹的恐惧。',
+        '后巷的人说你拉琴的样子像个怪人，你只是笑笑。',
+        '你找到了更多乐器，音乐成了你们兄妹在黑暗中唯一的光。',
+      ];
+      subEvt('youth', `alb_age_${age}`, pick(events), false, '后巷岁月');
+      modAttr('int', 1);
+      setFlag('musicTalent', (getFlag('musicTalent') || 0) + 1);
+    }
+  }
+  else if (age >= 15) {
+    const events = [
+      '你的音乐开始具有某种力量——听到的人会流泪，或者疯狂。',
+      '妹妹加入了查尔斯事务所，你为她骄傲，也感到担忧。',
+      '你独自在后巷演奏，围观者越来越多。苍蓝色的音波在空气中震荡。',
+    ];
+    subEvt('adult', `alb_age_${age}`, pick(events), false, '苍蓝残响');
+    modAttr('int', 1);
+    modAttr('wil', 0.5);
+
+    // 妹妹存活状态影响阿尔加利亚的精神状态
+    if (getFlag('angelicaDiedInPianist')) {
+      // 如果妹妹已死亡（需要跨存档/跨角色判定，此处用旗帜模拟）
+      subEvt('major', 'alb_madness', '妹妹死了。你的琴弦崩断的那一刻，某种东西在你心中也断裂了。苍蓝色的残响将笼罩整个都市。', true, '疯狂');
+      modAttr('wil', -5);
+      setFlag('albMadness', true);
+    }
+  }
+}
+
+/**
+ * 实验品开局
+ * H公司/脑叶公司/N公司实验体
+ * 定期遭遇实验副作用
+ * 可能获得超常能力也可能死亡
+ *
+ * @param {number} age — 当前年龄
+ */
+function experimentStart(age) {
+  if (!getFlag('experimentSubject')) return;
+
+  const company = getFlag('experimentCompany') || '未知公司';
+
+  if (age === 0) {
+    subEvt('birth', 'exp_birth', `你出生在${company}的实验室中。你的第一个记忆是刺眼的白光和针头。`, true, '翼的实验体');
+    setFlag('sideEffects', 0);
+    setFlag('experimentStage', 1);
+  }
+  else if (age > 0 && age <= 18) {
+    // 定期副作用事件
+    const sideEffectInterval = 3; // 每3年一次严重副作用
+    if (age % sideEffectInterval === 0) {
+      applyExperimentSideEffect(company);
+    }
+
+    // 日常实验生活
+    const events = [
+      `${company}的研究员今天抽了你的血，在你的皮肤上做了标记。`,
+      '实验室的其他实验体今天少了一个，没人问为什么。',
+      '你梦到了实验室外面的天空，那是蓝色的吗？还是灰色的？',
+      '某种药物让你整夜睡不着，但你的感官变得更加敏锐了。',
+    ];
+    subEvt('childhood', `exp_age_${age}`, pick(events), false, `${company}实验体`);
+  }
+  else if (age === 19) {
+    // 实验"毕业"——被释放或废弃
+    const survived = chance(0.6);
+    if (survived) {
+      setFlag('experimentReleased', true);
+      subEvt('major', 'exp_released', `${company}认为你失去了研究价值（或者他们只是想减少开支）。你被扔到了后巷。自由了。`, true, '实验"毕业"');
+      modAttr('wil', 2);
+    } else {
+      // 被废弃处理
+      death(`${company}的废弃处理——实验失败品被"妥善处理"`);
+    }
+  }
+}
+
+/**
+ * 实验副作用判定
+ * @param {string} company — 实验公司名称
+ */
+function applyExperimentSideEffect(company) {
+  let effectRoll = Math.random();
+  const sideEffects = getFlag('sideEffects') || 0;
+
+  // 副作用累积越多，死亡概率越高
+  const deathChance = 0.1 + sideEffects * 0.05;
+
+  if (chance(deathChance)) {
+    death(`${company}实验副作用——身体无法承受异化而崩溃`);
+    return;
+  }
+
+  // 公司专属副作用表
+  const companyEffects = {
+    'H公司': [
+      { text: 'H公司的药物让你的血液变成了淡绿色，但你感觉更强壮了。', attr: { con: 2 }, flag: { bloodColor: 'green' } },
+      { text: '某种气体实验损伤了你的肺部，你经常咳血。', attr: { con: -1, wil: 1 } },
+      { text: '你的皮肤变得异常坚韧，像橡胶一样。', attr: { con: 1 } },
+    ],
+    '脑叶公司': [
+      { text: '你的脑中出现了一个不属于你的声音，它自称"卡门"。', attr: { int: 1, wil: -1 }, flag: { carmenVoice: true } },
+      { text: '某种E.G.O实验让你的情绪可以具象化为武器。', attr: { wil: 2 }, flag: { egoManifest: true } },
+      { text: '你看到了"井"，那井里有什么东西在看你。', attr: { int: -1, wil: -1 } },
+    ],
+    'N公司': [
+      { text: 'N公司的钉子打入你的脊椎，痛苦之后是力量的涌动。', attr: { con: 1, wil: 1 }, flag: { nailImplant: true } },
+      { text: '你的某段记忆被"修正"了，你不确定自己还是不是原来的自己。', attr: { wil: -2 } },
+      { text: '某种宗教性的实验让你对痛苦产生了异样的渴望。', attr: { con: 1, wil: -1 } },
+    ],
+    'T公司': [
+      { text: '时间在你的身上产生了微妙的错位，你偶尔能"预见"几秒钟后的未来。', attr: { int: 2 }, flag: { timeSense: true } },
+      { text: '你的衰老速度变得异常，你不知道这是加速还是减缓。', attr: { con: pick([1, -1]) } },
+    ],
+    'K公司': [
+      { text: '你的伤口愈合速度快得惊人，但你也开始渴望伤害自己。', attr: { con: 2, wil: -1 } },
+      { text: '某种营养液让你几乎不需要进食，但你的味觉彻底消失了。', attr: { con: 1 } },
+    ],
+  };
+
+  const effects = companyEffects[company] || companyEffects['H公司'];
+  const effect = pick(effects);
+
+  subEvt('danger', `exp_sideeffect_${company}`, effect.text, true, '实验副作用');
+  if (effect.attr) {
+    for (const [attr, delta] of Object.entries(effect.attr)) {
+      modAttr(attr, delta);
+    }
+  }
+  if (effect.flag) {
+    for (const [k, v] of Object.entries(effect.flag)) {
+      setFlag(k, v);
+    }
+  }
+
+  setFlag('sideEffects', sideEffects + 1);
+}
+
+/**
+ * 血魔后裔开局
+ * @param {number} age — 当前年龄
+ */
+function bloodfiendStart(age) {
+  if (!getFlag('bloodfiend')) return;
+
+  if (age === 0) {
+    subEvt('birth', 'bf_birth', '你的第一声啼哭带着异样的力量。接生婆惊恐地看着你——你有着不属于新生儿的尖牙。', true, '血魔之子');
+    setFlag('bloodThirst', 0);
+    setFlag('bloodPower', 1);
+  }
+  else if (age > 0 && age <= 10) {
+    // 童年期：血魔之力尚未完全觉醒，但已有征兆
+    const events = [
+      '你对生肉有着异常的渴望，父母以为你只是饿了。',
+      '你不小心划伤了自己，伤口在几分钟内愈合了。',
+      '你的瞳孔在阳光下会收缩成一条细线，像某种爬行动物。',
+    ];
+    subEvt('childhood', `bf_age_${age}`, pick(events), false, '血魔觉醒');
+    modAttr('con', 0.5);
+  }
+  else if (age > 10 && age <= 18) {
+    // 少年期：血渴开始加剧
+    const thirst = (getFlag('bloodThirst') || 0) + 1;
+    setFlag('bloodThirst', thirst);
+
+    if (thirst >= 5 && chance(0.4)) {
+      subEvt('danger', 'bf_bloodlust', '血渴压倒了一切。你在黑暗中攻击了某个路人，吸干了他们的血。满足，却也堕落。', true, '血渴');
+      modAttr('con', 2);
+      modAttr('wil', -2);
+      setFlag('committedMurder', true);
+    } else {
+      const events = [
+        '你学会了控制血渴，用动物的血液代替。',
+        '你的力量在增长，可以徒手折断铁棍。',
+        '某个古老的血魔找到了你，称你为"后裔"。',
+      ];
+      subEvt('youth', `bf_age_${age}`, pick(events), false, '血魔成长');
+      modAttr('con', 1);
+    }
+  }
+  else if (age > 18) {
+    // 成年期：血魔力量完全觉醒或彻底失控
+    const power = getFlag('bloodPower') || 1;
+    const control = gameState.attrs.wil || 0;
+
+    if (control < 5 && chance(0.3)) {
+      subEvt('danger', 'bf_lost_control', '你彻底屈服于血渴。你不再是你，只是一头渴求鲜血的野兽。', true, '失控');
+      setFlag('lostControl', true);
+      modAttr('wil', -3);
+    } else {
+      subEvt('adult', `bf_age_${age}`, '你完全掌控了血魔之力。两百年的诅咒不再是枷锁，而是你的武器。', false, '血魔掌控');
+      modAttr('con', 1);
+      modAttr('wil', 1);
+    }
+  }
+}
+
+/**
+ * 一阶收尾人开局
+ * @param {number} age — 当前年龄
+ */
+function firstGradeStart(age) {
+  if (!getFlag('firstGradePotential')) return;
+
+  if (age === 0) {
+    subEvt('birth', 'fg_birth', '你生来就握紧了拳头。接生婆说，你抓她的手指力道大得不像是新生儿。', true, '一阶收尾人之胚');
+  }
+  else if (age === 6) {
+    subEvt('childhood', 'fg_training_start', '六岁那年，某位退役收尾人发现了你的天赋，开始偷偷训练你。', false, '启蒙训练');
+    modAttr('con', 1);
+    modAttr('int', 0.5);
+  }
+  else if (age === 14) {
+    subEvt('major', 'fg_first_blood', '十四岁，你第一次见血。那不是意外，而是命运的预演。', true, '初阵');
+    modAttr('wil', 1);
+    setFlag('fixerRank', '七阶');
+  }
+  else if (age === 18) {
+    subEvt('major', 'fg_official', '你正式注册为协会收尾人。你的起点是九阶，但所有人都知道你不会停在这里。', true, '注册收尾人');
+  }
+  else if (age >= 20 && age <= 30 && chance(0.3)) {
+    // 快速晋升期
+    const rankUp = chance(0.5);
+    if (rankUp) {
+      const currentRank = getFlag('fixerRank') || '九阶';
+      const rankLadder = ['九阶', '八阶', '七阶', '六阶', '五阶', '四阶', '三阶', '二阶', '一阶'];
+      const idx = rankLadder.indexOf(currentRank);
+      if (idx > 0) {
+        const newRank = rankLadder[idx - 1];
+        setFlag('fixerRank', newRank);
+        subEvt('major', `fg_rank_${newRank}`, `你晋升为了${newRank}收尾人。都市开始记住你的名字。`, true, `晋升${newRank}`);
+        modAttr('con', 0.5);
+        modAttr('wil', 0.5);
+      }
+    }
+  }
+}
+
+// ============================================================
+// C. 生命保险系统
+// ============================================================
+
+/**
+ * 保险公司定义
+ */
+const INSURANCE_COMPANIES = [
+  {
+    id: 'hongyuan',
+    name: '鸿园生命保险',
+    desc: '鸿园的生命保险是都市最知名的保障。死后可以复活，但会损失大量记忆。',
+    costWea: 80,          // 购买花费家境
+    resurrectionCount: 1, // 复活次数
+    memoryLoss: true,     // 损失记忆
+    attrPenalty: 0,       // 属性惩罚比例（0 = 无）
+  },
+  {
+    id: 'liu_association',
+    name: '六协会保险',
+    desc: '六协会提供的保险更加务实。复活后属性会有所下降，但记忆完整。',
+    costWea: 60,
+    resurrectionCount: 1,
+    memoryLoss: false,
+    attrPenalty: 0.2,     // 全属性下降20%
+  },
+  {
+    id: 'seven_association',
+    name: '七协会保险',
+    desc: '七协会的保险价格低廉，但条款苛刻。复活后运气会变得更差。',
+    costWea: 40,
+    resurrectionCount: 1,
+    memoryLoss: false,
+    attrPenalty: 0.1,
+    luckPenalty: true,
+  },
+  {
+    id: 'thumb_insurance',
+    name: '拇指黑市保险',
+    desc: '拇指提供的非法保险。价格便宜得可疑，复活后可能会有"额外副作用"。',
+    costWea: 25,
+    resurrectionCount: 1,
+    memoryLoss: false,
+    attrPenalty: 0.15,
+    sideEffect: true,     // 可能有额外副作用
+  },
+];
+
+/**
+ * 购买生命保险
+ * @param {string} companyId — 保险公司ID
+ * @returns {boolean} — 是否购买成功
+ */
+function buyLifeInsurance(companyId) {
+  const insurance = INSURANCE_COMPANIES.find(i => i.id === companyId);
+  if (!insurance) {
+    subEvt('system', 'insurance_invalid', '未知的保险公司。', false, '购买失败');
+    return false;
+  }
+
+  // 检查年龄（必须成年才能购买）
+  if (gameState.age < 18) {
+    subEvt('system', 'insurance_too_young', '未成年人无法购买生命保险。', false, '购买失败');
+    return false;
+  }
+
+  // 检查是否已经持有同一家保险
+  const current = getFlag('lifeInsurance');
+  if (current && current.companyId === companyId && current.remaining > 0) {
+    subEvt('system', 'insurance_duplicate', `你已经持有${insurance.name}。`, false, '购买失败');
+    return false;
+  }
+
+  // 检查家境
+  if ((gameState.attrs.wea || 0) < insurance.costWea) {
+    subEvt('system', 'insurance_too_poor', `你的家境不足以支付${insurance.name}的费用（需要${insurance.costWea}）。`, false, '购买失败');
+    return false;
+  }
+
+  // 扣款并投保
+  modAttr('wea', -insurance.costWea);
+  setFlag('lifeInsurance', {
+    companyId: insurance.id,
+    companyName: insurance.name,
+    remaining: insurance.resurrectionCount,
+    memoryLoss: insurance.memoryLoss,
+    attrPenalty: insurance.attrPenalty,
+    sideEffect: insurance.sideEffect || false,
+    luckPenalty: insurance.luckPenalty || false,
+  });
+
+  subEvt('major', `insurance_bought_${companyId}`, `你购买了${insurance.name}。花费家境${insurance.costWea}。死亡后将获得一次复活机会。`, true, '生命保险');
+  addMilestone(`购买${insurance.name}`);
+  return true;
+}
+
+/**
+ * 使用生命保险复活（在death()之后调用，若返回true则阻止死亡）
+ * @returns {boolean} — 是否成功复活
+ */
+function useLifeInsurance() {
+  const insurance = getFlag('lifeInsurance');
+  if (!insurance || insurance.remaining <= 0) return false;
+
+  insurance.remaining -= 1;
+  setFlag('lifeInsurance', insurance);
+
+  const company = INSURANCE_COMPANIES.find(i => i.id === insurance.companyId);
+
+  let desc = `${company.name}的复活服务生效了。`;
+
+  // 记忆损失
+  if (insurance.memoryLoss) {
+    desc += '但你失去了大量记忆，像做了一场很长很长的梦，醒来后什么都不记得了。';
+    setFlag('amnesia', true);
+    // 清除部分里程碑记录（模拟记忆损失）
+    if (gameState.milestones && gameState.milestones.length > 3) {
+      const preserved = gameState.milestones.slice(-3); // 只保留最近3个
+      gameState.milestones.length = 0;
+      gameState.milestones.push(...preserved);
+    }
+  }
+
+  // 属性惩罚
+  if (insurance.attrPenalty > 0) {
+    const penalty = insurance.attrPenalty;
+    modAttr('con', -(gameState.attrs.con || 0) * penalty);
+    modAttr('int', -(gameState.attrs.int || 0) * penalty);
+    modAttr('wil', -(gameState.attrs.wil || 0) * penalty);
+    desc += `复活对你的身体造成了负担，全属性下降${(penalty * 100).toFixed(0)}%。`;
+  }
+
+  // 额外副作用（拇指黑市保险）
+  if (insurance.sideEffect && chance(0.5)) {
+    const sideEffects = [
+      '复活后你发现身上多了一道来历不明的疤痕。',
+      '你的味觉完全消失了，食物对你来说只是颜色不同的泥。',
+      '你偶尔会听到不属于你的低语声。',
+    ];
+    const se = pick(sideEffects);
+    desc += ` ${se}`;
+    setFlag('resurrectionSideEffect', true);
+  }
+
+  // 运气惩罚
+  if (insurance.luckPenalty) {
+    setFlag('badLuck', true);
+    desc += ' 你感觉自己的运气变差了。';
+  }
+
+  subEvt('major', 'insurance_resurrection', desc, true, '复活');
+  addMilestone(`通过${company.name}复活`);
+
+  // 复活后恢复少量体质
+  modAttr('con', 5);
+  return true;
+}
+
+// ============================================================
+// D. 天赋流向加成系统
+// ============================================================
+
+/**
+ * 组织/流向 → 属性加成映射表
+ * 根据天赋标签，在对应组织事件中获得额外加成。
+ */
+const FLOW_BONUS_MAP = {
+  // 拇指 — 强化体质与武力
+  '拇指': { con: 2, int: 0, wil: 1, wea: 0 },
+  // 食指 — 强化意志与执行力
+  '食指': { con: 0, int: 1, wil: 2, wea: 0 },
+  // 中指 — 均衡
+  '中指': { con: 1, int: 1, wil: 1, wea: 0 },
+  // 无名指 — 强化家境（商业）
+  '无名指': { con: 0, int: 1, wil: 0, wea: 2 },
+  // 小指 — 强化情报与智力
+  '小指': { con: 0, int: 2, wil: 1, wea: 0 },
+  // 协会 — 综合均衡加成
+  '协会': { con: 1, int: 1, wil: 1, wea: 0 },
+  // 一阶/高阶收尾人 — 全面提升
+  '一阶': { con: 2, int: 2, wil: 2, wea: 0 },
+  '二阶': { con: 1, int: 1, wil: 2, wea: 0 },
+  // 帮派 — 体质与家境
+  '帮派': { con: 1, int: 0, wil: 1, wea: 1 },
+  // 血魔 — 体质爆发
+  '血魔后裔': { con: 3, int: 0, wil: -1, wea: 0 },
+  // 非人之性体 — 智识与异常
+  '非人之性体': { con: 0, int: 2, wil: 0, wea: 0 },
+  // 实验品 — 不确定
+  '实验品': { con: 1, int: 1, wil: 0, wea: 0 },
+  // 代行者 — 意志特化
+  '代行者': { con: 0, int: 0, wil: 3, wea: 0 },
+  // 漆黑缄默/苍蓝残响 — 极端加成
+  '双生子': { con: 1, int: 1, wil: 2, wea: 0 },
+};
+
+/**
+ * 获取指定天赋标签在对应组织事件中的属性加成
+ * @param {string} tag — 天赋标签
+ * @param {string} attr — 属性名（con/int/wil/wea），可选，若不传则返回全部加成
+ * @returns {number|object}
+ */
+function getFlowBonus(tag, attr) {
+  const bonus = FLOW_BONUS_MAP[tag];
+  if (!bonus) {
+    // 未定义的标签无加成
+    return attr ? 0 : { con: 0, int: 0, wil: 0, wea: 0 };
+  }
+
+  if (attr) {
+    return bonus[attr] || 0;
+  }
+  return { ...bonus };
+}
+
+/**
+ * 获取当前所有已选天赋标签的合计流向加成
+ * @returns {object} — { con, int, wil, wea }
+ */
+function getAllFlowBonuses() {
+  const total = { con: 0, int: 0, wil: 0, wea: 0 };
+
+  if (!gameState.selectedTalents) return total;
+
+  for (const talent of gameState.selectedTalents) {
+    if (!talent.tag) continue;
+    const bonus = FLOW_BONUS_MAP[talent.tag];
+    if (bonus) {
+      total.con += bonus.con || 0;
+      total.int += bonus.int || 0;
+      total.wil += bonus.wil || 0;
+      total.wea += bonus.wea || 0;
+    }
+  }
+
+  return total;
+}
+
+/**
+ * 在组织事件中应用天赋流向加成
+ * @param {string} orgTag — 组织标签（如 '拇指'）
+ * @param {string} eventType — 事件类型（用于日志）
+ */
+function applyFlowBonusInEvent(orgTag, eventType) {
+  const bonus = getFlowBonus(orgTag);
+  if (!bonus) return;
+
+  let hasBonus = false;
+  for (const [attr, val] of Object.entries(bonus)) {
+    if (val !== 0) {
+      modAttr(attr, val);
+      hasBonus = true;
+    }
+  }
+
+  if (hasBonus) {
+    subEvt('bonus', `flow_${orgTag}_${eventType}`, `你的${orgTag}天赋在此事件中发挥了作用，获得属性加成。`, false, '流向加成');
+  }
+}
+
+// ============================================================
+// E. 辅助工具函数
+// ============================================================
+
+/**
+ * 统一调用所有特殊开局（外部主循环每过一年调用一次）
+ * @param {number} age — 当前年龄
+ */
+function runAllSpecialStarts(age) {
+  // 组合线必须先检查并应用
+  if (age === 0) {
+    const matched = checkAllComboLines();
+    for (const line of matched) {
+      applyComboEffects(line);
+    }
+  }
+
+  // 然后运行各线路的年度事件
+  orphanStart(age);
+  nonhumanStart(age);
+  angelicaStart(age);
+  albGabrielStart(age);
+  experimentStart(age);
+  bloodfiendStart(age);
+  firstGradeStart(age);
+}
+
+/**
+ * 死亡时检查生命保险（包装函数，建议替换原 death() 或在 death() 中调用）
+ * @param {string} cause — 死亡原因
+ * @returns {boolean} — true = 被保险救活，false = 正常死亡
+ */
+function checkDeathInsurance(cause) {
+  // 先尝试使用保险
+  if (useLifeInsurance()) {
+    return true;
+  }
+  // 没有保险或次数用完，正常死亡
+  death(cause);
+  return false;
+}
+
+// ============================================================
+// 导出（CommonJS / ES Module / 浏览器全局兼容）
+// ============================================================
+
+;
+}
+
+// 浏览器环境挂载到全局
+
+
+
+/**
+ * ============================================
+ * Project Moon 主题人生重开模拟器 - 扩展剧情模块
+ * ============================================
+ * 包含：
+ *   A. 大湖捕鲸剧情 (Lake Whale Hunting)
+ *   B. 工坊剧情扩展 (Workshop Storyline)
+ *   C. 图书馆线剧情分支 (Library of Ruina Route)
+ *   D. 购买生命保险 (Life Insurance)
+ */
+
+// ============================================
+// A. 大湖捕鲸剧情 (Great Lake Whale Hunting)
+// ============================================
+
+/**
+ * 触发条件：成年期（age >= 18），体质≥6，在大湖/后巷水域附近
+ * 大湖捕鲸是U公司掌控的重要产业，鲸油是都市的珍贵能源
+ */
+function whaleHuntingEvents() {
+
+  // A1. 加入捕鲸船
+  function joinWhalingShip() {
+    if (gameState.age < 18 || gameState.attrs.con < 6) return;
+    if (getFlag("whaling_joined")) return;
+    if (!(bp === "lake" || bp === "backstreets" || bp === "u_nest")) return;
+
+    if (chance(0.15)) {
+      setFlag("whaling_joined", true);
+      subEvt(
+        gameState.age,
+        "加入捕鲸船",
+        "大湖的波涛在脚下翻滚。U公司的捕鲸船正在招募水手，报酬丰厚，但谁都知道这工作九死一生。你签下了卖身契般的合同。",
+        false,
+        "大湖捕鲸者"
+      );
+      addMilestone("大湖捕鲸者");
+      modAttr("wea", 2);
+      modAttr("con", 1);
+      gameState.flags.whaling_years = 0;
+    }
+  }
+
+  // A2. 遭遇鲸群
+  function encounterWhalePod() {
+    if (!getFlag("whaling_joined") || gameState.age < 18) return;
+    if (getFlag("whale_encounter")) return;
+
+    if (chance(0.25)) {
+      setFlag("whale_encounter", true);
+      const survival = gameState.attrs.con + gameState.attrs.wil;
+      if (survival >= 14) {
+        subEvt(
+          gameState.age,
+          "遭遇鲸群",
+          "成群的巨鲸从深渊浮现，它们的歌声震颤着你的灵魂。在混乱中，你凭借过人的体质和意志活了下来，甚至协助捕获了一头幼鲸。",
+          true,
+          "鲸群幸存者"
+        );
+        addMilestone("鲸群幸存者");
+        modAttr("wea", 5);
+        modAttr("wil", 2);
+        setFlag("whale_oil_acquired", true);
+      } else if (survival >= 9) {
+        subEvt(
+          gameState.age,
+          "遭遇鲸群",
+          "鲸群来袭，船身剧烈摇晃。你勉强捡回一条命，但身负重伤，目睹了同伴被巨鲸吞噬的惨状。",
+          true,
+          null
+        );
+        modAttr("con", -2);
+        modAttr("wil", -1);
+        modAttr("wea", 1);
+      } else {
+        subEvt(
+          gameState.age,
+          "葬身鲸腹",
+          "巨鲸的巨口吞噬了一切。你连惨叫都来不及发出，便成为了大湖的养分。",
+          true,
+          null
+        );
+        death("被大湖巨鲸吞噬");
+        return;
+      }
+    }
+  }
+
+  // A3. 获取鲸油
+  function acquireWhaleOil() {
+    if (!getFlag("whaling_joined")) return;
+    if (getFlag("whale_oil_sold")) return;
+
+    if (getFlag("whale_oil_acquired") && chance(0.3)) {
+      setFlag("whale_oil_sold", true);
+      subEvt(
+        gameState.age,
+        "获取鲸油",
+        "U公司的收购员用冷漠的眼神称量着鲸油。这种黑色的液体是都市运转的血液，也是无数捕鲸者的生命换来的。你获得了一笔可观的报酬。",
+        false,
+        "鲸油商人"
+      );
+      modAttr("wea", 8);
+      modAttr("int", 1);
+      // 接触U公司可能带来后续影响
+      if (chance(0.2)) {
+        setFlag("u_company_marked", true);
+        gameState.events.push("U公司对你产生了兴趣");
+      }
+    }
+  }
+
+  // A4. 船员的叛乱
+  function crewMutiny() {
+    if (!getFlag("whaling_joined")) return;
+    if (getFlag("mutiny_resolved")) return;
+
+    if (chance(0.2)) {
+      setFlag("mutiny_resolved", true);
+      const leadership = gameState.attrs.wil + gameState.attrs.int;
+      if (leadership >= 13) {
+        subEvt(
+          gameState.age,
+          "平息叛乱",
+          "船员们受够了U公司的压榨，打算夺船逃跑。你凭借威望和智慧平息了叛乱——或者说，你成为了新的领袖，让叛乱以一种更'体面'的方式结束了。",
+          true,
+          "叛乱调解者"
+        );
+        addMilestone("叛乱调解者");
+        modAttr("wil", 3);
+        modAttr("int", 2);
+        modAttr("wea", 3);
+        setFlag("whaling_captain", true);
+      } else if (gameState.attrs.con >= 7) {
+        subEvt(
+          gameState.age,
+          "叛乱幸存者",
+          "叛乱爆发了。在血腥的混战中，你用拳头杀出了一条血路，跳船逃生。捕鲸生涯就此结束。",
+          true,
+          null
+        );
+        modAttr("con", 1);
+        modAttr("wil", -2);
+        modAttr("wea", -3);
+        setFlag("whaling_joined", false);
+        gameState.events.push("在捕鲸船叛乱中幸存");
+      } else {
+        subEvt(
+          gameState.age,
+          "死于叛乱",
+          "你选错了站队。在叛乱的内讧中，你被两边都不信任的人从背后捅了刀。",
+          true,
+          null
+        );
+        death("捕鲸船叛乱中被杀");
+        return;
+      }
+    }
+  }
+
+  // A5. 大湖海盗
+  function lakePirates() {
+    if (!getFlag("whaling_joined")) return;
+    if (getFlag("pirate_encounter")) return;
+
+    if (chance(0.18)) {
+      setFlag("pirate_encounter", true);
+      const combat = gameState.attrs.con + gameState.attrs.int + (getFlag("whaling_captain") ? 3 : 0);
+      if (combat >= 15) {
+        subEvt(
+          gameState.age,
+          "击退海盗",
+          "大湖海盗的快船包围了你们。但你早已不是新手——指挥船员们击退了海盗，甚至缴获了他们的船只。U公司对你的评价提升了。",
+          true,
+          "海盗克星"
+        );
+        addMilestone("海盗克星");
+        modAttr("wea", 6);
+        modAttr("wil", 2);
+        modAttr("con", 1);
+      } else if (gameState.attrs.int >= 6 && chance(0.5)) {
+        subEvt(
+          gameState.age,
+          "智退海盗",
+          "面对数倍于己的海盗，你用计谋将他们引入了U公司巡逻队的航线。海盗仓皇逃窜，你安然无恙。",
+          false,
+          null
+        );
+        modAttr("int", 2);
+        modAttr("wil", 1);
+      } else {
+        subEvt(
+          gameState.age,
+          "海盗劫掠",
+          "海盗登船了。你的一切都被抢走，被扔在大湖的一叶扁舟上自生自灭。",
+          true,
+          null
+        );
+        modAttr("wea", -Math.min(10, gameState.attrs.wea));
+        modAttr("con", -3);
+        modAttr("wil", -2);
+        setFlag("whaling_joined", false);
+        gameState.events.push("被大湖海盗洗劫一空");
+        // 漂流求生
+        if (gameState.attrs.con < 5 || chance(0.3)) {
+          subEvt(
+            gameState.age,
+            "葬身大湖",
+            "没有食物，没有淡水。大湖的波涛最终吞噬了你疲惫的身躯。",
+            true,
+            null
+          );
+          death("大湖漂流中力竭而死");
+        }
+      }
+    }
+  }
+
+  // 执行大湖捕鲸事件链
+  joinWhalingShip();
+  if (gameState.alive) encounterWhalePod();
+  if (gameState.alive) acquireWhaleOil();
+  if (gameState.alive) crewMutiny();
+  if (gameState.alive) lakePirates();
+
+  // 累积捕鲸年数
+  if (getFlag("whaling_joined") && gameState.alive) {
+    gameState.flags.whaling_years = (gameState.flags.whaling_years || 0) + 1;
+    if (gameState.flags.whaling_years >= 5 && !hasMilestone("资深捕鲸者")) {
+      addMilestone("资深捕鲸者");
+      subEvt(
+        gameState.age,
+        "资深捕鲸者",
+        "五年的大湖生涯让你成为了一名经验丰富的捕鲸者。你的皮肤被盐水侵蚀，眼神却比任何人都要锐利。",
+        false,
+        "资深捕鲸者"
+      );
+      modAttr("con", 2);
+      modAttr("wil", 2);
+    }
+  }
+}
+
+// ============================================
+// B. 工坊剧情扩展 (Workshop Storyline)
+// ============================================
+
+/**
+ * 工坊是都市科技的基石，奇点科技在这里诞生。
+ * 玩家可以在工坊中学习、成长，也可能遭遇各种事故。
+ */
+function workshopEvents() {
+
+  // B1. 工坊学徒的日常
+  function workshopApprenticeDaily() {
+    if (gameState.age < 14 || gameState.age > 60) return;
+    if (!getFlag("workshop_apprentice") && chance(0.1)) {
+      // 成为工坊学徒的契机
+      const workshopTypes = ["武器工坊", "义体工坊", "能源工坊", "防护工坊", "生物医药工坊"];
+      const chosen = pick(workshopTypes);
+      setFlag("workshop_apprentice", true);
+      setFlag("workshop_type", chosen);
+      subEvt(
+        gameState.age,
+        "工坊学徒",
+        `你在${chosen}找到了一份学徒工作。工坊师傅是个古怪的老人，他教你的第一件事是：永远不要触碰那些发光的管子。`,
+        false,
+        "工坊学徒"
+      );
+      addMilestone("工坊学徒");
+      modAttr("int", 2);
+      modAttr("wea", -1); // 学徒工资微薄
+    }
+
+    if (getFlag("workshop_apprentice") && chance(0.3)) {
+      // 日常事件
+      const dailyEvents = [
+        {
+          text: "今天负责清理奇点引擎的残渣。那种蓝紫色的光芒让你头晕目眩，但你学会了如何安全处理它。",
+          effect: () => { modAttr("int", 1); }
+        },
+        {
+          text: "师傅让你独立完成一个小型义体零件的打磨。你成功了，虽然磨坏了三个才出一个合格的。",
+          effect: () => { modAttr("int", 1); modAttr("con", -1); }
+        },
+        {
+          text: "一个收尾人前来定制装备。你偷听到了他对最近任务的抱怨，对都市的黑暗又多了一分了解。",
+          effect: () => { modAttr("wil", -1); modAttr("int", 1); }
+        },
+        {
+          text: "加班到深夜，终于在师傅的指导下完成了第一件独立作品。",
+          effect: () => { modAttr("int", 2); modAttr("con", -1); }
+        }
+      ];
+      const daily = pick(dailyEvents);
+      subEvt(
+        gameState.age,
+        "工坊日常",
+        daily.text,
+        false,
+        null
+      );
+      daily.effect();
+    }
+  }
+
+  // B2. 奇点科技接触
+  function singularityTechEncounter() {
+    if (!getFlag("workshop_apprentice")) return;
+    if (getFlag("singularity_touched")) return;
+
+    if (chance(0.12)) {
+      setFlag("singularity_touched", true);
+      const workshopType = getFlag("workshop_type") || "通用工坊";
+      const intelligence = gameState.attrs.int;
+      const willpower = gameState.attrs.wil;
+
+      if (intelligence >= 8 && willpower >= 6) {
+        // 成功掌握奇点科技
+        subEvt(
+          gameState.age,
+          "奇点科技·理解",
+          `在${workshopType}的深处，你第一次直接接触到了奇点科技的核心。那不是人类应该理解的知识，但你的智慧和意志承受住了冲击。你学会了它的运作原理——哪怕只是一小部分。`,
+          true,
+          "奇点理解者"
+        );
+        addMilestone("奇点理解者");
+        modAttr("int", 4);
+        modAttr("wil", 2);
+        setFlag("singularity_mastered", true);
+        // 根据工坊类型给予装备/能力提升
+        switch (workshopType) {
+          case "武器工坊":
+            setFlag("equip_weapon_singularity", true);
+            gameState.events.push("获得了奇点科技武器");
+            break;
+          case "义体工坊":
+            setFlag("equip_cyber_singularity", true);
+            modAttr("con", 3);
+            gameState.events.push("安装了奇点科技义体");
+            break;
+          case "防护工坊":
+            setFlag("equip_armor_singularity", true);
+            gameState.events.push("获得了奇点科技护甲");
+            break;
+          default:
+            setFlag("equip_tool_singularity", true);
+            gameState.events.push("获得了奇点科技工具");
+        }
+      } else if (intelligence >= 5) {
+        // 勉强理解，但有代价
+        subEvt(
+          gameState.age,
+          "奇点科技·一瞥",
+          `你偷看了师傅研究的奇点科技原型。那一刻，你的大脑像是被灼烧。你理解了些什么，却也失去了些什么。`,
+          true,
+          null
+        );
+        modAttr("int", 2);
+        modAttr("wil", -2);
+        modAttr("con", -1);
+        gameState.events.push("接触过奇点科技，精神受创");
+      } else {
+        // 无法理解，遭受反噬
+        subEvt(
+          gameState.age,
+          "奇点科技·疯狂",
+          `好奇心害死了猫，也可能害死工坊学徒。你触碰了不该触碰的东西。那一刻，无数的公式和图像涌入脑海，你尖叫了整整三天。`,
+          true,
+          null
+        );
+        modAttr("int", -2);
+        modAttr("wil", -4);
+        modAttr("con", -2);
+        if (chance(0.3)) {
+          death("奇点科技精神污染");
+          return;
+        }
+      }
+    }
+  }
+
+  // B3. 工坊事故
+  function workshopAccident() {
+    if (!getFlag("workshop_apprentice")) return;
+    if (getFlag("workshop_accident_survived")) return;
+
+    // 奇点科技接触后事故概率上升
+    const accidentChance = getFlag("singularity_touched") ? 0.2 : 0.08;
+    if (chance(accidentChance)) {
+      setFlag("workshop_accident_survived", true);
+      const con = gameState.attrs.con;
+      const int = gameState.attrs.int;
+
+      const accidentTypes = [
+        {
+          name: "奇点引擎过载",
+          text: "工坊的奇点引擎突然过载，蓝紫色的能量风暴席卷了整个车间。",
+          survive: con >= 7 || int >= 7,
+          surviveText: "你凭借本能（或知识）躲进了防护舱，活了下来，但皮肤被严重灼伤。",
+          dieText: "能量风暴吞噬了一切。你的身体在奇点辐射中分解成了基本粒子。",
+          effect: () => { modAttr("con", -3); modAttr("wea", -2); },
+          cause: "工坊奇点引擎过载"
+        },
+        {
+          name: "失控的实验体",
+          text: "生物医药工坊的一个实验体挣脱了束缚，那东西已经不能称之为人了。",
+          survive: con >= 8 || getFlag("equip_weapon_singularity"),
+          surviveText: "你用身边的工具——或武器——击杀了那怪物，但手臂被撕下了大块血肉。",
+          dieText: "那东西的力量超出了人类的想象。你成了它的养料。",
+          effect: () => { modAttr("con", -4); modAttr("wil", -2); },
+          cause: "被工坊失控实验体杀死"
+        },
+        {
+          name: "化学爆炸",
+          text: "原料混合时发生了剧烈的化学反应，爆炸将整个工坊掀翻。",
+          survive: con >= 6 && int >= 5,
+          surviveText: "爆炸前的一秒你察觉到了异常，躲到了承重墙后。浑身是血，但还活着。",
+          dieText: "爆炸将你的意识撕成了碎片。甚至来不及感到疼痛。",
+          effect: () => { modAttr("con", -4); modAttr("wea", -5); },
+          cause: "工坊化学爆炸"
+        }
+      ];
+
+      const accident = pick(accidentTypes);
+      if (accident.survive) {
+        subEvt(
+          gameState.age,
+          accident.name,
+          accident.text + accident.surviveText,
+          true,
+          "工坊事故幸存者"
+        );
+        addMilestone("工坊事故幸存者");
+        accident.effect();
+      } else {
+        subEvt(
+          gameState.age,
+          accident.name,
+          accident.text + accident.dieText,
+          true,
+          null
+        );
+        death(accident.cause);
+        return;
+      }
+    }
+  }
+
+  // B4. 成为工坊大师
+  function becomeWorkshopMaster() {
+    if (!getFlag("workshop_apprentice")) return;
+    if (getFlag("workshop_master")) return;
+    if (gameState.age < 25) return;
+
+    // 需要足够的智力、经验和时间
+    const apprenticeYears = gameState.flags.workshop_apprentice_years || 0;
+    gameState.flags.workshop_apprentice_years = apprenticeYears + 1;
+
+    if (gameState.attrs.int >= 8 && apprenticeYears >= 5 && chance(0.15)) {
+      setFlag("workshop_master", true);
+      const workshopType = getFlag("workshop_type") || "工坊";
+      subEvt(
+        gameState.age,
+        "工坊大师",
+        `多年的苦修终于开花结果。师傅将${workshopType}传给了你——或者说，他死于一次实验事故，而你是最有资格继承的人。从今天起，你是大师了。`,
+        true,
+        "工坊大师"
+      );
+      addMilestone("工坊大师");
+      modAttr("int", 3);
+      modAttr("wil", 2);
+      modAttr("wea", 5);
+      gameState.events.push(`成为了${workshopType}的大师`);
+    }
+  }
+
+  // B5. 工坊之间的竞争 (Tres协会仲裁)
+  function workshopCompetition() {
+    if (!getFlag("workshop_master")) return;
+    if (getFlag("workshop_competition_resolved")) return;
+
+    if (chance(0.12)) {
+      setFlag("workshop_competition_resolved", true);
+      const workshopType = getFlag("workshop_type") || "工坊";
+
+      subEvt(
+        gameState.age,
+        "工坊竞争",
+        `另一间${workshopType}指控你窃取了他们的奇点科技专利。Tres协会的仲裁员来到了你的门前——那些穿着黑色西装、面无表情的人。输了的话，你的一切都完了。`,
+        true,
+        null
+      );
+
+      const arbitration = gameState.attrs.int + gameState.attrs.wil + (getFlag("singularity_mastered") ? 5 : 0);
+      if (arbitration >= 16) {
+        subEvt(
+          gameState.age,
+          "仲裁胜利",
+          "你在Tres协会的仲裁庭上展现了无可辩驳的证据和令人信服的论点。不仅洗清了嫌疑，还反将一军，让对方付出了巨额赔偿。",
+          true,
+          "Tres仲裁胜利者"
+        );
+        addMilestone("Tres仲裁胜利者");
+        modAttr("wea", 8);
+        modAttr("int", 2);
+        modAttr("wil", 2);
+      } else if (arbitration >= 10) {
+        subEvt(
+          gameState.age,
+          "仲裁和解",
+          "仲裁庭的判决对双方各打五十大板。你保住了工坊，但不得不支付一笔可观的和解金，并共享部分技术。",
+          false,
+          null
+        );
+        modAttr("wea", -5);
+        modAttr("int", 1);
+      } else {
+        subEvt(
+          gameState.age,
+          "仲裁败诉",
+          "Tres协会的判决残酷而高效。你的工坊被查封，所有资产被没收，你被永远禁止从事相关工作。",
+          true,
+          null
+        );
+        modAttr("wea", -Math.min(15, gameState.attrs.wea));
+        modAttr("wil", -3);
+        modAttr("int", -1);
+        setFlag("workshop_master", false);
+        setFlag("workshop_banned", true);
+        gameState.events.push("被Tres协会终身禁止经营工坊");
+      }
+    }
+  }
+
+  // 执行工坊事件链
+  workshopApprenticeDaily();
+  if (gameState.alive) singularityTechEncounter();
+  if (gameState.alive) workshopAccident();
+  if (gameState.alive) becomeWorkshopMaster();
+  if (gameState.alive) workshopCompetition();
+}
+
+// ============================================
+// C. 图书馆线剧情分支 (Library of Ruina Route)
+// ============================================
+
+/**
+ * 图书馆邀请函事件。
+ * 当玩家收到来自图书馆的邀请函后，将触发此剧情线。
+ * 图书馆（Library of Ruina）是L Corp崩溃后由安吉拉（Angela）建立的奇异空间。
+ * 进入者需要与司书战斗，胜利则向上，失败则化为书籍。
+ */
+function libraryRoute() {
+  if (!getFlag("library_invitation")) return;
+  if (getFlag("library_route_completed")) return;
+
+  setFlag("library_route_completed", true);
+
+  subEvt(
+    gameState.age,
+    "图书馆邀请函",
+    "一封烫金的邀请函出现在你的门前。没有寄件人，没有邮戳，只有一行优雅的字迹：'诚邀您莅临图书馆。'你知道这是什么。在都市的传闻中，收到这封信的人，要么成为了'书籍'，要么......",
+    true,
+    "收到图书馆邀请函"
+  );
+  addMilestone("收到图书馆邀请函");
+
+  // 判断是否决定前往图书馆
+  // 根据意志和智力进行判断
+  const willDecision = gameState.attrs.wil;
+  const intDecision = gameState.attrs.int;
+  const decisionScore = willDecision + intDecision;
+
+  let decision;
+  if (decisionScore >= 16) {
+    // 高意志高智力：理性分析后决定前往
+    decision = "前往";
+    subEvt(
+      gameState.age,
+      "决意前往",
+      "你凝视着邀请函许久。图书馆是危险的，但也是机遇。如果传闻属实，那里收藏着都市中一切的知识和力量。你决定去——不是作为猎物，而是作为猎人。",
+      true,
+      null
+    );
+  } else if (decisionScore >= 10 && willDecision >= 5) {
+    // 中等：犹豫但最终前往
+    decision = "前往";
+    subEvt(
+      gameState.age,
+      "被迫前往",
+      "你没有选择。邀请函一旦收到，安吉拉的视线就已经盯上了你。逃避只会让你死得更快。你只能赌一把。",
+      true,
+      null
+    );
+  } else if (willDecision >= 6) {
+    // 意志足够：拒绝
+    decision = "拒绝";
+    subEvt(
+      gameState.age,
+      "拒绝邀请",
+      "你将邀请函撕碎，扔进火里。你不会成为任何人的书籍。无论安吉拉是谁，你都不会屈服。",
+      true,
+      null
+    );
+  } else {
+    // 低意志低智力：恐惧，随机决定
+    decision = chance(0.4) ? "前往" : "拒绝";
+    if (decision === "前往") {
+      subEvt(
+        gameState.age,
+        "恐惧中前往",
+        "你的理智告诉你要拒绝，但某种比恐惧更深的东西驱使着你。你握住了邀请函，然后......",
+        true,
+        null
+      );
+    } else {
+      subEvt(
+        gameState.age,
+        "懦弱拒绝",
+        "你扔掉邀请函，蜷缩在角落里发抖。你告诉自己这是理智的选择。但你知道，这只是懦弱。",
+        false,
+        null
+      );
+    }
+  }
+
+  // ===== 分支：决定前往图书馆 =====
+  if (decision === "前往") {
+    // 传送到图书馆
+    setFlag("in_library", true);
+    subEvt(
+      gameState.age,
+      "图书馆·入口",
+      "光芒闪过，你站在了一座宏伟得不可思议的建筑前。那是超越人类审美的结构，是光与影的迷宫。大门缓缓打开，一位少女站在阴影中——安吉拉。'欢迎，来宾。'",
+      true,
+      null
+    );
+
+    // 第一层接待：与低级司书战斗
+    const layer1Power = gameState.attrs.con + gameState.attrs.int + gameState.attrs.wil;
+    const hasSingularity = getFlag("singularity_mastered") || getFlag("equip_weapon_singularity");
+    const layer1Bonus = hasSingularity ? 4 : 0;
+    const layer1Total = layer1Power + layer1Bonus;
+
+    subEvt(
+      gameState.age,
+      "第一层·接待",
+      "低级司书们从书架间走出，他们的眼中没有感情，只有战斗的本能。你必须通过第一层，才能见到更多。",
+      true,
+      null
+    );
+
+    // 第一层战斗判定
+    if (layer1Total >= 18) {
+      // 碾压
+      subEvt(
+        gameState.age,
+        "第一层·完胜",
+        "你的力量远超这些低级司书的预料。在奇点科技的加持下——或你本就强大的实力——你迅速击溃了第一层防线。",
+        true,
+        "图书馆一层通过"
+      );
+    } else if (layer1Total >= 12) {
+      // 惨胜
+      subEvt(
+        gameState.age,
+        "第一层·险胜",
+        "战斗比你想象的艰难。司书的攻击方式诡异而致命，你勉强取胜，但身负重伤。",
+        true,
+        "图书馆一层通过"
+      );
+      modAttr("con", -3);
+      modAttr("wil", -1);
+    } else {
+      // 败北 -> 化为书籍 (A结局)
+      subEvt(
+        gameState.age,
+        "化为书籍",
+        "司书的力量超出了你的想象。在最后一击落下时，你感到身体在分解——化作纸张，化作文字，化作图书馆中新增的一本藏书。你的故事，就此成为了他人的养分。",
+        true,
+        null
+      );
+      addMilestone("化为图书馆的书籍");
+      death("在图书馆中化为书籍");
+      return; // 结局A
+    }
+
+    // 第二层及更深层的判定 (简化处理)
+    if (gameState.alive) {
+      const deepPower = gameState.attrs.con + gameState.attrs.int * 1.5 + gameState.attrs.wil;
+      const hasMastery = getFlag("workshop_master") || hasMilestone("资深捕鲸者");
+      const deepBonus = hasMastery ? 3 : 0;
+      const deepTotal = deepPower + deepBonus;
+
+      if (deepTotal >= 25) {
+        // 属性极高：挑战安吉拉
+        subEvt(
+          gameState.age,
+          "深层·攀登",
+          "你一层又一层地击败了司书。从文学层到艺术层，从历史层到科技层。每一场战斗都让你更强，也让你更了解图书馆的本质。最终，你站在了总类层的大门前。",
+          true,
+          "图书馆深层攀登者"
+        );
+        addMilestone("图书馆深层攀登者");
+
+        // 挑战安吉拉
+        const angelaBattle = gameState.attrs.con + gameState.attrs.int + gameState.attrs.wil +
+                             (getFlag("singularity_mastered") ? 5 : 0) +
+                             (hasMilestone("工坊大师") ? 3 : 0);
+
+        if (angelaBattle >= 30) {
+          // 击败安吉拉，夺取光之种 (隐藏结局)
+          subEvt(
+            gameState.age,
+            "光之种",
+            "安吉拉倒下了。你站在光之种前——那是足以改变都市的力量。你做出了选择。当光芒笼罩都市的那一刻，一切都将不同。",
+            true,
+            "光之种夺取者"
+          );
+          addMilestone("光之种夺取者");
+          addMilestone("都市变革者");
+          setFlag("light_seed_obtained", true);
+          modAttr("wil", 10);
+          modAttr("int", 5);
+          gameState.events.push("夺取了光之种，改变了都市的未来");
+          // 此结局不死亡，但人生轨迹彻底改变
+        } else {
+          // 无法击败安吉拉，但在战斗中幸存
+          subEvt(
+            gameState.age,
+            "安吉拉之战",
+            "安吉拉比你强大得多——她毕竟是图书馆的主人。但你的实力赢得了她的尊重。她没有杀你，而是......",
+            true,
+            null
+          );
+          // B结局或C结局的判定
+          libraryEndingBC();
+        }
+      } else if (deepTotal >= 16) {
+        // 中等实力：到达中层
+        subEvt(
+          gameState.age,
+          "中层·停滞",
+          "你在图书馆的中层徘徊。司书们越来越强大，你开始感到力不从心。",
+          true,
+          null
+        );
+        libraryEndingBC();
+      } else {
+        // 实力不足，在中层被击败
+        subEvt(
+          gameState.age,
+          "中层败退",
+          "你的力量在图书馆的深层显得渺小。司书们的联合攻击将你逼入了绝境。",
+          true,
+          null
+        );
+        // 判定是B还是C结局
+        if (gameState.attrs.wil >= 7 && chance(0.4)) {
+          // C结局：被释放
+          subEvt(
+            gameState.age,
+            "被释放",
+            "就在最后一刻，安吉拉的声音响起：'够了。'司书们停下了手。你被传送出了图书馆，回到了都市的某条后巷。你不明白为什么，但你活下来了。",
+            true,
+            "图书馆幸存者"
+          );
+          addMilestone("图书馆幸存者");
+          setFlag("library_released", true);
+          modAttr("wil", 2);
+          modAttr("con", -2);
+          gameState.events.push("从图书馆被释放，在都市某处复活");
+        } else {
+          // B结局：迷失
+          subEvt(
+            gameState.age,
+            "迷失",
+            "你在图书馆的迷宫中迷失了方向。没有食物，没有水，只有无尽的书架。你发疯般奔跑，却永远找不到出口。最终，你倒下了——没有化为书籍，只是......消失了。",
+            true,
+            null
+          );
+          addMilestone("迷失在图书馆");
+          death("迷失在图书馆中");
+          return; // 结局B
+        }
+      }
+    }
+
+  // ===== 分支：拒绝前往图书馆 =====
+  } else {
+    // 邀请函被烧毁
+    subEvt(
+      gameState.age,
+      "安吉拉的监视",
+      "你烧掉了邀请函，以为一切就此结束。但你错了。在之后的夜晚，你总感觉有人在注视着你。图书馆的影子，从未远离。",
+      false,
+      null
+    );
+    setFlag("angela_watching", true);
+    modAttr("wil", -1);
+
+    // 后续影响
+    if (chance(0.3)) {
+      subEvt(
+        gameState.age,
+        "监视的持续",
+        "街道上的陌生人、窗户对面的房间、甚至你自己的倒影——一切都让你觉得不安。安吉拉的监视是无形的，却真实存在。",
+        false,
+        null
+      );
+      modAttr("wil", -2);
+    }
+
+    // 极少数情况：被强制邀请
+    if (chance(0.05)) {
+      subEvt(
+        gameState.age,
+        "强制邀请",
+        "你拒绝了邀请函，但图书馆不打算放过你。某个深夜，光芒笼罩了你的住所。当你再次睁眼时，你已经站在了图书馆的大门前。",
+        true,
+        null
+      );
+      setFlag("library_forced", true);
+      // 强制进入时意志判定劣势
+      modAttr("wil", -2);
+      // 重新进入图书馆战斗流程
+      // 为简化，直接进入第一层判定（但判定标准更严格）
+      const forcedPower = gameState.attrs.con + gameState.attrs.int + gameState.attrs.wil - 2;
+      if (forcedPower >= 15) {
+        subEvt(
+          gameState.age,
+          "第一层·挣脱",
+          "即使在最不利的状况下，你依然击溃了低级司书。你向更深层进发——既然无法逃避，那就征服。",
+          true,
+          "图书馆一层通过"
+        );
+        // 继续深层判定（简化）
+        libraryEndingBC();
+      } else {
+        subEvt(
+          gameState.age,
+          "第一层·终结",
+          "措手不及的你无法发挥全力。司书的攻击无情而精准。你成为了图书馆 newest 的藏书。",
+          true,
+          null
+        );
+        death("被强制带入图书馆后化为书籍");
+        return;
+      }
+    }
+  }
+}
+
+/**
+ * 图书馆B/C结局分支判定
+ * B结局：迷失在图书馆
+ * C结局：被释放，在都市某处复活
+ */
+function libraryEndingBC() {
+  const totalAttr = gameState.attrs.con + gameState.attrs.int + gameState.attrs.wil;
+  const hasInsurance = getFlag("life_insurance_active");
+
+  // 综合判定
+  let ending;
+  if (totalAttr >= 22 && gameState.attrs.wil >= 8) {
+    ending = "C"; // 被释放
+  } else if (totalAttr >= 18 && chance(0.5)) {
+    ending = "C";
+  } else if (hasInsurance && chance(0.6)) {
+    ending = "C"; // 生命保险增加存活概率
+  } else if (gameState.attrs.wil <= 4) {
+    ending = "B"; // 低意志容易迷失
+  } else {
+    ending = chance(0.4) ? "C" : "B";
+  }
+
+  if (ending === "C") {
+    subEvt(
+      gameState.age,
+      "图书馆·释放 (C结局)",
+      "当你倒下的那一刻，安吉拉的声音在耳边响起：'你很有趣。'光芒闪过，你发现自己躺在都市某条肮脏的后巷里。你不记得发生了什么，但你知道——你逃出来了。至少，逃出了一部分。",
+      true,
+      "图书馆释放者"
+    );
+    addMilestone("图书馆释放者");
+    setFlag("library_released", true);
+    modAttr("con", -2);
+    modAttr("wil", 1);
+    modAttr("int", 2); // 图书馆的知识残留
+    gameState.events.push("从图书馆被释放，但失去了部分记忆");
+  } else {
+    subEvt(
+      gameState.age,
+      "图书馆·迷失 (B结局)",
+      "图书馆没有尽头。你走了很久，久到忘记了为什么要走。书架之间的迷宫吞噬了时间，吞噬了空间，最终吞噬了你。你成为了图书馆的一部分——不是作为书籍，而是作为徘徊的幽灵。",
+      true,
+      "迷失在图书馆"
+    );
+    addMilestone("迷失在图书馆");
+    setFlag("library_lost", true);
+    death("迷失在图书馆的无限回廊中");
+  }
+}
+
+// ============================================
+// D. 购买生命保险 (Life Insurance)
+// ============================================
+
+/**
+ * H巢（鸿园）的生命保险是都市中著名的'复活'服务。
+ * 由特殊的奇点技术支持，可以在死亡后将人复活——但代价不菲。
+ * 注意：这不是真正的永生，复活伴随着严重的副作用。
+ */
+function lifeInsuranceEvent() {
+  if (gameState.age < 18) return;
+  if (getFlag("life_insurance_purchased")) return;
+
+  // 只在H巢/鸿园可以购买
+  const canBuy = (bp === "h_nest" || bp === "hong_yuan" || bp === "nest");
+  if (!canBuy && chance(0.05)) {
+    // 小概率通过黑市购买
+    setFlag("insurance_black_market", true);
+  } else if (!canBuy) {
+    return;
+  }
+
+  if (chance(0.2)) {
+    const insuranceCost = 8; // 花费家境
+    if (gameState.attrs.wea >= insuranceCost) {
+      setFlag("life_insurance_purchased", true);
+      modAttr("wea", -insuranceCost);
+
+      const isBlackMarket = getFlag("insurance_black_market");
+      subEvt(
+        gameState.age,
+        isBlackMarket ? "黑市生命保险" : "购买生命保险",
+        isBlackMarket
+          ? "通过地下渠道，你购买了一份来路不明的生命保险。卖家警告你：'复活后的你，可能不再是你。'"
+          : "在H巢的保险事务所，你签下了一份昂贵的合同。鸿园的生命保险是都市中少有的'第二次机会'——当然，机会从来都不是免费的。",
+        true,
+        "生命保险持有者"
+      );
+      addMilestone("生命保险持有者");
+      setFlag("life_insurance_active", true);
+      setFlag("can_revive", true);
+    }
+  }
+}
+
+/**
+ * 生命保险复活处理函数
+ * 当玩家死亡时，如果持有生命保险，则触发复活
+ * 注意：此函数应在主程序的死亡判定逻辑中调用
+ */
+function lifeInsuranceRevive() {
+  if (!getFlag("life_insurance_active") || !getFlag("can_revive")) {
+    return false; // 无法复活
+  }
+
+  // 也检查 combo_tags.js 中购买的保险
+  const insurance = getFlag('lifeInsurance');
+  if (insurance && insurance.remaining > 0) {
+    insurance.remaining -= 1;
+    setFlag('lifeInsurance', insurance);
+    const companyName = insurance.companyName || '保险公司';
+    let desc = companyName + '的复活服务生效了。';
+    if (insurance.memoryLoss) {
+      desc += '但你失去了大量记忆，像做了一场很长很长的梦，醒来后什么都不记得了。';
+      setFlag('amnesia', true);
+      if (gameState.milestones && gameState.milestones.length > 3) {
+        const preserved = gameState.milestones.slice(-3);
+        gameState.milestones.length = 0;
+        gameState.milestones.push(...preserved);
+      }
+    }
+    if (insurance.attrPenalty > 0) {
+      const penalty = insurance.attrPenalty;
+      modAttr('con', -(gameState.attrs.con || 0) * penalty);
+      modAttr('int', -(gameState.attrs.int || 0) * penalty);
+      modAttr('wil', -(gameState.attrs.wil || 0) * penalty);
+      desc += '复活对你的身体造成了负担，全属性下降' + (penalty * 100).toFixed(0) + '%。';
+    }
+    if (insurance.sideEffect && chance(0.5)) {
+      const sideEffects = ['复活后你发现身上多了一道来历不明的疤痕。','你的味觉完全消失了，食物对你来说只是颜色不同的泥。','你偶尔会听到不属于你的低语声。'];
+      desc += ' ' + pick(sideEffects);
+      setFlag('resurrectionSideEffect', true);
+    }
+    if (insurance.luckPenalty) {
+      setFlag('badLuck', true);
+      desc += ' 你感觉自己的运气变差了。';
+    }
+    addEvent({ text: desc, effect: 'resurrection', effText: '复活', major: true });
+    addMilestone('通过' + companyName + '复活');
+    modAttr('con', 5);
+    return true;
+  }
+
+  // 消耗复活机会（每人仅限一次）
+  setFlag("can_revive", false);
+  setFlag("life_insurance_active", false);
+  setFlag("has_revived", true);
+
+  // 复活副作用判定
+  const sideEffects = [];
+
+  // 副作用1：记忆损失
+  const memoryLoss = chance(0.7);
+  if (memoryLoss) {
+    setFlag("revive_memory_loss", true);
+    sideEffects.push("部分记忆丧失");
+    modAttr("int", -3);
+    modAttr("wil", -1);
+  }
+
+  // 副作用2：属性下降
+  const attrDecline = chance(0.8);
+  if (attrDecline) {
+    setFlag("revive_attr_decline", true);
+    sideEffects.push("身体机能衰退");
+    modAttr("con", -2);
+    modAttr("int", -1);
+  }
+
+  // 副作用3：随机副作用
+  const randomEffects = [
+    { name: "情感缺失", effect: () => { modAttr("wil", -3); setFlag("revive_emotionless", true); } },
+    { name: "奇点辐射后遗症", effect: () => { modAttr("con", -2); setFlag("revive_radiation", true); } },
+    { name: "身份错置", effect: () => { setFlag("revive_identity_crisis", true); gameState.events.push("复活后产生了身份认知障碍"); } },
+    { name: "安吉拉的注视", effect: () => { setFlag("angela_watching", true); gameState.events.push("复活后似乎被某种存在注视着"); } },
+    { name: "运气透支", effect: () => { setFlag("revive_bad_luck", true); } },
+    { name: "轻微变异", effect: () => { modAttr("con", 1); modAttr("int", -2); setFlag("revive_mutated", true); } }
+  ];
+
+  const chosenEffect = pick(randomEffects);
+  chosenEffect.effect();
+  sideEffects.push(chosenEffect.name);
+
+  // 生成复活事件
+  subEvt(
+    gameState.age,
+    "生命保险·复活",
+    `黑暗。然后是刺眼的光芒。你猛地吸了一口气——你本不该再能呼吸的。生命保险履行了它的承诺，但你的身体感受到了异样。副作用：${sideEffects.join("、")}。`,
+    true,
+    "复活者"
+  );
+  addMilestone("复活者");
+
+  // 复活后恢复基础生命状态
+  gameState.alive = true;
+
+  // 复活不是万能的，如果属性过低，可能再次死亡
+  const totalAttr = gameState.attrs.con + gameState.attrs.int + gameState.attrs.wil + gameState.attrs.wea;
+  if (totalAttr < 5 && chance(0.3)) {
+    subEvt(
+      gameState.age,
+      "复活的代价",
+      "复活的身体无法承受灵魂的回归。你在苏醒后的几小时内再次倒下——这次，是真正的终结。",
+      true,
+      null
+    );
+    death("生命保险复活失败，灵魂彻底消散");
+    return true; // 确实触发了复活，但再次死亡
+  }
+
+  return true;
+}
+
+// 为 death() 函数提供统一的复活入口
+const tryResurrection = lifeInsuranceRevive;
+
+// ============================================
+// 模块导出 / 事件调度
+// ============================================
+
+/**
+ * 每年触发的事件总调度函数
+ * 应在主游戏循环的每年阶段调用
+ */
+function runExtendedEvents() {
+  if (!gameState.alive) return;
+
+  // A. 大湖捕鲸剧情
+  whaleHuntingEvents();
+
+  // B. 工坊剧情
+  if (gameState.alive) workshopEvents();
+
+  // C. 图书馆线（如果被邀请）
+  if (gameState.alive && getFlag("library_invitation")) {
+    libraryRoute();
+  }
+
+  // D. 生命保险购买事件
+  if (gameState.alive) lifeInsuranceEvent();
+}
+
+// 如果存在模块导出机制
+;
+}
+
+
+
+// ============================================================
+// 衔接事件系统（Bridge Events）
+// ============================================================
+function generateBridgeEvents(age, a, f, bp, tags) {
+  const events = [];
+  // 童年→少年 衔接
+  if (age === 7) {
+    const texts = [
+      '七岁那年，你第一次意识到都市的残酷并非传说。街头的血迹、邻居的消失、深宵的恐惧——童年结束了。',
+      '你七岁了。某个清晨，你发现昨晚还在一起玩耍的伙伴不见了。没有人提起他，就像他从未存在过。',
+      '七岁，你被送进了学校（或者帮派的前哨站）。从那一刻起，你不再只是个孩子，你是都市这台机器上的一颗齿轮。'
+    ];
+    events.push(evt(pick(texts), 'bridge_childhood', '', true, '童年结束'));
+  }
+  // 少年→青年 衔接
+  if (age === 19) {
+    const texts = [
+      '十九岁，你做出了人生第一个真正属于自己的选择。无论那选择将你带向何方，从这一刻起，你的命运握在了自己手中。',
+      '成年礼在都市中从不是仪式，而是一场生存考试。你通过了——或者勉强活了下来。十九岁，欢迎来到真正的都市。',
+      '你十九岁了。少年时代的庇护已经消散，现在你要么成为捕食者，要么成为猎物。'
+    ];
+    events.push(evt(pick(texts), 'bridge_youth', '', true, '成年'));
+  }
+  // 青年→壮年 衔接
+  if (age === 31) {
+    const texts = [
+      '三十一岁。你的身体不再像二十岁时那样迅速恢复，但你的经验和人脉弥补了一切。你开始理解都市真正的运行规则。',
+      '三十一岁，你在某个深夜回望过去十年的选择。有些让你骄傲，有些让你 nightmares。但无论如何，你走到了这里。',
+      '三十一岁。都市不会怜悯任何人，包括已经不再是年轻人的你。你必须比以前更强，否则就会被后巷吞噬。'
+    ];
+    events.push(evt(pick(texts), 'bridge_adult', '', false));
+  }
+  // 壮年→中年 衔接
+  if (age === 51) {
+    const texts = [
+      '五十一岁。你的头发开始变白，动作也不如从前敏捷。但在都市中，能活到五十一岁本身就是一种成就。',
+      '五十一岁。你开始培养后辈，或者开始怀疑自己的人生是否还有未完成的使命。',
+      '五十一岁。那些年轻时追逐的目标，有些已经实现，有些已经被遗忘。但你还在呼吸，还在战斗。'
+    ];
+    events.push(evt(pick(texts), 'bridge_middle', '', false));
+  }
+  // 中年→晚年 衔接
+  if (age === 71) {
+    const texts = [
+      '七十一岁。在都市中，这已经是长寿。你见证过太多兴衰，太多生死。现在，死亡不再是恐惧，而是一位沉默的老友。',
+      '七十一岁。你的故事已经足够写满一本书。如果安吉拉的图书馆还存在，也许你的故事也会成为其中一页。',
+      '七十一岁。你开始回忆那些已经逝去的人——朋友、敌人、路人。在都市的洪流中，记忆是唯一能证明他们存在过的东西。'
+    ];
+    events.push(evt(pick(texts), 'bridge_elder', '', true, '步入晚年'));
+  }
+  return events;
+}
+
+
+// ============================================================
+// 子代理集成代码块结束
+// ============================================================
+
+/**
+ * ============================================
+ * Project Moon 主题人生重开模拟器 - 传奇收尾人与时间线事件
+ * ============================================
+ */
+
+// ============================================
+// A. 传奇收尾人遭遇事件
+// ============================================
+
+/**
+ * 传奇收尾人遭遇调度。
+ * 成年后有概率遭遇都市传说中的色彩级收尾人或其他传奇人物。
+ * 遭遇后可能获得传承、属性提升，或死亡。
+ */
+function legendaryFixerEvents(age) {
+  if (age < 18 || !gameState.alive) return;
+  if (getFlag("legend_encounter_this_year")) return;
+
+  // 基础遭遇概率，随年龄和属性变化
+  let encounterChance = 0.02;
+  if (hasMilestone("一阶收尾人") || hasMilestone("色彩级收尾人")) encounterChance += 0.03;
+  if (hasTag("收尾人")) encounterChance += 0.02;
+  if (gameState.attrs.wil >= 8) encounterChance += 0.02; // 高意志更容易吸引强者注意
+
+  if (!chance(encounterChance)) return;
+  setFlag("legend_encounter_this_year", true);
+
+  const legends = [
+    { id: "iori", name: "堇紫泪滴", weight: 1 },
+    { id: "kali", name: "殷红迷雾", weight: 1 },
+    { id: "roland", name: "漆黑缄默", weight: 1 },
+    { id: "alb", name: "苍蓝残响", weight: 0.8 },
+    { id: "purple", name: "朱红十字", weight: 0.7 },
+    { id: "blue", name: "蔚蓝之眼", weight: 0.6 },
+  ];
+  const legend = pickWeighted(legends);
+
+  switch (legend.id) {
+    case "iori":
+      encounterIori();
+      break;
+    case "kali":
+      encounterKali();
+      break;
+    case "roland":
+      encounterRoland();
+      break;
+    case "alb":
+      encounterAlb();
+      break;
+    case "purple":
+      encounterPurpleCross();
+      break;
+    case "blue":
+      encounterBlueEye();
+      break;
+  }
+}
+
+function pickWeighted(items) {
+  const total = items.reduce((s, i) => s + i.weight, 0);
+  let r = Math.random() * total;
+  for (const item of items) {
+    r -= item.weight;
+    if (r <= 0) return item;
+  }
+  return items[items.length - 1];
+}
+
+/** 堇紫泪滴 · 伊织 (Iori) */
+function encounterIori() {
+  addEvent({ text: "你在后巷的废墟中遇到了一位紫发的女子。她的剑鞘上刻着泪滴状的纹路——那是都市传说中最古老的色彩级收尾人之一，「堇紫泪滴」。", effect: "legend", effText: "", major: true, milestone: "遭遇堇紫泪滴" });
+  addMilestone("遭遇堇紫泪滴");
+
+  // 提升成为色彩收尾人的权重
+  setFlag("colorFixerWeight", (getFlag("colorFixerWeight") || 0) + 3);
+
+  const total = gameState.attrs.con + gameState.attrs.int + gameState.attrs.wil;
+  if (total >= 22 && chance(0.4)) {
+    addEvent({ text: "堇紫泪滴看了你一眼，微微点头。『有趣。』她留下了一把紫色的短剑，然后消失在废墟之间。你获得了「泪滴之剑」的传承。", effect: "inherit", effText: "体质+2，智力+1，意志+2", major: true, milestone: "堇紫泪滴的传承" });
+    modAttr("con", 2);
+    modAttr("int", 1);
+    modAttr("wil", 2);
+    setFlag("ioriBlade", true);
+  } else if (gameState.attrs.con >= 7) {
+    addEvent({ text: "堇紫泪滴与你交手了三招。三招之后，她收剑入鞘，转身离去。你浑身是伤，但你的剑术在这三招之间突飞猛进。", effect: "train", effText: "体质+1，意志+1", major: false });
+    modAttr("con", 1);
+    modAttr("wil", 1);
+  } else {
+    addEvent({ text: "堇紫泪滴甚至没拔剑。你只是看到了她的眼神，便感到自己的灵魂被切割成了碎片。你跪倒在地，侥幸活了下来。", effect: "trauma", effText: "意志-2", major: true });
+    modAttr("wil", -2);
+  }
+}
+
+/** 殷红迷雾 · 卡莉 (Kali/Gebura) */
+function encounterKali() {
+  addEvent({ text: "红色的雾气弥漫在街道上。当雾气散去时，你看到了她——身披猩红铠甲的女人，手中那把巨大的武器散发着令人窒息的杀气。「殷红迷雾」。", effect: "legend", effText: "", major: true, milestone: "遭遇殷红迷雾" });
+  addMilestone("遭遇殷红迷雾");
+  setFlag("colorFixerWeight", (getFlag("colorFixerWeight") || 0) + 3);
+
+  if (gameState.attrs.con >= 9 && chance(0.3)) {
+    addEvent({ text: "『你还不错。』殷红迷雾难得地称赞了一句。她教你如何在战斗中控制杀意，如何让恐惧成为武器而非枷锁。", effect: "train", effText: "体质+3，意志+2", major: true, milestone: "殷红迷雾的指导" });
+    modAttr("con", 3);
+    modAttr("wil", 2);
+    setFlag("kaliTrain", true);
+  } else if (gameState.attrs.con >= 6) {
+    addEvent({ text: "你在殷红迷雾的威压下支撑了十秒。十秒后，她转身离去，留下一句话：『活下去。』", effect: "survive", effText: "体质+1，意志+1", major: false });
+    modAttr("con", 1);
+    modAttr("wil", 1);
+  } else {
+    addEvent({ text: "殷红迷雾只是看了你一眼。那一眼所包含的杀意足以让普通人精神崩溃。你倒在地上，大口喘息，像一条离水的鱼。", effect: "trauma", effText: "意志-3", major: true });
+    modAttr("wil", -3);
+  }
+}
+
+/** 漆黑缄默 · 罗兰 (Roland) */
+function encounterRoland() {
+  addEvent({ text: "一个总是带着微笑的男人坐在酒吧的角落里。他的剑藏在黑色的大衣下，但你仍能感受到那其中蕴含的悲伤与锋利——「漆黑缄默」，罗兰。", effect: "legend", effText: "", major: true, milestone: "遭遇漆黑缄默" });
+  addMilestone("遭遇漆黑缄默");
+  setFlag("colorFixerWeight", (getFlag("colorFixerWeight") || 0) + 3);
+
+  if (gameState.attrs.wil >= 8 && chance(0.35)) {
+    addEvent({ text: "罗兰请你喝了一杯。『你知道吗，我妻子以前也常来这种地方。』他轻描淡写地说着，然后教了你几招。那不是普通的剑术，那是承载着爱与失去的力量。", effect: "inherit", effText: "意志+3，体质+1", major: true, milestone: "罗兰的剑术" });
+    modAttr("wil", 3);
+    modAttr("con", 1);
+    setFlag("rolandTeach", true);
+  } else if (gameState.attrs.int >= 7) {
+    addEvent({ text: "你和罗兰聊了很久。关于都市，关于收尾人，关于失去。他没有教你剑术，但教你如何在这个城市里保持人性和理智。", effect: "talk", effText: "智力+2，意志+1", major: false });
+    modAttr("int", 2);
+    modAttr("wil", 1);
+  } else {
+    addEvent({ text: "罗兰只是对你笑了笑，那笑容中有着你无法理解的重量。你突然意识到，有些痛苦不是现在的你能够承受的。", effect: "trauma", effText: "意志-1", major: false });
+    modAttr("wil", -1);
+  }
+}
+
+/** 苍蓝残响 · 阿尔加利亚 (Al加利亚) */
+function encounterAlb() {
+  addEvent({ text: "街头传来小提琴的声音。那旋律美得让人心碎，也让人发狂。当音乐停止时，苍蓝色的身影出现在你面前——「苍蓝残响」，阿尔加利亚。", effect: "legend", effText: "", major: true, milestone: "遭遇苍蓝残响" });
+  addMilestone("遭遇苍蓝残响");
+
+  if (gameState.attrs.wil >= 9) {
+    addEvent({ text: "阿尔加利亚的音符像刀子一样切割着你的精神，但你扛住了。他歪了歪头，露出一个赞赏的微笑：『有趣的人。希望你能活得更久一些。』", effect: "resist", effText: "意志+3", major: true, milestone: "抵抗苍蓝残响" });
+    modAttr("wil", 3);
+  } else if (gameState.attrs.int >= 8 && chance(0.4)) {
+    addEvent({ text: "你识破了阿尔加利亚音乐中的精神诱导。他显得有些惊讶，然后大笑起来：『居然有人能跟上我的旋律！』", effect: "resist", effText: "智力+2，意志+1", major: false });
+    modAttr("int", 2);
+    modAttr("wil", 1);
+  } else {
+    addEvent({ text: "那旋律渗透了你的灵魂。当你回过神来时，阿尔加利亚已经离去，而你跪在地上，满脸泪水——却不知道为什么而哭泣。", effect: "trauma", effText: "意志-3，智力-1", major: true });
+    modAttr("wil", -3);
+    modAttr("int", -1);
+    if (chance(0.2)) {
+      addEvent({ text: "苍蓝残响的音乐在你脑海中留下了永久的回响。有时候，半夜醒来，你会无意识地哼起那段旋律。", effect: "curse", effText: "获得「苍蓝回响」", major: false });
+      setFlag("albEcho", true);
+    }
+  }
+}
+
+/** 朱红十字 */
+function encounterPurpleCross() {
+  addEvent({ text: "一个身穿深红色十字袍的收尾人从雾中走出。你没有听说过他的名号，但那股压迫感告诉你——他是色彩级。", effect: "legend", effText: "", major: true, milestone: "遭遇朱红十字" });
+  addMilestone("遭遇朱红十字");
+  setFlag("colorFixerWeight", (getFlag("colorFixerWeight") || 0) + 2);
+
+  if (gameState.attrs.con >= 8 && gameState.attrs.wil >= 7) {
+    addEvent({ text: "朱红十字看了你一眼，扔给你一个小瓶。『拿着。在都市里，能救你的只有你自己。』然后他消失在雾中。", effect: "gift", effText: "体质+2", major: false });
+    modAttr("con", 2);
+  } else {
+    addEvent({ text: "朱红十字没有理会你。他像是在寻找什么，或者什么人。你只是个路人——但在这个都市里，路人往往死得最快。", effect: "none", effText: "", major: false });
+  }
+}
+
+/** 蔚蓝之眼 */
+function encounterBlueEye() {
+  addEvent({ text: "你在深夜的图书馆旧址附近遇到了一个蓝眼男人。他的眼睛像深海一样不可测——那是「蔚蓝之眼」，都市中最神秘的色彩级收尾人之一。", effect: "legend", effText: "", major: true, milestone: "遭遇蔚蓝之眼" });
+  addMilestone("遭遇蔚蓝之眼");
+  setFlag("colorFixerWeight", (getFlag("colorFixerWeight") || 0) + 2);
+
+  if (gameState.attrs.int >= 9) {
+    addEvent({ text: "蔚蓝之眼与你讨论了一整夜关于奇点科技、都市规则和人类的本质。当你离开时，你感到自己的世界观被彻底重塑了。", effect: "enlighten", effText: "智力+3，意志+1", major: true, milestone: "蔚蓝之眼的启示" });
+    modAttr("int", 3);
+    modAttr("wil", 1);
+  } else {
+    addEvent({ text: "蔚蓝之眼看了你一眼，摇了摇头：『你还不够。』然后转身离去。那句话像钉子一样钉在了你的心里。", effect: "frustration", effText: "意志-1", major: false });
+    modAttr("wil", -1);
+  }
+}
+
+// ============================================
+// B. 时间线历史事件
+// ============================================
+
+/**
+ * 根据玩家的出生年份和当前年龄计算当前年份，触发对应的历史大事件。
+ * 出生年份在游戏开始时随机设定（785 ~ 985）。
+ */
+function timelineEvents(age) {
+  if (!gameState.birthYear || !gameState.alive) return;
+  const currentYear = gameState.birthYear + age;
+  if (getFlag("timeline_" + currentYear)) return; // 同一年不重复触发
+
+  //  pianoist ~957
+  if (currentYear === 957 && !getFlag("pianistEventFired")) {
+    setFlag("pianistEventFired", true);
+    addEvent({ text: "公元957年。钢琴师的旋律响彻了都市的南部。那不是音乐，而是死亡的安魂曲。无数人在音符中失去了生命，整片区域化为废墟。", effect: "history", effText: "", major: true, milestone: "钢琴师事件" });
+    addMilestone("钢琴师事件");
+    // 如果玩家在南部/后巷，有死亡风险
+    const bp = gameState.birthplace ? gameState.birthplace.id : 'backstreet';
+    if ((bp === 'backstreet' || bp === 'south') && gameState.attrs.wil < 6 && chance(0.4)) {
+      addEvent({ text: "你当时就在南部。钢琴师的音符切割着你的精神，你试图逃跑，但那旋律无处不在。你的意识逐渐模糊……", effect: "death", effText: "死亡", major: true });
+      death("钢琴师事件");
+    } else if (bp === 'backstreet' || bp === 'south') {
+      addEvent({ text: "你就在南部，但凭借顽强的意志活了下来。然而那旋律将永远在你的噩梦中回响。", effect: "trauma", effText: "意志-2", major: true });
+      modAttr("wil", -2);
+    }
+    return;
+  }
+
+  // 烟霾战争 ~878-985 (跨度很长，取关键节点)
+  if (currentYear === 878 && !getFlag("smogWarStart")) {
+    setFlag("smogWarStart", true);
+    addEvent({ text: "公元878年。烟霾战争爆发了。那是都市历史上最惨烈的冲突之一，N公司、K公司、T公司……无数势力卷入其中，后巷变成了人间地狱。", effect: "history", effText: "", major: true, milestone: "烟霾战争爆发" });
+    addMilestone("烟霾战争爆发");
+    return;
+  }
+  if (currentYear === 920 && getFlag("smogWarStart") && !getFlag("smogWarPeak")) {
+    setFlag("smogWarPeak", true);
+    addEvent({ text: "烟霾战争进入了最惨烈的阶段。你所在的城市区域被卷入了战火。每一天都有人在你面前死去，天空被浓烟遮蔽，连阳光都成了奢侈品。", effect: "history", effText: "", major: true, milestone: "烟霾战争白热化" });
+    if (gameState.attrs.con < 6 && chance(0.3)) {
+      addEvent({ text: "一枚流弹击中了你的藏身之处。你没有死在敌人的手中，而是死在了战争的随机性里。", effect: "death", effText: "死亡", major: true });
+      death("烟霾战争");
+    } else {
+      modAttr("wil", -1);
+      modAttr("con", -1);
+    }
+    return;
+  }
+
+  // L Corp 脑叶公司成立/崩溃 ~939
+  if (currentYear === 939 && !getFlag("lCorpFounded")) {
+    setFlag("lCorpFounded", true);
+    addEvent({ text: "公元939年。L公司——脑叶公司在巢中成立了。没人知道这家公司真正的业务是什么，但所有人都知道，进入那栋建筑的人很少有能完整出来的。", effect: "history", effText: "", major: true, milestone: "L公司成立" });
+    addMilestone("L公司成立");
+    return;
+  }
+
+  // 白夜黑昼 ~910 (WhiteNight & DarkDays)
+  if (currentYear === 910 && !getFlag("whiteNightEvent")) {
+    setFlag("whiteNightEvent", true);
+    addEvent({ text: "公元910年。白夜降临了。某个巢中出现了自称『白夜』的存在， followed by the Black Days. 信仰、疯狂、救赎与毁灭在同一天降临。", effect: "history", effText: "", major: true, milestone: "白夜黑昼" });
+    addMilestone("白夜黑昼");
+    if (gameState.attrs.wil < 7 && chance(0.3)) {
+      addEvent({ text: "白夜的声音直接在你的脑海中响起。你无法抵抗那种『拯救』的诱惑，你的理智在信仰与怀疑之间崩溃。", effect: "twist", effText: "意志-3", major: true });
+      modAttr("wil", -3);
+      if (gameState.attrs.wil <= 0) {
+        addEvent({ text: "你彻底屈服于白夜的意志，成为了又一名盲目的信徒。", effect: "death", effText: "精神崩溃", major: true });
+        death("白夜黑昼精神崩溃");
+      }
+    }
+    return;
+  }
+
+  // 图书馆出现 ~943
+  if (currentYear === 943 && !getFlag("libraryAppeared")) {
+    setFlag("libraryAppeared", true);
+    addEvent({ text: "公元943年。L公司崩溃后，一座神秘的图书馆在废墟中拔地而起。安吉拉——那个非人的存在——开始向都市中的强者们发送烫金的邀请函。", effect: "history", effText: "", major: true, milestone: "图书馆出现" });
+    addMilestone("图书馆出现");
+    // 小概率直接收到邀请函
+    if (gameState.attrs.con + gameState.attrs.int + gameState.attrs.wil >= 20 && chance(0.15)) {
+      setFlag("library_invitation", true);
+      addEvent({ text: "一封烫金的邀请函出现在你的门前。图书馆向你敞开了大门——无论那是机遇还是陷阱。", effect: "invite", effText: "收到图书馆邀请函", major: true, milestone: "收到图书馆邀请函" });
+      addMilestone("收到图书馆邀请函");
+    }
+    return;
+  }
+
+  // 图书馆完结 ~961 (光之种发射)
+  if (currentYear === 961 && !getFlag("libraryEnded")) {
+    setFlag("libraryEnded", true);
+    addEvent({ text: "公元961年。图书馆的故事迎来了终结。光之种从图书馆的顶端射向天空，照亮了整个都市。那光芒中蕴含着救赎，也蕴含着毁灭。", effect: "history", effText: "", major: true, milestone: "光之种发射" });
+    addMilestone("光之种发射");
+    if (hasMilestone("图书馆释放者") || hasMilestone("光之种夺取者")) {
+      addEvent({ text: "你见证了光之种的发射。作为曾经踏入图书馆的人，你比任何人都更理解那光芒的意义。", effect: "blessing", effText: "意志+2", major: false });
+      modAttr("wil", 2);
+    }
+    return;
+  }
+
+  // 边狱公司 ~978
+  if (currentYear === 978 && !getFlag("limbusFounded")) {
+    setFlag("limbusFounded", true);
+    addEvent({ text: "公元978年。边狱公司成立了。那辆名为梅菲斯托费勒斯的巴士开始在都市中穿梭，载着一群罪人前往未知的深渊。", effect: "history", effText: "", major: true, milestone: "边狱公司成立" });
+    addMilestone("边狱公司成立");
+    // 小概率成为边狱公司的罪人
+    if (hasTag("边狱公司") || (gameState.attrs.con >= 6 && chance(0.1))) {
+      addEvent({ text: "边狱公司找到了你。无论是因为你的罪行还是你的能力，你被选中登上了那辆巴士。从那一刻起，你的命运与十二名罪人紧紧相连。", effect: "join", effText: "成为边狱公司罪人", major: true, milestone: "边狱公司罪人" });
+      addMilestone("边狱公司罪人");
+      setFlag("lcb_sinner", true);
+    }
+    return;
+  }
+
+  // 扭曲现象大规模爆发 ~950
+  if (currentYear === 950 && !getFlag("distortionWave")) {
+    setFlag("distortionWave", true);
+    addEvent({ text: "公元950年。扭曲现象在都市中大规模爆发。普通人毫无征兆地变成了怪物，负面情绪化为实体，后巷变成了噩梦的温床。", effect: "history", effText: "", major: true, milestone: "扭曲大爆发" });
+    addMilestone("扭曲大爆发");
+    if (gameState.attrs.wil < 5 && chance(0.25)) {
+      addEvent({ text: "扭曲的波纹影响到了你。你的负面情绪开始具象化，你的影子在墙上扭曲成了不属于你的形状。", effect: "corrupt", effText: "意志-2", major: true });
+      modAttr("wil", -2);
+    }
+    return;
+  }
+}
+
+// ============================================
+// C. 总调度
+// ============================================
+function runLegendEvents(age) {
+  legendaryFixerEvents(age);
+  if (gameState.alive && !gameState.dead) {
+    timelineEvents(age);
+  }
+}
+
 </script>
 </body>
 </html>
