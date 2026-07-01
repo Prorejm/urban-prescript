@@ -1,106 +1,2117 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>都市指令生成器 | Urban Prescript Generator</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Serif+SC:wght@300;400;600;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>都市人生重开模拟器</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Noto+Serif+SC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #080808;
+  --bg-card: #0e0e0e;
+  --bg-card-hover: #151515;
+  --fg: #d4c5a0;
+  --fg-dim: #7a6f5a;
+  --accent-red: #8B0000;
+  --accent-red-bright: #c0392b;
+  --accent-gold: #B8860B;
+  --accent-gold-bright: #daa520;
+  --blue: #4a7fb5;
+  --purple: #9b59b6;
+  --gold: #f1c40f;
+  --border: #2a2a2a;
+  --font-cn: 'Noto Serif SC', serif;
+  --font-en: 'Cinzel', serif;
+}
+
+html { font-size: 16px; }
+
+body {
+  font-family: var(--font-cn);
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.8;
+}
+
+/* Noise overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Scanlines */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.05) 2px,
+    rgba(0,0,0,0.05) 4px
+  );
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* ===== UTILITIES ===== */
+.hidden { display: none !important; }
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.text-gold { color: var(--accent-gold-bright); }
+.text-red { color: var(--accent-red-bright); }
+.text-blue { color: var(--blue); }
+.text-purple { color: var(--purple); }
+.text-dim { color: var(--fg-dim); }
+
+.symbol {
+  color: var(--accent-gold);
+  font-size: 0.7em;
+  margin: 0 0.3em;
+  opacity: 0.6;
+}
+
+/* ===== CONTAINER ===== */
+#app {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ===== PHASE: TITLE ===== */
+#phase-title {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.title-en {
+  font-family: var(--font-en);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: var(--accent-gold);
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 20px rgba(184,134,11,0.3);
+}
+
+.title-cn {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.5em;
+  color: var(--fg);
+  margin-bottom: 2rem;
+}
+
+.title-sub {
+  font-size: 0.85rem;
+  color: var(--fg-dim);
+  letter-spacing: 0.2em;
+  margin-bottom: 3rem;
+}
+
+.title-decor {
+  color: var(--accent-gold);
+  font-size: 1.5rem;
+  opacity: 0.4;
+  margin: 0.5rem 0;
+  letter-spacing: 1em;
+}
+
+.btn {
+  font-family: var(--font-cn);
+  padding: 12px 40px;
+  border: 1px solid var(--accent-gold);
+  background: transparent;
+  color: var(--accent-gold);
+  font-size: 1rem;
+  cursor: pointer;
+  letter-spacing: 0.3em;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(184,134,11,0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn:hover::before { left: 100%; }
+.btn:hover {
+  background: rgba(184,134,11,0.1);
+  box-shadow: 0 0 20px rgba(184,134,11,0.2);
+}
+
+.btn-sm {
+  padding: 8px 24px;
+  font-size: 0.85rem;
+}
+
+.btn-red {
+  border-color: var(--accent-red);
+  color: var(--accent-red-bright);
+}
+.btn-red:hover {
+  background: rgba(139,0,0,0.15);
+  box-shadow: 0 0 20px rgba(139,0,0,0.2);
+}
+
+/* ===== PHASE: TALENT ===== */
+.phase-header {
+  text-align: center;
+  margin: 60px 0 40px;
+}
+
+.phase-title {
+  font-family: var(--font-en);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+  letter-spacing: 0.3em;
+  margin-bottom: 0.3rem;
+}
+
+.phase-title-cn {
+  font-size: 1.1rem;
+  color: var(--fg-dim);
+  letter-spacing: 0.3em;
+}
+
+.talent-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.talent-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.talent-card:hover {
+  background: var(--bg-card-hover);
+  border-color: #3a3a3a;
+}
+
+.talent-card.selected {
+  border-color: var(--accent-gold);
+  background: rgba(184,134,11,0.05);
+  box-shadow: 0 0 15px rgba(184,134,11,0.1);
+}
+
+.talent-card.rarity-blue .talent-name { color: var(--blue); }
+.talent-card.rarity-purple .talent-name { color: var(--purple); }
+.talent-card.rarity-gold .talent-name { color: var(--gold); }
+
+.talent-card.rarity-blue { border-left: 3px solid var(--blue); }
+.talent-card.rarity-purple { border-left: 3px solid var(--purple); }
+.talent-card.rarity-gold { border-left: 3px solid var(--gold); }
+
+.talent-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.talent-desc {
+  font-size: 0.78rem;
+  color: var(--fg-dim);
+  line-height: 1.5;
+}
+
+.talent-rarity {
+  font-size: 0.65rem;
+  color: var(--fg-dim);
+  margin-top: 6px;
+  opacity: 0.6;
+}
+
+.selected-talents {
+  margin-bottom: 30px;
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+
+.selected-talents h3 {
+  font-size: 0.85rem;
+  color: var(--fg-dim);
+  letter-spacing: 0.2em;
+  margin-bottom: 10px;
+}
+
+.selected-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.selected-tag {
+  font-size: 0.8rem;
+  padding: 4px 12px;
+  background: rgba(184,134,11,0.1);
+  border: 1px solid rgba(184,134,11,0.3);
+  color: var(--accent-gold-bright);
+}
+
+.phase-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* ===== PHASE: ATTRIBUTES ===== */
+.attr-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.attr-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.attr-row:last-child { border-bottom: none; }
+
+.attr-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 120px;
+}
+
+.attr-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.attr-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.attr-code {
+  font-family: var(--font-en);
+  font-size: 0.65rem;
+  color: var(--fg-dim);
+  letter-spacing: 0.1em;
+}
+
+.attr-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.attr-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--fg);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.attr-btn:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  background: rgba(184,134,11,0.1);
+}
+
+.attr-btn:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+.attr-val {
+  font-family: var(--font-en);
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--accent-gold-bright);
+  min-width: 36px;
+  text-align: center;
+}
+
+.points-remaining {
+  text-align: center;
+  margin-bottom: 24px;
+  font-size: 0.9rem;
+}
+
+.points-remaining span {
+  font-family: var(--font-en);
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--accent-gold-bright);
+}
+
+.attr-summary {
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(184,134,11,0.05);
+  border: 1px solid rgba(184,134,11,0.15);
+  font-size: 0.8rem;
+  color: var(--fg-dim);
+  text-align: center;
+}
+
+/* ===== PHASE: BIRTHPLACE ===== */
+.birthplace-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.birthplace-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.birthplace-card:hover {
+  background: var(--bg-card-hover);
+  border-color: #3a3a3a;
+}
+
+.birthplace-card.selected {
+  border-color: var(--accent-gold);
+  background: rgba(184,134,11,0.05);
+}
+
+.birthplace-card.locked {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.birthplace-name {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.birthplace-desc {
+  font-size: 0.8rem;
+  color: var(--fg-dim);
+}
+
+.birthplace-req {
+  font-size: 0.75rem;
+  color: var(--accent-red-bright);
+  margin-top: 6px;
+}
+
+/* ===== PHASE: SIMULATION ===== */
+.sim-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.sim-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 0.8rem;
+  color: var(--fg-dim);
+}
+
+.sim-stats .stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sim-stats .stat-val {
+  font-family: var(--font-en);
+  font-weight: 700;
+  color: var(--fg);
+}
+
+.sim-age {
+  font-family: var(--font-en);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+
+.event-log {
+  padding-bottom: 40px;
+}
+
+.event-entry {
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(42,42,42,0.5);
+  display: flex;
+  gap: 12px;
+  opacity: 0;
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.event-entry:last-child { border-bottom: none; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.event-age {
+  font-family: var(--font-en);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+  min-width: 48px;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.event-text {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  flex: 1;
+}
+
+.event-effect {
+  font-size: 0.75rem;
+  color: var(--fg-dim);
+  margin-top: 4px;
+  font-family: var(--font-en);
+  letter-spacing: 0.05em;
+}
+
+.event-effect .eff-good { color: #5a9e6f; }
+.event-effect .eff-bad { color: var(--accent-red-bright); }
+
+/* Major event styling */
+.event-entry.major {
+  background: rgba(139,0,0,0.05);
+  padding: 14px 12px;
+  margin: 4px -8px;
+  border-left: 3px solid var(--accent-red);
+}
+
+.event-entry.major .event-text {
+  color: #e8d5c4;
+  font-weight: 700;
+}
+
+/* Typing cursor */
+.typing-cursor::after {
+  content: '|';
+  color: var(--accent-gold);
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.sim-controls {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  background: rgba(8,8,8,0.95);
+  border: 1px solid var(--border);
+  padding: 10px 20px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.sim-controls.hidden { display: none; }
+
+/* ===== PHASE: RESULT ===== */
+.result-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 32px;
+  margin: 40px 0;
+  text-align: center;
+}
+
+.result-rank {
+  font-family: var(--font-en);
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--accent-gold-bright);
+  margin-bottom: 8px;
+  text-shadow: 0 0 30px rgba(184,134,11,0.4);
+}
+
+.result-rank-label {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--fg);
+  margin-bottom: 4px;
+}
+
+.result-quote {
+  font-size: 0.85rem;
+  color: var(--fg-dim);
+  font-style: italic;
+  margin-bottom: 24px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.result-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.result-stat {
+  padding: 12px;
+  background: rgba(184,134,11,0.03);
+  border: 1px solid var(--border);
+}
+
+.result-stat-label {
+  font-size: 0.75rem;
+  color: var(--fg-dim);
+  margin-bottom: 4px;
+}
+
+.result-stat-val {
+  font-family: var(--font-en);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--accent-gold-bright);
+}
+
+.result-summary {
+  text-align: left;
+  margin-top: 24px;
+  padding: 20px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--fg-dim);
+  line-height: 1.9;
+}
+
+.result-summary h4 {
+  color: var(--fg);
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  letter-spacing: 0.1em;
+}
+
+.result-talents {
+  margin-top: 20px;
+}
+
+.result-talents h4 {
+  font-size: 0.85rem;
+  color: var(--fg-dim);
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.result-talent-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.result-milestones {
+  margin-top: 20px;
+  text-align: left;
+}
+
+.result-milestones h4 {
+  font-size: 0.85rem;
+  color: var(--fg-dim);
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.milestone-item {
+  font-size: 0.82rem;
+  padding: 4px 0;
+  color: var(--fg-dim);
+}
+
+.milestone-item::before {
+  content: '✦';
+  color: var(--accent-gold);
+  margin-right: 8px;
+  font-size: 0.7em;
+  opacity: 0.6;
+}
+
+/* ===== DEATH SCREEN ===== */
+.death-notice {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.death-notice .death-symbol {
+  font-size: 2rem;
+  color: var(--accent-red);
+  margin-bottom: 16px;
+  letter-spacing: 1em;
+}
+
+.death-notice .death-text {
+  font-size: 1rem;
+  color: var(--fg-dim);
+  line-height: 2;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 480px) {
+  #app { padding: 12px; }
+  .title-en { font-size: 1.4rem; }
+  .title-cn { font-size: 1.2rem; letter-spacing: 0.3em; }
+  .talent-grid { grid-template-columns: 1fr; }
+  .attr-label { min-width: 80px; }
+  .sim-stats { flex-wrap: wrap; gap: 8px; }
+  .result-stats { grid-template-columns: 1fr; }
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: #2a2a2a; }
+::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+
+/* ===== TOOLTIP ===== */
+.tooltip {
+  position: fixed;
+  background: #1a1a1a;
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  font-size: 0.78rem;
+  color: var(--fg);
+  max-width: 240px;
+  z-index: 10000;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+</style>
 </head>
 <body>
-    <div class="noise-overlay"></div>
-    <div class="scanlines"></div>
-    <div class="vignette"></div>
-    
-    <div class="floating-lyrics" id="floatingLyrics"></div>
 
-    <main class="container">
-        <header class="header">
-            <div class="header-border top"></div>
-            <h1 class="title">
-                <span class="title-main">都市指令</span>
-                <span class="title-sub">URBAN PRESCRIPT</span>
-            </h1>
-            <div class="header-decoration">
-                <span class="decoration-line"></span>
-                <span class="decoration-symbol">&#10022;</span>
-                <span class="decoration-line"></span>
-            </div>
-            <p class="subtitle">唯一的准则 即是谨遵指令之意</p>
-            <div class="header-border bottom"></div>
-        </header>
+<div id="app">
+  <!-- Phase: Title -->
+  <div id="phase-title" class="phase">
+    <div class="title-decor">&#10022; &#10022; &#10022;</div>
+    <div class="title-en">CITY LIFE RESTART</div>
+    <div class="title-cn">都市人生重开模拟器</div>
+    <div class="title-sub">Project Moon Universe</div>
+    <div class="title-decor">&#10022;</div>
+    <div style="margin-top:40px">
+      <button class="btn" onclick="startGame()">点击开始</button>
+    </div>
+  </div>
 
-        <section class="generator-section">
-            <div class="receive-button-container">
-                <button class="receive-btn" id="receiveBtn">
-                    <span class="btn-border"></span>
-                    <span class="btn-text">Click to Receive</span>
-                    <span class="btn-glow"></span>
-                </button>
-            </div>
+  <!-- Phase: Talent -->
+  <div id="phase-talent" class="phase hidden">
+    <div class="phase-header">
+      <div class="phase-title">TALENT SELECTION</div>
+      <div class="phase-title-cn">&#10022; 天赋选择 &#10022;</div>
+    </div>
+    <div id="talent-grid" class="talent-grid"></div>
+    <div class="selected-talents">
+      <h3>已选择天赋 (0/3)</h3>
+      <div id="selected-talent-list" class="selected-list"></div>
+    </div>
+    <div class="phase-actions">
+      <button class="btn btn-sm" onclick="refreshTalents()">刷新天赋</button>
+      <button class="btn btn-sm btn-red" onclick="confirmTalents()" id="btn-confirm-talent" disabled>确认选择</button>
+    </div>
+  </div>
 
-            <div class="card-container" id="cardContainer">
-                <div class="prescript-card" id="prescriptCard">
-                    <div class="card-frame">
-                        <div class="card-corner tl"></div>
-                        <div class="card-corner tr"></div>
-                        <div class="card-corner bl"></div>
-                        <div class="card-corner br"></div>
-                        
-                        <div class="card-header">
-                            <span class="card-id" id="cardId">NO.000</span>
-                            <span class="card-seal">&#10022;</span>
-                        </div>
-                        
-                        <div class="card-body">
-                            <div class="card-prefix" id="cardPrefix">致都市的子民……</div>
-                            <div class="card-content" id="cardContent"></div>
-                            <div class="card-suffix" id="cardSuffix"></div>
-                        </div>
-                        
-                        <div class="card-footer">
-                            <div class="footer-line"></div>
-                            <span class="footer-text">食指代行者 · The Index</span>
-                            <div class="footer-line"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <!-- Phase: Attributes -->
+  <div id="phase-attr" class="phase hidden">
+    <div class="phase-header">
+      <div class="phase-title">ATTRIBUTE ALLOCATION</div>
+      <div class="phase-title-cn">&#10022; 属性分配 &#10022;</div>
+    </div>
+    <div class="points-remaining">
+      剩余可分配点数：<span id="points-left">20</span>
+    </div>
+    <div class="attr-panel" id="attr-panel"></div>
+    <div class="phase-actions">
+      <button class="btn btn-sm" onclick="resetAttrs()">重置属性</button>
+      <button class="btn btn-sm btn-red" onclick="confirmAttrs()" id="btn-confirm-attr" disabled>确认分配</button>
+    </div>
+  </div>
 
-            <div class="action-buttons" id="actionButtons" style="display: none;">
-                <button class="action-btn copy-btn" id="copyBtn">
-                    <span>复制指令</span>
-                </button>
-                <button class="action-btn new-btn" id="newBtn">
-                    <span>再次接收</span>
-                </button>
-            </div>
-        </section>
+  <!-- Phase: Birthplace -->
+  <div id="phase-birth" class="phase hidden">
+    <div class="phase-header">
+      <div class="phase-title">BIRTHPLACE</div>
+      <div class="phase-title-cn">&#10022; 选择出生地 &#10022;</div>
+    </div>
+    <div id="birthplace-list" class="birthplace-list"></div>
+    <div class="phase-actions">
+      <button class="btn btn-sm btn-red" onclick="confirmBirth()" id="btn-confirm-birth" disabled>开始人生</button>
+    </div>
+  </div>
 
-        <section class="history-section" id="historySection">
-            <h2 class="section-title">
-                <span class="section-icon">&#10022;</span>
-                历史指令
-                <span class="section-icon">&#10022;</span>
-            </h2>
-            <div class="history-list" id="historyList"></div>
-        </section>
+  <!-- Phase: Simulation -->
+  <div id="phase-sim" class="phase hidden">
+    <div class="sim-header">
+      <div class="sim-stats" id="sim-stats"></div>
+      <div class="sim-age" id="sim-age">0岁</div>
+    </div>
+    <div class="event-log" id="event-log"></div>
+  </div>
 
-        <footer class="footer">
-            <div class="footer-quote">
-                "Children of the city see only the neon stars"
-            </div>
-            <div class="footer-quote-cn">
-                都市之子目及之处 尽霓虹星光在污水沟之中闪耀
-            </div>
-            <div class="footer-credit">
-                Inspired by Project Moon · Library of Ruina · Limbus Company
-            </div>
-        </footer>
-    </main>
+  <!-- Phase: Result -->
+  <div id="phase-result" class="phase hidden">
+    <div class="phase-header">
+      <div class="phase-title">LIFE SUMMARY</div>
+      <div class="phase-title-cn">&#10022; 人生结算 &#10022;</div>
+    </div>
+    <div class="result-card" id="result-card"></div>
+    <div class="phase-actions" style="margin-bottom:60px">
+      <button class="btn btn-sm" onclick="restartGame()">再来一次</button>
+    </div>
+  </div>
 
-    <script src="js/app.js"></script>
+  <!-- Simulation controls -->
+  <div class="sim-controls hidden" id="sim-controls">
+    <button class="btn btn-sm" onclick="toggleSimSpeed()" id="btn-sim-speed">自动播放</button>
+    <button class="btn btn-sm btn-red" onclick="finishSim()">跳过</button>
+  </div>
+</div>
+
+<script>
+// =============================
+// DATA DEFINITIONS
+// =============================
+
+const ALL_TALENTS = [
+  // BLUE (common)
+  { id:'b1', name:'后巷的孩子', rarity:'blue', desc:'在阴暗潮湿的后巷中长大。', effect:'体质+2，家境-2', con:2, int:0, wil:0, wea:-2, tag:'后巷' },
+  { id:'b2', name:'应试村的常客', rarity:'blue', desc:'年复一年地在应试村里埋头苦读。', effect:'智力+1，0-18岁快乐-1', con:0, int:1, wil:0, wea:0, tag:'考试' },
+  { id:'b3', name:'左撇子', rarity:'blue', desc:'用左手握刀的人，据说有不同的命运。', effect:'无属性变化，触发特殊事件', con:0, int:0, wil:0, wea:0, tag:'特殊' },
+  { id:'b4', name:'清道夫的幸存者', rarity:'blue', desc:'在清道夫的清扫中活了下来。', effect:'体质+2，深宵存活率+50%', con:2, int:0, wil:0, wea:0, tag:'深宵' },
+  { id:'b5', name:'翼公司职员之子', rarity:'blue', desc:'父亲是某翼公司的普通职员。', effect:'家境+3，自由度-1', con:0, int:0, wil:0, wea:3, tag:'翼' },
+  { id:'b6', name:'帮派的混混', rarity:'blue', desc:'在后巷的帮派中混日子。', effect:'体质+1，意志+1，可能触发帮派事件', con:1, int:0, wil:1, wea:0, tag:'帮派' },
+  { id:'b7', name:'图书管理员助理', rarity:'blue', desc:'在某个不起眼的图书馆帮忙。', effect:'智力+2，快乐+1', con:0, int:2, wil:0, wea:0, tag:'知识' },
+  { id:'b8', name:'废墟拾荒者', rarity:'blue', desc:'在都市废墟中寻找可用的东西。', effect:'体质+1，家境+1', con:1, int:0, wil:0, wea:1, tag:'废墟' },
+  { id:'b9', name:'巢边长大的孩子', rarity:'blue', desc:'住在巢的边缘，仰望高墙。', effect:'家境+1，智力+1', con:0, int:1, wil:0, wea:1, tag:'巢' },
+  { id:'b10', name:'夜行者', rarity:'blue', desc:'习惯了在深宵时刻行动。', effect:'体质+1，意志+1，深宵事件触发率+30%', con:1, int:0, wil:1, wea:0, tag:'深宵' },
+  { id:'b11', name:'稳定的工作', rarity:'blue', desc:'拥有一份虽不富裕但稳定的收入来源。', effect:'家境+2', con:0, int:0, wil:0, wea:2, tag:'稳定' },
+  { id:'b12', name:'协会的线人', rarity:'blue', desc:'与某个协会有着隐秘的联系。', effect:'智力+1，家境+1', con:0, int:1, wil:0, wea:1, tag:'协会' },
+
+  // PURPLE (rare)
+  { id:'p1', name:'觉醒的E.G.O', rarity:'purple', desc:'内心深处沉睡的力量开始觉醒。', effect:'意志+3，有概率触发E.G.O觉醒事件', con:0, int:0, wil:3, wea:0, tag:'EGO' },
+  { id:'p2', name:'食指的指令', rarity:'purple', desc:'收到了一封来自食指的白色信纸。', effect:'智力+1，意志+1，随机触发食指事件', con:0, int:1, wil:1, wea:0, tag:'手指' },
+  { id:'p3', name:'协会的推荐信', rarity:'purple', desc:'某位收尾人为你写了一封推荐信。', effect:'家境+2，可触发进入协会事件', con:0, int:0, wil:0, wea:2, tag:'协会' },
+  { id:'p4', name:'色彩级的潜质', rarity:'purple', desc:'你的身上有着成为色彩级的可能。', effect:'全属性+1，有概率成为色彩级', con:1, int:1, wil:1, wea:1, tag:'色彩' },
+  { id:'p5', name:'大湖的航海者', rarity:'purple', desc:'曾在大湖的边缘航行，见识过湖底的阴影。', effect:'体质+1，意志+1，可触发大湖事件', con:1, int:0, wil:1, wea:0, tag:'大湖' },
+  { id:'p6', name:'光之种的见证者', rarity:'purple', desc:'亲眼目睹了那道金黄的光柱。', effect:'智力+2，意志+1', con:0, int:2, wil:1, wea:0, tag:'光种' },
+  { id:'p7', name:'异想体亲和体质', rarity:'purple', desc:'你的存在本身就会吸引异想体。', effect:'意志+2，体质-1，异想体事件+50%', con:-1, int:0, wil:2, wea:0, tag:'异想体' },
+  { id:'p8', name:'禁忌的知情者', rarity:'purple', desc:'你知道了一些不该知道的事情。', effect:'智力+2，被禁忌猎人追杀概率+20%', con:0, int:2, wil:0, wea:0, tag:'禁忌' },
+
+  // GOLD (legendary)
+  { id:'g1', name:'首脑的注视', rarity:'gold', desc:'那双无处不在的眼睛，注意到了你。', effect:'全属性+2，首脑事件概率大幅增加', con:2, int:2, wil:2, wea:2, tag:'首脑' },
+  { id:'g2', name:'星星的祝福', rarity:'gold', desc:'遥远的星星向都市投来了目光。', effect:'随机属性大幅变化，可触发星星许愿事件', con:0, int:0, wil:0, wea:0, tag:'星星', special:'star' },
+  { id:'g3', name:'河流的触碰', rarity:'gold', desc:'河流的记忆渗入了你的意识。', effect:'意志+3，可触发河流记忆事件', con:0, int:0, wil:3, wea:0, tag:'河流' },
+  { id:'g4', name:'光之种的照耀', rarity:'gold', desc:'你沐浴在了光之种的光辉中。', effect:'智力+3，意志+2，白夜黑昼快乐+5', con:0, int:3, wil:2, wea:0, tag:'光种' },
+];
+
+const BIRTHPLACES = [
+  { id:'backstreet', name:'后巷', desc:'都市的阴影处，危险与自由并存。大多数人在这里挣扎求生。', req:null, icon:'AL' },
+  { id:'nest', name:'某翼的巢', desc:'被高墙保护的安定区域。安全、整洁，但禁忌严格，自由受限。', req:{wea:5}, icon:'NE' },
+  { id:'outskirts', name:'郊区边缘', desc:'都市的外围边界。极度危险，但也可能获得超乎想象的回报。', req:null, icon:'OU' },
+  { id:'examvillage', name:'应试村', desc:'专门为巢入学考试而设立的村落。千军万马过独木桥。', req:null, icon:'EX' },
+];
+
+// =============================
+// GAME STATE
+// =============================
+
+let gameState = {
+  phase: 'title',
+  talents: [],          // all 10 shown talents
+  selectedTalents: [], // selected talent objects (max 3)
+  baseAttrs: { con:0, int:0, wil:0, wea:0 },
+  attrs: { con:0, int:0, wil:0, wea:0 },
+  pointsLeft: 20,
+  birthplace: null,
+  happiness: 0,
+  age: 0,
+  alive: true,
+  events: [],          // recorded events
+  milestones: [],      // major milestones
+  flags: {},           // event flags
+  simTimer: null,
+  simAuto: false,
+  talentTags: [],      // tags from selected talents
+};
+
+// =============================
+// PHASE: TITLE
+// =============================
+
+function startGame() {
+  hideAllPhases();
+  gameState = {
+    phase:'talent', talents:[], selectedTalents:[], baseAttrs:{con:0,int:0,wil:0,wea:0},
+    attrs:{con:0,int:0,wil:0,wea:0}, pointsLeft:20, birthplace:null,
+    happiness:0, age:0, alive:true, events:[], milestones:[], flags:{},
+    simTimer:null, simAuto:false, talentTags:[]
+  };
+  refreshTalents();
+  showPhase('phase-talent');
+}
+
+// =============================
+// PHASE: TALENT
+// =============================
+
+function refreshTalents() {
+  const shuffled = [...ALL_TALENTS].sort(() => Math.random() - 0.5);
+  gameState.talents = shuffled.slice(0, 10);
+  gameState.selectedTalents = [];
+  renderTalents();
+}
+
+function renderTalents() {
+  const grid = document.getElementById('talent-grid');
+  grid.innerHTML = '';
+  gameState.talents.forEach(t => {
+    const card = document.createElement('div');
+    card.className = `talent-card rarity-${t.rarity}`;
+    if (gameState.selectedTalents.find(s => s.id === t.id)) card.classList.add('selected');
+    card.innerHTML = `
+      <div class="talent-name">${t.name}</div>
+      <div class="talent-desc">${t.desc}</div>
+      <div class="talent-rarity">${t.effect}</div>
+    `;
+    card.onclick = () => toggleTalent(t);
+    grid.appendChild(card);
+  });
+  updateTalentSummary();
+}
+
+function toggleTalent(t) {
+  const idx = gameState.selectedTalents.findIndex(s => s.id === t.id);
+  if (idx >= 0) {
+    gameState.selectedTalents.splice(idx, 1);
+  } else {
+    if (gameState.selectedTalents.length >= 3) return;
+    gameState.selectedTalents.push(t);
+  }
+  renderTalents();
+}
+
+function updateTalentSummary() {
+  const list = document.getElementById('selected-talent-list');
+  list.innerHTML = '';
+  gameState.selectedTalents.forEach(t => {
+    const tag = document.createElement('span');
+    tag.className = 'selected-tag';
+    tag.textContent = t.name;
+    list.appendChild(tag);
+  });
+  document.querySelector('.selected-talents h3').textContent =
+    `已选择天赋 (${gameState.selectedTalents.length}/3)`;
+  document.getElementById('btn-confirm-talent').disabled = gameState.selectedTalents.length < 3;
+}
+
+function confirmTalents() {
+  // Apply talent effects to base attributes
+  const attrs = { con:0, int:0, wil:0, wea:0 };
+  gameState.talentTags = [];
+  gameState.selectedTalents.forEach(t => {
+    attrs.con += (t.con || 0);
+    attrs.int += (t.int || 0);
+    attrs.wil += (t.wil || 0);
+    attrs.wea += (t.wea || 0);
+    if (t.tag) gameState.talentTags.push(t.tag);
+  });
+  gameState.baseAttrs = attrs;
+
+  // Star talent: random big boost
+  if (gameState.talentTags.includes('星星')) {
+    const keys = ['con','int','wil','wea'];
+    const k1 = keys[Math.floor(Math.random()*keys.length)];
+    const k2 = keys[Math.floor(Math.random()*keys.length)];
+    gameState.baseAttrs[k1] += Math.floor(Math.random()*3) + 2;
+    gameState.baseAttrs[k2] += Math.floor(Math.random()*3) + 2;
+    gameState.baseAttrs.con = Math.max(0, gameState.baseAttrs.con);
+    gameState.baseAttrs.int = Math.max(0, gameState.baseAttrs.int);
+    gameState.baseAttrs.wil = Math.max(0, gameState.baseAttrs.wil);
+    gameState.baseAttrs.wea = Math.max(0, gameState.baseAttrs.wea);
+  }
+
+  gameState.pointsLeft = 20;
+  gameState.attrs = { ...gameState.baseAttrs };
+  hideAllPhases();
+  renderAttrs();
+  showPhase('phase-attr');
+}
+
+// =============================
+// PHASE: ATTRIBUTES
+// =============================
+
+const ATTR_DEF = [
+  { key:'con', name:'体质', code:'CON', icon:'体', desc:'影响战斗、生存、深宵存活' },
+  { key:'int', name:'智力', code:'INT', icon:'智', desc:'影响通过考试、进入翼公司、解决异想体事件' },
+  { key:'wil', name:'意志', code:'WIL', icon:'意', desc:'影响抵抗异想体侵蚀、避免扭曲' },
+  { key:'wea', name:'家境', code:'WEA', icon:'家', desc:'影响初始区域、教育资源、人脉资源' },
+];
+
+function renderAttrs() {
+  const panel = document.getElementById('attr-panel');
+  panel.innerHTML = '';
+  ATTR_DEF.forEach(ad => {
+    const row = document.createElement('div');
+    row.className = 'attr-row';
+    row.innerHTML = `
+      <div class="attr-label">
+        <div class="attr-icon">${ad.icon}</div>
+        <div>
+          <div class="attr-name">${ad.name}</div>
+          <div class="attr-code">${ad.code}</div>
+        </div>
+      </div>
+      <div class="attr-controls">
+        <button class="attr-btn" onclick="changeAttr('${ad.key}',-1)">-</button>
+        <div class="attr-val" id="attr-val-${ad.key}">${gameState.attrs[ad.key]}</div>
+        <button class="attr-btn" onclick="changeAttr('${ad.key}',1)">+</button>
+      </div>
+    `;
+    panel.appendChild(row);
+  });
+
+  const summary = document.createElement('div');
+  summary.className = 'attr-summary';
+  const base = gameState.baseAttrs;
+  const added = {
+    con: gameState.attrs.con - base.con,
+    int: gameState.attrs.int - base.int,
+    wil: gameState.attrs.wil - base.wil,
+    wea: gameState.attrs.wea - base.wea
+  };
+  summary.innerHTML = `天赋加成：体质 ${base.con >= 0 ? '+' : ''}${base.con} / 智力 ${base.int >= 0 ? '+' : ''}${base.int} / 意志 ${base.wil >= 0 ? '+' : ''}${base.wil} / 家境 ${base.wea >= 0 ? '+' : ''}${base.wea}`;
+  panel.appendChild(summary);
+
+  updateAttrDisplay();
+}
+
+function changeAttr(key, delta) {
+  const newVal = gameState.attrs[key] + delta;
+  const newLeft = gameState.pointsLeft - delta;
+  if (newVal < 0 || newLeft < 0 || newLeft > 20) return;
+  gameState.attrs[key] = newVal;
+  gameState.pointsLeft = newLeft;
+  updateAttrDisplay();
+}
+
+function resetAttrs() {
+  gameState.attrs = { ...gameState.baseAttrs };
+  gameState.pointsLeft = 20;
+  ATTR_DEF.forEach(ad => {
+    document.getElementById(`attr-val-${ad.key}`).textContent = gameState.attrs[ad.key];
+  });
+  updateAttrDisplay();
+}
+
+function updateAttrDisplay() {
+  document.getElementById('points-left').textContent = gameState.pointsLeft;
+  ATTR_DEF.forEach(ad => {
+    document.getElementById(`attr-val-${ad.key}`).textContent = gameState.attrs[ad.key];
+  });
+  // Enable confirm if all points spent or player chose to confirm
+  const totalAdded = gameState.pointsLeft;
+  document.getElementById('btn-confirm-attr').disabled = totalAdded > 0;
+}
+
+function confirmAttrs() {
+  hideAllPhases();
+  renderBirthplaces();
+  showPhase('phase-birth');
+}
+
+// =============================
+// PHASE: BIRTHPLACE
+// =============================
+
+function renderBirthplaces() {
+  const list = document.getElementById('birthplace-list');
+  list.innerHTML = '';
+  BIRTHPLACES.forEach(bp => {
+    const card = document.createElement('div');
+    card.className = 'birthplace-card';
+    card.dataset.id = bp.id;
+
+    let locked = false;
+    if (bp.req) {
+      const k = Object.keys(bp.req)[0];
+      if (gameState.attrs[k] < bp.req[k]) locked = true;
+    }
+
+    if (locked) card.classList.add('locked');
+
+    const attrNames = { con:'体质', int:'智力', wil:'意志', wea:'家境' };
+    card.innerHTML = `
+      <div class="birthplace-name">[${bp.icon}] ${bp.name}</div>
+      <div class="birthplace-desc">${bp.desc}</div>
+      ${locked ? `<div class="birthplace-req">需要 ${attrNames[Object.keys(bp.req)[0]]} >= ${bp.req[Object.keys(bp.req)[0]]}</div>` : ''}
+    `;
+    card.onclick = () => {
+      if (locked) return;
+      document.querySelectorAll('.birthplace-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      gameState.birthplace = bp;
+      document.getElementById('btn-confirm-birth').disabled = false;
+    };
+    list.appendChild(card);
+  });
+}
+
+function confirmBirth() {
+  if (!gameState.birthplace) return;
+  hideAllPhases();
+  showPhase('phase-sim');
+  startSimulation();
+}
+
+// =============================
+// PHASE: SIMULATION
+// =============================
+
+function startSimulation() {
+  gameState.age = 0;
+  gameState.happiness = 0;
+  gameState.alive = true;
+  gameState.events = [];
+  gameState.milestones = [];
+  gameState.flags = {
+    whiteNight: false,
+    crimsonNight: false,
+    pianist: false,
+    seedOfLight: false,
+    library: false,
+    joinedWing: false,
+    joinedFinger: false,
+    joinedAssociation: false,
+    becameColor: false,
+    twisted: false,
+    book: false,
+    metRiver: false,
+    metStar: false,
+    sawHead: false,
+    deepNightCount: 0,
+  };
+  document.getElementById('event-log').innerHTML = '';
+  updateSimStats();
+
+  // Show first event
+  nextYear();
+}
+
+function nextYear() {
+  if (!gameState.alive) return;
+
+  const events = generateEvents(gameState.age);
+  events.forEach(ev => {
+    addEvent(ev);
+  });
+
+  // If generateEvents set alive=false (river, etc.), end here
+  if (!gameState.alive) {
+    setTimeout(() => endSimulation(), 1500);
+    return;
+  }
+
+  // Check alive
+  if (gameState.happiness <= -10) {
+    gameState.alive = false;
+    gameState.flags.twisted = true;
+    addEvent({ text: '你的内心承受不住都市的重压，理性崩溃了……', effect: '扭曲了', major: true });
+    addEvent({ text: '你扭曲成了都市的又一 nightmares。', effect: '', major: true });
+    setTimeout(() => endSimulation(), 1500);
+    return;
+  }
+
+  if (gameState.attrs.con <= 0) {
+    gameState.alive = false;
+    addEvent({ text: '你的身体已无法承受都市的残酷。', effect: '体质归零', major: true });
+    addEvent({ text: '你永远闭上了双眼。', effect: '', major: true });
+    setTimeout(() => endSimulation(), 1500);
+    return;
+  }
+
+  gameState.age++;
+
+  // Natural death chance increases with age
+  let deathChance = 0;
+  if (gameState.age > 70) deathChance = (gameState.age - 70) * 0.03;
+  if (gameState.age > 80) deathChance += (gameState.age - 80) * 0.05;
+  if (gameState.age > 90) deathChance += 0.3;
+
+  if (Math.random() < deathChance) {
+    gameState.alive = false;
+    addEvent({ text: `你在${gameState.age}岁时安详地离开了这个世界。`, effect: '自然死亡', major: false });
+    setTimeout(() => endSimulation(), 1500);
+    return;
+  }
+
+  if (gameState.age > 100) {
+    gameState.alive = false;
+    addEvent({ text: '你在这个都市活了太久太久，连时间都模糊了。', effect: '', major: false });
+    setTimeout(() => endSimulation(), 1500);
+    return;
+  }
+
+  updateSimStats();
+
+  if (gameState.simAuto) {
+    const delay = Math.max(200, 800 - gameState.age * 3);
+    gameState.simTimer = setTimeout(() => nextYear(), delay);
+  }
+}
+
+function generateEvents(age) {
+  const events = [];
+  const bp = gameState.birthplace.id;
+  const tags = gameState.talentTags;
+  const a = gameState.attrs;
+  const f = gameState.flags;
+
+  // --- BABY (0-6) ---
+  if (age === 0) {
+    if (bp === 'backstreet') {
+      events.push({ text: '你在后巷的某个阴暗角落睁开了眼睛。空气中弥漫着铁锈和消毒水的味道。' });
+    } else if (bp === 'nest') {
+      events.push({ text: '你在整洁明亮的巢医院中降生。窗外是无尽的都市高楼。' });
+    } else if (bp === 'outskirts') {
+      events.push({ text: '你在都市的边缘地带出生。远处是望不到头的废墟。' });
+    } else if (bp === 'examvillage') {
+      events.push({ text: '你出生在应试村的一间狭窄宿舍里。隔壁传来的，是朗朗读书声。' });
+    }
+    events.push({ text: '你的啼哭声回荡在都市的夜空中。这是你人生的第一天。' });
+    gameState.happiness += 1;
+  }
+
+  if (age === 1) {
+    events.push({ text: '你学会了走路。摇摇晃晃的步子踩在冰冷的地板上。' });
+    gameState.happiness += 1;
+  }
+
+  if (age === 3) {
+    if (bp === 'backstreet') {
+      events.push({ text: '第一次见到深宵过后的街道。地上残留着不明的痕迹。' });
+      if (tags.includes('深宵')) {
+        events.push({ text: '但奇怪的是，你并不害怕。深宵的黑暗让你感到……亲切。', effect: '意志+1' });
+        a.wil += 1;
+      }
+    } else if (bp === 'nest') {
+      events.push({ text: '你在巢的保育中心度过了平静的时光。一切都是那么有序。' });
+      gameState.happiness += 1;
+    }
+  }
+
+  if (age === 5) {
+    if (bp === 'backstreet' || bp === 'examvillage') {
+      events.push({ text: '邻居家的孩子被清道夫带走了。大人们沉默不语。', effect: '快乐-1', effText: '快乐-1' });
+      gameState.happiness -= 1;
+    }
+    if (tags.includes('后巷')) {
+      events.push({ text: '你在后巷的垃圾堆里找到了一把生锈的小刀。', effect: '体质+1' });
+      a.con += 1;
+    }
+  }
+
+  // --- CHILDHOOD (7-18) ---
+  if (age >= 7 && age <= 18) {
+    if (age === 7) {
+      if (bp === 'examvillage') {
+        events.push({ text: '应试村的训练正式开始。从今天起，你的生活只有学习和考试。', effect: '快乐-1', effText: '快乐-1' });
+        gameState.happiness -= 1;
+        if (tags.includes('考试')) {
+          gameState.happiness -= 1;
+          events.push({ text: '考试的压力格外沉重。但你已经习惯了。', effect: '智力+1' });
+          a.int += 1;
+        }
+      } else if (bp === 'nest') {
+        events.push({ text: '巢的精英学校开学了。课程繁重但资源丰富。' });
+        a.int += 1;
+      } else {
+        events.push({ text: '你在后巷的自由学校里开始学习识字和算术。' });
+      }
+    }
+
+    if (age === 10) {
+      if (bp === 'backstreet') {
+        events.push({ text: '你目睹了一场后巷帮派的火拼。鲜血溅到了你的脸上。', effect: '快乐-2, 意志+1', effText: '快乐-2 意志+1' });
+        gameState.happiness -= 2;
+        a.wil += 1;
+      }
+      if (bp === 'outskirts') {
+        events.push({ text: '一只看起来不像地球生物的怪物向你冲来。你拼命逃跑，活了下来。', effect: '体质+1, 快乐-1', effText: '体质+1 快乐-1' });
+        a.con += 1;
+        gameState.happiness -= 1;
+      }
+    }
+
+    if (age === 12) {
+      if (tags.includes('手指')) {
+        events.push({ text: '你收到了食指的白色信纸。上面写着一行字：你被选中了。' });
+        gameState.flags.fingerContact = true;
+      }
+      if (tags.includes('禁忌')) {
+        events.push({ text: '你不小心翻到了一本禁忌书籍。上面的内容让你毛骨悚然。', effect: '智力+1, 快乐-1', effText: '智力+1 快乐-1' });
+        a.int += 1;
+        gameState.happiness -= 1;
+      }
+    }
+
+    if (age === 14) {
+      if (bp === 'examvillage' && a.int >= 6) {
+        events.push({ text: '你在应试村的模拟考试中名列前茅。老师们对你寄予厚望。', effect: '智力+1, 快乐+1', effText: '智力+1 快乐+1' });
+        a.int += 1;
+        gameState.happiness += 1;
+      } else if (bp === 'examvillage') {
+        events.push({ text: '又一次考试落榜。你看着榜上密密麻麻的名字，找不到自己的。', effect: '快乐-2', effText: '快乐-2' });
+        gameState.happiness -= 2;
+      }
+      if (tags.includes('特殊')) {
+        events.push({ text: '你发现自己用左手握刀时格外顺手。一位老人说你是"天生的左手"。' });
+        gameState.flags.leftHanded = true;
+      }
+    }
+
+    if (age === 16) {
+      events.push({ text: '巢大学入学考试来临了。整个都市的年轻人都绷紧了神经。' });
+      if (a.int >= 7) {
+        events.push({ text: '你以优异的成绩通过了考试！获得了进入巢的资格。', effect: '智力+1, 快乐+2', effText: '智力+1 快乐+2', milestone: '通过巢入学考试' });
+        a.int += 1;
+        gameState.happiness += 2;
+        gameState.flags.enteredNest = true;
+      } else if (a.int >= 5) {
+        events.push({ text: '你的成绩勉强合格，可以在巢的外围区域活动。', effect: '快乐+1', effText: '快乐+1' });
+        gameState.happiness += 1;
+      } else {
+        events.push({ text: '你落榜了。只能继续留在应试村，或者去后巷谋生。', effect: '快乐-1', effText: '快乐-1' });
+        gameState.happiness -= 1;
+      }
+    }
+
+    if (age === 18) {
+      if (tags.includes('EGO')) {
+        if (Math.random() < 0.4) {
+          events.push({ text: '在某个深夜，你的意识中浮现出奇异的光芒。有什么东西在你的内心苏醒了。', effect: '意志+2', effText: '意志+2', major: true, milestone: 'E.G.O觉醒' });
+          a.wil += 2;
+          gameState.flags.egoAwakened = true;
+        }
+      }
+      if (bp === 'nest' && f.enteredNest) {
+        events.push({ text: '你在巢的大学里继续深造，前途一片光明。', effect: '智力+1', effText: '智力+1' });
+        a.int += 1;
+      }
+    }
+  }
+
+  // --- YOUNG ADULT (19-30) ---
+  if (age >= 19 && age <= 30) {
+    if (age === 19) {
+      // Career path events
+      if (a.int >= 6 && !f.joinedWing) {
+        if (Math.random() < 0.5) {
+          events.push({ text: '凭借出色的智力，你成功成为了某翼公司的羽毛。', effect: '家境+2, 快乐+1', effText: '家境+2 快乐+1', milestone: '成为翼公司羽毛' });
+          a.wea += 2;
+          gameState.happiness += 1;
+          gameState.flags.joinedWing = true;
+        }
+      }
+      if (!f.joinedWing && (tags.includes('协会') || a.int >= 5)) {
+        if (Math.random() < 0.5) {
+          events.push({ text: '你加入了某个收尾人协会，开始了收尾人的生涯。', effect: '体质+1, 家境+1', effText: '体质+1 家境+1', milestone: '加入收尾人协会' });
+          a.con += 1;
+          a.wea += 1;
+          gameState.flags.joinedAssociation = true;
+        }
+      }
+      if (!f.joinedWing && !f.joinedAssociation) {
+        if (bp === 'backstreet') {
+          events.push({ text: '你在后巷开了一家小店，勉强维持生计。' });
+          a.wea += 1;
+        } else if (bp === 'outskirts') {
+          events.push({ text: '你在郊区边缘做着拾荒和贩卖的工作。危险但收入可观。', effect: '体质+1, 家境+1', effText: '体质+1 家境+1' });
+          a.con += 1;
+          a.wea += 1;
+        } else {
+          events.push({ text: '你在都市中寻找着自己的位置。日子过得不算太好。' });
+        }
+      }
+    }
+
+    // Finger events
+    if (age === 22 && (tags.includes('手指') || f.fingerContact)) {
+      if (Math.random() < 0.6) {
+        const fingers = ['拇指','食指','中指','环指','小指'];
+        const finger = fingers[Math.floor(Math.random()*fingers.length)];
+        events.push({ text: `你收到了${finger}的招募邀请。你决定加入。`, effect: '体质+1, 意志+1, 快乐-1', effText: '体质+1 意志+1 快乐-1', milestone: `加入${finger}`, major: true });
+        a.con += 1;
+        a.wil += 1;
+        gameState.happiness -= 1;
+        gameState.flags.joinedFinger = true;
+      }
+    }
+
+    // First Abnormality encounter
+    if (age === 23 && !f.sawAbnormality) {
+      events.push({ text: '你第一次直面了异想体。那不是人类能够理解的存在。' });
+      if (a.wil >= 6) {
+        events.push({ text: '你咬紧牙关，用意志力抵抗住了精神侵蚀。', effect: '意志+1', effText: '意志+1' });
+        a.wil += 1;
+      } else {
+        events.push({ text: '恐惧吞噬了你。你在床上躺了三天才恢复过来。', effect: '快乐-2', effText: '快乐-2' });
+        gameState.happiness -= 2;
+      }
+      gameState.flags.sawAbnormality = true;
+    }
+
+    // White Night / Black Day
+    if (age === 25 && !f.whiteNight) {
+      events.push({ text: '白夜黑昼降临了。三天极昼，四天极夜笼罩了整个都市。所有人都被迫停下了脚步。', effect: '', major: true, milestone: '经历白夜黑昼' });
+      if (tags.includes('光种')) {
+        events.push({ text: '但你心中有着光之种的温暖。光柱的记忆驱散了恐惧。', effect: '快乐+5', effText: '快乐+5' });
+        gameState.happiness += 5;
+      } else {
+        const dmg = Math.max(-3, 3 - Math.floor(a.wil / 3));
+        events.push({ text: '极端的环境让你身心俱疲。', effect: `快乐${dmg}`, effText: `快乐${dmg}` });
+        gameState.happiness += dmg;
+      }
+      if (a.wil >= 7) {
+        events.push({ text: '在极夜中，你似乎感受到了都市深处的某种低语……', effect: '意志+1', effText: '意志+1' });
+        a.wil += 1;
+      }
+      gameState.flags.whiteNight = true;
+    }
+
+    // Witness distortion
+    if (age === 27 && !f.sawDistortion) {
+      events.push({ text: '你目睹了一位扭曲者的诞生。一个普通人，在痛苦中化为了不可名状的怪物。' });
+      if (a.wil >= 8) {
+        events.push({ text: '你奇迹般地保持了理智。甚至从中领悟到了什么。', effect: '意志+2', effText: '意志+2' });
+        a.wil += 2;
+      } else if (a.wil >= 5) {
+        events.push({ text: '你勉强保持了理智，但噩梦持续了整整一个月。', effect: '快乐-2, 意志+1', effText: '快乐-2 意志+1' });
+        gameState.happiness -= 2;
+        a.wil += 1;
+      } else {
+        events.push({ text: '你的精神几近崩溃。那画面在你脑海中挥之不去。', effect: '快乐-4', effText: '快乐-4' });
+        gameState.happiness -= 4;
+      }
+      gameState.flags.sawDistortion = true;
+    }
+
+    // Library invitation
+    if (age === 28 && !f.library) {
+      if (a.int >= 6 || Math.random() < 0.2) {
+        events.push({ text: '你收到了一封来自图书馆的邀请函。上面写着："请来讲述你的故事。"', effect: '', major: true, milestone: '收到图书馆邀请函' });
+        gameState.flags.library = true;
+      }
+    }
+
+    if (age === 30 && tags.includes('深宵')) {
+      if (Math.random() < 0.5) {
+        events.push({ text: '凌晨3:13，深宵降临。你走在空无一人的街道上，感受着都市的危险气息。' });
+        if (a.con >= 6) {
+          events.push({ text: '凭借强壮的体质和丰富的经验，你安全地度过了深宵。', effect: '体质+1', effText: '体质+1' });
+          a.con += 1;
+        } else {
+          if (Math.random() < 0.4) {
+            events.push({ text: '你在深宵中遭遇了清道夫。拼死逃了出来，但留下了伤痕。', effect: '体质-1, 快乐-2', effText: '体质-1 快乐-2' });
+            a.con -= 1;
+            gameState.happiness -= 2;
+          }
+        }
+        gameState.flags.deepNightCount++;
+      }
+    }
+
+    // EGO event in young adult
+    if (age === 26 && tags.includes('EGO') && !f.egoAwakened && Math.random() < 0.3) {
+      events.push({ text: '异想体的侵蚀再次袭来。但这一次，你体内沉睡的力量爆发了。', effect: '意志+2, 体质+1', effText: '意志+2 体质+1', major: true, milestone: 'E.G.O觉醒' });
+      a.wil += 2;
+      a.con += 1;
+      gameState.flags.egoAwakened = true;
+    }
+  }
+
+  // --- PRIME (31-50) ---
+  if (age >= 31 && age <= 50) {
+    if (age === 32) {
+      // Color fixer possibility
+      if (!f.becameColor && tags.includes('色彩') && a.con >= 7 && a.int >= 7 && a.wil >= 7) {
+        if (Math.random() < 0.5) {
+          events.push({ text: '你的名字开始被都市的人们传颂。你的实力已经超越了普通的收尾人。', effect: '全属性+1, 快乐+3', effText: '全属性+1 快乐+3', major: true, milestone: '晋升为色彩级收尾人' });
+          a.con += 1; a.int += 1; a.wil += 1; a.wea += 1;
+          gameState.happiness += 3;
+          gameState.flags.becameColor = true;
+        }
+      }
+    }
+
+    if (age === 35) {
+      if (f.joinedWing && a.int >= 8 && a.wea >= 7) {
+        events.push({ text: '多年的努力终于有了回报。你被提拔为翼公司的董事。', effect: '家境+3, 快乐+2', effText: '家境+3 快乐+2', milestone: '成为翼公司董事' });
+        a.wea += 3;
+        gameState.happiness += 2;
+        gameState.flags.becameDirector = true;
+      }
+      if (tags.includes('禁忌') && Math.random() < 0.3) {
+        events.push({ text: '禁忌猎人找上了你。他们怀疑你知道了不该知道的秘密。', effect: '', major: true });
+        if (a.con >= 7) {
+          events.push({ text: '你凭借实力击退了禁忌猎人。', effect: '体质+1', effText: '体质+1' });
+          a.con += 1;
+        } else {
+          events.push({ text: '你不得不放弃一切，开始了逃亡生涯。', effect: '家境-3, 快乐-3', effText: '家境-3 快乐-3' });
+          a.wea -= 3;
+          gameState.happiness -= 3;
+        }
+      }
+    }
+
+    // Crimson Night
+    if (age === 38 && !f.crimsonNight) {
+      if (Math.random() < 0.35) {
+        events.push({ text: '血红之夜降临了。血魔伊莲娜的歌声在整个都市回荡。所有儿童都面临被带走的危险。', effect: '', major: true, milestone: '经历血红之夜' });
+        if (a.con >= 7 || tags.includes('深宵')) {
+          events.push({ text: '你成功保护了你身边的人。', effect: '快乐+1', effText: '快乐+1' });
+          gameState.happiness += 1;
+        } else {
+          events.push({ text: '你拼命抵抗，但还是失去了些什么。', effect: '快乐-3', effText: '快乐-3' });
+          gameState.happiness -= 3;
+        }
+        gameState.flags.crimsonNight = true;
+      }
+    }
+
+    // Ruins exploration
+    if (age === 40 && bp === 'outskirts' || bp === 'backstreet') {
+      if (Math.random() < 0.4) {
+        events.push({ text: '你深入废墟探索，在一座坍塌的建筑中发现了古老的奇点科技残片。', effect: '智力+2', effText: '智力+2', milestone: '发现奇点科技残片' });
+        a.int += 2;
+      }
+    }
+
+    // Blood fiend
+    if (age === 42) {
+      if (Math.random() < 0.2 || tags.includes('深宵')) {
+        events.push({ text: '你与一位血魔建立了联系。他们并不是都市传说中那么可怕。' });
+        if (a.wil >= 6) {
+          events.push({ text: '你们达成了一项互利的协议。', effect: '体质+1, 家境+1', effText: '体质+1 家境+1' });
+          a.con += 1;
+          a.wea += 1;
+        } else {
+          events.push({ text: '与血魔的接触让你的精神受到损伤。', effect: '意志-1, 快乐-1', effText: '意志-1 快乐-1' });
+          a.wil -= 1;
+          gameState.happiness -= 1;
+        }
+      }
+    }
+
+    // Great Lake
+    if (age === 45 && !f.greatLake && (tags.includes('大湖') || Math.random() < 0.2)) {
+      events.push({ text: '大湖的风暴来袭。巨大的漩涡吞噬了湖面上的一切。', effect: '', major: true, milestone: '经历大湖风暴' });
+      if (a.con >= 6 && a.wil >= 6) {
+        events.push({ text: '你凭借着过人的体质和意志，在风暴中幸存了下来。', effect: '体质+1, 意志+1', effText: '体质+1 意志+1' });
+        a.con += 1;
+        a.wil += 1;
+      } else {
+        events.push({ text: '风暴重创了你的身体。', effect: '体质-2, 快乐-2', effText: '体质-2 快乐-2' });
+        a.con -= 2;
+        gameState.happiness -= 2;
+      }
+      gameState.flags.greatLake = true;
+    }
+
+    // Seed of Light
+    if (age === 47 && !f.seedOfLight) {
+      if (Math.random() < 0.4) {
+        events.push({ text: '光之种发射了。一道金黄色的光柱从地底冲向天际，照亮了整个都市的夜空。', effect: '', major: true, milestone: '见证光之种发射' });
+        gameState.happiness += 1;
+        if (tags.includes('光种')) {
+          events.push({ text: '那光芒让你内心深处的某些东西被触动了。', effect: '意志+2, 快乐+2', effText: '意志+2 快乐+2' });
+          a.wil += 2;
+          gameState.happiness += 2;
+        }
+        gameState.flags.seedOfLight = true;
+      }
+    }
+
+    if (age === 50) {
+      if (tags.includes('EGO') && f.egoAwakened) {
+        events.push({ text: '你对自己觉醒的E.G.O有了更深的理解。它已成为你不可分割的一部分。', effect: '意志+2', effText: '意志+2' });
+        a.wil += 2;
+      }
+    }
+  }
+
+  // --- MIDDLE AGE (51-70) ---
+  if (age >= 51 && age <= 70) {
+    if (age === 51) {
+      events.push({ text: '岁月流逝。你在都市中已经走过了半个世纪。' });
+      if (f.joinedWing && !f.becameDirector) {
+        events.push({ text: '你从翼公司退休了。带着积累的财富，你在后巷开了一家小酒馆。', effect: '家境+1, 快乐+1', effText: '家境+1 快乐+1' });
+        a.wea += 1;
+        gameState.happiness += 1;
+      }
+      if (f.becameColor) {
+        events.push({ text: '你的名字已成为都市的传说。年轻一代的收尾人都以你为榜样。', effect: '快乐+2', effText: '快乐+2' });
+        gameState.happiness += 2;
+      }
+    }
+
+    if (age === 55) {
+      if (a.con >= 7 && !f.becameHunter) {
+        if (Math.random() < 0.4) {
+          events.push({ text: '你的实力引起了巢的注意。你被选为禁忌猎人。', effect: '家境+2, 快乐+1', effText: '家境+2 快乐+1', milestone: '被选为禁忌猎人' });
+          a.wea += 2;
+          gameState.happiness += 1;
+          gameState.flags.becameHunter = true;
+        }
+      }
+    }
+
+    if (age === 58) {
+      events.push({ text: '你决定前往郊区边界。在那里，你远远望见了星星。', effect: '', milestone: '望见星星' });
+      if (tags.includes('星星')) {
+        events.push({ text: '星星似乎在回应你的注视。一个念头出现在你脑海中……', effect: '意志+2, 快乐+2', effText: '意志+2 快乐+2' });
+        a.wil += 2;
+        gameState.happiness += 2;
+        gameState.flags.metStar = true;
+      } else {
+        events.push({ text: '那遥远的星光让你想起了什么……但你已经记不清了。', effect: '快乐+1', effText: '快乐+1' });
+        gameState.happiness += 1;
+      }
+    }
+
+    if (age === 62) {
+      if (Math.random() < 0.3) {
+        events.push({ text: '在第八区的铁槛寺中，你遇见了一位自称"仙人"的老人。他说了一些让你似懂非懂的话。', effect: '智力+1, 意志+1', effText: '智力+1 意志+1', milestone: '在铁槛寺遇见仙人' });
+        a.int += 1;
+        a.wil += 1;
+      }
+    }
+
+    if (age === 65) {
+      if (tags.includes('河流')) {
+        events.push({ text: '河流的低语传入了你的耳中。"你想忘却吗？还是想铭记？"', effect: '', major: true, milestone: '听到河流的低语' });
+        if (a.wil >= 8) {
+          events.push({ text: '你拒绝了河流的诱惑。"我要铭记这一切。"', effect: '意志+3', effText: '意志+3' });
+          a.wil += 3;
+        } else {
+          events.push({ text: '河流的记忆渗入了你的意识。一些遥远的画面闪现在脑海中。', effect: '智力+2, 快乐-1', effText: '智力+2 快乐-1' });
+          a.int += 2;
+          gameState.happiness -= 1;
+        }
+        gameState.flags.metRiver = true;
+      }
+    }
+
+    if (age === 70) {
+      events.push({ text: '你已经七十岁了。在都市中，这已经是一个了不起的年纪。' });
+      gameState.happiness += 1;
+      a.con -= 1; // Aging
+    }
+  }
+
+  // --- OLD AGE (71+) ---
+  if (age >= 71) {
+    if (age === 71) {
+      if (bp === 'nest' || f.becameDirector || a.wea >= 8) {
+        events.push({ text: '在巢的庇护下，你安度着晚年。这是都市中难得的幸福。', effect: '快乐+2', effText: '快乐+2' });
+        gameState.happiness += 2;
+      } else {
+        events.push({ text: '你坐在后巷酒馆的角落，向后巷的年轻人讲述着都市的传说。', effect: '快乐+1', effText: '快乐+1' });
+        gameState.happiness += 1;
+      }
+    }
+
+    if (age === 75) {
+      events.push({ text: '你的身体越来越虚弱。都市的残酷对任何人都不留情面。', effect: '体质-1', effText: '体质-1' });
+      a.con -= 1;
+      if (f.metRiver) {
+        events.push({ text: '河流的声音再次响起。它在召唤你。' });
+        if (Math.random() < 0.5) {
+          events.push({ text: '你选择前往河流。在那里，你可以忘却一切痛苦与快乐。', effect: '', major: true, milestone: '前往河流' });
+          gameState.alive = false;
+          gameState.flags.wentToRiver = true;
+          return events;
+        }
+      }
+    }
+
+    if (age === 80) {
+      events.push({ text: '八十岁了。都市中很少有人能活到这个年纪。' });
+      gameState.happiness += 1;
+      a.con -= 1;
+      if (Math.random() < 0.4) {
+        events.push({ text: '在深宵即将到来的时刻，你在椅子上闭上了眼睛。', effect: '', major: true });
+        gameState.alive = false;
+        return events;
+      }
+    }
+
+    if (age === 85) {
+      events.push({ text: '都市的天空似乎比记忆中更暗了。', effect: '体质-1', effText: '体质-1' });
+      a.con -= 1;
+    }
+
+    if (age === 90) {
+      events.push({ text: '你的一生如同一本厚重的书。都市给了你太多，也夺走了太多。' });
+    }
+
+    if (age >= 72 && age % 3 === 0 && !f.wentToRiver) {
+      // Random deep night event in old age
+      if (Math.random() < 0.2) {
+        events.push({ text: '又一个深宵来临。你已无力再对抗都市的黑暗。' });
+        gameState.happiness -= 1;
+      }
+    }
+  }
+
+  // --- RANDOM MAJOR EVENTS (can trigger at any age 15+) ---
+  if (age >= 15 && age <= 65) {
+    // Pianist event
+    if (!f.pianist && Math.random() < 0.03) {
+      events.push({ text: '钢琴家的独奏会在第三区上演。那是一首不属于人类语言的音乐。', effect: '', major: true, milestone: '经历钢琴家扭曲事件' });
+      if (a.wil >= 7) {
+        events.push({ text: '你及时捂住了耳朵。但还是有一部分旋律渗入了你的脑海。', effect: '快乐-1', effText: '快乐-1' });
+        gameState.happiness -= 1;
+      } else {
+        events.push({ text: '那音乐让你的意识模糊了。你在地上蜷缩了很久。', effect: '快乐-3, 意志-1', effText: '快乐-3 意志-1' });
+        gameState.happiness -= 3;
+        a.wil -= 1;
+      }
+      gameState.flags.pianist = true;
+    }
+
+    // Smog War
+    if (!f.smogWar && Math.random() < 0.025) {
+      events.push({ text: '烟霾战争爆发了。L巢被诡异的红褐色烟雾笼罩，一切陷入混乱。', effect: '', major: true, milestone: '经历烟霾战争' });
+      if (a.con >= 5) {
+        events.push({ text: '你在烟霾中艰难求生，最终熬了过去。', effect: '体质+1', effText: '体质+1' });
+        a.con += 1;
+      } else {
+        events.push({ text: '烟霾严重损伤了你的呼吸系统。', effect: '体质-2', effText: '体质-2' });
+        a.con -= 2;
+      }
+      gameState.flags.smogWar = true;
+    }
+
+    // Head encounter
+    if (tags.includes('首脑') && !f.sawHead && Math.random() < 0.08) {
+      events.push({ text: '首脑的注视再次降临。你感到整个都市都在看着你。', effect: '', major: true, milestone: '被首脑注视' });
+      if (a.wil >= 8) {
+        events.push({ text: '你直视了那道目光。从中，你窥见了一丝都市的真相。', effect: '智力+2, 意志+1', effText: '智力+2 意志+1' });
+        a.int += 2;
+        a.wil += 1;
+      } else {
+        events.push({ text: '那道目光压得你喘不过气来。你跪倒在地上。', effect: '意志-2, 快乐-2', effText: '意志-2 快乐-2' });
+        a.wil -= 2;
+        gameState.happiness -= 2;
+      }
+      gameState.flags.sawHead = true;
+    }
+
+    // Deep night random
+    if (Math.random() < 0.05 && gameState.flags.deepNightCount < 5) {
+      events.push({ text: `凌晨3:13，深宵降临。${tags.includes('深宵') ? '这对你来说不过是家常便饭。' : '街道上空无一人。'}` });
+      if (tags.includes('清道夫')) {
+        events.push({ text: '清道夫出动了。但你早已知道如何躲避他们。', effect: '体质+1', effText: '体质+1' });
+        a.con += 1;
+      } else if (a.con >= 6) {
+        events.push({ text: '你在深宵中安然无恙。', effect: '快乐+1', effText: '快乐+1' });
+        gameState.happiness += 1;
+      } else if (Math.random() < 0.3) {
+        events.push({ text: '深宵中的危险差点夺走了你的性命。', effect: '体质-1, 快乐-2', effText: '体质-1 快乐-2' });
+        a.con -= 1;
+        gameState.happiness -= 2;
+      }
+      gameState.flags.deepNightCount++;
+    }
+  }
+
+  // Random small events (1-2 per year after age 7)
+  if (age >= 7 && Math.random() < 0.6) {
+    const smallEvents = getSmallEvents(age, bp, a, tags);
+    if (smallEvents) events.push(smallEvents);
+  }
+
+  return events;
+}
+
+function getSmallEvents(age, bp, a, tags) {
+  const pool = [];
+
+  // Universal small events
+  pool.push({ text: '又是平静的一年。在都市中，平静本身就是一种奢侈。', effect: '快乐+1', effText: '快乐+1', hap: 1 });
+  pool.push({ text: '你在都市的街道上漫步。霓虹灯映照着来往行人的脸。', effect: '快乐+1', effText: '快乐+1', hap: 1 });
+  pool.push({ text: '一场突如其来的暴雨。你在屋檐下躲雨，看着雨中模糊的都市。', effect: '' });
+
+  if (bp === 'backstreet') {
+    pool.push({ text: '后巷传来几声枪响。你已经习以为常了。' });
+    pool.push({ text: '你在后巷的小摊上吃了一碗面。热汤让你感到一丝温暖。', effect: '快乐+1', effText: '快乐+1', hap: 1 });
+    pool.push({ text: '后巷的帮派又在争夺地盘了。你选择绕路。', effect: '' });
+  }
+
+  if (bp === 'nest') {
+    pool.push({ text: '巢的规则让你感到窒息，但也给了你安全感。' });
+    pool.push({ text: '你在巢的餐厅享用了一顿精致的晚餐。', effect: '快乐+1', effText: '快乐+1', hap: 1 });
+  }
+
+  if (bp === 'outskirts') {
+    pool.push({ text: '郊区传来了远处的爆炸声。大概是某个探险队触发了陷阱。' });
+    pool.push({ text: '你在郊区发现了一种未知的植物。也许有研究价值。', effect: '智力+1', effText: '智力+1', int: 1 });
+  }
+
+  if (bp === 'examvillage') {
+    pool.push({ text: '应试村的广播再次响起："距离考试还有XX天。"' });
+    pool.push({ text: '你梦见自己站在考场上，面对着无尽的试卷。', effect: '' });
+  }
+
+  // Age-specific
+  if (age >= 20 && age <= 40) {
+    pool.push({ text: '你在收尾人公会接了一份委托。报酬不错。', effect: '家境+1', effText: '家境+1', wea: 1 });
+    pool.push({ text: '一场小规模的帮派冲突中，你受了轻伤。', effect: '体质-1', effText: '体质-1', con: -1 });
+    if (a.int >= 5) {
+      pool.push({ text: '你读了一本关于都市历史的书，对这个世界有了更深的理解。', effect: '智力+1', effText: '智力+1', int: 1 });
+    }
+  }
+
+  if (age >= 40) {
+    pool.push({ text: '你的身体开始发出警告。都市的生活终究是残酷的。', effect: '体质-1', effText: '体质-1', con: -1 });
+    pool.push({ text: '回忆涌上心头。这一路走来，你经历了太多太多。', effect: '' });
+  }
+
+  // Abnormality affinity
+  if (tags.includes('异想体') && Math.random() < 0.3) {
+    pool.push({ text: '一只小型的异想体出现在你面前。它似乎对你很感兴趣。', effect: '' });
+    if (a.wil >= 6) {
+      pool.push({ text: '你成功地与异想体建立了一种奇特的联系。', effect: '意志+1', effText: '意志+1', wil: 1 });
+    } else {
+      return { text: '异想体的精神侵蚀让你头痛欲裂。', effect: '快乐-2, 意志-1', effText: '快乐-2 意志-1', hap: -2, wil: -1 };
+    }
+  }
+
+  const ev = pool[Math.floor(Math.random() * pool.length)];
+  if (ev.hap) gameState.happiness += ev.hap;
+  if (ev.con) a.con += ev.con;
+  if (ev.int) a.int += ev.int;
+  if (ev.wil) a.wil += ev.wil;
+  if (ev.wea) a.wea += ev.wea;
+  return ev;
+}
+
+function addEvent(ev) {
+  ev.age = gameState.age;
+  gameState.events.push(ev);
+  if (ev.milestone) gameState.milestones.push(ev.milestone);
+
+  const log = document.getElementById('event-log');
+  const entry = document.createElement('div');
+  entry.className = 'event-entry' + (ev.major ? ' major' : '');
+  entry.innerHTML = `
+    <div class="event-age">${gameState.age}岁</div>
+    <div>
+      <div class="event-text">${ev.text}</div>
+      ${ev.effText ? `<div class="event-effect"><span class="${getEffectClass(ev.effText)}">${ev.effText}</span></div>` : ''}
+    </div>
+  `;
+  log.appendChild(entry);
+  // Scroll to bottom
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+
+function getEffectClass(effText) {
+  const hasNeg = effText.match(/-\d/);
+  return hasNeg ? 'eff-bad' : 'eff-good';
+}
+
+function updateSimStats() {
+  const a = gameState.attrs;
+  const stats = document.getElementById('sim-stats');
+  stats.innerHTML = `
+    <div class="stat-item">体质 <span class="stat-val">${a.con}</span></div>
+    <div class="stat-item">智力 <span class="stat-val">${a.int}</span></div>
+    <div class="stat-item">意志 <span class="stat-val">${a.wil}</span></div>
+    <div class="stat-item">家境 <span class="stat-val">${a.wea}</span></div>
+    <div class="stat-item">快乐 <span class="stat-val" style="color:${gameState.happiness >= 0 ? '#5a9e6f' : '#c0392b'}">${gameState.happiness}</span></div>
+  `;
+  document.getElementById('sim-age').textContent = `${gameState.age}岁`;
+}
+
+function toggleSimSpeed() {
+  gameState.simAuto = !gameState.simAuto;
+  const btn = document.getElementById('btn-sim-speed');
+  if (gameState.simAuto) {
+    btn.textContent = '暂停';
+    nextYear();
+  } else {
+    btn.textContent = '自动播放';
+    if (gameState.simTimer) clearTimeout(gameState.simTimer);
+  }
+}
+
+function finishSim() {
+  gameState.simAuto = false;
+  if (gameState.simTimer) clearTimeout(gameState.simTimer);
+
+  // Fast forward all remaining years
+  while (gameState.alive) {
+    const events = generateEvents(gameState.age);
+    events.forEach(ev => {
+      ev.age = gameState.age;
+      gameState.events.push(ev);
+      if (ev.milestone) gameState.milestones.push(ev.milestone);
+    });
+    if (gameState.happiness <= -10) {
+      gameState.alive = false;
+      gameState.flags.twisted = true;
+      gameState.events.push({ text: '你的内心承受不住都市的重压，理性崩溃了……', effect: '扭曲了', major: true, age: gameState.age });
+    }
+    if (gameState.attrs.con <= 0) {
+      gameState.alive = false;
+      gameState.events.push({ text: '你的身体已无法承受都市的残酷。', effect: '体质归零', major: true, age: gameState.age });
+    }
+    if (!gameState.alive) break;
+
+    gameState.age++;
+    let deathChance = 0;
+    if (gameState.age > 70) deathChance = (gameState.age - 70) * 0.03;
+    if (gameState.age > 80) deathChance += (gameState.age - 80) * 0.05;
+    if (gameState.age > 90) deathChance += 0.3;
+    if (Math.random() < deathChance) {
+      gameState.alive = false;
+      gameState.events.push({ text: `你在${gameState.age}岁时安详地离开了这个世界。`, effect: '' });
+    }
+    if (gameState.age > 100) {
+      gameState.alive = false;
+      gameState.events.push({ text: '你在这个都市活了太久太久。' });
+    }
+  }
+
+  // Render all events quickly
+  const log = document.getElementById('event-log');
+  log.innerHTML = '';
+  gameState.events.forEach(ev => {
+    const entry = document.createElement('div');
+    entry.className = 'event-entry' + (ev.major ? ' major' : '');
+    entry.style.opacity = '1';
+    entry.style.animation = 'none';
+    entry.innerHTML = `
+      <div class="event-age">${ev.age || '?'}</div>
+      <div>
+        <div class="event-text">${ev.text}</div>
+        ${ev.effText ? `<div class="event-effect"><span class="${getEffectClass(ev.effText)}">${ev.effText}</span></div>` : ''}
+      </div>
+    `;
+    log.appendChild(entry);
+  });
+
+  setTimeout(() => endSimulation(), 500);
+}
+
+function endSimulation() {
+  gameState.simAuto = false;
+  if (gameState.simTimer) clearTimeout(gameState.simTimer);
+  document.getElementById('sim-controls').classList.add('hidden');
+  setTimeout(() => showResults(), 500);
+}
+
+// =============================
+// PHASE: RESULT
+// =============================
+
+function calculateRank() {
+  const a = gameState.attrs;
+  const f = gameState.flags;
+  const h = gameState.happiness;
+  const total = a.con + a.int + a.wil + a.wea;
+
+  if (f.twisted) return { rank:'S', label:'异想体', quote:'都市的噩梦并非只存在于传说之中。那些扭曲的灵魂，终将化为异想体，永远游荡在这片黑暗之中。', color: '#8B0000' };
+  if (f.book) return { rank:'S', label:'书籍', quote:'你的故事被收录在了安吉拉的图书馆中。在这座无尽的图书馆里，你将以另一种形式继续存在。', color: '#9b59b6' };
+  if (f.becameColor) return { rank:'A', label:'都市之星', quote:'色彩级——都市中最强的收尾人。你的名字将永远被铭记在都市的传说之中。', color: '#f1c40f' };
+  if (f.becameDirector) return { rank:'A', label:'翼的董事', quote:'翼公司的董事——掌控着奇点科技的精英。你在巢的高墙之内，拥有了改变世界的力量。', color: '#f1c40f' };
+  if (total >= 28 && h >= 5) return { rank:'B', label:'色彩级', quote:'你以惊人的实力在都市中站稳了脚跟。你的名字让后巷的恶徒闻风丧胆。', color: '#daa520' };
+  if (total >= 22 && a.wea >= 6) return { rank:'C', label:'收尾人', quote:'作为一名收尾人，你在都市中过着体面的生活。这不是最耀眼的命运，但也不赖。', color: '#4a7fb5' };
+  if (total >= 15) return { rank:'D', label:'翼的职员', quote:'你在翼公司的体制内安稳地度过了这一生。巢的高墙保护了你，也束缚了你。', color: '#7a6f5a' };
+  if (h >= 3) return { rank:'D', label:'后巷的尘埃', quote:'都市的后巷中，你的故事如同一粒尘埃。微不足道，但真实存在过。', color: '#7a6f5a' };
+  return { rank:'F', label:'被都市遗忘者', quote:'都市不会记住每一个人。在这座巨大的城市里，你已经消散在无尽的黑暗之中。', color: '#555' };
+}
+
+function showResults() {
+  hideAllPhases();
+  showPhase('phase-result');
+
+  const result = calculateRank();
+  const a = gameState.attrs;
+  const card = document.getElementById('result-card');
+
+  // Check library ending
+  if (gameState.flags.library && Math.random() < 0.3 && !gameState.flags.twisted) {
+    gameState.flags.book = true;
+    const libResult = calculateRank();
+    card.innerHTML = `
+      <div class="result-rank" style="color:${libResult.color}">&#10022; ${libResult.rank} &#10022;</div>
+      <div class="result-rank-label">${libResult.label}</div>
+      <div class="result-quote">"${libResult.quote}"</div>
+      <div class="result-stats">
+        <div class="result-stat"><div class="result-stat-label">最终年龄</div><div class="result-stat-val">${gameState.age}岁</div></div>
+        <div class="result-stat"><div class="result-stat-label">快乐值</div><div class="result-stat-val" style="color:${gameState.happiness >= 0 ? '#5a9e6f' : '#c0392b'}">${gameState.happiness}</div></div>
+        <div class="result-stat"><div class="result-stat-label">体质 CON</div><div class="result-stat-val">${a.con}</div></div>
+        <div class="result-stat"><div class="result-stat-label">智力 INT</div><div class="result-stat-val">${a.int}</div></div>
+        <div class="result-stat"><div class="result-stat-label">意志 WIL</div><div class="result-stat-val">${a.wil}</div></div>
+        <div class="result-stat"><div class="result-stat-label">家境 WEA</div><div class="result-stat-val">${a.wea}</div></div>
+      </div>
+      <div class="result-talents">
+        <h4>&#10022; 天赋 &#10022;</h4>
+        <div class="result-talent-list">
+          ${gameState.selectedTalents.map(t => `<span class="selected-tag">${t.name}</span>`).join('')}
+        </div>
+      </div>
+      ${gameState.milestones.length > 0 ? `
+      <div class="result-milestones">
+        <h4>&#10022; 人生里程碑 &#10022;</h4>
+        ${gameState.milestones.map(m => `<div class="milestone-item">${m}</div>`).join('')}
+      </div>` : ''}
+    `;
+  } else {
+    card.innerHTML = `
+      <div class="result-rank" style="color:${result.color}">&#10022; ${result.rank} &#10022;</div>
+      <div class="result-rank-label">${result.label}</div>
+      <div class="result-quote">"${result.quote}"</div>
+      <div class="result-stats">
+        <div class="result-stat"><div class="result-stat-label">最终年龄</div><div class="result-stat-val">${gameState.age}岁</div></div>
+        <div class="result-stat"><div class="result-stat-label">快乐值</div><div class="result-stat-val" style="color:${gameState.happiness >= 0 ? '#5a9e6f' : '#c0392b'}">${gameState.happiness}</div></div>
+        <div class="result-stat"><div class="result-stat-label">体质 CON</div><div class="result-stat-val">${a.con}</div></div>
+        <div class="result-stat"><div class="result-stat-label">智力 INT</div><div class="result-stat-val">${a.int}</div></div>
+        <div class="result-stat"><div class="result-stat-label">意志 WIL</div><div class="result-stat-val">${a.wil}</div></div>
+        <div class="result-stat"><div class="result-stat-label">家境 WEA</div><div class="result-stat-val">${a.wea}</div></div>
+      </div>
+      <div class="result-talents">
+        <h4>&#10022; 天赋 &#10022;</h4>
+        <div class="result-talent-list">
+          ${gameState.selectedTalents.map(t => `<span class="selected-tag">${t.name}</span>`).join('')}
+        </div>
+      </div>
+      ${gameState.milestones.length > 0 ? `
+      <div class="result-milestones">
+        <h4>&#10022; 人生里程碑 &#10022;</h4>
+        ${gameState.milestones.map(m => `<div class="milestone-item">${m}</div>`).join('')}
+      </div>` : ''}
+    `;
+  }
+}
+
+function restartGame() {
+  hideAllPhases();
+  showPhase('phase-title');
+}
+
+// =============================
+// UTILITIES
+// =============================
+
+function hideAllPhases() {
+  document.querySelectorAll('.phase').forEach(p => p.classList.add('hidden'));
+  document.getElementById('sim-controls').classList.add('hidden');
+  if (gameState.simTimer) clearTimeout(gameState.simTimer);
+  gameState.simAuto = false;
+}
+
+function showPhase(id) {
+  const el = document.getElementById(id);
+  el.classList.remove('hidden');
+  gameState.phase = id;
+  if (id === 'phase-sim') {
+    document.getElementById('sim-controls').classList.remove('hidden');
+  }
+  window.scrollTo(0, 0);
+}
+
+// Keyboard controls
+document.addEventListener('keydown', (e) => {
+  if (gameState.phase === 'phase-sim') {
+    if (e.code === 'Space') {
+      e.preventDefault();
+      if (!gameState.simAuto) {
+        nextYear();
+      } else {
+        toggleSimSpeed();
+      }
+    }
+    if (e.code === 'Enter') {
+      e.preventDefault();
+      toggleSimSpeed();
+    }
+  }
+});
+</script>
 </body>
 </html>
