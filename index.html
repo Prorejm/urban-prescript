@@ -1215,6 +1215,23 @@ const ALL_TALENTS = [
   { id:'f3', name:'中指的长兄', rarity:'purple', desc:'你是中指的长兄/姊，领导着众兄弟姐妹。复仇账簿在你手中翻动，仇怨纹身覆盖你的皮肤。', effect:'体质+2，意志+1，中指事件极大提升', con:2, int:0, wil:1, wea:0, tag:'中指' },
   { id:'f4', name:'环指的画廊大师', rarity:'purple', desc:'你是环指的三重环大师，拥有自己的画廊。你的艺术品在都市中拍卖出天价。', effect:'智力+2，家境+2，环指事件极大提升', con:0, int:2, wil:0, wea:2, tag:'环指' },
   { id:'f5', name:'小指的天退星', rarity:'purple', desc:'你是小指中以星名相称的成员——天退星。你的信物是以星辰锻造的刀剑，来自都市以外的遗物。小指成员在行动前互不认识。', effect:'体质+2，智力+1，小指事件极大提升', con:2, int:1, wil:0, wea:0, tag:'小指' },
+  // === 清道夫/血魔/鲸鱼/扭曲神备天赋 ===
+  { id:'sw1', name:'清道夫家族的一员', rarity:'purple', desc:'你是清道夫家族的一员。完全由液体组成的生物，密封服装包裹身体，运动消耗液体"燃料"。你称同伴为"家人""邻居"，你珍视这份羁绊。管理者被称为"嬷嬷"。', effect:'体质+3，清道夫事件极大提升', con:3, int:0, wil:0, wea:0, tag:'清道夫' },
+  { id:'sw2', name:'清道夫的孺慕者', rarity:'purple', desc:'你理解清道夫的生存方式——液化人类作为燃料。你虽非清道夫，但与某个"嬷嬷"建立了联系。', effect:'体质+2，智力+1，清道夫事件友好', con:2, int:1, wil:0, wea:0, tag:'清道夫' },
+  { id:'vd1', name:'血魔的二代眷属', rarity:'purple', desc:'你是某位一代眷属创造的二代眷属。你的红色眼瞳在渴望血液时越发浓烈，你对水有着本能的恐惧。你拥有不俗的再生能力，长时间不吸血会衰老。', effect:'体质+3，意志-1，血魔事件极大提升', con:3, int:0, wil:-1, wea:0, tag:'血魔' },
+  { id:'vd2', name:'L巢拉里尔的住客', rarity:'purple', desc:'你入住了L巢血魔长老拉里尔的酒店。老夫人面貌的拉里尔是一代眷属，经营酒店并暗中吸取住客血液，但确实保障住客安全。你与하나协会的拉斯克事务所签订了保护契约。', effect:'家境-2，体质+2，智力+1，L巢血魔事件极大提升', con:2, int:1, wil:0, wea:-2, tag:'血魔' },
+  { id:'vd3', name:'拉曼却领的血棒使用者', rarity:'purple', desc:'你是拉曼却领血魔家系的一员。长老吉诃德将血液化为硬血武器，领地被改造为游乐园。你使用血棒来满足饥饿，但血棒无法彻底满足对鲜血的渴求。', effect:'体质+2，智力+1，拉曼却领事件极大提升', con:2, int:1, wil:0, wea:0, tag:'血魔' },
+  { id:'vd4', name:'采佩什家系的血魔', rarity:'purple', desc:'你是采佩什家系的血魔。该家系的二代眷属的一颗眼球被环指野兽派画廊展览。你的力量因上位眷属的不同而异。', effect:'体质+2，意志+1，采佩什家系事件极大提升', con:2, int:0, wil:1, wea:0, tag:'血魔' },
+  { id:'vd5', name:'血红之夜的见证者', rarity:'purple', desc:'你目睹了被称为"血红之夜"的都市之星——血魔伊莲娜。她创造了成千上万的血袋。在血魔社会中，她被认为是一种过错，是纯粹的暴力。据说她的名字源自一栋宅邸的医生。', effect:'智力+2，意志+2，血红之夜事件极大提升', con:0, int:2, wil:2, wea:0, tag:'血魔' },
+  { id:'wh1', name:'穴掌鲸的人鱼', rarity:'purple', desc:'你被穴掌鲸的油脂吞噬，转化为了人鱼。鲸本体如拥有无数孔洞的手掌，你从孔洞中钻出。你与鲸相连，死亡时鲸也会感到疼痛。', effect:'体质+2，智力+2，大湖人鱼事件极大提升', con:2, int:2, wil:0, wea:0, tag:'人鱼' },
+  { id:'wh2', name:'千缕鲸的人鱼', rarity:'purple', desc:'千缕鲸拥有极其细长的腕肢，从空中放下人鱼。本体与人鱼都长得难以言表，利用恐惧目标。你是它的人鱼。', effect:'体质+1，意志+2，大湖人鱼事件极大提升', con:1, int:0, wil:2, wea:0, tag:'人鱼' },
+  { id:'wh3', name:'孔穴鲸的守护者', rarity:'purple', desc:'你守护着灰暗湖域中孔穴鲸的秘密。"叩击，为开拓隐于海雾之后的世界。鲸泣，为寻觅揭露苍白之色的内面。潮起，为鲸鸣汇聚之时显露其真颜。"传说击败所有孔穴鲸人鱼就能打开通往苍白巨鲸的道路。', effect:'智力+3，体质+1，大湖孔穴鲸事件极大提升', con:1, int:3, wil:0, wea:0, tag:'人鱼' },
+  { id:'wh4', name:'白鲸的幸存者', rarity:'purple', desc:'五大灾害之一——白鲸途径之处一切被苍白覆盖。被吞噬的人保留习惯与技能，攻击一切。你从白鲸的"白化"中幸存，但身上仍残留着苍白的薄膜。', effect:'体质+3，意志+2，白鲸事件大幅提升', con:3, int:0, wil:2, wea:0, tag:'人鱼' },
+  { id:'wh5', name:'马林鲸的目击者', rarity:'legend', desc:'五大灾害之一——贯穿一切的马林鲸。你在其被靛蓝老人钓起之前目击了它的身影。那贯穿一切的恐怖让你至今无法忘怀。', effect:'体质+2，意志+3，大湖灾害事件大幅提升', con:2, int:0, wil:3, wea:0, tag:'大湖' },
+  { id:'dt1', name:'扭曲的抵抗者·完全体', rarity:'legend', desc:'你面临扭曲的诱惑，但完全接受了自我的真实形象——包括你的痛苦与他人的罪孽。你获得了神备：独一无二的专属武器与装备，精神更加坚定。', effect:'体质+2，意志+3，神备觉醒', con:2, int:0, wil:3, wea:0, tag:'神备' },
+  { id:'dt2', name:'心望的使用者', rarity:'purple', desc:'你掌握了心望——将内心愿望汇聚为力量。心用于防御，身躯散发微光增强对攻击的抵挡；望用于攻击，依附肢体或武器的光环大幅强化攻击力。多个望可以叠加。', effect:'体质+2，智力+1，战斗事件大幅提升', con:2, int:1, wil:0, wea:0, tag:'心望' },
+  { id:'dt3', name:'大罪的容器', rarity:'epic', desc:'你拒绝了自我真实形象的一切，褪掉了所有属于自身的部分，成为了七种原始大罪之一——纯粹的、只剩一种本能情绪的存在。', effect:'体质+3，意志-3，触发大罪线', con:3, int:0, wil:-3, wea:0, tag:'大罪' },
+  { id:'dt4', name:'光之种的计划知情者', rarity:'purple', desc:'你知道光之种计划的真相——脑叶公司积累大量能源，通过基础于卡巴拉密教"火剑之路"的步骤完成。高塔般的大树破土而出，向世界撒落果实。过去与未来、现实与幻想、肉体与心灵、空间与时间的界限正在慢慢消失。', effect:'智力+3，光之种/扭曲/神备事件大幅提升', con:0, int:3, wil:1, wea:0, tag:'光之种' },
   // 组合标签天赋
   { id:'c1', name:'孤儿', rarity:'epic', desc:'你没有父母，在后巷的废墟中独自降生。深宵是你最早的摇篮，清道夫的脚步声是你最早的安眠曲。', effect:'体质+1，意志+1，触发孤儿线', con:1, int:0, wil:1, wea:0, tag:'孤儿' },
   { id:'c2', name:'双生子', rarity:'epic', desc:'你与另一个生命同时降临。你们共享着某种超越血脉的羁绊。', effect:'体质+1，意志+1，根据性别触发安吉丽卡/阿尔加利亚线', con:1, int:1, wil:1, wea:0, tag:'双生子' },
@@ -2082,6 +2099,51 @@ const ACHIEVEMENTS = [
   // === 遗物成就 ===
   { id:'relic_finder', name:'遗物发现者', desc:'在废墟中发现了遗物的痕迹。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('遗物遭遇'),
     lore:'遗物是都市内外具备独特效用的神秘物品。它们广为流传，价格不菲，效力惊人。但每一件遗物都伴随着不可预测的代价。' },
+  // === 清道夫成就 ===
+  { id:'sweeper_night_survivor', name:'深宵幸存者', desc:'在后巷深宵中遭遇清道夫并存活。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('清道夫深宵遭遇'),
+    lore:'后巷深宵（3:13-4:34）是清道夫的活动时间。清道夫是完全由液体组成的生物，通过武器将人体液化并吸收为燃料。但与首脑有联系，受命令时可不分时间出动。' },
+  { id:'sweeper_family', name:'清道夫的邻居', desc:'了解了清道夫的"家人"与"嬷嬷"制度。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('清道夫嬷嬷'),
+    lore:'清道夫互称"家人""邻居"，重视羁绊。管理者被称为"嬷嬷"。传闻他们通过绑架后巷与郊区的孩童来壮大自身。' },
+  { id:'sweeper_head_ordered', name:'首脑命令的目击者', desc:'亲眼看到清道夫在白天出动。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('清道夫首脑命令'),
+    lore:'清道夫与首脑存在某种联系。当首脑下达命令时，清道夫会无视时间的限制在白天出动——这意味着首脑对清道夫拥有绝对的指挥权。' },
+  // === 血魔成就 ===
+  { id:'vampire_red_eyes', name:'红色瞳孔', desc:'近距离遭遇了血魔。', rarity:RARITY.COMMON, condition:(gs)=>gs.milestones.includes('血魔遭遇'),
+    lore:'血魔三大特征：红色眼睛（对血的渴望越强颜色越鲜明，瞳孔中有血光摇曳）、极度恐惧水、存在宗族关系（忤逆亲族心理上几乎不可能）。' },
+  { id:'vampire_frenzy_witness', name:'失控目击', desc:'目睹了血魔失去理性。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('血魔失控'),
+    lore:'血魔平常保有理性，但产生强烈血液渴望时会失去理性，爆发出与执念同等的力量。保有理性的血魔也会因克制渴望变得狡黠，最终同样爆发。' },
+  { id:'lariel_hotel_guest', name:'L巢酒店的住客', desc:'入住了血魔长老拉里尔的酒店。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('L巢拉里尔酒店'),
+    lore:'L巢长老拉里尔是一代眷属，老夫人面貌。她经营酒店并暗中吸取住客血液，但确实保障安全。白夜黑昼后与하나协会拉斯克事务所签保护契约。超出数量限制的血魔会被"浴血沉眠"。' },
+  { id:'ramancha_visitor', name:'拉曼却领的访客', desc:'参观了血魔游乐园并体验了血棒。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('拉曼却领游乐园'),
+    lore:'拉曼却领长老吉诃德是一代眷属。他将血液化为硬血武器，建造了游乐园。以献血为入园条件，用血棒满足饥饿。但血棒无法彻底满足鲜血欲望，最终事态失控被迫关闭。' },
+  { id:'blood_bag_witness', name:'血袋目击者', desc:'目睹了血袋转化过程。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('血袋目击'),
+    lore:'血魔通过"咬"摄取血液后，人类必然转化为血袋——无法成为眷属的残渣，只是补充血液的便携干粮。眷属地位越高变化越快，转化不可中断。' },
+  { id:'vampire_war_historian', name:'血魔战争史学者', desc:'了解了血魔战争的历史。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('血魔战争历史'),
+    lore:'血魔最初来自一栋宅邸的异变。两百年前血魔战争中，收尾人说服吉诃德率家系为人类方作战并获胜。现在光之种诱发的新生血魔与旧有血魔无区别，无法用消除扭曲的方法消除。' },
+  // === 鲸鱼成就 ===
+  { id:'cave_palm_survivor', name:'穴掌鲸逃脱者', desc:'从穴掌鲸的人鱼攻击中存活。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('穴掌鲸逃脱'),
+    lore:'穴掌鲸栖息于浑浊腥臭的旋转蓝色湖域。鲸本体如无数孔洞的手掌，人鱼从孔洞钻出。人鱼与鲸相连，伤害人鱼鲸也会感到疼痛。' },
+  { id:'white_whale_disaster', name:'白鲸灾害幸存者', desc:'在五大灾害之一白鲸的遭遇中存活。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('白鲸生还'),
+    lore:'白鲸是五大灾害之一，仅能在郊区观测。其心脏需要额外心脏维持运作。途经一切被苍白覆盖——"白化"。被吞噬者保留习惯与技能但攻击一切。水手传说：遇到苍白色伪船必须绕行。' },
+  { id:'marlin_whale_legend', name:'马林鲸传说', desc:'了解了贯穿一切的马林鲸及其被靛蓝老人钓起的传说。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('马林鲸传说'),
+    lore:'马林鲸是五大灾害之一，贯穿一切的巨鲸。在边狱公司LCB活跃时期已被靛蓝老人——大湖最古老的色彩级收尾人——钓起。五大灾害至少已去其一。' },
+  { id:'lava_whale_sighter', name:'熔岩鲸目击者', desc:'看到了心脏搏动剧烈、血液鲜红炽热的熔岩鲸。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('熔岩鲸目击'),
+    lore:'熔岩鲸是一种心脏搏动十分剧烈、血液鲜红炽热的鲸。它能让周围湖水沸腾，喷出的热气能在湖面制造热浪。' },
+  // === 扭曲/神备/大罪成就 ===
+  { id:'distortion_sign_bearer', name:'扭曲前兆持有者', desc:'感受到了扭曲的情绪积累。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('扭曲前兆'),
+    lore:'扭曲、神备、大罪存在情绪积累期。期间身体边缘会出现轻微变形，金枝能展现异常变形或加速扭曲倾向。边狱公司发掘的黑石碑据称也有类似效果。' },
+  { id:'ego_awakened_hero', name:'神备觉醒者', desc:'完全接受自我真实形象，觉醒了绽放E.G.O。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('神备觉醒'),
+    lore:'当一个人能完全接受自我的真实形象，愿意承担痛苦与罪孽时，就能将真实形象转化为专属武器与装备——这就是"神备"，又称绽放E.G.O。精神面貌更加坚定，拥有独一无二的力量。' },
+  { id:'distortion_bearer', name:'扭曲者', desc:'部分接受自我后发生扭曲。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('扭曲化'),
+    lore:'扭曲者只接受了自己的痛苦，却拒绝了罪孽。他们以"只属于自己的方式"存活，保留希望拥有的部分自我与力量。扭曲存在时间过长会崩溃，届时异想体会取代其存在。' },
+  { id:'sin_bearer', name:'大罪化身', desc:'拒绝一切后成为了大罪。', rarity:RARITY.LEGEND, condition:(gs)=>gs.milestones.includes('傲慢之大罪') || gs.milestones.includes('嫉妒之大罪') || gs.milestones.includes('暴怒之大罪') || gs.milestones.includes('倦怠之大罪') || gs.milestones.includes('暴食之大罪') || gs.milestones.includes('忧郁之大罪') || gs.milestones.includes('色欲之大罪'),
+    lore:'大罪是完全坏掉的人类，只剩一种本能。只有七种：傲慢、嫉妒、暴怒、倦怠、暴食、忧郁、色欲。与千变万化的扭曲和神备不同，大罪没有细分个体。' },
+  { id:'mind_heart_user', name:'心望使用者', desc:'觉醒了心望力量。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('心望觉醒'),
+    lore:'心望是将内心愿望汇聚为力量的特殊表现。心用于防御，身躯散发光芒增强抵挡；望用于攻击，光环附着武器大幅强化破坏力。多个望可以叠加。使用存在心理要求与负担。' },
+  { id:'golden_branch_holder', name:'金枝持有者', desc:'与金枝产生了共鸣。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('金枝共鸣'),
+    lore:'金枝是能展现扭曲前兆异常变形的道具。边狱公司从脑叶公司支部废墟发掘的黑石碑据称也能加速扭曲倾向。金枝与黑石碑的更多作用仍有待探索。' },
+  // === 集体扭曲成就 ===
+  { id:'whale_mermaid_transformed', name:'人鱼化', desc:'被鲸油吞噬转化为了人鱼。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('鲸油遭遇') && gs.milestones.includes('穴掌鲸遭遇'),
+    lore:'被活鲸油脂吞没会变成鲸的人鱼。被比自己体积更大的死鲸油脂吞没则自我逐渐稀薄消散。人鱼转化可被阻滞——需在完全转化前成为"鲸鱼"，让同伴成为无条件服从自己的"美人鲸"。' },
 ];
 function checkAchievements(gs) {
   const unlocked = [];
@@ -2947,6 +3009,7 @@ function generateEvents(age) {
   if (typeof eventChainWarpLoveTown === 'function') eventChainWarpLoveTown(age);
   if (typeof runSpecialFixerEvents === 'function') runSpecialFixerEvents(age);
   if (typeof runRatFingerFixerEvents === 'function') runRatFingerFixerEvents(age);
+    if (typeof runLoreDetailEvents === 'function') runLoreDetailEvents(age);
   if (typeof runReverberationEvents === 'function') runReverberationEvents(age);
 
   // 时间裂缝解释（最后加载）
@@ -12683,6 +12746,275 @@ function runRatFingerFixerEvents(age) {
       addMilestone("比武大会落败");
       modAttr('wil', 1);
     }
+  }
+}
+
+// =============================
+// 清道夫/血魔/鲸鱼/扭曲神备大罪详细事件
+// =============================
+function runLoreDetailEvents(age) {
+  if (!gameState.alive || gameState.dead) return;
+  const bp = gameState.birthplace ? gameState.birthplace.id : 'backstreet';
+  const a = gameState.attrs;
+
+  // === 清道夫详细事件 ===
+
+  // 清道夫深宵出动
+  if (age >= 15 && !getFlag('sweeper_night') && chance(0.04)) {
+    setFlag('sweeper_night', true);
+    addEvent({ text: "后巷的时间来到了凌晨3:13——深宵开始了。那些身穿密封特制服装的身影从暗处涌出，他们完全由液体组成，运动时衣服内的液体会晃动。他们互称\"家人\"和\"邻居\"，声音嗡嗡作响，像液体在容器中振荡。「燃料不足了……」一个清道夫低声说。你屏住呼吸躲在一旁，祈祷他们不要发现你——清道夫的武器能将人体液化，被液化后就会被吸收作为他们的\"燃料\"。", effect: "encounter", effText: "意志+1", major: true, milestone: "清道夫深宵遭遇" });
+    addMilestone("清道夫深宵遭遇");
+    modAttr('wil', 1);
+    if (checkCombat(7, 'con')) {
+      addEvent({ text: "你在清道夫的追杀中逃了出来。一个清道夫在追击时摔倒了，密封服裂开了一条缝，液体从中缓缓流出。「家人……救我……」其他清道夫围了上来，将自己的液体注入他的身体。你趁机逃离了这个恐怖的深宵。", effect: "escape", effText: "体质+1", major: false, milestone: "清道夫追杀逃脱" });
+      addMilestone("清道夫追杀逃脱");
+      modAttr('con', 1);
+    } else {
+      addEvent({ text: "清道夫的武器击中了你。你的身体开始从边缘液化，一种奇异的温暖感蔓延全身——那是被液化的感觉。你的意识在消散前最后看到的，是一个清道夫俯下身来：「欢迎成为我们的一部分，新邻居。」", effect: "death", effText: "死亡", major: true });
+      death('被清道夫液化');
+      return;
+    }
+  }
+
+  // 清道夫嬷嬷
+  if (age >= 20 && getFlag('sweeper_night') && !getFlag('sweeper_mama') && chance(0.02)) {
+    setFlag('sweeper_mama', true);
+    addEvent({ text: "你听到了清道夫们提到的\"嬷嬷\"——清道夫的管理者。据说嬷嬷负责指挥所有清道夫的行动，并维持他们独特的社会结构。还有传闻说清道夫通过绑架后巷与郊区的孩童来壮大自身。你不敢去验证这个传闻的真实性。", effect: "lore", effText: "智力+1", major: false, milestone: "清道夫嬷嬷" });
+    addMilestone("清道夫嬷嬷");
+    modAttr('int', 1);
+  }
+
+  // 清道夫被首脑命令出动
+  if (age >= 25 && !getFlag('sweeper_head_order') && chance(0.01)) {
+    setFlag('sweeper_head_order', true);
+    addEvent({ text: "大白天——清道夫出动了。不是因为深宵，而是因为首脑的命令。那些密封服装的身影在正午的阳光下穿梭，无视时间的限制。后巷的居民们惊恐地四散奔逃。你第一次亲眼见证了清道夫与首脑之间的联系——那是超越你理解的存在。整个街区被清空了。", effect: "lore", effText: "意志+1，智力+1", major: true, milestone: "清道夫首脑命令" });
+    addMilestone("清道夫首脑命令");
+    modAttr('wil', 1);
+    modAttr('int', 1);
+  }
+
+  // === 血魔详细事件 ===
+
+  // 血魔遭遇（红眼、恐水）
+  if (age >= 18 && !getFlag('vampire_encounter') && chance(0.04)) {
+    setFlag('vampire_encounter', true);
+    addEvent({ text: "你在巷口遇到了一个奇怪的人。他的眼睛是红色的——不是普通的红色，而是仿佛血液在瞳孔中摇曳的鲜红。他的目光中带着一种本能的渴望，但他在克制着什么。你注意到他刻意避开了路边的水洼。「血……」他低语了一声，然后迅速转身离去。你从文献中读到过：红色眼睛、对水的恐惧、对血液的渴望——这是血魔的三大特征。", effect: "encounter", effText: "智力+1", major: true, milestone: "血魔遭遇" });
+    addMilestone("血魔遭遇");
+    modAttr('int', 1);
+  }
+
+  // 血魔失去理性
+  if (age >= 22 && !getFlag('vampire_frenzy') && chance(0.03)) {
+    setFlag('vampire_frenzy', true);
+    addEvent({ text: "你目睹了一个血魔失去理性的瞬间。他的红眼从鲜红变成了猩红，瞳孔中的血光剧烈摇曳，血腥味从他的眼中溢出。他的力量暴涨——周围的墙壁在他面前如纸片般碎裂。「血……给我血……」他不再是那个理性的人了，此刻他只剩下了本能。幸运的是他的目标不是你——他冲向了另一群路人。", effect: "encounter", effText: "意志-1", major: true, milestone: "血魔失控" });
+    addMilestone("血魔失控");
+    modAttr('wil', -1);
+  }
+
+  // L巢血魔长老拉里尔
+  if (age >= 25 && (bp === 'L巢' || bp === 'Lnest') && !getFlag('lariel_hotel') && chance(0.04)) {
+    setFlag('lariel_hotel', true);
+    addEvent({ text: "你入住了L巢的一家酒店。酒店老板是一位面容慈祥的老妇人——但你知道她是血魔。L巢的长老拉里尔，一代眷属。她经营这家酒店的同时会暗中吸取住客的血液，但确实会保障住客的安全。在白夜黑昼事件后，酒店与하나协会的拉斯克事务所签订了保护契约——住宿费用因此高得离谱。拉里尔借这个由头将新生血魔拉斯克及其眷属带到了身边监控。你决定小心行事——毕竟住在这里虽然贵，但在L巢这已经是最安全的选择了。", effect: "lore", effText: "家境-1，体质+1，智力+1", major: true, milestone: "L巢拉里尔酒店" });
+    addMilestone("L巢拉里尔酒店");
+    modAttr('wea', -1);
+    modAttr('con', 1);
+    modAttr('int', 1);
+  }
+
+  // 拉曼却领游乐园
+  if (age >= 20 && !getFlag('ramancha_park') && chance(0.03)) {
+    setFlag('ramancha_park', true);
+    addEvent({ text: "你来到了传说中的拉曼却领——一座由血魔建造的游乐园。淡金色长发的长老吉诃德是一代眷属，他曾为了让人与血魔友好相处，将这片领地改造成了供所有人欢笑的乐园。入园的条件很简单：献血。作为交换，你可以尽情游玩。乐园中的设施由硬血铸造——血魔将血液化为质地极为坚硬的材料，制作了摩天轮和各种游乐设施。但你知道，这座乐园曾经失控过——血棒无法满足血魔的鲜血欲望，事态最终由吉诃德亲手关闭。如今它再度开放了。", effect: "lore", effText: "体质+1，智力+1", major: true, milestone: "拉曼却领游乐园" });
+    addMilestone("拉曼却领游乐园");
+    modAttr('con', 1);
+    modAttr('int', 1);
+    if (chance(0.3)) {
+      addEvent({ text: "在游乐园深处，你遇到了一个正在分发血棒的血魔。血棒是凝固的血液制成的棒状食物，能部分满足血魔的饥饿。「来尝尝吧。」他的笑容友善，但你注意到他的红眼在微微颤抖——血棒永远无法真正替代鲜血。", effect: "encounter", effText: "体质+1", major: false, milestone: "血棒体验" });
+      addMilestone("血棒体验");
+      modAttr('con', 1);
+    }
+  }
+
+  // 血魔的家系与宗族
+  if (age >= 25 && !getFlag('vampire_clan') && chance(0.03)) {
+    setFlag('vampire_clan', true);
+    const clans = [
+      { name: 'L巢家系', desc: '长老拉里尔经营酒店，维持着与人类的微妙平衡。每个巢的血魔都有"长老"管理，超出数量的血魔会被强制"浴血沉眠"。' },
+      { name: '拉曼却领家系', desc: '长老吉诃德的理想主义导致了游乐园的建立与崩塌。他的家系将血液化为硬血武器，甚至能扭曲空间。' },
+      { name: '采佩什家系', desc: '来自不明地区。二代眷属的一颗眼球被环指野兽派画廊展览——这就是环指对血魔的"收藏"。' }
+    ];
+    const clan = pick(clans);
+    addEvent({ text: "你了解到血魔社会中的宗族制度。血魔们存在宗族关系，忤逆亲族在心理上几乎不可能。每个家系的能力因上位眷属不同而各异。" + clan.name + "——" + clan.desc + "一代眷属是最初的血魔，力量强大，能创造大量眷属。而二代及以下的眷属在其漫长的一生中最多只能创造两个眷属。代数越高，力量差距越大。", effect: "lore", effText: "智力+2", major: true, milestone: "血魔家系" });
+    addMilestone("血魔家系");
+    modAttr('int', 2);
+  }
+
+  // 血袋转化
+  if (age >= 22 && !getFlag('blood_bag') && chance(0.02)) {
+    setFlag('blood_bag', true);
+    addEvent({ text: "你亲眼看到了血魔\"咬\"人的瞬间。被摄取血液的人类在一段时间后必然转化为血袋——那是无法成为眷属的残渣，只是补充血液的便携干粮。转化过程不可中断，眷属地位越高变化越快。血袋保有生前部分战斗习惯，但已经不再是人类了。你庆幸自己没有被盯上。", effect: "encounter", effText: "意志+1", major: true, milestone: "血袋目击" });
+    addMilestone("血袋目击");
+    modAttr('wil', 1);
+  }
+
+  // === 鲸鱼与人鱼事件 ===
+
+  // 大湖航行——鲸油
+  if (age >= 20 && !getFlag('whale_oil') && chance(0.04)) {
+    setFlag('whale_oil', true);
+    addEvent({ text: "你的船航行在大湖上。湖水深处偶尔会涌出一种粘稠的油脂——鲸油。鲸油会尝试吞噬一切它接触到的东西，被吞噬的物体会被排列重组为完全不同的东西。船员们小心翼翼地避开鲸油的聚集区。「别碰到那东西，」老船长警告你，「被活鲸油脂吞没的人会变成人鱼。」", effect: "encounter", effText: "智力+1", major: true, milestone: "鲸油遭遇" });
+    addMilestone("鲸油遭遇");
+    modAttr('int', 1);
+  }
+
+  // 穴掌鲸遭遇
+  if (age >= 22 && (bp === 'greatlake' || bp === 'GL') && !getFlag('cave_palm_whale') && chance(0.03)) {
+    setFlag('cave_palm_whale', true);
+    addEvent({ text: "你的船驶入了浑浊而腥臭的旋转蓝色湖域。水面下出现了一个巨大的轮廓——穴掌鲸。它如同一只拥有无数孔洞的巨大手掌，从每个孔洞中钻出一个人鱼。那些人鱼的身躯与鲸相连，眼神空洞。「呜——」鲸发出了低沉的鸣叫。老船长命令全速逃离。在慌乱中，一个人鱼试图爬上甲板，你拼死将其推了下去。", effect: "encounter", effText: "体质+1，意志+1", major: true, milestone: "穴掌鲸遭遇" });
+    addMilestone("穴掌鲸遭遇");
+    modAttr('con', 1);
+    modAttr('wil', 1);
+    if (checkCombat(6, 'con')) {
+      addEvent({ text: "你成功击退了人鱼的登船尝试。穴掌鲸感受到疼痛后潜入了深处——人鱼与鲸相连，伤害人鱼会让鲸感到痛。你们趁机逃离了这个死亡湖域。", effect: "escape", effText: "体质+1", major: false, milestone: "穴掌鲸逃脱" });
+      addMilestone("穴掌鲸逃脱");
+      modAttr('con', 1);
+    } else {
+      addEvent({ text: "人鱼的攻击力超出了你的预期。你被拖入了湖水，粘稠的鲸油包裹了你的身体。你的意识在变形中逐渐模糊——当你再次\"醒来\"时，你发现自己从孔穴中钻出，成为了穴掌鲸的新人鱼。你与鲸融为一体，再也无法离开。", effect: "death", effText: "转化为人鱼", major: true });
+      death('被穴掌鲸转化为人鱼');
+      return;
+    }
+  }
+
+  // 白鲸五大灾害
+  if (age >= 30 && !getFlag('white_whale') && chance(0.01)) {
+    setFlag('white_whale', true);
+    addEvent({ text: "五大灾害之一——白鲸出现了。它的身体过于庞大，以至于心脏都需要一个额外的心脏来维持运作。它途径的一切都被一层苍白色的薄膜覆盖——这种现象被称为\"白化\"。被吞噬的人保留下一切原本的习惯与技能，然后攻击一切它们能发现的东西。水手们疯狂地操控船只躲避。你看到了远处漂浮在湖面上的苍白色伪船——那是白鲸的受害者。传说中，遇到苍白色的伪船必须绕行，即便绕很大一圈路。", effect: "disaster", effText: "意志+2", major: true, milestone: "白鲸遭遇" });
+    addMilestone("白鲸遭遇");
+    modAttr('wil', 2);
+    if (checkCombat(10, 'wil')) {
+      addEvent({ text: "你奇迹般地在白鲸的路径中存活了下来。白鲸缓慢地游过，苍白的浪潮从你们身旁涌过，但没有吞没你们的船。当你回头望去，白鲸的身影消失在了湖雾之中，只留下一片苍白的残骸。", effect: "survive", effText: "意志+2，体质+1", major: true, milestone: "白鲸生还" });
+      addMilestone("白鲸生还");
+      modAttr('wil', 2);
+      modAttr('con', 1);
+    } else {
+      addEvent({ text: "白鲸的苍白浪潮吞没了你们。你感到一层苍白的薄膜包裹了全身，意识开始模糊。当你再次\"醒来\"时——你已经不是你了。白化后的你保留着所有战斗技能，但你不再是人类，你只知道攻击一切你能发现的东西。", effect: "death", effText: "白化死亡", major: true });
+      death('被白鲸白化');
+      return;
+    }
+  }
+
+  // 马林鲸五大灾害（已过时期）
+  if (age >= 25 && !getFlag('marlin_whale') && chance(0.01)) {
+    setFlag('marlin_whale', true);
+    addEvent({ text: "老水手们讲述着五大灾害中另一个——马林鲸的故事。贯穿一切的马林鲸，它的身躯如同一条贯穿天际的长矛。据说在边狱公司LCB活跃的时期，马林鲸已经被靛蓝老人钓起。老水手们对靛蓝老人的名字充满了敬畏：「那个老人……大湖最古老的色彩级收尾人，独自一人钓起了马林鲸。」你望着大湖的深处，不知该庆幸还是恐惧——五大灾害中，至少有一个已经不在了。", effect: "lore", effText: "智力+2", major: true, milestone: "马林鲸传说" });
+    addMilestone("马林鲸传说");
+    modAttr('int', 2);
+  }
+
+  // 熔岩鲸
+  if (age >= 25 && !getFlag('lava_whale') && chance(0.02)) {
+    setFlag('lava_whale', true);
+    addEvent({ text: "大湖深处传来一阵剧烈的震颤。一艘路过的船报告说看到了一头心脏搏动异常剧烈的鲸——熔岩鲸。它的血液鲜红炽热，周围的湖水都在沸腾。熔岩鲸喷出的热气甚至能在湖面上制造小型的热浪。你的船员们拼命划桨远离了那片沸腾的水域。", effect: "encounter", effText: "体质+1", major: true, milestone: "熔岩鲸目击" });
+    addMilestone("熔岩鲸目击");
+    modAttr('con', 1);
+  }
+
+  // === 扭曲/神备/大罪详细事件 ===
+
+  // 扭曲前兆——情绪积累
+  if (age >= 20 && !getFlag('distortion_sign') && chance(0.03)) {
+    setFlag('distortion_sign', true);
+    const emotions = ['压抑的愤怒', '无法言说的悲伤', '扭曲的嫉妒', '深不见底的空虚', '灼热的渴望'];
+    const emotion = pick(emotions);
+    addEvent({ text: "你感到体内有一种" + emotion + "在积累。这不是普通的心情波动——它像是一颗种子在你意识深处扎根。偶尔你的身体边缘会出现轻微的变形——手指的轮廓模糊了一瞬，镜中的影子似乎比实际大了一圈。你知道这是扭曲的前兆：情绪的积累期、潜伏期。如果某天有一个冲击性的事件，或者这个情绪积累到极限……你可能会面临选择。", effect: "distortion", effText: "意志-1", major: true, milestone: "扭曲前兆" });
+    addMilestone("扭曲前兆");
+    modAttr('wil', -1);
+  }
+
+  // 金枝现象
+  if (age >= 22 && getFlag('distortion_sign') && !getFlag('golden_branch') && chance(0.02)) {
+    setFlag('golden_branch', true);
+    addEvent({ text: "一块金色的枝状物不知何时出现在你手中——金枝。它能展现附着于身体的异常变形，也能加速扭曲倾向。边狱公司从脑叶公司支部废墟中发掘的黑石碑据称也有类似的效果。你凝视着金枝，一个甜美而温柔的声音在意识深处响起：\"你愿意了解自己真实的样子吗？\"", effect: "distortion", effText: "智力+1，面临选择", major: true, milestone: "金枝共鸣" });
+    addMilestone("金枝共鸣");
+    modAttr('int', 1);
+  }
+
+  // 神备觉醒——完全接受自我
+  if (age >= 25 && getFlag('distortion_sign') && !getFlag('ego_awakened') && chance(0.02)) {
+    setFlag('ego_awakened', true);
+    addEvent({ text: "冲击来了。那个甜美而温柔的声音再次响起，引导你去面对自我的真实形象。你看到了自己的一切——不仅是作为被害者承受的痛苦，还有你因为都市的规则而加害于他人的罪孽。你选择了接受。全部接受。「我理解自己的痛苦，也承认自己的罪孽。」那个声音微笑着离开了。你感到一股力量从内心涌出——专属的武器与装备在光芒中成型，你的精神面貌前所未有地坚定。这就是\"神备\"——绽放的E.G.O。", effect: "good", effText: "体质+2，意志+3，获得神备", major: true, milestone: "神备觉醒" });
+    addMilestone("神备觉醒");
+    modAttr('con', 2);
+    modAttr('wil', 3);
+    gameState.egoForm = (gameState.egoForm || '') + '神备';
+  }
+
+  // 扭曲——部分接受自我
+  if (age >= 25 && getFlag('distortion_sign') && !getFlag('ego_awakened') && !getFlag('distorted') && chance(0.03)) {
+    setFlag('distorted', true);
+    const distortions = [
+      { name: '音符扭曲', desc: '你的身体开始发出不和谐的旋律，周围的空气振动成了可见的音波。你的存在变成了音乐——而所有听到的人都会化为音符。' },
+      { name: '气球扭曲', desc: '你的头部慢慢膨胀，最终变成了一个浮空的气球。你的身体变得没有知觉，向天空飘去。周围的人在同一时刻也开始头部膨胀。' },
+      { name: '荆棘扭曲', desc: '你的皮肤上长出了密密麻麻的荆棘，每一根荆棘都连接着你内心的一处伤痕。你变成了一个行走的荆棘丛林。' },
+      { name: '镜面扭曲', desc: '你身边的一切开始被镜面覆盖。每一面镜子中映出的是不同时期、不同选择的你。你被困在了无数个平行自我的倒影中。' }
+    ];
+    const dist = pick(distortions);
+    addEvent({ text: "你只接受了痛苦，却拒绝承认自己的罪孽。那个声音说：\"只保留你希望拥有的部分吧。\"扭曲发生了。" + dist.desc, effect: "distortion", effText: "变为扭曲", major: true, milestone: "扭曲化" });
+    addMilestone("扭曲化");
+    if (checkCombat(9, 'wil')) {
+      addEvent({ text: "你以扭曲后的形态存活了下来，但代价是你不再完全是人类。扭曲的存在通常会随着时间破碎崩溃，届时一个异想体会取代你的存在。你的时间不多了。", effect: "survive", effText: "体质+2，智力+2，但寿命缩短", major: true, milestone: "扭曲存活" });
+      addMilestone("扭曲存活");
+      modAttr('con', 2);
+      modAttr('int', 2);
+    } else {
+      addEvent({ text: "你的扭曲彻底失控了。身体在变形中崩溃，意识在碎片中消散。一个异想体从你扭曲的残骸中诞生，取代了你曾经存在的一切痕迹。", effect: "death", effText: "扭曲崩溃→异想体诞生", major: true });
+      death('扭曲崩溃');
+      return;
+    }
+  }
+
+  // 大罪——拒绝一切
+  if (age >= 30 && getFlag('distortion_sign') && !getFlag('ego_awakened') && !getFlag('distorted') && !getFlag('became_sin') && chance(0.01)) {
+    setFlag('became_sin', true);
+    const sins = [
+      { name: '傲慢', desc: '你认为自己是世界上唯一有价值的存在。其他人都只是你脚下的尘埃。你的身体开始散发出压倒性的气场，让所有接近你的人不由自主地跪下。' },
+      { name: '嫉妒', desc: '你对一切拥有你所没有之物的人感到无尽的嫉恨。你的目光所及之处，万物都在枯萎——因为你无法忍受它们的存在。' },
+      { name: '暴怒', desc: '纯粹的、无法熄灭的愤怒火焰吞噬了你的一切。你只剩下了破坏的本能，你的拳头可以击碎一切。' },
+      { name: '倦怠', desc: '你对一切都失去了兴趣。你的身体开始变得虚无，存在感越来越稀薄。你躺倒在后巷的角落，对世界不再关心。' },
+      { name: '暴食', desc: '你吞噬一切——食物、金钱、希望、甚至其他人的存在。你的饥饿永远不会被满足，因为你要吞噬的不仅仅是物质。' },
+      { name: '忧郁', desc: '永恒的悲伤笼罩着你。你的存在本身就是一个悲伤的源点，接近你的人都会被绝望感染。世界从未有过光明——这是你唯一的信念。' },
+      { name: '色欲', desc: '你对美好的渴求扭曲成了对占有的极端欲望。你想要的不仅是拥有，而是独占一切美好的事物。' }
+    ];
+    const sin = pick(sins);
+    addEvent({ text: "你拒绝了自我真实形象的一切。你褪掉了所有曾经属于自身的部分——记忆、情感、自我认知，全部抛弃。你成为了纯粹的、只剩一种本能的存在。大罪。" + sin.name + "——" + sin.desc, effect: "sin", effText: "成为大罪", major: true, milestone: sin.name + "之大罪" });
+    addMilestone(sin.name + "之大罪");
+    modAttr('con', 3);
+    modAttr('wil', -3);
+    if (checkCombat(10, 'wil')) {
+      addEvent({ text: "作为大罪的你在都市中横行了一段时间，但最终被收尾人们联手压制。你被关进了某个设施中，永远无法离开。", effect: "sealed", effText: "生存但被永久封印", major: true, milestone: "大罪被封印" });
+      addMilestone("大罪被封印");
+    } else {
+      addEvent({ text: "作为大罪的你被一群色彩级收尾人联合讨伐。你的力量虽然强大，但在面对都市顶尖战力时还是败下阵来。你的存在被彻底抹消。", effect: "death", effText: "大罪被讨伐", major: true });
+      death('大罪被讨伐');
+      return;
+    }
+  }
+
+  // 心望体验
+  if (age >= 20 && !getFlag('mind_heart') && chance(0.02)) {
+    setFlag('mind_heart', true);
+    addEvent({ text: "你在战斗中突然感到了一种奇异的状态——内心的某种愿望凝聚为实质的力量。你的身躯开始散发细微的光芒，增强了你对攻击的抵挡能力；而你的武器上附着了光环，每一次挥击都带着远超以往的破坏力。这就是\"心望\"——心用于防御，望用于攻击。效果结束后，你的精神感到一阵疲惫。心望的代价是心理负担，但它确实是都市中一种特殊而强大的力量。", effect: "power", effText: "体质+1，意志+1", major: true, milestone: "心望觉醒" });
+    addMilestone("心望觉醒");
+    modAttr('con', 1);
+    modAttr('wil', 1);
+  }
+
+  // 血魔战争历史
+  if (age >= 20 && !getFlag('vampire_war_history') && chance(0.02)) {
+    setFlag('vampire_war_history', true);
+    addEvent({ text: "你从一本旧书里读到了两百年前血魔战争的历史。血魔最初的来源是很久以前一栋宅邸的异变——\"从在那宅子里浸满血的瞬间开始，我们的血脉相互连接，产生了血统。在扭曲现象以前很久，我们就一直在阴影中生存、互相斗争了。\"一位收尾人劝说拉曼却领的血魔长老吉诃德站在人类一方。吉诃德率家系参战，使人类最终获得了胜利。但和平的代价是沉重的。", effect: "lore", effText: "智力+2", major: true, milestone: "血魔战争历史" });
+    addMilestone("血魔战争历史");
+    modAttr('int', 2);
   }
 }
 
