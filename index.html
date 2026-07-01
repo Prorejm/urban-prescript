@@ -667,6 +667,11 @@ body::after {
   margin-bottom: 4px;
 }
 
+.result-lamps { text-align:center; margin:16px 0; padding:16px; background:rgba(255,255,255,0.03); border-radius:8px; }
+.lamp-display { font-size:1.5rem; letter-spacing:12px; margin:8px 0; color:var(--accent-gold); }
+.lamp-name { font-size:1.2rem; color:var(--accent-gold); margin:4px 0; font-weight:700; }
+.lamp-desc { font-size:0.85rem; color:#888; margin-top:4px; }
+
 .result-quote {
   font-size: 0.85rem;
   color: var(--fg-dim);
@@ -1106,6 +1111,11 @@ const ALL_TALENTS = [
   { id:'w99', name:'S公司的科举考生', rarity:'white', desc:'你参加了S公司的科举考试。肉、血、骨三党的争斗让你明白了权力的游戏。', effect:'智力+1，S公司事件略有优势', con:0, int:1, wil:0, wea:0, tag:'S公司' },
   { id:'w100', name:'X公司的魔窟矿工', rarity:'white', desc:'你在X公司的魔窟中挖掘特殊合金。你挖到过一些……不该存在的东西。', effect:'体质+1，智力+1，废墟事件略有优势', con:1, int:1, wil:0, wea:0, tag:'X公司' },
   { id:'w_new1', name:'保育院孤儿', rarity:'white', desc:'你在后巷的保育院中度过了童年。那段经历让你早早学会了在都市中生存的本领。', effect:'意志+1，童年事件中有微小优势', con:0, int:0, wil:1, wea:0, tag:'童年' },
+{ id:'w_new2', name:'后巷的野孩子', rarity:'white', desc:'你从小在后巷自由成长，没有家庭约束，也没有人保护你。这种经历让你比同龄人更早学会了都市生存法则。', effect:'体质+1，后巷事件有微小优势', con:1, int:0, wil:0, wea:0, tag:'背景' },
+{ id:'w_new3', name:'巢内的书虫', rarity:'white', desc:'你在巢内的图书馆度过了大部分童年。书籍是你了解这个世界的窗口，从翼公司年鉴到收尾人传记，你什么都读。', effect:'智力+1，文化类事件有优势', con:0, int:1, wil:0, wea:0, tag:'背景' },
+{ id:'w_new4', name:'帮派的信使', rarity:'white', desc:'你从少年时期就为某个帮派跑腿送信。这份工作让你走遍了后巷的每个角落，也认识了很多不该认识的人。', effect:'智力+1，武器+1，帮派相关事件有优势', con:0, int:1, wil:0, wea:1, tag:'帮派' },
+{ id:'w_new5', name:'街角的摊贩', rarity:'white', desc:'你的家人在后巷经营一个小摊位，贩卖日用品和廉价食物。你从小就学会了讨价还价和察言观色。', effect:'智力+1，家境+1', con:0, int:1, wil:0, wea:0, tag:'普通身份' },
+{ id:'w_new6', name:'W列车的常驻清扫员', rarity:'white', desc:'你是W公司雇佣的清扫员之一，负责在列车到达前清理车厢内的遗留物。你知道车厢里有时会留下不属于这个世界的痕迹。', effect:'意志+1，W公司相关事件有优势', con:0, int:0, wil:1, wea:0, tag:'W公司' },
 
   // ==================== 蓝色可能性 (60个) ====================
   { id:'b1', name:'后巷的孩子', rarity:'blue', desc:'你在后巷长大，从小就学会了生存的法则。', effect:'体质+2，后巷相关事件有优势', con:2, int:0, wil:0, wea:0, tag:'背景' },
@@ -1178,6 +1188,13 @@ const ALL_TALENTS = [
   { id:'b68', name:'WARP经济舱乘客', rarity:'blue', desc:'你乘坐过WARP列车的经济舱——那段漫长的旅程让你在车厢内修炼了数年。', effect:'体质+1，智力+1，WARP事件有优势', con:1, int:1, wil:0, wea:0, tag:'W公司' },
   { id:'b69', name:'概念焚化炉的操作员', rarity:'blue', desc:'你负责操作概念焚化炉。你知道有些东西被焚化后，连同人们对它的记忆也会消失。', effect:'智力+2，记忆力下降的代价', con:0, int:2, wil:0, wea:0, tag:'翼公司' },
   { id:'b70', name:'时间征收员学徒', rarity:'blue', desc:'你在T公司学习时间征收技术。三级征收员用锤和稿插入身体吸取时间——你还没到那个级别。', effect:'智力+1，T公司事件有优势', con:0, int:1, wil:0, wea:1, tag:'T公司' },
+{ id:'b_new1', name:'拇指的打手', rarity:'blue', desc:'你在拇指的手下做事，负责收保护费和处理不听话的人。工作危险，但收入稳定。', effect:'体质+1，武器+2，拇指相关事件有优势', con:1, int:0, wil:0, wea:2, tag:'五指' },
+{ id:'b_new2', name:'食指的线人', rarity:'blue', desc:'你是食指在某个后巷区域的线人，负责搜集情报并汇报给代行者。这个身份让你拥有了信息优势，但也让你成为了各方势力的目标。', effect:'智力+2，食指相关事件有优势', con:0, int:2, wil:0, wea:0, tag:'五指' },
+{ id:'b_new3', name:'中指的勒索者', rarity:'blue', desc:'你为中指在某个街区设置保护费勒索点。这个工作收入不错，但每天都生活在被反抗者报复的恐惧中。', effect:'体质+1，武器+1，中指相关事件有优势', con:1, int:0, wil:0, wea:1, tag:'五指' },
+{ id:'b_new4', name:'环指的艺术家', rarity:'blue', desc:'你在环指的领地以艺术为生。虽然环指的艺术考试压力巨大，但你对创作有着执着的热爱。', effect:'智力+2，环指相关事件有优势', con:0, int:2, wil:0, wea:0, tag:'环指' },
+{ id:'b_new5', name:'W列车头等舱乘客', rarity:'blue', desc:'你曾乘坐过WARP列车的头等舱。在那10秒的外部时间中，你在车厢内经历了漫长而奢华的旅程——然后被现状还原至最初状态。', effect:'智力+1，意志+1，W公司事件有优势', con:0, int:1, wil:1, wea:0, tag:'W公司' },
+{ id:'b_new6', name:'大湖渔民', rarity:'blue', desc:'你在南部大湖以捕鱼为生。大湖中不仅有普通的鱼，还有鲸鱼人的身影。你学会了如何在危险的海域中生存。', effect:'体质+2，南部事件有优势', con:2, int:0, wil:0, wea:0, tag:'南部' },
+{ id:'b_new7', name:'巢内翼公司职员', rarity:'blue', desc:'你在某家翼公司担任普通职员。虽然地位不高，但至少有稳定的收入和巢内的安全保障。', effect:'智力+1，家境+2', con:0, int:1, wil:0, wea:0, tag:'翼公司' },
 
   // ==================== 紫色可能性 (40个) ====================
   { id:'p1', name:'觉醒的E.G.O', rarity:'purple', desc:'你完全接受了自我真实形象后，获得了独一无二的专属武器与装备，精神更加坚定。外表保持人形，但周身散发着与意志合一的力量——E.G.O已在你体内觉醒。', effect:'体质+3，E.G.O相关事件大幅提升', con:3, int:0, wil:0, wea:0, tag:'能力' },
@@ -1239,6 +1256,14 @@ const ALL_TALENTS = [
   { id:'p_new9', name:'维吉利乌斯的弟子', rarity:'purple', desc:'你曾是银红凝视维吉利乌斯事务所中的一员，从他身上学到了『望』的技术。', effect:'体质+1，意志+2，战斗中可使用『心望』能力', con:1, int:0, wil:2, wea:0, tag:'收尾人' },
   { id:'p_new10', name:'梅菲斯托费勒斯乘员', rarity:'purple', desc:'你是边狱公司巴士梅菲斯托费勒斯的乘员之一，与十二名罪人同行。', effect:'体质+1，智力+1，边狱公司相关事件自动触发', con:1, int:1, wil:0, wea:0, tag:'边狱公司' },
   { id:'p_new11', name:'玻璃窗实验体', rarity:'purple', desc:'你曾被环指掳走，成为玻璃窗技术的实验体。虽然幸存，但身体留下了不可逆的变化。', effect:'体质-1，智力+3，对扭曲/罪孽有异常抗性', con:-1, int:3, wil:0, wea:0, tag:'环指' },
+{ id:'p_new12', name:'禁忌猎人的学徒', rarity:'purple', desc:'你是某家翼公司禁忌猎人的学徒。禁忌猎人负责追杀违反翼禁忌的人，你的师傅教会了你追踪和战斗的技巧。', effect:'体质+2，武器+1，翼禁忌相关事件有优势', con:2, int:0, wil:0, wea:1, tag:'翼公司' },
+{ id:'p_new13', name:'大绒袄的北方战士', rarity:'purple', desc:'你是北方后巷的战士，以一件厚实的大绒袄闻名。北方严寒的气候锻造了你钢铁般的意志和体魄。', effect:'体质+2，意志+2，北部事件有优势', con:2, int:0, wil:2, wea:0, tag:'北部' },
+{ id:'p_new14', name:'东部十剑候选人', rarity:'purple', desc:'你有资格参加东部十剑的评选——这是东部地区最高荣誉的收尾人称号。你的剑术已经得到了认可。', effect:'武器+3，东部事件有优势', con:0, int:0, wil:0, wea:3, tag:'收尾人' },
+{ id:'p_new15', name:'西部骑士团成员', rarity:'purple', desc:'你是西部某个骑士团的成员。穿着铠甲骑着机械马巡逻是你的日常，虽然看起来古板，但在战斗中你是不容小觑的存在。', effect:'体质+1，武器+2，西部事件有优势', con:1, int:0, wil:0, wea:2, tag:'收尾人' },
+{ id:'p_new16', name:'南部海盗团成员', rarity:'purple', desc:'你是南部大湖上某个海盗团的成员。在海上掠夺和战斗是你的生活方式，你熟悉每一片海域的暗流。', effect:'体质+2，武器+1，南部事件有优势', con:2, int:0, wil:0, wea:1, tag:'南部' },
+{ id:'p_new17', name:'D巢的纺织工人', rarity:'purple', desc:'你在D巢的纺织工坊工作。D巢以纺织业闻名，谢肉祭的纺织品就出自这里。你的手艺精湛，但你总是觉得那些华丽的面料下隐藏着什么。', effect:'智力+1，家境+1，D巢事件有优势', con:0, int:1, wil:0, wea:0, tag:'翼公司' },
+{ id:'p_new18', name:'T巢的时间管理者', rarity:'purple', desc:'你在T公司的时间管理部门工作，负责监控T巢内的『每天四个小时』政策执行情况。你比任何人都清楚时间的价值。', effect:'智力+2，意志+1，T公司事件有优势', con:0, int:2, wil:1, wea:0, tag:'翼公司' },
+{ id:'p_new19', name:'郊区的拾荒者', rarity:'purple', desc:'你曾冒险越过都市高墙前往郊区拾荒。郊区的铁道上有时会出现珍贵物品，但获取它们的代价可能是一条命。你活着回来了，带回了稀有的材料。', effect:'体质+1，智力+2，郊区事件有优势', con:1, int:2, wil:0, wea:0, tag:'郊区' },
 
   // ==================== 金色可能性 (16个) ====================
   { id:'g1', name:'首脑的注视', rarity:'gold', desc:'你隐约感觉到首脑的存在。在都市的某个角落，你的每一次呼吸似乎都在被A公司所记录。这让你如履薄冰。', effect:'全属性+2，首脑事件极大提升', con:2, int:2, wil:2, wea:2, tag:'传说' },
@@ -1266,6 +1291,10 @@ const ALL_TALENTS = [
   { id:'g_new3', name:'钢琴家的听众·存活者', rarity:'gold', desc:'你是钢琴家事件的幸存者之一。那旋律杀死了三十万人，却奇迹般地放过了你。', effect:'意志+3，音乐/声音相关事件有特殊反应', con:0, int:0, wil:3, wea:0, tag:'扭曲' },
   { id:'g_new4', name:'都市之星·等级评定中', rarity:'gold', desc:'你被协会指定为都市之星候补。这意味着你是都市中最危险的存在之一，所有协会和手指都会关注你。', effect:'武器+2，体质+1，会触发被追杀事件', con:1, int:0, wil:0, wea:2, tag:'都市之星' },
   { id:'g_new5', name:'边狱公司罪人', rarity:'gold', desc:'你是边狱公司LCB部门的罪人之一，被梅菲斯托费勒斯载着在都市中搜集金枝。', effect:'体质+2，智力+1，意志+1，边狱公司事件链自动触发', con:2, int:1, wil:1, wea:0, tag:'边狱公司' },
+{ id:'g_new6', name:'色彩级收尾人候补', rarity:'gold', desc:'你的实力已经接近色彩级——收尾人的最高等级。协会已经在关注你，一旦你完成某项惊人的委托，就能获得属于自己的色彩称号。', effect:'武器+3，体质+2，战斗事件有极大优势', con:2, int:0, wil:0, wea:3, tag:'收尾人' },
+{ id:'g_new7', name:'翼公司的核心研究员', rarity:'gold', desc:'你是某家翼公司奇点研究部门的核心成员。你接触着改变世界规则的技术，每一天都在推动奇点的边界。', effect:'智力+4，翼公司事件有极大优势', con:0, int:4, wil:0, wea:0, tag:'翼公司' },
+{ id:'g_new8', name:'蜘蛛巢的天杀星适格者', rarity:'gold', desc:'你曾是被蜘蛛巢父辈们培育的天杀星适格者——那柄能切断一切的遗物选中了你。虽然你最终逃脱了，但那把刀留下的力量残片仍在你体内。', effect:'武器+4，体质+1，蜘蛛巢事件有特殊反应', con:1, int:0, wil:0, wea:4, tag:'五指' },
+{ id:'g_new9', name:'血红之夜的幸存者', rarity:'gold', desc:'你是血魔伊莲娜血红之夜事件的幸存者。三十万人的绑架与改造中，你是少数逃出来的人之一。那些被改造为血袋的人的惨叫声至今在你耳边回响。', effect:'意志+3，体质+1，血魔相关事件有深度反应', con:1, int:0, wil:3, wea:0, tag:'血魔' },
 
   // ==================== 传说可能性 (5个) ====================
   { id:'l1', name:'都市的奇点', rarity:'legend', desc:'你本身就是都市的奇迹，超越了所有规则与限制。', effect:'全属性+5，所有事件获得极大加成', con:5, int:5, wil:5, wea:5, tag:'超越' },
@@ -1278,6 +1307,8 @@ const ALL_TALENTS = [
   { id:'l_new1', name:'血魔初代眷属血脉', rarity:'legend', desc:'你的血管中流淌着第一代眷属的血液。血魔的渴望与人类理智的斗争，从你出生的那一天就开始了。', effect:'体质+3，意志+2，吸血事件有特殊分支，可触发拉曼却领事件链', con:3, int:0, wil:2, wea:0, tag:'血魔' },
   { id:'l_new2', name:'漆黑噤默·疑似', rarity:'legend', desc:'南部流传着关于你的恐怖传说。漆黑的面具、沉默的处刑、不留活路的屠杀——人们说，漆黑噤默回来了。', effect:'武器+4，体质+2，南部事件有特殊走向，会被协会追杀', con:2, int:0, wil:0, wea:4, tag:'都市之星' },
   { id:'l_new3', name:'卡戎的血脉', rarity:'legend', desc:'你是环指实验的幸存者，被改造为了卡戎——引导罪人的摆渡人。你的肉体已经不再属于人类。', effect:'体质+3，智力+2，武器+1，边狱公司相关事件深度参与', con:3, int:2, wil:0, wea:1, tag:'环指' },
+{ id:'l_new4', name:'首脑的影子', rarity:'legend', desc:'没有人知道你的真实身份——包括你自己。你拥有不属于普通人类的力量和知识。在某些时刻，你会感觉到一种来自A公司的遥远共鸣。你是什么？这个问题连你自己都无法回答。', effect:'全属性+2，都市禁忌事件有特殊走向，可能触发首脑相关事件', con:2, int:2, wil:2, wea:2, tag:'特殊' },
+{ id:'l_new5', name:'光之种的核心', rarity:'legend', desc:'你是光之种计划的一部分——你的身体中蕴含着光之种的碎片。这种力量让你拥有了超越常人的潜力，但也让你成为了多方势力觊觎的目标。', effect:'全属性+2，脑叶公司/图书馆事件深度参与，光之种结局有特殊分支', con:2, int:2, wil:2, wea:2, tag:'光之种' },
   // === 耗子相关 ===
   { id:'r1', name:'耗子群的一员', rarity:'white', desc:'你是后巷街头混混——耗子群的一员。组织松散，靠遗弃废品苟活。你们常从弃尸中剖出内脏贩卖。', effect:'家境+1，体质-1', con:-1, int:0, wil:0, wea:1, tag:'底层身份' },
   { id:'r2', name:'弃尸翻找者', rarity:'white', desc:'你学会了在后巷的弃尸中翻找值钱的内脏来贩卖。这是耗子最基本的生存技能。', effect:'家境+1，意志-1', con:0, int:0, wil:-1, wea:1, tag:'底层身份' },
@@ -2420,6 +2451,15 @@ const ACHIEVEMENTS = [
   { id:'ach_t_corp', name:'时间的代价', desc:'得知了T公司崛起背后的故事。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('T公司崛起') },
   { id:'ach_blood_war', name:'血魔之战', desc:'得知了二百年前血魔与人类的战争。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('血魔之战') },
   { id:'ach_carmen_death', name:'浴缸中的终结', desc:'得知了卡门之死的悲剧。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('卡门之死') },
+// --- 恋爱与W列车成就 ---
+{ id:'ach_love_meet', name:'邂逅', desc:'在都市中遇见了那个特别的人。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('邂逅') },
+{ id:'ach_love_family', name:'组建家庭', desc:'在残酷的都市中组建了一个小家庭。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('组建家庭') },
+{ id:'ach_love_lost', name:'心碎', desc:'失去了那个特别的人。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('失恋') },
+{ id:'ach_warp_mission', name:'W列车清扫者', desc:'完成了W公司的列车清扫任务。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('W列车委托') },
+{ id:'ach_warp_clean', name:'异常清除者', desc:'成功清除了W列车内的时空异常。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('W列车异常清除') },
+{ id:'ach_warp_vip', name:'头等舱特权', desc:'获得了W公司的头等舱VIP身份。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('W列车VIP') },
+{ id:'ach_love_town', name:'爱之小镇调查者', desc:'得知了W列车爱之小镇的真相。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('爱之小镇传闻') },
+{ id:'ach_love_crisis', name:'共度危机', desc:'与爱人一起在都市中共同面对了危机。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('共度危机') },
 ];
 function checkAchievements(gs) {
   const unlocked = [];
@@ -8553,6 +8593,31 @@ function showResults() {
       ${commonContent}
     `;
   }
+    // ===== 灯系统：偏差度计算 =====
+    var selectedTalents = gameState.selectedTalents || [];
+    var talentExpectedScore = 0;
+    selectedTalents.forEach(function(tid) {
+      var t = ALL_TALENTS.find(function(x) { return x.id === tid; });
+      if (t) {
+        var rarityScore = { white: 1, blue: 2, purple: 4, gold: 7, legend: 12 };
+        talentExpectedScore += (rarityScore[t.rarity] || 1);
+      }
+    });
+    var achievementActualScore = 0;
+    gameState.achievedAchievements.forEach(function(aid) {
+      var a = ACHIEVEMENTS.find(function(x) { return x.id === aid; });
+      if (a) {
+        var rarityScore = { [RARITY.COMMON]: 0, [RARITY.RARE]: 1, [RARITY.EPIC]: 2, [RARITY.LEGEND]: 4 };
+        achievementActualScore += (rarityScore[a.rarity] || 0);
+      }
+    });
+    // 偏差度 = |实际成就分 - 预期可能性的影响|
+    var deviation = Math.abs(achievementActualScore - talentExpectedScore * 0.8);
+    var lampCount = deviation < 10 ? 1 : deviation < 25 ? 2 : 3;
+    var lampNames = ['', '一灯', '二灯', '三灯'];
+    var lampDescs = ['', '偏差极小——你忠实地走上了可能性预示的道路', '中度偏差——你偏离了预定的流向，但并非完全脱轨', '大幅偏差——你完全偏离了可能性的预想，走上了截然不同的道路'];
+    var lampEmoji = ['', '&#9679;', '&#9679;&#9679;', '&#9679;&#9679;&#9679;'];
+    card.innerHTML += '<div class="result-lamps"><h4>&#10022; 偏差度评定 &#10022;</h4><div class="lamp-display">' + lampEmoji[lampCount] + '</div><div class="lamp-name">' + lampNames[lampCount] + '</div><div class="lamp-desc">' + lampDescs[lampCount] + '</div></div>';
   showSummary();
 }
 
@@ -14651,6 +14716,83 @@ function runImmortalEvents(age) {
     addEvent({ text: "你在图书馆的某次接待中『死亡』了——但当你再次睁开眼睛时，你发现自己躺在都市的某个角落。你的身体完好无损，仿佛一切只是梦。这就是图书馆的C结局：被释放，在都市某处复活。你摸了摸自己的胸口——心跳还在。但你永远忘不了在图书馆中经历的一切。", effect: "resurrection", effText: "复活，意志+2", major: true, milestone: "图书馆C结局复活" });
     addMilestone("图书馆C结局复活");
     modAttr('wil', 2);
+  }
+
+  // === 13. 恋爱事件线 ===
+  if (age >= 18 && age <= 25 && !getFlag('love_meet') && chance(0.06)) {
+    setFlag('love_meet', true);
+    var loveTypes = [
+      '在一次帮派火并中，你救下了一个素不相识的人。在混乱中你们互相扶持着逃离了危险，临别时你们交换了名字。那双眼睛，你再也忘不掉了。',
+      '巢内的一次偶遇——你们在翼公司大楼的走廊上撞到了一起，对方的文件散落一地。你蹲下来帮忙捡拾，抬起头时，四目相对。',
+      '后巷的小酒馆里，你注意到角落里独自喝酒的人。那种孤独的气场莫名地吸引了你。你们开始聊天，从都市的琐事聊到各自的过去。',
+      '你接到了一个护送委托——护送一个普通人穿过危险的后巷。在漫长的旅途中，你们从警惕到信任，从沉默到交谈。委托结束时，你们约定再见。'
+    ];
+    var loveEvent = loveTypes[Math.floor(Math.random() * loveTypes.length)];
+    addEvent({ text: loveEvent, effect: 'love', effText: '快乐+2', major: true, milestone: '邂逅' });
+    modAttr('wil', 1);
+    gameState.happiness += 2;
+  }
+  if (age >= 20 && age <= 28 && getFlag('love_meet') && !getFlag('love_date') && chance(0.08)) {
+    setFlag('love_date', true);
+    addEvent({ text: '你们开始了第一次正式约会。在都市的某个角落——也许是一家便宜的餐馆，也许是巢内的公园——你们分享着彼此的故事。在这个弱肉强食的世界里，能找到一个愿意倾听你的人，本身就是一种奢侈的幸福。', effect: 'love', effText: '快乐+2', major: true, milestone: '初恋' });
+    gameState.happiness += 2;
+  }
+  if (age >= 23 && age <= 32 && getFlag('love_date') && !getFlag('love_conflict') && chance(0.06)) {
+    setFlag('love_conflict', true);
+    if (a.wil >= 6) {
+      addEvent({ text: '你们的关系遭遇了考验——也许是来自帮派的威胁，也许是翼禁忌的阻碍。在都市中，爱情从来不是安全的。但你们选择了共同面对。经历了一场几乎丧命的危机后，你们的关系变得更加牢固。', effect: 'love', effText: '意志+1，快乐+1', major: true, milestone: '共度危机' });
+      modAttr('wil', 1);
+      gameState.happiness += 1;
+    } else {
+      addEvent({ text: '都市的现实太残酷了。来自各方势力的威胁、生活的压力、无法弥合的分歧——你们最终选择了分开。那个人消失在了都市的人海中，也许再也不会相见。你的心空了一块。', effect: 'love', effText: '快乐-3，意志-1', major: true, milestone: '失恋' });
+      gameState.happiness -= 3;
+      modAttr('wil', -1);
+    }
+  }
+  if (age >= 28 && age <= 40 && getFlag('love_conflict') && !getFlag('love_family') && chance(0.05)) {
+    setFlag('love_family', true);
+    if (gameState.happiness >= 0) {
+      addEvent({ text: '你们组建了一个小家庭。在都市中，这是一个不可思议的成就。每天回到家中看到那个人的笑容，你觉得这个残酷的世界也许还有一丝温暖。也许，这就是你活下去的理由。', effect: 'love', effText: '快乐+3', major: true, milestone: '组建家庭' });
+      gameState.happiness += 3;
+    } else {
+      addEvent({ text: '尽管你们在一起，但都市的压力让你们迟迟无法迈出最后一步。在这个随时可能失去一切的世界里，承诺是一种太过沉重的负担。你们选择了彼此陪伴但不束缚的关系——这是都市爱情最现实的样子。', effect: 'love', effText: '快乐+1', major: true, milestone: '伴侣' });
+      gameState.happiness += 1;
+    }
+  }
+
+  // === 14. W列车特殊任务线 ===
+  if (age >= 25 && age <= 40 && !getFlag('warp_mission_start') && (hasTag('W公司') || chance(0.02))) {
+    setFlag('warp_mission_start', true);
+    addEvent({ text: 'W公司向你发出了一个特殊委托：乘坐UW-212号WARP列车执行一次清扫任务。报酬丰厚——足够你在巢内生活十年。但你知道WARP列车车厢内的时间流逝与外界不同，10秒的车程可能意味着车内数年的旅程。你犹豫了很久，最终还是签下了委托书。', effect: 'mission', effText: '家境+2', major: true, milestone: 'W列车委托' });
+    gameState.happiness += 2;
+  }
+  if (age >= 27 && age <= 42 && getFlag('warp_mission_start') && !getFlag('warp_board') && chance(0.08)) {
+    setFlag('warp_board', true);
+    addEvent({ text: '你登上了WARP列车。车厢门关闭的瞬间，外界的10秒倒计时开始。但在车厢内，时间以完全不同的速度流逝。你看到了车窗外扭曲的空间——现状还原奇点在运作，一切都在被记录和重置。你必须在车厢内找到异常源并将其清除。', effect: 'mission', effText: '意志+1', major: true, milestone: '登上W列车' });
+    modAttr('wil', 1);
+    setFlag('warpCount', (getFlag('warpCount') || 0) + 1);
+  }
+  if (age >= 28 && age <= 43 && getFlag('warp_board') && !getFlag('warp_anomaly') && chance(0.08)) {
+    setFlag('warp_anomaly', true);
+    if (a.int >= 6 && a.wil >= 6) {
+      addEvent({ text: '你在W列车车厢深处发现了异常源——一团不属于这个时空的能量体。它试图侵蚀列车的现状还原系统，如果让它成功，车厢内所有乘客都将永远困在扭曲的时间中。你凭借智慧和意志力成功清除了异常，W公司对你的表现非常满意。', effect: 'success', effText: '智力+2，意志+1，家境+2', major: true, milestone: 'W列车异常清除' });
+      modAttr('int', 2);
+      modAttr('wil', 1);
+      setFlag('warp_cleaner', true);
+    } else {
+      addEvent({ text: 'W列车车厢内的异常比预想的更加恐怖。那团能量体在你接近时释放出了精神冲击波，你的意识几乎被撕碎。在千钧一发之际，列车的现状还原系统启动，将你重置到了上车前的状态——但那些记忆，你永远忘不了。', effect: 'trauma', effText: '意志-2', major: true, milestone: 'W列车异常失败' });
+      modAttr('wil', -2);
+    }
+  }
+  if (age >= 30 && age <= 45 && getFlag('warp_anomaly') && getFlag('warp_cleaner') && !getFlag('warp_vip') && chance(0.06)) {
+    setFlag('warp_vip', true);
+    addEvent({ text: '由于你在W列车清扫任务中的出色表现，W公司授予了你头等舱乘客的特权。头等舱的待遇与经济舱天差地别——虽然车内的漫长岁月同样无法逃避，但至少你能以更体面的方式度过。此外，你获得了W公司内部情报的访问权限。', effect: 'reward', effText: '家境+3，智力+1', major: true, milestone: 'W列车VIP' });
+    setFlag('warp_restore', true);
+  }
+  if (age >= 32 && age <= 47 && getFlag('warp_vip') && !getFlag('warp_love_town') && chance(0.05)) {
+    setFlag('warp_love_town', true);
+    addEvent({ text: '在一次头等舱旅途中，你听说了一个令人不安的传闻：UW-212号列车的5到14号车厢中，存在着一个名为『爱之小镇』的异常区域。那里的乘客在漫长岁月中被某种力量改造，丧失了记忆和正常思维，成为了畸形居民。W公司对此讳莫如深。你决定调查真相。', effect: 'investigate', effText: '智力+1', major: true, milestone: '爱之小镇传闻' });
+    modAttr('int', 1);
   }
 }
 
