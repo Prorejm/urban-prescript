@@ -2038,25 +2038,25 @@ function generateAdultEvents(age, a, f, bp, tags) {
     }
   }
 
-  // 代行者事件
-  if (age >= 35 && chance(0.05) && !hasMilestone('代行者')) {
+  // 调律者事件（首脑的代表）
+  if (age >= 35 && chance(0.04) && !hasMilestone('调律者')) {
     events.push(
       evt(
-        '一位身着纯白西装的人出现在你面前。代行者——首脑的使者，带来了都市的「修正」指令。',
-        'emissary',
+        '一位身着纯白西装的人出现在你面前。那是调律者——首脑派来的使者，带来了都市的「修正」指令。',
+        'arbiter',
         '',
         true,
-        '代行者降临'
+        '调律者降临'
       )
     );
     if ((a.int || 0) >= 9 && (a.wil || 0) >= 8) {
       events.push(
         evt(
-          '你与代行者进行了谈判。你用智慧和意志说服了他，让他相信你对都市还有价值。代行者离开了，但你知道他还会回来。',
-          'emissary_negotiate',
+          '你与调律者进行了谈判。你用智慧和意志说服了她，让她相信你对都市还有价值。调律者离开了，但你知道她还会回来。',
+          'arbiter_negotiate',
           '智力+1，意志+1',
           true,
-          '说服代行者'
+          '说服调律者'
         )
       );
       modAttr('int', 1);
@@ -2064,29 +2064,93 @@ function generateAdultEvents(age, a, f, bp, tags) {
     } else if ((a.con || 0) >= 9 && chance(0.3)) {
       events.push(
         evt(
-          '你做出了连代行者都意想不到的选择——你主动接受了「修正」，但以自己的方式。你成为了代行者的「合作者」，在暗处执行都市的意志。',
-          'emissary_coop',
+          '你做出了连调律者都意想不到的选择——你主动接受了「修正」，但以自己的方式。你成为了调律者的「合作者」，在暗处执行都市的意志。',
+          'arbiter_coop',
           '全属性+1',
           true,
-          '代行者的合作者'
+          '调律者的合作者'
         )
       );
       modAttr('con', 1);
       modAttr('int', 1);
       modAttr('wil', 1);
       modAttr('wea', 1);
-      setFlag('emissary_coop', true);
+      setFlag('arbiter_coop', true);
     } else {
       events.push(
         evt(
-          '代行者没有给你任何机会。你成为了都市「修正」的又一个对象，悄无声息地消失了。',
-          'emissary_death',
+          '调律者没有给你任何机会。你成为了都市「修正」的又一个对象，悄无声息地消失了。',
+          'arbiter_death',
           '死亡',
           true,
-          '被代行者修正'
+          '被调律者修正'
         )
       );
-      death('代行者');
+      death('调律者');
+      return events;
+    }
+  }
+
+  // 食指代行者事件
+  if (age >= 25 && (bp === 'index' || hasTag('食指')) && chance(0.1) && !hasMilestone('代行者')) {
+    events.push(
+      evt(
+        '一名食指的代行者找到了你。他手中握着白色的指令信纸，面无表情地向你传达了今日的「指令」。',
+        'proxy',
+        '',
+        true,
+        '代行者传令'
+      )
+    );
+    const proxyOrder = pick([
+      '三日内将街角的老槐树砍倒',
+      '明日日出前向你的邻居赠送一枚硬币',
+      '在本月结束前学会一首特定的歌谣',
+      '将一只黑猫带到指定地点',
+      '在午夜时分敲响教堂的钟',
+    ]);
+    events.push(
+      evt(
+        `指令内容：「${proxyOrder}。」你不明白这指令的意义，但在食指的领地，指令就是一切。`,
+        'proxy_order',
+        '',
+        false
+      )
+    );
+    if ((a.int || 0) >= 7) {
+      events.push(
+        evt(
+          '你隐约察觉到这条指令背后的深层用意。食指的指令从不简单，它们是庞大的因果网络中的一环。你完成了指令，并从中获得了某种领悟。',
+          'proxy_insight',
+          '智力+1，意志+1',
+          false
+        )
+      );
+      modAttr('int', 1);
+      modAttr('wil', 1);
+      setFlag('proxy_completed', true);
+    } else if ((a.wil || 0) >= 5) {
+      events.push(
+        evt(
+          '你机械地执行了指令。没有疑问，没有反抗。这就是食指领地中生存的方式。',
+          'proxy_obey',
+          '意志-1，家境+1',
+          false
+        )
+      );
+      modAttr('wil', -1);
+      modAttr('wea', 1);
+    } else {
+      events.push(
+        evt(
+          '你试图违抗指令。但食指的代行者们不会容忍违令者。你被带到了指令的核心，再也没有回来。',
+          'proxy_disobey_death',
+          '死亡',
+          true,
+          '违抗指令'
+        )
+      );
+      death('食指代行者');
       return events;
     }
   }
@@ -2151,7 +2215,7 @@ function generateAdultEvents(age, a, f, bp, tags) {
   if (age >= 30 && chance(0.12)) {
     events.push(
       evt(
-        '深宵中，你被清道夫群包围了。三波清道夫接连不断地涌来，蓝色的光芒照亮了黑暗。',
+        '深宵中，你被清道夫群包围了。三波清道夫接连不断地涌来，红色的光芒照亮了黑暗。',
         'sweeper_wave',
         '',
         true,
@@ -2171,7 +2235,7 @@ function generateAdultEvents(age, a, f, bp, tags) {
     } else {
       events.push(
         evt(
-          '清道夫太多了。它们的蓝色光芒吞噬了你，你的存在被彻底溶解。',
+          '清道夫太多了。它们的红色光芒吞噬了你，你的存在被彻底溶解。',
           'sweeper_death',
           '死亡',
           true,
@@ -2734,6 +2798,538 @@ function generateAdultEvents(age, a, f, bp, tags) {
     }
   }
 
+  // H公司事件
+  if (age >= 25 && age <= 40 && (bp === 'h_nest' || hasTag('H公司')) && chance(0.15) && !hasMilestone('H公司')) {
+    events.push(
+      evt(
+        'H公司的研究员找到了你。他们正在进行一项「人体优化」实验，需要志愿者。报酬丰厚，但风险未知。',
+        'h_company',
+        '',
+        true,
+        'H公司实验'
+      )
+    );
+    if ((a.int || 0) >= 7 && (a.wil || 0) >= 6) {
+      events.push(
+        evt(
+          '你被招募为H公司的研究员。你参与了奇点科技的开发工作，接触到了都市最深层的秘密。',
+          'h_researcher',
+          '智力+2，家境+2',
+          true,
+          'H公司研究员'
+        )
+      );
+      modAttr('int', 2);
+      modAttr('wea', 2);
+      setFlag('h_company', true);
+    } else if ((a.wil || 0) <= 3) {
+      events.push(
+        evt(
+          '你沦为了H公司的实验体。他们在你的身体里注入了未知的液体，你的意识开始模糊……',
+          'h_subject',
+          '体质-1，意志-2',
+          true,
+          'H公司实验体'
+        )
+      );
+      modAttr('con', -1);
+      modAttr('wil', -2);
+      if (chance(0.3)) {
+        events.push(
+          evt(
+            '实验失败了。你的身体无法承受H公司的液体，在痛苦中停止了呼吸。',
+            'h_death',
+            '死亡',
+            true,
+            'H公司实验死亡'
+          )
+        );
+        death('H公司实验');
+        return events;
+      }
+    } else {
+      events.push(
+        evt(
+          '你拒绝了H公司的邀请。在这个都市中，远离奇点科技或许是最明智的选择。',
+          'h_refuse',
+          '意志+1',
+          false
+        )
+      );
+      modAttr('wil', 1);
+    }
+  }
+
+  // 狼之时刻
+  if (age >= 28 && age <= 40 && chance(0.08) && !hasMilestone('狼之时刻')) {
+    events.push(
+      evt(
+        '夜幕降临，你听到了狼嚎。狼之时刻——那个在后巷中游荡的恐怖存在，正在猎杀它的猎物。',
+        'wolf_hour',
+        '',
+        true,
+        '狼之时刻'
+      )
+    );
+    if ((a.con || 0) >= 8 && (a.wil || 0) >= 6) {
+      events.push(
+        evt(
+          '你在狼之时刻的猎杀中存活了下来。你躲在阴影中，屏住呼吸，直到黎明到来。',
+          'wolf_survive',
+          '体质+1，意志+1',
+          true,
+          '狼之时刻幸存者'
+        )
+      );
+      modAttr('con', 1);
+      modAttr('wil', 1);
+    } else if ((a.con || 0) >= 5) {
+      events.push(
+        evt(
+          '狼之时刻重创了你，但你勉强逃脱。你的身上留下了永远的伤疤。',
+          'wolf_injured',
+          '体质-2',
+          false
+        )
+      );
+      modAttr('con', -2);
+    } else {
+      events.push(
+        evt(
+          '狼之时刻发现了你。在月光下，你看到了它那双冰冷的眼睛——然后，一切归于黑暗。',
+          'wolf_death',
+          '死亡',
+          true,
+          '狼之时刻猎杀'
+        )
+      );
+      death('狼之时刻');
+      return events;
+    }
+  }
+
+  // 推奴人事件
+  if (age >= 25 && chance(0.07) && !hasMilestone('推奴人')) {
+    events.push(
+      evt(
+        '推奴人找到了你。他们是拇指下属的奴隶贩子，专门捕捉后巷的弱者卖给各种势力。',
+        'slave_hunter',
+        '',
+        true,
+        '推奴人'
+      )
+    );
+    if ((a.con || 0) >= 7 && (a.wil || 0) >= 6) {
+      events.push(
+        evt(
+          '你击退了推奴人。你的力量让他们意识到，你不是好惹的猎物。',
+          'slave_fight',
+          '体质+1，意志+1',
+          false
+        )
+      );
+      modAttr('con', 1);
+      modAttr('wil', 1);
+    } else if ((a.int || 0) >= 7) {
+      events.push(
+        evt(
+          '你用智慧欺骗了推奴人，让他们误以为你是某个大人物的手下。他们灰溜溜地离开了。',
+          'slave_trick',
+          '智力+1',
+          false
+        )
+      );
+      modAttr('int', 1);
+    } else {
+      events.push(
+        evt(
+          '推奴人抓住了你。你被卖给了某个不知名的势力，从此失去了自由。',
+          'slave_caught',
+          '意志-2，家境-1',
+          true,
+          '被奴役'
+        )
+      );
+      modAttr('wil', -2);
+      modAttr('wea', -1);
+      setFlag('enslaved', true);
+    }
+  }
+
+  // 小指星刀主人
+  if (age >= 30 && age <= 45 && (a.int || 0) >= 8 && (a.wil || 0) >= 7 && (bp === 'little' || hasTag('小指')) && chance(0.08) && !hasMilestone('星刀主人')) {
+    events.push(
+      evt(
+        '小指的高层注意到了你。他们向你提出了一个特殊的提议：成为「星刀」的主人——小指最精锐的暗杀者。',
+        'star_blade',
+        '',
+        true,
+        '星刀邀请'
+      )
+    );
+    events.push(
+      evt(
+        '你接受了这份职责。星刀在你手中发出幽冷的光芒，从此你成为了小指最锋利的刀刃。',
+        'star_blade_master',
+        '体质+2，智力+1，意志+1，家境+2',
+        true,
+        '星刀主人'
+      )
+    );
+    modAttr('con', 2);
+    modAttr('int', 1);
+    modAttr('wil', 1);
+    modAttr('wea', 2);
+    setFlag('star_blade', true);
+    addMilestone('星刀主人');
+  }
+
+  // 齿轮教会
+  if (age >= 25 && age <= 50 && chance(0.08) && !hasMilestone('齿轮教会')) {
+    events.push(
+      evt(
+        '你遇到了齿轮教会的传教士。他们向你宣扬「机械飞升」的理念——将血肉之躯替换为精密的机械，以此超越人类的极限。',
+        'gear_church',
+        '',
+        true,
+        '齿轮教会'
+      )
+    );
+    if ((a.int || 0) >= 7 && (a.wil || 0) >= 6) {
+      events.push(
+        evt(
+          '你理解了齿轮教会的理念，但选择了自己的道路。你用他们的技术改造了身体的一部分，但保留了灵魂。',
+          'gear_partial',
+          '体质+1，智力+1',
+          false
+        )
+      );
+      modAttr('con', 1);
+      modAttr('int', 1);
+      setFlag('gear_modified', true);
+    } else if ((a.wil || 0) <= 3 && chance(0.4)) {
+      events.push(
+        evt(
+          '你被齿轮教会的理念彻底征服了。你接受了全身机械化改造，成为了他们的一员。你的心跳声被齿轮的转动所取代。',
+          'gear_full',
+          '体质+2，意志-2',
+          true,
+          '机械飞升'
+        )
+      );
+      modAttr('con', 2);
+      modAttr('wil', -2);
+      setFlag('gear_full', true);
+    } else {
+      events.push(
+        evt(
+          '你拒绝了齿轮教会的提议。将血肉换成齿轮？你宁愿保持人类的脆弱。',
+          'gear_refuse',
+          '意志+1',
+          false
+        )
+      );
+      modAttr('wil', 1);
+    }
+  }
+
+  // 罗兰/漆黑缄默的疯狂
+  if (age >= 30 && age <= 50 && chance(0.06) && !hasMilestone('漆黑缄默')) {
+    events.push(
+      evt(
+        '你在后巷的废墟中遇到了一个男人。他的眼神空洞而疯狂，手中紧握着一把黑色的剑。那是罗兰——或者说，是失去安吉莉卡后的漆黑缄默。',
+        'roland_mad',
+        '',
+        true,
+        '漆黑缄默的疯狂'
+      )
+    );
+    if ((a.wil || 0) >= 8) {
+      events.push(
+        evt(
+          '你理解了罗兰的痛苦。那份失去至爱的疯狂让你感同身受。你默默地陪伴了他一夜，听他讲述安吉莉卡的故事。',
+          'roland_understand',
+          '意志+1',
+          false
+        )
+      );
+      modAttr('wil', 1);
+    } else if ((a.wil || 0) <= 4) {
+      events.push(
+        evt(
+          '罗兰的疯狂感染了你。你开始听到不存在的声音，看到不存在的幻影。那份绝望太过沉重。',
+          'roland_infect',
+          '意志-2',
+          false
+        )
+      );
+      modAttr('wil', -2);
+    } else {
+      events.push(
+        evt(
+          '你没有靠近罗兰。你知道，有些痛苦是不该被打扰的。你悄悄地离开了。',
+          'roland_leave',
+          '',
+          false
+        )
+      );
+    }
+  }
+
+  // 南部中指折断
+  if (age >= 28 && chance(0.07) && !hasMilestone('中指折断')) {
+    events.push(
+      evt(
+        '南部中指遭遇了前所未有的打击。一个神秘的势力袭击了他们的据点，中指的「家族」在火焰中崩塌。',
+        'middle_break',
+        '',
+        true,
+        '南部中指折断'
+      )
+    );
+    if (bp === 'middle' || hasTag('中指')) {
+      events.push(
+        evt(
+          '你是中指的一员。你亲眼目睹了家族的崩塌，你的兄弟姐妹在火焰中倒下。你发誓要复仇。',
+          'middle_member',
+          '体质+1，意志+1',
+          true,
+          '中指复仇誓约'
+        )
+      );
+      modAttr('con', 1);
+      modAttr('wil', 1);
+      setFlag('middle_revenge', true);
+    } else {
+      events.push(
+        evt(
+          '你作为旁观者目睹了这一切。都市的势力更迭如同潮汐，今日的霸主也许就是明日的尘埃。',
+          'middle_witness',
+          '智力+1',
+          false
+        )
+      );
+      modAttr('int', 1);
+    }
+  }
+
+  // 烟霾战争恢复地位
+  if (age >= 40 && getFlag('war_survivor') && chance(0.1) && !hasMilestone('烟霾恢复')) {
+    events.push(
+      evt(
+        '你决定尝试恢复因烟霾战争失去的地位。你四处奔走，拜访旧日的关系，试图重新获得巢的认可。',
+        'smoke_recover',
+        '',
+        true,
+        '烟霾恢复企图'
+      )
+    );
+    if ((a.int || 0) >= 8 && (a.wea || 0) >= 5) {
+      events.push(
+        evt(
+          '你终于通过特殊渠道获得了部分恢复。虽然无法完全回到过去，但你至少在后巷中重建了一定影响力。',
+          'smoke_partial',
+          '智力+1，家境+1',
+          false
+        )
+      );
+      modAttr('int', 1);
+      modAttr('wea', 1);
+    } else {
+      events.push(
+        evt(
+          '你发现这是不可能的。烟霾战争的烙印太深了，没有人愿意接纳一个曾经的战争参与者。都市的规则是残酷的：一旦失去，就再也无法挽回。',
+          'smoke_fail',
+          '意志-1',
+          true,
+          '无法恢复的地位'
+        )
+      );
+      modAttr('wil', -1);
+      addMilestone('烟霾恢复失败');
+    }
+  }
+
+  // 成为血魔（完全转化）
+  if (age >= 30 && (getFlag('vampire') || getFlag('blood_bond')) && chance(0.12) && !hasMilestone('血魔转化')) {
+    events.push(
+      evt(
+        '血魔的力量终于完全吞噬了你。你的心跳停止了，但你的意识依然清醒。你成为了真正的血魔——优雅、致命、永恒。',
+        'vampire_full',
+        '',
+        true,
+        '血魔转化'
+      )
+    );
+    events.push(
+      evt(
+        '你不再畏惧死亡，不再畏惧时间。但你也失去了阳光、失去了食物的味道、失去了作为人类的许多东西。这是祝福，还是诅咒？',
+        'vampire_eternal',
+        '体质+3，意志-1',
+        true,
+        '血魔永生'
+      )
+    );
+    modAttr('con', 3);
+    modAttr('wil', -1);
+    setFlag('full_vampire', true);
+    addMilestone('血魔转化');
+  }
+
+  // 协会剧情 - Zwei协会
+  if (age >= 25 && (bp === 'zwei' || hasTag('Zwei')) && chance(0.12) && !hasMilestone('Zwei协会')) {
+    events.push(
+      evt(
+        'Zwei协会派来了使者。二科——守护与正义的代名词，邀请你加入他们的行列。',
+        'zwei_invite',
+        '',
+        true,
+        'Zwei协会邀请'
+      )
+    );
+    if ((a.con || 0) >= 6 && (a.wil || 0) >= 5) {
+      events.push(
+        evt(
+          '你成为了Zwei协会的正式收尾人。你以守护之名挥舞武器，在都市中维护着某种脆弱的秩序。',
+          'zwei_member',
+          '体质+2，意志+1',
+          true,
+          'Zwei协会成员'
+        )
+      );
+      modAttr('con', 2);
+      modAttr('wil', 1);
+      setFlag('zwei_member', true);
+    } else {
+      events.push(
+        evt(
+          '你没有通过Zwei协会的考核。守护他人需要的不仅是力量，还有坚定的信念。',
+          'zwei_fail',
+          '意志-1',
+          false
+        )
+      );
+      modAttr('wil', -1);
+    }
+  }
+
+  // 协会剧情 - Seven协会
+  if (age >= 25 && (bp === 'seven' || hasTag('Seven')) && chance(0.12) && !hasMilestone('Seven协会')) {
+    events.push(
+      evt(
+        'Seven协会找到了你。六科——以情报与谋略著称，他们看中了你身上某种特殊的潜质。',
+        'seven_invite',
+        '',
+        true,
+        'Seven协会邀请'
+      )
+    );
+    if ((a.int || 0) >= 6 && (a.wil || 0) >= 5) {
+      events.push(
+        evt(
+          '你加入了Seven协会。在这里，信息和谋略比武力更有价值。你成为了都市阴影中的棋手。',
+          'seven_member',
+          '智力+2，意志+1',
+          true,
+          'Seven协会成员'
+        )
+      );
+      modAttr('int', 2);
+      modAttr('wil', 1);
+      setFlag('seven_member', true);
+    } else {
+      events.push(
+        evt(
+          'Seven协会认为你不够格。在这个协会中，愚蠢比软弱更致命。',
+          'seven_fail',
+          '智力-1',
+          false
+        )
+      );
+      modAttr('int', -1);
+    }
+  }
+
+  // 图书馆多结局事件（收到邀请函后的发展）
+  if (age >= 25 && getFlag('library_invite') && chance(0.15) && !hasMilestone('图书馆接待')) {
+    events.push(
+      evt(
+        '你再次收到了图书馆的召唤。这一次，安吉拉邀请你参加一场「接待」——一场生死攸关的战斗。',
+        'library_reception',
+        '',
+        true,
+        '图书馆接待'
+      )
+    );
+    const libRoll = Math.random();
+    let endingType = '';
+    // 属性修正结局概率
+    let aWeight = 0.30; // A结局：死亡
+    let bWeight = 0.25; // B结局：迷失
+    let cWeight = 0.20; // C结局：复活
+    let bookWeight = 0.25; // 夺书
+    if ((a.wil || 0) >= 8) { cWeight += 0.10; aWeight -= 0.05; bWeight -= 0.05; }
+    if ((a.int || 0) >= 8) { bookWeight += 0.10; aWeight -= 0.05; }
+    if ((a.con || 0) >= 8) { cWeight += 0.05; bookWeight += 0.05; aWeight -= 0.10; }
+    if ((a.con || 0) <= 3) { aWeight += 0.10; cWeight -= 0.10; }
+
+    if (libRoll < aWeight) {
+      events.push(
+        evt(
+          '你在图书馆的接待中失败了。安吉拉将你的故事化作了一本书，永远地陈列在图书馆的书架上。这就是A结局。',
+          'lib_ending_a',
+          '死亡',
+          true,
+          '图书馆A结局'
+        )
+      );
+      death('图书馆A结局');
+      setFlag('library_ending', 'A');
+      return events;
+    } else if (libRoll < aWeight + bWeight) {
+      events.push(
+        evt(
+          '你在图书馆中迷失了。无尽的书架、无尽的走廊，你再也找不到出口。你的意识逐渐消散，成为了图书馆的一部分。这就是B结局。',
+          'lib_ending_b',
+          '死亡',
+          true,
+          '图书馆B结局'
+        )
+      );
+      death('图书馆B结局');
+      setFlag('library_ending', 'B');
+      return events;
+    } else if (libRoll < aWeight + bWeight + cWeight) {
+      events.push(
+        evt(
+          '你在图书馆的接待中奇迹般地存活了下来。当你再次睁开眼睛时，你发现自己躺在都市的某个角落——你复活了。这就是C结局。',
+          'lib_ending_c',
+          '体质-1，意志+2',
+          true,
+          '图书馆C结局'
+        )
+      );
+      modAttr('con', -1);
+      modAttr('wil', 2);
+      setFlag('library_ending', 'C');
+      addMilestone('图书馆C结局复活');
+    } else {
+      events.push(
+        evt(
+          '你不仅存活了下来，还从图书馆中夺走了一本书。那本书中蕴含着某个强大存在的力量。你成为了都市中少数从图书馆全身而退的人。',
+          'lib_book_steal',
+          '智力+2，意志+1',
+          true,
+          '夺书者'
+        )
+      );
+      modAttr('int', 2);
+      modAttr('wil', 1);
+      setFlag('library_ending', 'BOOK');
+      addMilestone('图书馆夺书');
+    }
+  }
+
   return events;
 }
 
@@ -2916,13 +3512,116 @@ function generateMiddleAgeEvents(age, a, f, bp, tags) {
   if (age >= 65 && bp === 'backstreet' && chance(0.1)) {
     events.push(
       evt(
-        '你选择在后巷安度晚年。深宵的蓝光成为了你的夜灯，清道夫的脚步声是你的安眠曲。',
+        '你选择在后巷安度晚年。深宵的红光成为了你的夜灯，清道夫的脚步声是你的安眠曲。',
         'retire_backstreet',
         '意志+1',
         false
       )
     );
     modAttr('wil', 1);
+  }
+
+  // 成为仙人（鸿园/仙皇虫）
+  if (age >= 50 && (bp === 'eight' || hasTag('鸿园')) && chance(0.08) && !hasMilestone('仙人')) {
+    events.push(
+      evt(
+        '鸿园的仙皇虫注意到了你。它向你展示了「道」的真谛——舍弃凡人之躯，化身为超越时间的存在。',
+        'immortal_path',
+        '',
+        true,
+        '仙皇虫的邀请'
+      )
+    );
+    if ((a.int || 0) >= 8 && (a.wil || 0) >= 7) {
+      events.push(
+        evt(
+          '你领悟了仙皇虫的「道」，但选择了保持人性。你成为了半仙——拥有超越凡人的寿命，却依然保有情感和记忆。',
+          'half_immortal',
+          '体质+2，智力+1，意志+1',
+          true,
+          '半仙之躯'
+        )
+      );
+      modAttr('con', 2);
+      modAttr('int', 1);
+      modAttr('wil', 1);
+      setFlag('half_immortal', true);
+    } else if ((a.wil || 0) <= 3) {
+      events.push(
+        evt(
+          '你被仙皇虫的「道」彻底吞噬。你成为了真正的仙人——不老不死，却也失去了作为人的一切。你的眼中不再有情感，只剩下永恒的空虚。',
+          'full_immortal',
+          '体质+3，意志-3',
+          true,
+          '真仙'
+        )
+      );
+      modAttr('con', 3);
+      modAttr('wil', -3);
+      setFlag('full_immortal', true);
+    } else {
+      events.push(
+        evt(
+          '你拒绝了仙皇虫的邀请。凡人的生命虽然短暂，但正因如此才珍贵。',
+          'immortal_refuse_human',
+          '意志+2',
+          false
+        )
+      );
+      modAttr('wil', 2);
+    }
+  }
+
+  // 成为家主
+  if (age >= 45 && (bp === 'thumb' || hasTag('拇指') || getFlag('thumb_member')) && chance(0.1) && !hasMilestone('家主')) {
+    events.push(
+      evt(
+        '拇指的高层会议做出了决定。你被提拔为新一任的「家主」，统领一片区域的所有拇指势力。',
+        'family_head',
+        '',
+        true,
+        '家主晋升'
+      )
+    );
+    events.push(
+      evt(
+        '你坐在家主的位置上，看着下面俯首称臣的士兵。权力带来的不仅是荣耀，还有无尽的责任与危险。',
+        'family_head_reign',
+        '体质+1，智力+1，意志+1，家境+3',
+        true,
+        '家主'
+      )
+    );
+    modAttr('con', 1);
+    modAttr('int', 1);
+    modAttr('wil', 1);
+    modAttr('wea', 3);
+    setFlag('family_head', true);
+    addMilestone('家主');
+  }
+
+  // 拇指晋升阶级（非家主路线）
+  if (age >= 35 && age < 50 && (bp === 'thumb' || hasTag('拇指') || getFlag('thumb_member')) && !getFlag('family_head') && chance(0.12) && !hasMilestone('拇指晋升')) {
+    const thumbRanks = ['士兵', '组长', '指挥官', '干部'];
+    const currentRank = getFlag('thumb_rank') || 0;
+    if (currentRank < thumbRanks.length - 1) {
+      const nextRank = thumbRanks[currentRank + 1];
+      events.push(
+        evt(
+          `你在拇指中表现出色，被晋升为${nextRank}。在拇指的阶级体系中，每上升一步都意味着更多的权力和更多的危险。`,
+          'thumb_promote',
+          '体质+1，家境+1',
+          true,
+          '拇指晋升'
+        )
+      );
+      modAttr('con', 1);
+      modAttr('wea', 1);
+      setFlag('thumb_rank', currentRank + 1);
+      if (currentRank + 1 >= thumbRanks.length - 1) {
+        addMilestone('拇指晋升');
+      }
+    }
   }
 
   return events;
@@ -2946,7 +3645,7 @@ function generateElderEvents(age, a, f, bp, tags) {
       },
       {
         cause: '深宵清道夫',
-        text: '深宵降临，清道夫发现了独自在家的你。蓝色的光芒吞噬了你的存在。',
+        text: '深宵降临，清道夫发现了独自在家的你。红色的光芒吞噬了你的存在。',
         req: () => bp === 'backstreet' || bp === 'nine',
       },
       {
@@ -3038,6 +3737,26 @@ function generateElderEvents(age, a, f, bp, tags) {
         cause: '食指指令终结',
         text: '你收到了最后一条指令：「安息」。你遵从了指令，平静地闭上了眼睛。',
         req: () => getFlag('finger_joined') === '食指',
+      },
+      {
+        cause: '被剥夺居住权后死于深宵',
+        text: '你被剥夺了巢的居住权，被迫流落到后巷。深宵降临，红色的光芒包围了你。清道夫发现了这个无助的老人。',
+        req: () => getFlag('evicted'),
+      },
+      {
+        cause: '体质衰竭',
+        text: '多年的战斗和奔波耗尽了你的一切。你的身体如同破旧的风箱，再也无法运转。在都市中，能活到这个年纪已经是奇迹。',
+        req: () => (a.con || 0) <= 2,
+      },
+      {
+        cause: '齿轮教会解脱',
+        text: '齿轮终于停止了转动。你作为齿轮教会的一员，在机械与血肉的交融中迎来了终结。',
+        req: () => getFlag('gear_full'),
+      },
+      {
+        cause: '血魔的终焉',
+        text: '即使血魔也无法逃脱都市的规则。你在永恒的孤独中选择了面对阳光，化为灰烬。',
+        req: () => getFlag('full_vampire'),
       },
     ];
 
@@ -3453,7 +4172,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
         cond: () => true,
       },
       {
-        t: '深宵时分，你被窗外的蓝光惊醒。你看到一个清道夫正从隔壁的屋子里拖出什么东西。',
+        t: '深宵时分，你被窗外的红光惊醒。你看到一个清道夫正从隔壁的屋子里拖出什么东西。',
         e: 'wil-1',
         txt: '意志-1',
         cond: () => chance(0.3),
@@ -3547,6 +4266,48 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
         e: 'wil+1',
         txt: '意志+1',
         cond: () => bp === 'eleven',
+      },
+      {
+        t: '你在H巢的医院中长大。护士们经常谈论「人体优化」的话题，你不太明白那是什么意思。',
+        e: 'int+1',
+        txt: '智力+1',
+        cond: () => bp === 'h_nest',
+      },
+      {
+        t: 'N巢禁止一切摄影。你第一次拿起画笔，试图用绘画代替照片记录世界。',
+        e: 'int+1',
+        txt: '智力+1',
+        cond: () => bp === 'n_nest',
+      },
+      {
+        t: 'R巢的街道总是井井有条。你学会了如何在规则中生存——或者如何不被人发现地打破规则。',
+        e: 'wil+1',
+        txt: '意志+1',
+        cond: () => bp === 'r_nest',
+      },
+      {
+        t: 'W巢的工坊区总是热闹非凡。你最喜欢看工匠们打造奇点科技装置，火花四溅的场面让你着迷。',
+        e: 'int+1',
+        txt: '智力+1',
+        cond: () => bp === 'w_nest',
+      },
+      {
+        t: '第九巷的音乐声让你沉醉。你在街头艺人的钢琴旁站了一整天，梦想着有一天也能弹奏那样的旋律。',
+        e: 'wil+1',
+        txt: '意志+1',
+        cond: () => bp === 'nine',
+      },
+      {
+        t: '味之巷的空气中有股奇怪的味道。你跟着香味找到了谢肉祭的厨房，看到了让你做噩梦的景象。',
+        e: 'wil-1',
+        txt: '意志-1',
+        cond: () => bp === 'twentythree',
+      },
+      {
+        t: '小指的眼线在街角观察着你。你学会了如何在监视下保持自然，不让任何人猜到你的想法。',
+        e: 'int+1',
+        txt: '智力+1',
+        cond: () => bp === 'little',
       },
     ];
 
@@ -3735,7 +4496,7 @@ function generateTeenEvents(age, a, f, bp, tags) {
     } else if (chance(0.5)) {
       events.push(
         evt(
-          '深宵时分，你透过窗户看到了清道夫。他们蓝色的光芒在黑暗中浮动，像是一群幽灵。',
+          '深宵时分，你透过窗户看到了清道夫。他们红色的光芒在黑暗中浮动，像是一群幽灵。',
           'sweeper_sighting',
           '意志-1',
           false
@@ -3855,6 +4616,152 @@ function generateTeenEvents(age, a, f, bp, tags) {
     );
     modAttr('con', 1);
     modAttr('wil', -1);
+  }
+
+  // 边狱人格剧情复刻（少年期特殊遭遇）
+  if (age >= 14 && age <= 18 && chance(0.08) && !hasMilestone('边狱遭遇')) {
+    const limbusEncounters = [
+      {
+        name: '但丁的钟',
+        text: '你在后巷的废墟中遇到了一个戴着奇怪钟表头的人。他手中握着一根金色的指挥棒，身后跟着一群形形色色的人。「 clock 」——他发出了机械般的声音。你不知道他是谁，但你感受到了某种命运的牵引。',
+        attr: 'wil',
+        threshold: 6,
+        success: '你向钟表头点了点头。他似乎在微笑——如果那可以称为微笑的话。你感到某种未知的旅程正在等待着你。',
+        successEffect: '意志+1',
+        fail: '你被那诡异的外表吓退了。当你再次回头时，他们已经消失在废墟之中。',
+        failEffect: '意志-1',
+      },
+      {
+        name: '浮士德的智慧',
+        text: '一位自称「浮士德」的女人找到了你。她声称知晓都市的一切知识，愿意用情报换取你的「某样东西」。',
+        attr: 'int',
+        threshold: 7,
+        success: '你看穿了浮士德的把戏。知识确实珍贵，但用灵魂交换知识是愚蠢的。你礼貌地拒绝了。',
+        successEffect: '智力+1，意志+1',
+        fail: '你被浮士德的知识诱惑了。你交出了自己的某样珍贵之物，换取了一个看似重要实则无用的情报。',
+        failEffect: '意志-1，家境-1',
+      },
+      {
+        name: '唐吉诃德的正义',
+        text: '一个自称「堂吉诃德」的少年拦住了你。他手持一根木棍当作长枪，宣称要「守护后巷的正义」。',
+        attr: 'con',
+        threshold: 5,
+        success: '你被堂吉诃德的热情感染了。虽然他的正义在这个都市中显得荒谬，但那份纯粹让你动容。你决定帮助他——哪怕只是一点点。',
+        successEffect: '意志+1',
+        fail: '你无视了堂吉诃德。在这个都市中，正义是最奢侈的幻想。你转身离开，留下他在原地挥舞着木棍。',
+        failEffect: '',
+      },
+      {
+        name: '罗佳的金币',
+        text: '一个红发女人向你提出了一场赌局。她自称「罗佳」，据说从未输过任何赌博。',
+        attr: 'int',
+        threshold: 6,
+        success: '你赢了罗佳。她大笑着拍了拍你的肩膀，称你是「有趣的小鬼」。她留给你一枚金币作为纪念。',
+        successEffect: '智力+1，家境+1',
+        fail: '你输给了罗佳。她不客气地拿走了你的赌注，临走前还不忘调侃你「还需要多练练」。',
+        failEffect: '家境-1',
+      },
+      {
+        name: '希斯克利夫的愤怒',
+        text: '一个浑身绷带的男人突然向你冲来，嘴里咒骂着听不懂的脏话。他的眼中燃烧着纯粹的愤怒。',
+        attr: 'con',
+        threshold: 6,
+        success: '你躲过了希斯克利夫的攻击，并设法让他冷静了下来。他喘着粗气，最终嘟囔着离开了。',
+        successEffect: '体质+1',
+        fail: '希斯克利夫的重拳击中了你。当你醒来时，他已经不见踪影，只留下一地的狼藉。',
+        failEffect: '体质-1',
+      },
+    ];
+    const enc = pick(limbusEncounters);
+    events.push(
+      evt(
+        enc.text,
+        'limbus_encounter',
+        '',
+        true,
+        enc.name
+      )
+    );
+    if ((a[enc.attr] || 0) >= enc.threshold) {
+      events.push(
+        evt(
+          enc.success,
+          'limbus_success',
+          enc.successEffect,
+          false
+        )
+      );
+      if (enc.successEffect.includes('con+1')) modAttr('con', 1);
+      if (enc.successEffect.includes('int+1')) modAttr('int', 1);
+      if (enc.successEffect.includes('wil+1')) modAttr('wil', 1);
+      if (enc.successEffect.includes('wea+1')) modAttr('wea', 1);
+      if (enc.successEffect.includes('con-1')) modAttr('con', -1);
+      if (enc.successEffect.includes('int-1')) modAttr('int', -1);
+      if (enc.successEffect.includes('wil-1')) modAttr('wil', -1);
+      if (enc.successEffect.includes('wea-1')) modAttr('wea', -1);
+    } else {
+      events.push(
+        evt(
+          enc.fail,
+          'limbus_fail',
+          enc.failEffect,
+          false
+        )
+      );
+      if (enc.failEffect.includes('con-1')) modAttr('con', -1);
+      if (enc.failEffect.includes('int-1')) modAttr('int', -1);
+      if (enc.failEffect.includes('wil-1')) modAttr('wil', -1);
+      if (enc.failEffect.includes('wea-1')) modAttr('wea', -1);
+    }
+    addMilestone('边狱遭遇');
+  }
+
+  // 少年期深宵遭遇
+  if (age >= 15 && chance(0.06) && (bp === 'backstreet' || bp === 'nine' || bp === 'twentythree')) {
+    events.push(
+      evt(
+        '深宵降临了。凌晨3:13到4:34，清道夫在街道上游荡。你被困在了外面。',
+        'deep_night_teen',
+        '',
+        true,
+        '深宵遭遇'
+      )
+    );
+    if ((a.con || 0) >= 6 && (a.wil || 0) >= 5) {
+      events.push(
+        evt(
+          '你凭借着强大的体质在深宵中存活了下来。你躲过了三波清道夫的清扫。',
+          'deep_night_survive_teen',
+          '体质+1，意志+1',
+          true,
+          '深宵幸存者'
+        )
+      );
+      modAttr('con', 1);
+      modAttr('wil', 1);
+    } else if ((a.int || 0) >= 6) {
+      events.push(
+        evt(
+          '你找到了一个隐蔽的角落躲藏起来。清道夫的红光从你身边扫过，但没有发现你。',
+          'deep_night_hide',
+          '智力+1',
+          false
+        )
+      );
+      modAttr('int', 1);
+    } else {
+      events.push(
+        evt(
+          '清道夫发现了你。红色的光芒包围了你，你的意识逐渐消散。',
+          'deep_night_death_teen',
+          '死亡',
+          true,
+          '深宵死亡'
+        )
+      );
+      death('深宵');
+      return events;
+    }
   }
 
   return events;
@@ -4341,7 +5248,7 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
     } else {
       events.push(
         evt(
-          '清道夫发现了你。蓝色的光芒包围了你，你的意识逐渐消散。',
+          '清道夫发现了你。红色的光芒包围了你，你的意识逐渐消散。',
           'deep_night_death',
           '死亡',
           true,
@@ -4351,6 +5258,32 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
       death('深宵清道夫');
       return events;
     }
+  }
+
+  // 被剥夺居住权
+  if (age >= 22 && (a.wea || 0) < 3 && bp.endsWith('nest') && chance(0.08) && !hasMilestone('剥夺居住权')) {
+    events.push(
+      evt(
+        '因为你长期未缴纳税款，巢的管理部门做出了决定：剥夺你的居住权。你被逐出了巢，流落到后巷。',
+        'evicted',
+        '',
+        true,
+        '剥夺居住权'
+      )
+    );
+    events.push(
+      evt(
+        '你从巢的高塔跌落到了后巷的泥潭。曾经熟悉的一切都成了遥不可及的梦。后巷的规则和巢完全不同，你必须重新学习如何生存。',
+        'evicted_backstreet',
+        '家境-2，意志-1',
+        true,
+        '流落后巷'
+      )
+    );
+    modAttr('wea', -2);
+    modAttr('wil', -1);
+    setFlag('evicted', true);
+    addMilestone('剥夺居住权');
   }
 
   return events;
@@ -4494,6 +5427,138 @@ function calculateRank() {
   return { rank:'F', label:'被都市遗忘者', quote:'都市不会记住每一个人。在这座巨大的城市里，你已经消散在无尽的黑暗之中。', color: '#555' };
 }
 
+function generateLifeStory() {
+  const { birthplace, selectedTalents, milestones, events, age, alive, deathCause, attrs } = gameState;
+  const storyParts = [];
+  const bpName = birthplace ? birthplace.name : '都市的某个角落';
+  const bpDesc = birthplace ? birthplace.desc : '';
+
+  const openers = [
+    `你出生在${bpName}，${bpDesc}。`,
+    `你的故事始于${bpName}——${bpDesc}。`,
+    `${bpName}，${bpDesc}，这就是你生命的起点。`
+  ];
+  storyParts.push(openers[Math.floor(Math.random() * openers.length)]);
+
+  if (selectedTalents.length > 0) {
+    const t = selectedTalents[0];
+    const tDescs = [
+      `自幼你便展现出与众不同的特质——「${t.name}」，这让你在同龄人中显得格外特别。`,
+      `命运赐予你「${t.name}」的烙印，${t.desc.substring(0, 30)}……`,
+      `你天生带有「${t.name}」，它成为你成长路上的第一把钥匙。`
+    ];
+    storyParts.push(tDescs[Math.floor(Math.random() * tDescs.length)]);
+  }
+
+  const youthPhase = attrs.int > 6
+    ? "你年少时聪慧过人，在知识的海洋中如鱼得水。"
+    : attrs.con > 6
+      ? "你自幼体格强健，在后巷的险恶环境中磨练出了坚韧的生存意志。"
+      : attrs.wil > 6
+        ? "你拥有超乎常人的意志力，即使面对都市最黑暗的面相也从未退缩。"
+        : attrs.wea > 5
+          ? "你出生在一个相对优渥的环境中，金钱为你铺就了不同于常人的道路。"
+          : "你在都市的夹缝中艰难成长，每一天都是对生存意志的考验。";
+  storyParts.push(youthPhase);
+
+  if (milestones.length > 0) {
+    const key = milestones.slice(0, 2);
+    const msTexts = [
+      `人生的转折来得猝不及防——${key.join("、")}。这些经历如刻刀般在你身上留下不可磨灭的痕迹。`,
+      `在你的人生中，「${key[0]}」成为了最重要的分水岭。`,
+      `都市从不吝啬它的"馈赠"：${key.join("、")}——这一切塑造了今天的你。`
+    ];
+    storyParts.push(msTexts[Math.floor(Math.random() * msTexts.length)]);
+  }
+
+  const majorEvents = events.filter(e => e.major);
+  if (majorEvents.length > 0) {
+    const ev = majorEvents[0];
+    const evDescs = [
+      `那段最刻骨铭心的经历是关于${ev.text.substring(0, 20)}……它彻底改变了你对这个世界的认知。`,
+      `你永远不会忘记那一天——${ev.text.substring(0, 25)}……都市的齿轮从不为任何人停转。`,
+      `在命运的交叉口，${ev.text.substring(0, 20)}……成为了你灵魂深处最深的烙印。`
+    ];
+    storyParts.push(evDescs[Math.floor(Math.random() * evDescs.length)]);
+  }
+
+  if (gameState.flags.library_invite) {
+    storyParts.push("某天，一封金色的邀请函出现在你面前——「图书馆」向你敞开了大门。那是都市中最神秘的传说，是知识的终点，也是无数灵魂的归处。");
+  }
+
+  if (!alive) {
+    const dTexts = [
+      `最终，你在${age}岁时迎来了生命的终结。${deathCause || "都市吞噬了你的存在，如同它吞噬无数无名之辈一样。"}`,
+      `${age}岁，你的故事画上了句号。${deathCause || "在都市的阴影中，你的光芒悄然熄灭。"}`,
+      `直到${age}岁那年，${deathCause || "死亡如一位沉默的老友，终于叩响了你的门扉。"}`
+    ];
+    storyParts.push(dTexts[Math.floor(Math.random() * dTexts.length)]);
+  } else {
+    const aTexts = [
+      `如今你已${age}岁，依然在都市的洪流中前行。没有人知道明天会带来什么——但你还活着，这就足够了。`,
+      `${age}岁的你，仍在书写属于自己的篇章。在这个疯狂的城市里，生存本身就是一场胜利。`,
+      `岁月将你带到${age}岁，你的脚步仍未停歇。都市的故事永无止境，而你的传奇或许才刚刚开始。`
+    ];
+    storyParts.push(aTexts[Math.floor(Math.random() * aTexts.length)]);
+  }
+
+  let story = storyParts.join("");
+  if (story.length < 200) {
+    story += `后巷的霓虹灯依旧闪烁，巢的巨塔沉默矗立。在这个被称为"都市"的庞大机器中，你的存在或许只是一粒微尘——但即便如此，这也是独属于你的一生。`;
+  }
+  if (story.length > 400) story = story.substring(0, 397) + "……";
+  return story;
+}
+
+function getHighlightMoments() {
+  const { events, milestones } = gameState;
+  const highlights = [];
+  const majorEvents = events.filter(e => e.major);
+  for (const ev of majorEvents) {
+    highlights.push({
+      name: ev.milestone || (ev.text.length > 15 ? ev.text.substring(0, 15) + "……" : ev.text),
+      desc: ev.effText || "这是一段改变人生的经历。",
+      type: "major"
+    });
+    if (highlights.length >= 5) break;
+  }
+  if (highlights.length < 3) {
+    for (const ms of milestones) {
+      highlights.push({ name: ms, desc: "人生的重要里程碑。", type: "milestone" });
+      if (highlights.length >= 5) break;
+    }
+  }
+  if (highlights.length < 3) {
+    const sig = events.filter(e => !e.major && e.effText && (/[\+\-]\d/.test(e.effText) || /获得|失去/.test(e.effText)));
+    for (const ev of sig.slice(0, 3)) {
+      highlights.push({ name: ev.text.substring(0, 15) + "……", desc: ev.effText, type: "significant" });
+      if (highlights.length >= 5) break;
+    }
+  }
+  return highlights.slice(0, 5);
+}
+
+function getLibraryEnding() {
+  const { attrs, flags } = gameState;
+  if (!flags.library_invite) return null;
+  const a = attrs;
+  let aWeight = 0.30, bWeight = 0.25, cWeight = 0.20, bookWeight = 0.25;
+  if ((a.wil || 0) >= 8) { cWeight += 0.10; aWeight -= 0.05; bWeight -= 0.05; }
+  if ((a.int || 0) >= 8) { bookWeight += 0.10; aWeight -= 0.05; }
+  if ((a.con || 0) >= 8) { cWeight += 0.05; bookWeight += 0.05; aWeight -= 0.10; }
+  if ((a.con || 0) <= 3) { aWeight += 0.10; cWeight -= 0.10; }
+  const roll = Math.random();
+  if (roll < aWeight) {
+    return { type: 'A', title: '图书馆A结局', desc: '你在图书馆的接待中失败了。安吉拉将你的故事化作了一本书，永远地陈列在图书馆的书架上。', effect: '死亡' };
+  } else if (roll < aWeight + bWeight) {
+    return { type: 'B', title: '图书馆B结局', desc: '你在图书馆中迷失了。无尽的书架、无尽的走廊，你再也找不到出口。你的意识逐渐消散，成为了图书馆的一部分。', effect: '死亡' };
+  } else if (roll < aWeight + bWeight + cWeight) {
+    return { type: 'C', title: '图书馆C结局', desc: '你在图书馆的接待中奇迹般地存活了下来。当你再次睁开眼睛时，你发现自己躺在都市的某个角落——你复活了。', effect: '复活' };
+  } else {
+    return { type: 'BOOK', title: '夺书者', desc: '你不仅存活了下来，还从图书馆中夺走了一本书。那本书中蕴含着某个强大存在的力量。你成为了都市中少数从图书馆全身而退的人。', effect: '获得力量' };
+  }
+}
+
 function showResults() {
   hideAllPhases();
   showPhase('phase-result');
@@ -4501,59 +5566,88 @@ function showResults() {
   const result = calculateRank();
   const a = gameState.attrs;
   const card = document.getElementById('result-card');
+  const story = generateLifeStory();
+  const highlights = getHighlightMoments();
+  const libEnd = getLibraryEnding();
 
-  // Check library ending
-  if (gameState.flags.library && Math.random() < 0.3 && !gameState.flags.twisted) {
+  let libSection = '';
+  if (libEnd) {
+    libSection = `
+      <div class="result-library" style="margin:20px 0;padding:15px;background:#1a0a1a;border:1px solid #9b59b6;border-radius:6px;">
+        <h4 style="color:#9b59b6;margin-bottom:10px;">&#10022; 图书馆结局 &#10022;</h4>
+        <div style="font-weight:bold;color:#daa520;margin-bottom:6px;">${libEnd.title}（${libEnd.type}结局）</div>
+        <div style="color:#b8a9c9;font-size:0.95rem;line-height:1.6;">${libEnd.desc}</div>
+        <div style="margin-top:6px;color:#c0392b;font-size:0.85rem;">${libEnd.effect}</div>
+      </div>
+    `;
+    if (libEnd.effect === '死亡') {
+      gameState.flags.book = true;
+      gameState.alive = false;
+    }
+  }
+
+  let highlightSection = '';
+  if (highlights.length > 0) {
+    highlightSection = `
+      <div class="result-highlights" style="margin:20px 0;">
+        <h4 style="color:var(--accent-gold);margin-bottom:10px;">&#10022; 亮点时刻 &#10022;</h4>
+        ${highlights.map(h => `
+          <div style="padding:8px 0;border-bottom:1px solid #2a2a2a;">
+            <div style="font-weight:bold;color:#d4c5a0;">${h.name}</div>
+            <div style="color:#7a6f5a;font-size:0.9rem;">${h.desc}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  const storySection = `
+    <div class="result-story" style="margin:20px 0;padding:15px;background:#111;border:1px solid #2a2a2a;border-radius:6px;line-height:1.8;color:#b8a99a;font-size:0.95rem;text-align:justify;">
+      <h4 style="color:var(--accent-gold);margin-bottom:10px;text-align:center;">&#10022; 人生故事 &#10022;</h4>
+      ${story}
+    </div>
+  `;
+
+  const commonContent = `
+    <div class="result-stats">
+      <div class="result-stat"><div class="result-stat-label">最终年龄</div><div class="result-stat-val">${gameState.age}岁</div></div>
+      <div class="result-stat"><div class="result-stat-label">快乐值</div><div class="result-stat-val" style="color:${gameState.happiness >= 0 ? '#5a9e6f' : '#c0392b'}">${gameState.happiness}</div></div>
+      <div class="result-stat"><div class="result-stat-label">体质 CON</div><div class="result-stat-val">${a.con}</div></div>
+      <div class="result-stat"><div class="result-stat-label">智力 INT</div><div class="result-stat-val">${a.int}</div></div>
+      <div class="result-stat"><div class="result-stat-label">意志 WIL</div><div class="result-stat-val">${a.wil}</div></div>
+      <div class="result-stat"><div class="result-stat-label">家境 WEA</div><div class="result-stat-val">${a.wea}</div></div>
+    </div>
+    ${storySection}
+    ${highlightSection}
+    ${libSection}
+    <div class="result-talents">
+      <h4>&#10022; 天赋 &#10022;</h4>
+      <div class="result-talent-list">
+        ${gameState.selectedTalents.map(t => `<span class="selected-tag">${t.name}</span>`).join('')}
+      </div>
+    </div>
+    ${gameState.milestones.length > 0 ? `
+    <div class="result-milestones">
+      <h4>&#10022; 人生里程碑 &#10022;</h4>
+      ${gameState.milestones.map(m => `<div class="milestone-item">${m}</div>`).join('')}
+    </div>` : ''}
+  `;
+
+  if (gameState.flags.library && Math.random() < 0.3 && !gameState.flags.twisted && !libEnd) {
     gameState.flags.book = true;
     const libResult = calculateRank();
     card.innerHTML = `
       <div class="result-rank" style="color:${libResult.color}">&#10022; ${libResult.rank} &#10022;</div>
       <div class="result-rank-label">${libResult.label}</div>
       <div class="result-quote">"${libResult.quote}"</div>
-      <div class="result-stats">
-        <div class="result-stat"><div class="result-stat-label">最终年龄</div><div class="result-stat-val">${gameState.age}岁</div></div>
-        <div class="result-stat"><div class="result-stat-label">快乐值</div><div class="result-stat-val" style="color:${gameState.happiness >= 0 ? '#5a9e6f' : '#c0392b'}">${gameState.happiness}</div></div>
-        <div class="result-stat"><div class="result-stat-label">体质 CON</div><div class="result-stat-val">${a.con}</div></div>
-        <div class="result-stat"><div class="result-stat-label">智力 INT</div><div class="result-stat-val">${a.int}</div></div>
-        <div class="result-stat"><div class="result-stat-label">意志 WIL</div><div class="result-stat-val">${a.wil}</div></div>
-        <div class="result-stat"><div class="result-stat-label">家境 WEA</div><div class="result-stat-val">${a.wea}</div></div>
-      </div>
-      <div class="result-talents">
-        <h4>&#10022; 天赋 &#10022;</h4>
-        <div class="result-talent-list">
-          ${gameState.selectedTalents.map(t => `<span class="selected-tag">${t.name}</span>`).join('')}
-        </div>
-      </div>
-      ${gameState.milestones.length > 0 ? `
-      <div class="result-milestones">
-        <h4>&#10022; 人生里程碑 &#10022;</h4>
-        ${gameState.milestones.map(m => `<div class="milestone-item">${m}</div>`).join('')}
-      </div>` : ''}
+      ${commonContent}
     `;
   } else {
     card.innerHTML = `
       <div class="result-rank" style="color:${result.color}">&#10022; ${result.rank} &#10022;</div>
       <div class="result-rank-label">${result.label}</div>
       <div class="result-quote">"${result.quote}"</div>
-      <div class="result-stats">
-        <div class="result-stat"><div class="result-stat-label">最终年龄</div><div class="result-stat-val">${gameState.age}岁</div></div>
-        <div class="result-stat"><div class="result-stat-label">快乐值</div><div class="result-stat-val" style="color:${gameState.happiness >= 0 ? '#5a9e6f' : '#c0392b'}">${gameState.happiness}</div></div>
-        <div class="result-stat"><div class="result-stat-label">体质 CON</div><div class="result-stat-val">${a.con}</div></div>
-        <div class="result-stat"><div class="result-stat-label">智力 INT</div><div class="result-stat-val">${a.int}</div></div>
-        <div class="result-stat"><div class="result-stat-label">意志 WIL</div><div class="result-stat-val">${a.wil}</div></div>
-        <div class="result-stat"><div class="result-stat-label">家境 WEA</div><div class="result-stat-val">${a.wea}</div></div>
-      </div>
-      <div class="result-talents">
-        <h4>&#10022; 天赋 &#10022;</h4>
-        <div class="result-talent-list">
-          ${gameState.selectedTalents.map(t => `<span class="selected-tag">${t.name}</span>`).join('')}
-        </div>
-      </div>
-      ${gameState.milestones.length > 0 ? `
-      <div class="result-milestones">
-        <h4>&#10022; 人生里程碑 &#10022;</h4>
-        ${gameState.milestones.map(m => `<div class="milestone-item">${m}</div>`).join('')}
-      </div>` : ''}
+      ${commonContent}
     `;
   }
 }
