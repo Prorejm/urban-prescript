@@ -1240,6 +1240,14 @@ const ALL_TALENTS = [
   { id:'im6', name:'仙人资质', rarity:'purple', desc:'你拥有修炼仙人之道的资质。鸿园铁槛寺的仙人们在你身上看到了潜力——你有机会修成完整的仙人之道。', effect:'体质+1，智力+2，仙人事件永生可能', con:1, int:2, wil:0, wea:0, tag:'仙人' },
   { id:'im7', name:'安瓿依赖体', rarity:'blue', desc:'你的细胞已经被K公司的再生安瓿改造过。你依赖安瓿维持生命，但这也意味着你有机会获得永久的安瓿循环。', effect:'体质+2，意志-1，安瓿事件永生可能', con:2, int:0, wil:-1, wea:0, tag:'K公司' },
   { id:'im8', name:'图书馆司书体质', rarity:'purple', desc:'你与图书馆有着特殊的联系。安吉拉在你身上看到了成为司书的潜力——一种将存在固化为书页的体质。', effect:'智力+2，意志+1，图书馆司书永生事件极大提升', con:0, int:2, wil:1, wea:0, tag:'图书馆' },
+  // === 协会/新闻/孤儿天赋 ===
+  { id:'as1', name:'Zwei协会推荐者', rarity:'blue', desc:'你获得了Zwei协会第二科的推荐信。凭借这封信，你可以直接参加Zwei协会的入科考核。', effect:'体质+1，意志+1，Zwei事件有优势', con:1, int:0, wil:1, wea:0, tag:'协会' },
+  { id:'as2', name:'六协义体适格者', rarity:'blue', desc:'你的身体对义体改造有良好的适应性。六协会第三科的义体技师对你很感兴趣。', effect:'体质+2，六协会事件有优势', con:2, int:0, wil:0, wea:0, tag:'协会' },
+  { id:'as3', name:'七协情报网的一员', rarity:'blue', desc:'你是七协会第二科外围情报网的一员。你为七协提供街头情报，作为交换获得保护和报酬。', effect:'智力+2，家境+1，七协会事件有优势', con:0, int:2, wil:0, wea:1, tag:'协会' },
+  { id:'as4', name:'し协会编外成员', rarity:'purple', desc:'你是し协会第三科的编外成员。你拥有一把没有护手的刀——し协会的标志。沉默是你的武器。', effect:'体质+2，意志+1，し协会事件极大提升', con:2, int:0, wil:1, wea:0, tag:'协会' },
+  { id:'as5', name:'实验体的后遗', rarity:'blue', desc:'你幼年时曾被翼公司拿去做实验，身体留下了不可逆的影响。也许是副作用，也许是某种变异——你不确定。', effect:'体质-1，智力+1，实验相关事件有优势', con:-1, int:1, wil:0, wea:0, tag:'实验' },
+  { id:'as6', name:'孤儿院幸存者', rarity:'white', desc:'你在孤儿院长大，经历过点彩派的袭击。你身上的彩色伤痕永远不会消退——那是你生存的证明。', effect:'意志+1，童年创伤事件', con:0, int:0, wil:1, wea:0, tag:'孤儿' },
+  { id:'as7', name:'都市新闻记者', rarity:'blue', desc:'你是后巷的一名信息贩子。你收集各种都市新闻和传言，将其整理后出售给需要的客户。', effect:'智力+2，新闻事件大幅提升', con:0, int:2, wil:0, wea:1, tag:'情报' },
   // 组合标签天赋
   { id:'c1', name:'孤儿', rarity:'epic', desc:'你没有父母，在后巷的废墟中独自降生。深宵是你最早的摇篮，清道夫的脚步声是你最早的安眠曲。', effect:'体质+1，意志+1，触发孤儿线', con:1, int:0, wil:1, wea:0, tag:'孤儿' },
   { id:'c2', name:'双生子', rarity:'epic', desc:'你与另一个生命同时降临。你们共享着某种超越血脉的羁绊。', effect:'体质+1，意志+1，根据性别触发安吉丽卡/阿尔加利亚线', con:1, int:1, wil:1, wea:0, tag:'双生子' },
@@ -2263,6 +2271,47 @@ const ACHIEVEMENTS = [
   { id:'tuner_witness', name:'调律者目击者', desc:'目击了首脑调律者的行动。', rarity:RARITY.EPIC,
     condition:(gs)=>gs.milestones.includes('调律者目击'),
     lore:'调律者可以组合使用多种奇点：时间停止、空间折叠、概念抹除。被盯上的目标会从存在层面被消除。目击调律者而活下来本身就是奇迹。' },
+  // === 协会科成就 ===
+  { id:'zwei_member', name:'Zwei第二科推荐', desc:'获得了Zwei协会第二科的入科推荐。', rarity:RARITY.RARE,
+    condition:(gs)=>gs.milestones.includes('Zwei护送完成'),
+    lore:'Zwei协会以守护著称。第二科是守护任务的核心执行单位，分多个小组负责不同区域。获得科长推荐意味着你已证明了自己的实力。' },
+  { id:'liu_tournament_star', name:'六协义体比武星', desc:'在六协会第三科的义体比武中取得佳绩。', rarity:RARITY.RARE,
+    condition:(gs)=>gs.milestones.includes('六协比武佳绩'),
+    lore:'六协会以义体战斗闻名。第三科的义体收尾人拥有恐怖的爆发力——全身义体在战斗中的表现远超常人极限。' },
+  { id:'qi_infiltrator', name:'七协情报渗透者', desc:'成功完成了七协会第二科的潜入任务。', rarity:RARITY.RARE,
+    condition:(gs)=>gs.milestones.includes('七协潜入成功'),
+    lore:'七协会以情报和谋略著称。第二科是情报收集的核心。潜入任务要求极强的观察力和冷静的判断力。' },
+  { id:'shi_silent_member', name:'し协会编外', desc:'通过了し协会的入科测试，获得了没有护手的刀。', rarity:RARITY.EPIC,
+    condition:(gs)=>gs.milestones.includes('し协会入科'),
+    lore:'し协会的收尾人从不说话。他们使用没有护手的刀，一击必杀。成为编外成员意味着你已达到了し协会的沉默标准。' },
+  { id:'hana_first_contact', name:'第一协会接触', desc:'被Hana协会第一科主动接触。', rarity:RARITY.EPIC,
+    condition:(gs)=>gs.milestones.includes('Hana第一科接触'),
+    lore:'Hana是第一协会，处理涉及翼公司和五指级别的事务。被Hana主动接触意味着你的某些特质引起了都市最顶尖组织的注意。' },
+  // === 新闻/童年成就 ===
+  { id:'news_reader', name:'都市新闻读者', desc:'阅读了都市新闻。', rarity:RARITY.COMMON,
+    condition:(gs)=>gs.milestones.includes('都市新闻'),
+    lore:'都市的新闻来源包括都市快报、后巷晚报、协会广播、翼新闻、郊区通讯等。每一条新闻背后都隐藏着都市的残酷真相。' },
+  { id:'news_addict', name:'新闻追踪者', desc:'追踪了三期都市新闻。', rarity:RARITY.RARE,
+    condition:(gs)=>gs.milestones.includes('都市新闻') && gs.milestones.includes('都市新闻续') && gs.milestones.includes('都市新闻终'),
+    lore:'追踪都市新闻是一种危险的爱好。许多记者因为报道了不该报道的内容而消失。但了解都市的真相是生存的关键。' },
+  { id:'pointillist_survivor', name:'点彩派袭击幸存者', desc:'在孤儿院的点彩派袭击中幸存。', rarity:RARITY.RARE,
+    condition:(gs)=>gs.milestones.includes('点彩派袭击幸存'),
+    lore:'点彩派是环指野兽派的一个分支。他们把人体当作画布，用锋利的工具在受害者身上留下彩色的永久伤痕。被点彩派袭击的幸存者身上的伤痕永远不会消退。' },
+  { id:'experiment_subject', name:'实验体', desc:'幼年时被翼公司拿去做实验。', rarity:RARITY.EPIC,
+    condition:(gs)=>gs.milestones.includes('被拿去做实验'),
+    lore:'翼公司在开发奇点技术的过程中需要大量实验体。已崩溃翼公司的遗留设施中仍然进行着非法实验。被实验的儿童很少有完整的未来。' },
+  { id:'orphan_gang', name:'帮派暴力孤儿', desc:'父母在帮派冲突中丧生。', rarity:RARITY.COMMON,
+    condition:(gs)=>gs.milestones.includes('父母被帮派杀害'),
+    lore:'在后巷，帮派冲突是家常便饭。无辜的平民——包括儿童——经常成为帮派斗争的牺牲品。成为孤儿意味着你必须独自在后巷求生。' },
+  { id:'orphan_tuner', name:'调律孤儿', desc:'父母被首脑爪牙调律消除。', rarity:RARITY.RARE,
+    condition:(gs)=>gs.milestones.includes('父母被爪牙调律'),
+    lore:'爪牙的调律会将被调律者从存在层面彻底消除——不是死亡，而是从未存在过。调律孤儿是都市中最孤独的存在，因为没有人记得他们的父母。' },
+  { id:'orphan_sweeper', name:'清道夫孤儿', desc:'父母在深宵中被清道夫液化。', rarity:RARITY.RARE,
+    condition:(gs)=>gs.milestones.includes('父母被清道夫液化'),
+    lore:'清道夫的深宵扫荡是后巷居民最大的噩梦。三波扫荡——侦查、包围、清扫——每一波都比上一波更致命。亲眼目睹父母被液化的创伤永远不会愈合。' },
+  { id:'orphan_vampire', name:'血魔孤儿', desc:'父母被血魔吸干了血液。', rarity:RARITY.RARE,
+    condition:(gs)=>gs.milestones.includes('父母被血魔吸血'),
+    lore:'血魔从人类身上夺取血液作为生存必需品。被血魔袭击的受害者会变成苍白的空壳。在黑暗中闪烁的血红色眼睛——这是每个血魔孤儿永远的噩梦。' },
   { id:'mind_heart_user', name:'心望使用者', desc:'觉醒了心望力量。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('心望觉醒'),
     lore:'心望是将内心愿望汇聚为力量的特殊表现。心用于防御，身躯散发光芒增强抵挡；望用于攻击，光环附着武器大幅强化破坏力。多个望可以叠加。使用存在心理要求与负担。' },
   { id:'golden_branch_holder', name:'金枝持有者', desc:'与金枝产生了共鸣。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('金枝共鸣'),
@@ -3138,6 +3187,8 @@ function generateEvents(age) {
     if (typeof runLoreDetailEvents === 'function') runLoreDetailEvents(age);
   if (typeof runImmortalEvents === 'function') runImmortalEvents(age);
   if (typeof runReverberationEvents === 'function') runReverberationEvents(age);
+  if (typeof runAssociationSectionEvents === 'function') runAssociationSectionEvents(age);
+  if (typeof runChildhoodSpecialEvents === 'function') runChildhoodSpecialEvents(age);
 
   // 时间裂缝解释（最后加载）
   getTimeCrackExplanation(age);
@@ -13485,6 +13536,283 @@ let gameSettings = {
   mode: 'normal', // normal, free, notalent
   fastSkip: false,
 };
+
+// =============================
+// 协会直属科事件链 + 都市新闻事件 + 童年特殊事件
+// =============================
+function runAssociationSectionEvents(age) {
+  if (!gameState.alive || gameState.dead) return;
+  if (!gameState.eventCooldown) gameState.eventCooldown = {};
+  const a = gameState.attrs;
+  const bp = gameState.birthplace ? gameState.birthplace.id : 'backstreet';
+
+  // === Zwei协会直属科事件链 ===
+  if (age >= 20 && !getFlag('zwei_section') && chance(0.03)) {
+    setFlag('zwei_section', true);
+    addEvent({ text: "你接触了Zwei协会第二科的成员。他们以守护闻名，但第二科的内部分为多个小组——每个小组负责不同区域的守护任务。「我们是盾，不是剑。」第二科的科长是一个沉默寡言的中年人，「但盾也要有锋利的边缘。」", effect: "encounter", effText: "意志+1", major: true, milestone: "Zwei第二科接触" });
+    addMilestone("Zwei第二科接触");
+    modAttr('wil', 1);
+  }
+  if (age >= 23 && getFlag('zwei_section') && !getFlag('zwei_mission') && chance(0.03)) {
+    setFlag('zwei_mission', true);
+    addEvent({ text: "Zwei协会第二科向你发出了一个委托：保护一名关键证人穿越后巷，从第七区安全护送到第八区。这条路线穿越了三个帮派的领地，危险系数极高。「这不是普通的护送任务，」科长递给你一份档案，「证人掌握着拇指高层腐败的证据。如果他被杀，一切就完了。」", effect: "mission", effText: "接受委托", major: true, milestone: "Zwei护送任务" });
+    addMilestone("Zwei护送任务");
+    if (checkCombat(7, 'con')) {
+      addEvent({ text: "你成功将证人护送到了目的地。途中经历了三次伏击——第一次是拇指的半路拦截，第二次是食指的代行者追击，第三次是一个不知名刺客的突袭。你伤痕累累，但证人毫发无损。科长对你的表现非常满意：「你有加入Zwei的潜质。如果你愿意，我可以推荐你。」", effect: "success", effText: "体质+2，意志+1", major: true, milestone: "Zwei护送完成" });
+      addMilestone("Zwei护送完成");
+      modAttr('con', 2);
+      modAttr('wil', 1);
+      setFlag('zwei_recommended', true);
+    } else {
+      addEvent({ text: "护送失败了。在第二次伏击中，你没能挡住食指代行者的攻击。证人倒在了血泊中，关键证据随他一同消逝。科长沉默了很久：「回去吧。这不是你的错——但也不适合再来找我了。」", effect: "fail", effText: "意志-1", major: true, milestone: "Zwei护送失败" });
+      addMilestone("Zwei护送失败");
+      modAttr('wil', -1);
+    }
+  }
+
+  // === 六协会直属科事件链 ===
+  if (age >= 22 && !getFlag('liu_section') && chance(0.03)) {
+    setFlag('liu_section', true);
+    addEvent({ text: "你遇到了六协会第三科的义体收尾人。他的身体有一半已经被机械替代，手臂上缠绕着金属绷带。六协会以义体战斗闻名，而第三科是其中最精锐的。「义体不是弱点，」他活动着金属手指发出咔嚓声，「它是力量的延伸。」", effect: "encounter", effText: "体质+1", major: true, milestone: "六协第三科接触" });
+    addMilestone("六协第三科接触");
+    modAttr('con', 1);
+  }
+  if (age >= 25 && getFlag('liu_section') && !getFlag('liu_tournament') && chance(0.03)) {
+    setFlag('liu_tournament', true);
+    addEvent({ text: "六协会第三科举办了一场义体收尾人的内部比武。你作为编外人员被邀请参加——因为第三科科长对你的战斗风格很感兴趣。「见识一下真正的义体战斗吧。」", effect: "event", effText: "参与六协比武", major: true, milestone: "六协义体比武" });
+    addMilestone("六协义体比武");
+    if (checkCombat(7, 'con')) {
+      addEvent({ text: "你在比武中表现出色。虽然最终输给了第三科的副科长——他的全身义体在战斗中展现出了恐怖的爆发力——但科长拍了拍你的肩膀：「不错的身手。考虑加入六协吧。」", effect: "success", effText: "体质+2", major: false, milestone: "六协比武佳绩" });
+      addMilestone("六协比武佳绩");
+      modAttr('con', 2);
+    } else {
+      addEvent({ text: "比武中你被一名全身义体的收尾人一击打飞。「还差得远呢。」他冷冷地说。你躺在地上，深刻体会到了义体改造带来的力量差距。", effect: "fail", effText: "体质-1，意志+1", major: false, milestone: "六协比武落败" });
+      addMilestone("六协比武落败");
+      modAttr('con', -1);
+      modAttr('wil', 1);
+    }
+  }
+
+  // === 七协会直属科事件链 ===
+  if (age >= 20 && !getFlag('qi_section') && chance(0.03)) {
+    setFlag('qi_section', true);
+    addEvent({ text: "你被七协会第二科注意到了。七协会以情报和谋略著称，而第二科是情报收集的核心。一个戴着眼镜的女性找到了你：「你的情报价值比你知道的要高。跟我走一趟吧。」她没有给你拒绝的选项。", effect: "encounter", effText: "智力+1", major: true, milestone: "七协第二科接触" });
+    addMilestone("七协第二科接触");
+    modAttr('int', 1);
+  }
+  if (age >= 24 && getFlag('qi_section') && !getFlag('qi_infiltration') && chance(0.03)) {
+    setFlag('qi_infiltration', true);
+    addEvent({ text: "七协会第二科交给了你一个潜入任务：渗透某个帮派的据点，收集关键情报。「不是要你战斗，」眼镜女解释道，「只要带回来这份情报就够了。记住——情报比命重要。」", effect: "mission", effText: "接受潜入任务", major: true, milestone: "七协潜入任务" });
+    addMilestone("七协潜入任务");
+    if (checkCombat(6, 'int')) {
+      addEvent({ text: "你成功潜入了据点并带回了情报。七协对你的表现非常满意：「你的观察力和冷静程度是少见的。我们正在组建一个新的情报小组，有没有兴趣？」", effect: "success", effText: "智力+2，家境+1", major: true, milestone: "七协潜入成功" });
+      addMilestone("七协潜入成功");
+      modAttr('int', 2);
+      modAttr('wea', 1);
+    } else {
+      addEvent({ text: "你在潜入过程中暴露了。虽然你拼死逃了出来，但情报没有带回来。七协的联络人叹了口气：「算了，命还在就好。」", effect: "fail", effText: "意志+1", major: false, milestone: "七协潜入暴露" });
+      addMilestone("七协潜入暴露");
+      modAttr('wil', 1);
+    }
+  }
+
+  // === Cinq协会直属科事件链 ===
+  if (age >= 25 && !getFlag('cinq_section') && chance(0.02)) {
+    setFlag('cinq_section', true);
+    addEvent({ text: "你目睹了Cinq协会第一科的行动。他们的斩首精准得如同艺术——一刀下去，目标甚至来不及感到疼痛。Cinq协会处理的是最细腻的工作，而第一科是其中最精湛的。「优雅，」一个Cinq的收尾人向你展示他的佩剑，「我们的武器不仅是杀戮的工具，更是表达美的媒介。」", effect: "encounter", effText: "智力+1，体质+1", major: true, milestone: "Cinq第一科目击" });
+    addMilestone("Cinq第一科目击");
+    modAttr('int', 1);
+    modAttr('con', 1);
+  }
+
+  // === し协会直属科事件链 ===
+  if (age >= 25 && !getFlag('shi_section') && chance(0.02)) {
+    setFlag('shi_section', true);
+    addEvent({ text: "你在后巷遇到了し协会第三科的收尾人。他没有说话——し协会的人从不说话。他只是拔出了那把没有护手的刀，在一瞬间将三个围攻他的帮派成员全部斩杀。然后他收刀，消失在了巷口。整个过程不超过三秒。", effect: "encounter", effText: "意志+1", major: true, milestone: "し协会第三科目击" });
+    addMilestone("し协会第三科目击");
+    modAttr('wil', 1);
+  }
+  if (age >= 28 && getFlag('shi_section') && !getFlag('shi_test') && chance(0.02)) {
+    setFlag('shi_test', true);
+    addEvent({ text: "し协会的一个传令者找到了你——他没有说话，只是递给你一张纸条。上面写着：『入科测试：在三天内找到并击败一个目标。不许使用任何通讯工具。不许向任何人求助。』纸条背面画着一个し协会的标志。你犹豫了一下，但最终决定接受这个挑战。", effect: "mission", effText: "接受し协会测试", major: true, milestone: "し协会入科测试" });
+    addMilestone("し协会入科测试");
+    if (checkCombat(8, 'wil')) {
+      addEvent({ text: "你完成了测试。当你回到し协会的据点时，一个沉默的收尾人向你点了点头——这是し协会最高的认可。他递给你一把没有护手的刀。你成为了し协会第三科的编外成员。", effect: "success", effText: "体质+2，意志+2", major: true, milestone: "し协会入科" });
+      addMilestone("し协会入科");
+      modAttr('con', 2);
+      modAttr('wil', 2);
+    } else {
+      addEvent({ text: "你未能完成测试。三天期限到了，你没有找到目标。し协会的传令者只是看了你一眼，然后转身离去。沉默比任何否定都更残酷。", effect: "fail", effText: "意志-1", major: false, milestone: "し协会测试失败" });
+      addMilestone("し协会测试失败");
+      modAttr('wil', -1);
+    }
+  }
+
+  // === Hana协会直属科事件链 ===
+  if (age >= 30 && !getFlag('hana_section') && chance(0.02)) {
+    setFlag('hana_section', true);
+    addEvent({ text: "你接触了Hana协会——第一协会，都市中最顶尖的收尾人组织。Hana协会的第一科直接处理涉及翼公司和五指级别的事务。一个Hana的收尾人向你伸出手：「第一协会很少主动接触外人。但你身上的某些东西引起了我们的注意。」", effect: "encounter", effText: "智力+1，意志+1", major: true, milestone: "Hana第一科接触" });
+    addMilestone("Hana第一科接触");
+    modAttr('int', 1);
+    modAttr('wil', 1);
+  }
+
+  // === 都市新闻事件 ===
+  if (age >= 15 && !getFlag('city_news') && chance(0.08)) {
+    setFlag('city_news', true);
+    const news = [
+      '【都市快报】某巢的翼公司今日宣布奇点技术升级，所有居民需在一周内完成生物特征更新。',
+      '【后巷晚报】味之巷（第二十三巷）发生帮派冲突，据传谢肉祭与某个后巷帮派爆发了纺织面料争夺战。',
+      '【都市头条】首脑发布新调律公告：违反复制人禁忌的区域已扩大至三个巢的范围。爪牙将于下周开始执行肃清。',
+      '【郊区通讯】大湖观测站报告：白鲸的移动轨迹发生异常偏移，建议所有航运公司暂停湖区航线。',
+      '【协会广播】Zwei协会发布公告：即日起加强第七区至第九区的守护力量，原因未公开。',
+      '【翼新闻】W公司宣布新增三条WARP列车线路。其中一条通往此前从未开放的郊区深处。',
+      '【巢内日报】N公司西西弗百货推出新款经验罐头系列——据说能让消费者体验十种不同职业的人生记忆。',
+      '【后巷传言】据说后巷深处出现了一座不存在的图书馆，进入的人再也没出来过。',
+      '【都市头条】色彩收尾人靛蓝老人在大湖钓起了一条异常巨大的鱼——水手们说那是马林鲸的幼体。',
+      '【禁区公告】某翼公司的研究设施发生异想体收容失效事件，周围三个街区已被封锁。',
+      '【都市快报】环指野兽派画廊举办新作展，展品包括一颗来自采佩什家系血魔的眼球。',
+      '【后巷晚报】后巷发生了大规模清道夫异动——据传有多个"嬷嬷"同时下达了出动命令。深宵期间建议所有居民不要外出。',
+      '【协会广播】七协会宣布破获了一起涉及拇指高层的腐败案件，相关证据已被安全转移。',
+      '【都市头条】首脑爪牙在第九巢执行了一次公开调律——被调律的对象从存在层面被彻底消除。',
+      '【翼新闻】K公司推出新一代再生安瓿，声称再生效率提升了300%，但价格也翻了五倍。',
+      '【郊区通讯】某探险队在郊区发现了一座疑似旧L公司支部的废墟，内部发现了大量异想体残留物。',
+      '【都市快报】拉曼却领游乐园突然关闭，理由是『设施维护』。但后巷传言说，血棒再次出了问题。'
+    ];
+    addEvent({ text: "你在公告板上看到了今天的都市新闻。" + pick(news), effect: "news", effText: "智力+1", major: false, milestone: "都市新闻" });
+    addMilestone("都市新闻");
+    modAttr('int', 1);
+  }
+  // 每隔一段时间可以再看新闻
+  if (age >= 20 && getFlag('city_news') && !getFlag('city_news2') && chance(0.06)) {
+    setFlag('city_news2', true);
+    const news2 = [
+      '【后巷晚报】第八区后巷发生了一起严重的血魔失控事件。至少二十名居民被转化为血袋。Hana协会已介入处理。',
+      '【都市头条】五大灾害之一白鲸在郊区海域再次被观测到。所有航运暂停，大湖进入最高警戒状态。',
+      '【禁区公告】某巢发生了一起扭曲事件——一名市民的头部变成了浮空的气球。周围五十人受到波及失去意识。',
+      '【翼新闻】S公司农牧产业的神秘货物运输路线被曝光。后巷传言说，那些货物并非普通牲畜。',
+      '【协会广播】し协会第三科在某次任务中一夜之间肃清了整个帮派。没有留下任何目击者和证据。',
+      '【后巷传言】有人说在深宵期间看到了一队清道夫在白天出动——这只有首脑下达命令时才会发生。',
+      '【都市快报】一名色彩级收尾人在后巷与五指成员发生冲突，整个街区被打成了废墟。伤亡人数仍在统计中。',
+      '【巢内日报】N公司西西弗百货因经验罐头副作用被投诉——部分消费者无法区分自己的真实记忆和罐头记忆。',
+      '【都市头条】环指某大师的最新装置艺术作品在展出第三天发生了"意外"——装置材料被发现含有真人骨骼。',
+      '【郊区通讯】大湖水位突然下降了三米，露出了湖底的未知建筑遗迹。探险队正在评估进入的可能性。'
+    ];
+    addEvent({ text: "你在一份路过的报纸上看到了新的都市新闻。" + pick(news2), effect: "news", effText: "智力+1", major: false, milestone: "都市新闻续" });
+    addMilestone("都市新闻续");
+    modAttr('int', 1);
+  }
+  if (age >= 30 && getFlag('city_news2') && !getFlag('city_news3') && chance(0.05)) {
+    setFlag('city_news3', true);
+    const news3 = [
+      '【都市头条】一场大规模集体扭曲在某巢的学校中爆发——整所学校变成了一个数字化的角斗场。所有师生被困其中。',
+      '【禁区公告】首脑宣布都市禁忌新增条款：禁止任何组织或个人研究与"非人知性体"相关的一切技术。',
+      '【翼新闻】T公司的时间停止技术被曝光存在缺陷——某些被停止时间的物品会逐渐"倒流"。',
+      '【后巷晚报】一群自称"边狱公司"的人出现在后巷，他们声称自己是"罪人"，正在执行某项回收金枝的任务。',
+      '【协会广播】Cinq协会第一科在一次斩首行动中意外发现，目标竟然是一名五指成员的替身。',
+      '【都市快报】拉曼却领游乐园再次开放。这次据说加强了安全措施，但血魔猎人依然保持警惕。',
+      '【郊区通讯】孔穴鲸的活动范围突然扩大。多个大湖航行路线受到影响。水手们报告听到了奇怪的叩击声。',
+      '【后巷传言】有人在后巷深处发现了一台仍在运转的脑叶公司支部设施终端，屏幕上显示着"光之种计划"的字样。'
+    ];
+    addEvent({ text: "你从收音机中听到了最新的都市新闻。" + pick(news3), effect: "news", effText: "智力+1", major: false, milestone: "都市新闻终" });
+    addMilestone("都市新闻终");
+    modAttr('int', 1);
+  }
+}
+
+function runChildhoodSpecialEvents(age) {
+  if (!gameState.alive || gameState.dead) return;
+  const a = gameState.attrs;
+  const bp = gameState.birthplace ? gameState.birthplace.id : 'backstreet';
+
+  // === 童年特殊致命/影响事件 ===
+
+  // 孤儿院被点彩派袭击
+  if (age >= 4 && age <= 8 && !getFlag('orphanage_pointillist') && chance(0.015)) {
+    setFlag('orphanage_pointillist', true);
+    addEvent({ text: '点彩派的暴徒袭击了你所在的孤儿院。他们把孩子们当作画布——用锋利的工具在孩子们身上留下彩色的伤口，组成他们的\u201c艺术品\u201d。你拼命逃跑，但你看到了那些没能逃出来的孩子们——他们身上布满了五颜六色的伤痕。', effect: "trauma", effText: "意志-2，体质-1", major: true, milestone: "孤儿院被点彩派袭击" });
+    addMilestone("孤儿院被点彩派袭击");
+    modAttr('wil', -2);
+    modAttr('con', -1);
+    if (checkCombat(4, 'wil')) {
+      addEvent({ text: "你在混乱中逃了出来，身上留下了几道彩色的伤痕。这些伤痕至今没有消退——点彩派使用的特殊颜料似乎永远不会消失。", effect: "survive", effText: "意志+1", major: false, milestone: "点彩派袭击幸存" });
+      addMilestone("点彩派袭击幸存");
+      modAttr('wil', 1);
+    } else {
+      addEvent({ text: '你被点彩派抓住了。他们把你绑在墙上，用锋利的刀在你身上作画。剧烈的疼痛让你失去了意识。当你再次醒来时，你发现自己躺在一所医院的病床上。你的身上布满了彩色的伤痕——点彩派的\u201c签名\u201d。', effect: "trauma", effText: "体质-2，意志-2", major: true, milestone: "点彩派画作" });
+      addMilestone("点彩派画作");
+      modAttr('con', -2);
+      modAttr('wil', -2);
+    }
+  }
+
+  // 被翼公司拿去做实验
+  if (age >= 5 && age <= 10 && !getFlag('wing_experiment') && chance(0.01)) {
+    setFlag('wing_experiment', true);
+    const labs = [
+      { name: '某个已崩溃翼公司', desc: '他们把你关在一个白色的房间里，每天给你注射不明液体。你不知道那些液体的用途，但你感觉到自己的身体在缓慢变化。' },
+      { name: '地下非法实验室', desc: '一群穿着白大褂的人把你从后巷带走。他们用你的身体测试某种奇点技术的副作用。每次实验后你都疼得浑身发抖。' },
+      { name: 'T公司的时间部门', desc: '他们让你接触了被停止时间的物品。你感到时间在你周围凝固了——一秒变成了永恒的煎熬。当你被释放时，你不知道过去了多久。' }
+    ];
+    const lab = pick(labs);
+    addEvent({ text: "你在某天失踪了。" + lab.name + "的人把你带走做实验。" + lab.desc, effect: "trauma", effText: "体质-1，智力-1", major: true, milestone: "被拿去做实验" });
+    addMilestone("被拿去做实验");
+    modAttr('con', -1);
+    modAttr('int', -1);
+    if (chance(0.5)) {
+      addEvent({ text: "实验在几个月后结束了。他们把你扔回了后巷的一条巷子里。你的身体上留下了一些永远不会消失的痕迹——也许是疤痕，也许是某种改变。你再也没有找回以前的生活。", effect: "release", effText: "意志+1", major: false, milestone: "实验释放" });
+      addMilestone("实验释放");
+      modAttr('wil', 1);
+      setFlag('experiment_scars', true);
+    } else {
+      addEvent({ text: "实验过程中发生了意外。你趁乱逃了出来，但你的身体已经受到了不可逆的影响。你变得和以前不一样了——某种东西在你体内改变了。", effect: "escape", effText: "体质+1，意志-1", major: true, milestone: "实验逃脱" });
+      addMilestone("实验逃脱");
+      modAttr('con', 1);
+      modAttr('wil', -1);
+      setFlag('experiment_scars', true);
+    }
+  }
+
+  // 父母双亡——帮派冲突
+  if (age >= 3 && age <= 10 && !getFlag('parents_killed_gang') && chance(0.02)) {
+    setFlag('parents_killed_gang', true);
+    addEvent({ text: "你的父母在帮派冲突中丧生了。那天晚上，你躲在家里的衣柜中，听着外面的枪声和惨叫声。当一切安静下来后，你从衣柜中爬出来——父母倒在血泊中，他们的身体已经冷了。你成了孤儿，在后巷中独自挣扎求生。", effect: "trauma", effText: "家境-3，意志-2", major: true, milestone: "父母被帮派杀害" });
+    addMilestone("父母被帮派杀害");
+    modAttr('wea', -3);
+    modAttr('wil', -2);
+    setFlag('orphan', true);
+  }
+
+  // 父母双亡——爪牙调律
+  if (age >= 3 && age <= 10 && !getFlag('parents_killed_tuner') && !getFlag('parents_killed_gang') && chance(0.005)) {
+    setFlag('parents_killed_tuner', true);
+    addEvent({ text: "首脑的爪牙出现在了你家门口。你的父母犯了某种禁忌——也许是逃税，也许是接触了不该接触的东西。爪牙的调律在一瞬间完成了——你的父母从存在层面被彻底消除。你甚至来不及哭泣。你只记得那个黑色的身影在空气中留下的波纹，以及空气中残留的烧焦味。你从那一天起成为了孤儿。", effect: "trauma", effText: "家境-3，意志-3", major: true, milestone: "父母被爪牙调律" });
+    addMilestone("父母被爪牙调律");
+    modAttr('wea', -3);
+    modAttr('wil', -3);
+    setFlag('orphan', true);
+  }
+
+  // 父母双亡——清道夫深宵
+  if (age >= 3 && age <= 10 && !getFlag('parents_killed_sweeper') && !getFlag('parents_killed_gang') && !getFlag('parents_killed_tuner') && chance(0.01)) {
+    setFlag('parents_killed_sweeper', true);
+    addEvent({ text: "深宵时分，清道夫三波扫荡经过了你家所在的街区。你的父母没能逃过第二波包围。你从窗户看到了他们被液化的瞬间——身体从边缘开始融化，变成了流动的液体，被清道夫吸收。你吓得不敢发出声音，躲在床底下直到天亮。从那天起，你对深宵有着本能的恐惧。", effect: "trauma", effText: "家境-3，意志-2", major: true, milestone: "父母被清道夫液化" });
+    addMilestone("父母被清道夫液化");
+    modAttr('wea', -3);
+    modAttr('wil', -2);
+    setFlag('orphan', true);
+  }
+
+  // 父母双亡——血魔
+  if (age >= 3 && age <= 10 && !getFlag('parents_killed_vampire') && !getFlag('parents_killed_gang') && !getFlag('parents_killed_tuner') && !getFlag('parents_killed_sweeper') && chance(0.01)) {
+    setFlag('parents_killed_vampire', true);
+    addEvent({ text: "一个红眼的身影出现在了你的家门口。血魔。你父母的身体被抽干了血液，变成了苍白的空壳。你躲在柜子里，看到了那双在黑暗中闪烁的血红色眼睛。血魔似乎没有注意到你——他喝饱了血后就离开了。但你看到了父母的尸体。那个画面永远刻在了你的记忆中。", effect: "trauma", effText: "家境-3，意志-2", major: true, milestone: "父母被血魔吸血" });
+    addMilestone("父母被血魔吸血");
+    modAttr('wea', -3);
+    modAttr('wil', -2);
+    setFlag('orphan', true);
+  }
+}
 
 function setGameMode(mode) {
   gameSettings.mode = mode;
