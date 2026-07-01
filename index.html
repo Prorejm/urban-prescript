@@ -1196,6 +1196,25 @@ const ALL_TALENTS = [
   { id:'l3', name:'图书馆之主的光之种', rarity:'legend', desc:'你承载着光之种的希望，是都市未来的关键。', effect:'全属性+4，光之种完全掌控', con:4, int:4, wil:4, wea:4, tag:'超越' },
   { id:'l4', name:'光之种之源的灵魂治疗', rarity:'legend', desc:'你见证了那道照亮都市灵魂的光芒。尽管光芒的源头已经不在，但你继承了那份意志，试图用自己的方式治愈他人。', effect:'全属性+4，精神类事件完全免疫', con:4, int:4, wil:4, wea:4, tag:'超越' },
   { id:'l5', name:'命运剧本', rarity:'legend', desc:'你编写着都市的命运，一切尽在掌控之中。', effect:'全属性+4，可以预知并改变关键事件', con:4, int:4, wil:4, wea:4, tag:'超越' },
+  // === 边狱公司情报天赋 ===
+  { id:'lx1', name:'边狱巴士的乘客', rarity:'legend', desc:'你乘坐了边狱公司的梅菲斯特巴士。但丁的星盘在你眼前闪耀，十三个罪人的命运与你交织。星盘可以储存金枝、与命运共鸣产生五种现实效果——PIGRITIA、SUPERBIA、MOROSITAS等。', effect:'全属性+1，罪孽事件极大提升', con:1, int:1, wil:1, wea:1, tag:'边狱' },
+  // === 耗子相关 ===
+  { id:'r1', name:'耗子群的一员', rarity:'white', desc:'你是后巷街头混混——耗子群的一员。组织松散，靠遗弃废品苟活。你们常从弃尸中剖出内脏贩卖。', effect:'家境+1，体质-1', con:-1, int:0, wil:0, wea:1, tag:'底层身份' },
+  { id:'r2', name:'弃尸翻找者', rarity:'white', desc:'你学会了在后巷的弃尸中翻找值钱的内脏来贩卖。这是耗子最基本的生存技能。', effect:'家境+1，意志-1', con:0, int:0, wil:-1, wea:1, tag:'底层身份' },
+  { id:'r3', name:'耗子队的领头人', rarity:'blue', desc:'你带领着一群耗子在后巷求生。虽然组织松散，但你是他们为数不多的依靠。', effect:'体质+1，智力+1，耗子事件有优势', con:1, int:1, wil:0, wea:0, tag:'底层身份' },
+  // === 奇点接触天赋 ===
+  { id:'s1', name:'概念焚化炉的使用者', rarity:'purple', desc:'你曾使用过概念焚化炉——能够将被焚烧物体的相关记忆一同焚毁的装置。', effect:'智力+2，奇点事件大幅提升', con:0, int:2, wil:0, wea:0, tag:'奇点' },
+  { id:'s2', name:'人类纺织面料的穿戴者', rarity:'purple', desc:'你穿戴了用人类纺织而成的特殊面料。这是某个已崩溃翼公司的奇点技术，面料能带来减重、增速、增力的效果。', effect:'体质+2，速度大幅提升', con:2, int:0, wil:0, wea:0, tag:'改造' },
+  { id:'s3', name:'遗物的发现者', rarity:'purple', desc:'你曾在废墟中发现了一件遗物。遗物是具备独特效用的神秘物品，在都市内外广为流传。', effect:'智力+2，意志+1，遗物事件有优势', con:0, int:2, wil:1, wea:0, tag:'遗物' },
+  { id:'s4', name:'星盘的链接者', rarity:'purple', desc:'你与星盘产生了链接。星盘取代了但丁的头部，能够链接罪人使其复活，储存金枝，与命运共鸣。', effect:'全属性+1，边狱事件大幅提升', con:1, int:1, wil:1, wea:1, tag:'边狱' },
+  { id:'s5', name:'纹身手术的接受者', rarity:'purple', desc:'你接受了纹身手术——某个已崩溃翼公司的奇点，根据颜料成分能爆发性增强肌肉力量或使表皮如钢铁般坚硬。', effect:'体质+3，战斗事件大幅提升', con:3, int:0, wil:0, wea:0, tag:'改造' },
+  { id:'s6', name:'经验罐头的成瘾者', rarity:'blue', desc:'你长期食用N公司西西弗百货出售的经验罐头，获得了大量调制记忆。代价是你逐渐分不清哪些经历是自己的。', effect:'智力+2，意志-1，智力类事件有优势', con:0, int:2, wil:-1, wea:0, tag:'奇点' },
+  // === 五指详细天赋 ===
+  { id:'f1', name:'拇指的顾问', rarity:'purple', desc:'你是拇指内部极为稀有的顾问职位。虽然具体职能不明，但在拇指中享有极高的尊重。', effect:'体质+2，智力+1，拇指事件极大提升', con:2, int:1, wil:0, wea:0, tag:'拇指' },
+  { id:'f2', name:'食指的纺织者', rarity:'purple', desc:'你是食指中看管书写指令的巨大机械的纺织者。你来到密室后不再外出，但你是食指不可或缺的核心。', effect:'智力+3，食指事件极大提升', con:0, int:3, wil:0, wea:0, tag:'食指' },
+  { id:'f3', name:'中指的长兄', rarity:'purple', desc:'你是中指的长兄/姊，领导着众兄弟姐妹。复仇账簿在你手中翻动，仇怨纹身覆盖你的皮肤。', effect:'体质+2，意志+1，中指事件极大提升', con:2, int:0, wil:1, wea:0, tag:'中指' },
+  { id:'f4', name:'环指的画廊大师', rarity:'purple', desc:'你是环指的三重环大师，拥有自己的画廊。你的艺术品在都市中拍卖出天价。', effect:'智力+2，家境+2，环指事件极大提升', con:0, int:2, wil:0, wea:2, tag:'环指' },
+  { id:'f5', name:'小指的天退星', rarity:'purple', desc:'你是小指中以星名相称的成员——天退星。你的信物是以星辰锻造的刀剑，来自都市以外的遗物。小指成员在行动前互不认识。', effect:'体质+2，智力+1，小指事件极大提升', con:2, int:1, wil:0, wea:0, tag:'小指' },
   // 组合标签天赋
   { id:'c1', name:'孤儿', rarity:'epic', desc:'你没有父母，在后巷的废墟中独自降生。深宵是你最早的摇篮，清道夫的脚步声是你最早的安眠曲。', effect:'体质+1，意志+1，触发孤儿线', con:1, int:0, wil:1, wea:0, tag:'孤儿' },
   { id:'c2', name:'双生子', rarity:'epic', desc:'你与另一个生命同时降临。你们共享着某种超越血脉的羁绊。', effect:'体质+1，意志+1，根据性别触发安吉丽卡/阿尔加利亚线', con:1, int:1, wil:1, wea:0, tag:'双生子' },
@@ -2879,6 +2898,7 @@ function generateEvents(age) {
   if (typeof eventChainJaeheon === 'function') eventChainJaeheon(age);
   if (typeof eventChainWarpLoveTown === 'function') eventChainWarpLoveTown(age);
   if (typeof runSpecialFixerEvents === 'function') runSpecialFixerEvents(age);
+  if (typeof runRatFingerFixerEvents === 'function') runRatFingerFixerEvents(age);
   if (typeof runReverberationEvents === 'function') runReverberationEvents(age);
 
   // 时间裂缝解释（最后加载）
@@ -12169,6 +12189,265 @@ function runSpecialFixerEvents(age) {
   
   // 脑叶公司
   if (age >= 20 && chance(0.01) && !getFlag('qliphKnown')) { setFlag('qliphKnown', true); addEvent({ text: '你听说了一个关于「Qliphoth计数器」的传闻——那是脑叶公司管理异想体的关键装置。当计数器从0逆数到-1时，异想体就会突破收容。', effect: 'lore', effText: '智力+1', major: false, milestone: 'Qliphoth计数器' }); addMilestone('Qliphoth计数器'); modAttr('int', 1); }
+}
+
+// =============================
+// 耗子、五指剧情、前辈收尾人事件
+// =============================
+function runRatFingerFixerEvents(age) {
+  if (!gameState.alive || gameState.dead) return;
+  const bp = gameState.birthplace ? gameState.birthplace.id : 'backstreet';
+  const a = gameState.attrs;
+
+  // === 耗子遭遇事件 ===
+  if (age >= 10 && age <= 25 && !getFlag('rat_encounter') && chance(0.06)) {
+    setFlag('rat_encounter', true);
+    addEvent({ text: "你在后巷的暗巷里遇到了一群耗子。他们衣衫褴褛，面黄肌瘦，手里拿着生锈的铁管和破损的刀片。这些都市最底层的街头混混靠着遗弃的废品苟且偷生——他们中有人正在从一具弃尸中剖出内脏，准备拿去贩卖。「别看我们不起眼，」领头的老耗子说，「在都市里，活着就是最大的本事。」", effect: "encounter", effText: "家境+1", major: true, milestone: "耗子遭遇" });
+    addMilestone("耗子遭遇");
+    modAttr('wea', 1);
+  }
+
+  // 耗子集体求生
+  if (age >= 15 && age <= 30 && !getFlag('rat_survival') && chance(0.04)) {
+    setFlag('rat_survival', true);
+    addEvent({ text: "你和一群耗子集体行动，在深宵中躲过了清道夫的三波扫荡。他们教了你一套在后巷生存的基本法则：「永远不要走直线，永远不要在同一个地方过两夜，永远不要相信任何人的好意。」这些规矩粗糙但实用——在后巷，讲究体面是多余的。", effect: "encounter", effText: "意志+1，体质+1", major: true, milestone: "耗子生存法则" });
+    addMilestone("耗子生存法则");
+    modAttr('wil', 1);
+    modAttr('con', 1);
+  }
+
+  // 耗子捡内脏
+  if (age >= 12 && age <= 28 && !getFlag('rat_gutting') && chance(0.04)) {
+    setFlag('rat_gutting', true);
+    addEvent({ text: "一个老耗子教你从弃尸中翻找值钱的内脏。「这行虽然脏，但在后巷是最稳定的收入。」他手法熟练地从尸体中取出尚有价值的器官，「卖给黑市的地下医生能换不少眼。」你犹豫了一下，但想到空荡荡的口袋，还是照做了。这就是后巷——为了生存，尊严是可以交易的。", effect: "encounter", effText: "家境+1，意志-1", major: false, milestone: "耗子捡内脏" });
+    addMilestone("耗子捡内脏");
+    modAttr('wea', 1);
+    modAttr('wil', -1);
+  }
+
+  // === 五指拉勾会议事件 ===
+  if (age >= 25 && !getFlag('pinky_hook') && chance(0.03)) {
+    setFlag('pinky_hook', true);
+    const fingerTopics = ['拇指和食指在领地交界处爆发了小规模冲突，双方暂时克制', '中指在派对上展示了一条新的仇怨纹身，据说来自一场血腥的复仇', '环指大师的最新作品在地下拍卖会上拍出了上百亿眼的天价', '小指成员在某次行动后突然消失，无人知道他们的去向'];
+    addEvent({ text: "后巷流传着五指定期召开「拉勾」会议的消息。这是五指之间维持表面和平的唯一机制——在会议前后，下属帮派之间的交战会被尽可能避免。今天的议题是：" + pick(fingerTopics) + "。在五指的地盘上，他们的规则就是法律。你决定离这些大人物远一点。", effect: "lore", effText: "智力+1", major: false, milestone: "五指拉勾会议" });
+    addMilestone("五指拉勾会议");
+    modAttr('int', 1);
+  }
+
+  // === 五指详细剧情事件 ===
+
+  // 拇指——阶级礼仪事件
+  if (age >= 20 && (bp === 'backstreet' || bp === 'seven' || bp === 'nine') && !getFlag('thumb_ritual') && chance(0.04)) {
+    setFlag('thumb_ritual', true);
+    addEvent({ text: "你目睹了拇指执行「阶级礼仪」的场面。一个不知规矩的新人向上级说话时没有脱帽，拇指的士兵们立刻将他按倒在地。教父的处罚条款你早已耳熟：「出言不逊，当割其舌；擅自发言，当碎其颚；质疑上级，当枭其首；扰乱阶级，当诛其族。」那个新人的舌头被割了下来，他的惨叫声在后巷回荡了很久。从此你记住了拇指的铁律——阶级是不可僭越的。", effect: "gang", effText: "意志+1", major: true, milestone: "拇指阶级礼仪" });
+    addMilestone("拇指阶级礼仪");
+    modAttr('wil', 1);
+  }
+
+  // 拇指——家族奉纳
+  if (age >= 25 && !getFlag('thumb_tributum') && chance(0.03)) {
+    setFlag('thumb_tributum', true);
+    addEvent({ text: "拇指旗下某个家族帮派没能按时完成奉纳。那天晚上，拇指的指挥官带着整编士兵抵达了该家族的据点。红色大衣的身影在火光中闪烁，枪声断断续续响了整夜。第二天早上，那个家族的名字从后巷的名录中消失了。你庆幸自己不在那个家族里。", effect: "gang", effText: "意志+1", major: true, milestone: "拇指奉纳肃清" });
+    addMilestone("拇指奉纳肃清");
+    modAttr('wil', 1);
+  }
+
+  // 食指——指令完成事件
+  if (age >= 18 && (bp === 'twentythree' || bp === 'seven' || bp === 'backstreet') && !getFlag('index_instruction_event') && chance(0.04)) {
+    setFlag('index_instruction_event', true);
+    addEvent({ text: "一封信纸出现在你面前的地上。上面写着一项奇怪的指令：「将左边第三块砖移到右边第五个位置。」你照做了——虽然不完全理解为什么。不久后，一个蒙着黑布的苦行者走来，对你微微点头：「指令已完成。业已积累。」食指的传令员向你解释：「在食指的领地中，每个人都必须完成指令。无论指令的内容多么荒谬——因为没能完成指令的人，会被代行者按照指令处理。」", effect: "finger", effText: "意志+1", major: true, milestone: "食指指令完成" });
+    addMilestone("食指指令完成");
+    modAttr('wil', 1);
+    setFlag('indexInstructionDone', true);
+  }
+
+  // 食指——终端派指令事件
+  if (age >= 22 && !getFlag('index_terminal') && chance(0.03)) {
+    setFlag('index_terminal', true);
+    addEvent({ text: "你目睹了一个食指终端派成员的行动。他手中的「魔法哔哔机」突然剧烈震动，哔哔声急促得让人心跳加速——指令在迅速变化。他必须在几秒内完成新的指令。「这该死的终端……」他咬着牙冲向目标。你注意到他的佩剑上刻着金色横杠——三横杠的代行者据说能在色彩级收尾人面前保持镇定。在食指中，指令就是命运。", effect: "finger", effText: "智力+1", major: true, milestone: "食指终端派" });
+    addMilestone("食指终端派");
+    modAttr('int', 1);
+  }
+
+  // 中指——复仇账簿事件
+  if (age >= 20 && !getFlag('middle_revenge_event') && chance(0.04)) {
+    setFlag('middle_revenge_event', true);
+    addEvent({ text: "你看到了中指的复仇账簿的残页。上面密密麻麻地记录着各种仇怨：「第7条，第157项C栏——右臂到肩部为止自身体上分割」「偷走理发券——第8条，第20项A行6列——对所有涉案人员即刻处刑」每一个条目都有精确的罪行、惩罚方式和执行步骤。中指的人以兄弟姐妹相称，一旦有人冒犯了他们，就会被记入这本账簿。每解决一条仇怨，就能多一道强化力量的「仇怨纹身」。", effect: "finger", effText: "智力+1", major: true, milestone: "中指复仇账簿" });
+    addMilestone("中指复仇账簿");
+    modAttr('int', 1);
+  }
+
+  // 中指——派对事件
+  if (age >= 22 && !getFlag('middle_party') && chance(0.03)) {
+    setFlag('middle_party', true);
+    addEvent({ text: "你被邀请参加中指的新成员欢迎派对。紫色的灯光下，中指的成员们围坐在一起，觥筹交错。「兄弟姐妹，干杯！」长兄举起酒杯，「在这个都市里，只有我们是可以互相信任的。」气氛热烈而危险——你注意到每个人的皮肤上都刻着不同数量的纹身。一个幼弟凑到你耳边：「别被骗了。这份温暖是有代价的——一旦加入中指，你就再也不能退出。」", effect: "finger", effText: "体质+1，意志+1", major: true, milestone: "中指派对" });
+    addMilestone("中指派对");
+    modAttr('con', 1);
+    modAttr('wil', 1);
+  }
+
+  // 环指——艺术考试事件
+  if (age >= 20 && (bp === 'backstreet' || bp === 'twentythree') && !getFlag('ring_art_exam') && chance(0.03)) {
+    setFlag('ring_art_exam', true);
+    addEvent({ text: "环指领地的艺术考试日到了。你必须提交一件作品才能继续居住。不及格者第一次警告，第二次失去保护，第三次——处决或成为艺术素材。你看到一些人用自己或亲朋作为材料来完成作品。一个环指学徒面无表情地展示了一件以人类骨骼和颜料制成的装置。「美不是取悦，」他说，「美是真理。」你祈祷自己的作品能通过。", effect: "finger", effText: "智力+1，意志+1", major: true, milestone: "环指艺术考试" });
+    addMilestone("环指艺术考试");
+    modAttr('int', 1);
+    modAttr('wil', 1);
+    if (checkCombat(5, 'int')) {
+      addEvent({ text: "你的作品获得了C+的评价——勉强及格。环指的讲解员在一旁冷冷地评道：「下次最好拿出更有深度的东西。」你松了一口气，继续活过了这一天。", effect: "pass", effText: "智力+1", major: false, milestone: "环指考试及格" });
+      addMilestone("环指考试及格");
+      modAttr('int', 1);
+    } else {
+      addEvent({ text: "你的作品被评为不合格。一个讲解员走过来，面无表情地在你手背上画了一个叉：「第一次警告。下次再不合格，你就失去环指的保护。没有环指的保护……在后巷活不过三天。」", effect: "fail", effText: "意志-1", major: false, milestone: "环指考试不及格" });
+      addMilestone("环指考试不及格");
+      modAttr('wil', -1);
+    }
+  }
+
+  // 环指——走廊事件
+  if (age >= 25 && !getFlag('ring_corridor') && chance(0.02)) {
+    setFlag('ring_corridor', true);
+    addEvent({ text: "你不小心误入了环指的「走廊」——一个无视距离连接不同区域的后门网络。走廊的入口隐藏在普通墙壁之后，无数的出口连接着都市的各个角落。「你需要向导才能在走廊中找到路，」一个环指讲解员挡住了你，「知道起点和终点的人永远不会迷失，但外人进去……」他没有说完。你被送了出来，但这段经历让你明白了环指为何在后巷中拥有如此大的影响力。", effect: "finger", effText: "智力+2", major: true, milestone: "环指走廊" });
+    addMilestone("环指走廊");
+    modAttr('int', 2);
+  }
+
+  // 小指——烙印升温事件
+  if (age >= 25 && !getFlag('pinky_brand') && chance(0.03)) {
+    setFlag('pinky_brand', true);
+    addEvent({ text: "你注意到手背上的一个淡色印记突然开始发热。这是小指的烙印——被召集的前兆。在都市东部，小指成员可能是指挥官，也可能是家主候选人，甚至可能是极具实力的鸿园黑兽部队魁首。他们无处不在，却又互不相识。直到烙印升温之前，他们只是你身边擦肩而过的普通人。「看来……行动要开始了。」你身边的一个路人突然低声说道，然后他的气质在一瞬间变得截然不同。", effect: "finger", effText: "智力+2", major: true, milestone: "小指烙印升温" });
+    addMilestone("小指烙印升温");
+    modAttr('int', 2);
+  }
+
+  // === 随机性格前辈收尾人事件（友好/敌对区分） ===
+  // 前辈收尾人的性格类型与反应
+  if (age >= 18 && age <= 40 && !getFlag('senior_fixer_encounter') && chance(0.05)) {
+    setFlag('senior_fixer_encounter', true);
+    const fixerChars = [
+      { personality: '严厉但公正', assoc: 'Zwei协会', desc: '他目光如鹰，一言不发地审视着你。你是后巷出身的小鬼，而他已经为协会服务了二十年。', friend: '"不错。后巷出身的收尾人中，你算是少数有骨气的。"他点了点头，"记住，协会不收废物，但也不抛弃有能力的人。"', foe: '"后巷的垃圾也想当收尾人？"他冷哼一声，"回去捡你的破烂吧。"他的目光让你无法直视。' },
+      { personality: '温和但神秘', assoc: 'Hana协会', desc: '她微笑着向你打招呼。作为第一协会Hana的成员，她的实力深不可测。', friend: '"都市是残酷的，但只要你有信念，就没有走不通的路。"她递给你一张名片，"有困难可以找我。"', foe: '"你的眼神告诉我，你还不够坚定。"她的微笑没有变化，但语气中带着无形的压力，"等你准备好再来吧。"' },
+      { personality: '热血好斗', assoc: '六协会', desc: '他身上缠绕着绷带，脸上带着兴奋的笑容。六协会以义体战斗闻名。', friend: '"哈哈！你这小子/丫头有意思！"他大力拍着你的肩膀，"来六协会吧，我们需要你这样的新人！"拍得你肩膀生疼。', foe: '"就你这种身板？"他嗤笑一声，"六协会的战斗可不是闹着玩的。你连一拳都扛不住。"' },
+      { personality: '冷酷无情', assoc: 'Seven协会', desc: '他没有表情。七协会以情报与谋略著称，而他就是冰冷策略的化身。', friend: '"你的数据显示有一定潜力。"他低头看着手中的终端，"不过数据不代表一切。我会在暗中观察你。"', foe: '"没兴趣。"他甚至没有抬头看你一眼，转身离去。他的冷酷比任何武器都伤人。' },
+      { personality: '优雅高傲', assoc: 'Cinq协会', desc: '她的举止优雅得像是巢中的贵族。Cinq协会处理的是细腻的工作——斩首、暗杀、精密回收。', friend: '"你的举止还算得体。"她用挑剔的眼光打量着你，"不过离Cinq的标准还差得远。如果你想进步……或许可以来找我。"她的语气中带着一丝罕见的认可。', foe: '"Cinq协会不接受粗鄙之人。"她轻蔑地瞥了你一眼，拂袖而去，"等你学会什么叫礼仪再来吧。"' },
+      { personality: '沉默寡言', assoc: 'し协会', desc: '他是し协会的收尾人，带着一把没有护手的刀。沉默是他唯一的语言。', friend: '"……"他看了你很久，最终从口袋里掏出了一颗子弹递给你。"上好的弹。"仅此一个字，然后他消失在了巷口。', foe: '"……"他摇了摇头，转身离开。没有任何解释。沉默有时比语言更残忍。' }
+    ];
+
+    // 根据玩家身份决定友好/敌对概率
+    let friendlyChance = 0.3;
+    const myOrg = getCurrentOrg();
+    if (myOrg && isAssociation(myOrg)) friendlyChance = 0.7; // 同协会友好
+    else if (myOrg && isGang(myOrg)) friendlyChance = 0.1; // 帮派出身协会反感
+    else if (getFlag('org') === 'fixer' || hasMilestone('一阶收尾人')) friendlyChance = 0.6; // 收尾人身份友好
+    else if (bp === 'backstreet' || bp === 'twentythree') friendlyChance = 0.25; // 后巷出身较低
+
+    const fixer = pick(fixerChars);
+    const isFriend = Math.random() < friendlyChance;
+
+    // 检查帮派敌对关系
+    let orgRelation = '';
+    if (myOrg && isGang(myOrg)) {
+      // 帮派和协会天然对立
+      if (isFriend) {
+        // 偶尔有特例
+        orgRelation = '你很惊讶——一个' + fixer.assoc + '的前辈居然对帮派出身的你表现出好感。也许是你的实力让他另眼相看。';
+      } else {
+        orgRelation = '你是' + myOrg + '的人，而他是' + fixer.assoc + '的前辈。协会与帮派之间的对立让他的态度格外冷淡。';
+      }
+    }
+
+    addEvent({ text: "你在后巷遇到了一位" + fixer.assoc + "的前辈收尾人。" + fixer.desc + " " + orgRelation, effect: "fixer", effText: "意志+1", major: true, milestone: "前辈收尾人遭遇" });
+    addMilestone("前辈收尾人遭遇");
+    modAttr('wil', 1);
+
+    if (isFriend) {
+      addEvent({ text: "前辈的态度出人意料地友好。" + fixer.friend, effect: "friendly", effText: "智力+1，体质+1", major: false, milestone: "前辈收尾人认可" });
+      addMilestone("前辈收尾人认可");
+      modAttr('int', 1);
+      modAttr('con', 1);
+    } else {
+      addEvent({ text: "前辈对你不屑一顾。" + fixer.foe, effect: "hostile", effText: "意志-1", major: false, milestone: "前辈收尾人轻视" });
+      addMilestone("前辈收尾人轻视");
+      modAttr('wil', -1);
+    }
+  }
+
+  // 前辈收尾人委托事件
+  if (age >= 22 && getFlag('senior_fixer_encounter') && !getFlag('senior_fixer_job') && chance(0.04)) {
+    setFlag('senior_fixer_job', true);
+    const jobs = [
+      { desc: '一位前辈收尾人找到了你，需要帮手处理一起普通委托——护送一个商人穿越后巷。', reward: '家境+1，体质+1', req: 'con', diff: 5 },
+      { desc: '前辈收尾人邀请你协助调查一起翼公司禁忌事件。这意味着你们要深入危险的禁区。', reward: '智力+2，家境+1', req: 'int', diff: 7 },
+      { desc: '前辈收尾人让你帮忙处理一群骚扰居民的小帮派。虽然报酬不高，但能积累经验。', reward: '体质+1，家境+1', req: 'con', diff: 4 },
+      { desc: '前辈收尾人委托你跟踪一个可疑人物。这需要耐心和技巧。', reward: '智力+2', req: 'int', diff: 6 }
+    ];
+    const job = pick(jobs);
+    addEvent({ text: job.desc, effect: "job", effText: job.reward, major: true, milestone: "前辈委托" });
+    addMilestone("前辈委托");
+    if (checkCombat(job.diff, job.req)) {
+      addEvent({ text: "委托圆满完成。前辈收尾人对你刮目相看：「不错，你的能力比我想象的强。以后有活我会再找你。」他留下了一份报酬后转身离去。", effect: "success", effText: job.reward, major: false, milestone: "前辈委托完成" });
+      addMilestone("前辈委托完成");
+      modAttr('int', job.reward.includes('智力+2') ? 2 : job.reward.includes('智力+1') ? 1 : 0);
+      modAttr('con', job.reward.includes('体质+2') ? 2 : job.reward.includes('体质+1') ? 1 : 0);
+      modAttr('wea', job.reward.includes('家境+2') ? 2 : job.reward.includes('家境+1') ? 1 : 0);
+    } else {
+      addEvent({ text: "委托失败了。前辈收尾人叹了口气：「没关系，这种程度的委托确实不容易。」虽然失败了，但你学到了不少经验。", effect: "fail", effText: "意志+1", major: false, milestone: "前辈委托失败" });
+      addMilestone("前辈委托失败");
+      modAttr('wil', 1);
+    }
+  }
+
+  // === 都市禁忌相关事件 ===
+  // 枪械禁忌
+  if (age >= 20 && !getFlag('taboo_gun') && chance(0.02)) {
+    setFlag('taboo_gun', true);
+    addEvent({ text: "你从地下渠道听说了一份关于「枪械生产指南」的情报。都市的枪械禁忌极为严格——枪管长度必须与口径呈负相关、任何枪械不得击穿钢铁或建筑物墙壁、枪械使用时必须能听到枪声。违背这些规定的枪械技术将被A公司（首脑）追究。但后巷的工坊们总有办法打擦边球。", effect: "lore", effText: "智力+1", major: false, milestone: "枪械禁忌" });
+    addMilestone("枪械禁忌");
+    modAttr('int', 1);
+  }
+
+  // 复制人禁忌
+  if (age >= 22 && !getFlag('taboo_clone') && chance(0.02)) {
+    setFlag('taboo_clone', true);
+    addEvent({ text: "你听说了关于「复制人禁忌」的事。都市规定复制体包括本体在内不得超过一名，且存在时长不得超过七日。超过的话，至少一名爪牙就会出动将所有复制人抹杀。R公司利用T公司的技术加速孵化场内的时间，让成千上万的复制人厮杀到最后——但外界标准时间到达七天时，只允许剩一个人。这就是R公司超级佣兵的真正来源。", effect: "lore", effText: "智力+1", major: false, milestone: "复制人禁忌" });
+    addMilestone("复制人禁忌");
+    modAttr('int', 1);
+  }
+
+  // 非人禁忌
+  if (age >= 20 && !getFlag('taboo_nonhuman') && chance(0.02)) {
+    setFlag('taboo_nonhuman', true);
+    addEvent({ text: "你了解到都市的「非人禁忌」——义体部件不得仿照人类身体制作，不得存在具有知性的人工智能。可以使用精美的机械义体，但再精美也不能和人没有区别。违反此禁忌的存在——连「曾经存在过」的信息都会被彻底抹杀。你突然想到安吉拉——那个图书馆的馆长银发少女。如果她真的具有自我意识……那她本身就是对禁忌的最大触犯。", effect: "lore", effText: "智力+2", major: true, milestone: "非人禁忌" });
+    addMilestone("非人禁忌");
+    modAttr('int', 2);
+  }
+
+  // === 遗物遭遇事件 ===
+  if (age >= 25 && !getFlag('relic_encounter') && chance(0.02)) {
+    setFlag('relic_encounter', true);
+    const relics = [
+      { name: '天杀星刀·阿赖耶识', desc: '能够斩断事物之间「联系」的遗物。斩击次数越多，被斩之物就越接近「不曾存在」。但使用者也会被伤害——大多会变为废人。', effect: '智力+2，意志+1' },
+      { name: '冈格尼尔', desc: '能够必中目标并回收的标枪。命中后目标会承受不断增加的震颤直到崩溃。现由色彩收尾人蜜黄标枪维斯帕持有。你在废墟中发现了它留下的痕迹。', effect: '体质+1，智力+1' },
+      { name: '曼布里诺头盔', desc: '能使佩戴者与他人平等相处的遗物。即使血魔这种本能存在阶级的存在也能起效。据说初代Hana协会的收尾人曾佩戴它。', effect: '智力+1，意志+1' },
+      { name: '概念焚化炉', desc: '能够将被焚烧物体的相关记忆一同焚毁的装置。烧掉一根笔就让人从未写过字——除非烧掉的是「人类创造的第一根笔」。', effect: '智力+2' }
+    ];
+    const relic = pick(relics);
+    addEvent({ text: "你在废墟深处发现了遗物的痕迹。遗物是都市内外具备独特效用的神秘物品。" + relic.name + "——" + relic.desc, effect: "relic", effText: relic.effect, major: true, milestone: "遗物遭遇" });
+    addMilestone("遗物遭遇");
+    if (relic.effect.includes('智力+2')) modAttr('int', 2);
+    if (relic.effect.includes('智力+1')) modAttr('int', 1);
+    if (relic.effect.includes('意志+1')) modAttr('wil', 1);
+    if (relic.effect.includes('意志+2')) modAttr('wil', 2);
+    if (relic.effect.includes('体质+1')) modAttr('con', 1);
+  }
+
+  // === 翼公司S公司事件 ===
+  if (age >= 20 && !getFlag('S_corp_farm') && chance(0.03)) {
+    setFlag('S_corp_farm', true);
+    addEvent({ text: "你听说了S公司——「肉血骨农牧产业」，垄断了整个都市的农畜产业。作为翼公司，S公司以奇点技术确保都市的食物供应。但后巷的传言说，S公司的「农牧」远不止表面看到的那样。在那高墙围起的农场里，有些东西不是用来喂养的……而是被「培育」的。", effect: "lore", effText: "智力+1", major: false, milestone: "S公司农牧" });
+    addMilestone("S公司农牧");
+    modAttr('int', 1);
+  }
 }
 
 // =============================
