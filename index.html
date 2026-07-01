@@ -1071,7 +1071,7 @@ const ALL_TALENTS = [
   { id:'b22', name:'小指的正式成员', rarity:'blue', desc:'你已成为小指的正式成员，负责监视与情报。', effect:'智力+2，小指事件有优势', con:0, int:2, wil:0, wea:0, tag:'身份' },
   { id:'b23', name:'黑云会成员', rarity:'blue', desc:'你是黑云会的一员，掌握着独特的剑术。', effect:'体质+2，黑云会事件有优势', con:2, int:0, wil:0, wea:0, tag:'身份' },
   { id:'b24', name:'剑契组成员', rarity:'blue', desc:'你是剑契组的一员，继承了古老的剑术。', effect:'体质+2，剑契组事件有优势', con:2, int:0, wil:0, wea:0, tag:'身份' },
-  { id:'b25', name:'谢肉祭成员', rarity:'blue', desc:'你是谢肉祭的一员。那些纺织面料制成的面具下，是对"肉"的独特理解——但与烹饪无关。', effect:'体质+2，谢肉祭事件有优势', con:2, int:0, wil:0, wea:0, tag:'身份' },
+  { id:'b25', name:'谢肉祭成员', rarity:'blue', desc:'你是谢肉祭的一员。那些纺织面料制成的面具下，是对"布料"的独特理解——他们以人形纺织闻名后巷。', effect:'体质+2，谢肉祭事件有优势', con:2, int:0, wil:0, wea:0, tag:'身份' },
   { id:'b26', name:'不来梅乐队粉丝', rarity:'blue', desc:'你不幸听到了不来梅乐队的演奏，那段旋律在你脑中挥之不去，你开始不自觉地哼唱。', effect:'智力+1，意志+1，不来梅事件有优势', con:0, int:1, wil:1, wea:0, tag:'身份' },
   { id:'b27', name:'哭泣之子的邻居', rarity:'blue', desc:'你曾是哭泣之子的邻居，见证了那一切的悲剧。', effect:'意志+2，精神抗性提升', con:0, int:0, wil:2, wea:0, tag:'背景' },
   { id:'b28', name:'WARP列车乘客', rarity:'blue', desc:'你多次乘坐WARP列车，对空间折叠造成的扭曲有了抗性。', effect:'意志+2，WARP相关事件有抗性', con:0, int:0, wil:2, wea:0, tag:'背景' },
@@ -1821,7 +1821,7 @@ const ACHIEVEMENTS = [
   { id:'r_corp_rabbit', name:'兔子部队退役', desc:'从R公司兔子部队退役。', rarity:RARITY.RARE, condition:(gs)=>getFlag('rabbitVeteran'),
     lore:'R公司的兔子部队是泛用战斗员，残暴嗜血。他们在孵化场中通过厮杀选出最强个体。存活退役本身就是一种成就。' },
   { id:'butcher_gang', name:'谢肉祭成员', desc:'加入谢肉祭。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('加入谢肉祭'),
-    lore:'第二十三巷（味之巷）的帮派。谢肉祭以人形纺织面料闻名，他们与后巷屠夫和八大主厨完全不同。公开处理"肉"是这里的常态，但那绝不是烹饪。' },
+    lore:'第二十三巷（味之巷）的帮派。谢肉祭以人形纺织面料闻名，他们穿着面料制成的面具和衣物。他们将人纺织为特殊面料——这是裁缝的技艺，与餐饮完全无关。' },
   { id:'nails_hammer', name:'钉与锤', desc:'接触过N公司的钉或锤。', rarity:RARITY.RARE, condition:(gs)=>getFlag('nailsHammer'),
     lore:'N公司（钉与锤）有两派：锤（异端审判官，义体猎杀武装集团）和钉（定格小队，情报搜集）。经验罐头是他们的产品之一。' },
   { id:'black_beast', name:'黑兽十二支', desc:'接触黑兽十二支中的任一。', rarity:RARITY.RARE, condition:(gs)=>getFlag('blackBeast'),
@@ -1886,6 +1886,135 @@ const ACHIEVEMENTS = [
     lore:'火腿砰砰是后巷知名的快餐品牌。罗兰——那个自称普通九阶收尾人的男人——总在酒吧点一份火腿砰砰的葱饼。他说：「做收尾人最重要的是做完活之后，还能走进这种破酒吧。」' },
   { id:'color_roller', name:'色彩千面', desc:'获得色彩级称号。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('colorTitleGenerated'),
     lore:'在结算时获得独特的色彩称号。每一种色彩组合都反映了你一生中最重要的特质和经历。' },
+
+  // ====== 世界观扩展成就 ======
+  // === 十二协会 ===
+  { id:'zwei_grade', name:'Zwei之盾', desc:'在Zwei协会达到三科以上。', rarity:RARITY.RARE, condition:(gs)=>getFlag('zwei_rank')>=3,
+    lore:'Zwei协会（第二协会）使用厚重大剑防御反击。口号「您的盾牌」意味着保护委托人是最高优先级。从六科到一科，科室越高实力越强。' },
+  { id:'tres_audit', name:'Tres审查官', desc:'通过Tres协会的工坊审查。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('tresAudit'),
+    lore:'Tres协会（第三协会）审查都市武器装备，上报首脑并征收税金。所有工坊武器必须经过Tres审查才能合法流通。' },
+  { id:'shi_assassin', name:'し协会的暗影', desc:'接触过し协会的暗杀业务。', rarity:RARITY.RARE, condition:(gs)=>getFlag('shiEncounter'),
+    lore:'し协会（第四协会）负责暗杀。公正无私的日本风协会，使用日本刀和弓。暗杀委托不接受任何理由的拒绝。' },
+  { id:'cinq_duel', name:'Cinq决斗者', desc:'参与过Cinq协会的正式决斗。', rarity:RARITY.RARE, condition:(gs)=>getFlag('cinqDuel'),
+    lore:'Cinq协会（第五协会）讲究堂堂正正一对一决斗。法国骑士风，以荣誉和尊严为信条。' },
+  { id:'dieci_knowledge', name:'Dieci知识者', desc:'接触过Dieci协会的知识研究。', rarity:RARITY.RARE, condition:(gs)=>getFlag('dieciEncounter'),
+    lore:'Dieci协会（第十协会）是遗物与废墟专家。他们能将知识转化为物理力量，使用后知识会挥发。也以收养孤儿闻名。' },
+
+  // === 翼公司业务 ===
+  { id:'nest_taxpayer', name:'巢税缴纳者', desc:'在巢中连续纳税10年以上。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('nestTaxYears')>=10,
+    lore:'巢中居民必须缴纳高到荒谬的税金。翼公司禁忌+税金的双重压迫能让巢中居民工作到几乎发疯。不缴税会被驱逐出巢。' },
+  { id:'exam_pass', name:'应试合格', desc:'通过翼的入职考试进入巢。', rarity:RARITY.RARE, condition:(gs)=>getFlag('nestExamPassed'),
+    lore:'后巷居民想入巢需前往应试村做无休止准备。翼的入职考试每年一次，成绩差的人只能去后巷大学。考试是改变命运的唯一机会。' },
+  { id:'nest_mortgage', name:'巢房贷', desc:'在巢中背负房贷。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('nestMortgage'),
+    lore:'巢中居住权通过卖身合同、入职考试甚至抽奖获得。房贷是巢居民的枷锁，月复一月的还款吞噬了一切自由。' },
+  { id:'a_corp_taboo', name:'首脑的禁忌', desc:'触犯首脑的禁忌。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('violatedTaboo'),
+    lore:'首脑制定的都市法则不可违抗。违反禁忌者连同违规事项一起从都市中消失。C公司爪牙负责执行制裁。' },
+
+  // === 奇点相关 ===
+  { id:'singularity_warp', name:'空间撕裂', desc:'见证W公司空间撕裂奇点。', rarity:RARITY.RARE, condition:(gs)=>getFlag('warpSingularity'),
+    lore:'W公司购买了折断翼的空间裂缝奇点，产生次元之门。应用于WARP列车和清扫人员武器。空间撕裂武器具有极强的切割能力。' },
+  { id:'singularity_time', name:'时间操控', desc:'见证T公司时间控制奇点。', rarity:RARITY.RARE, condition:(gs)=>getFlag('timeSingularity'),
+    lore:'T公司奇点：TT1极小范围时间控制，TT2大范围时间流速变化，TT4场所内所有人时间同速。需要从别处"吸收"时间。' },
+  { id:'singularity_regen', name:'再生与崩解', desc:'见证K公司再生安瓿奇点。', rarity:RARITY.RARE, condition:(gs)=>getFlag('regenSingularity'),
+    lore:'K公司奇点：再生安瓿瞬间修复生物损伤，崩解安瓿瞬间分解目标。阿方索是现任代表，致力于研究安瓿。' },
+  { id:'singularity_moonlight', name:'月长石', desc:'持有月长石制品。', rarity:RARITY.RARE, condition:(gs)=>getFlag('moonlightItem'),
+    lore:'M公司奇点：月长石可吸收和抵御精神损害。长期接触会对精神产生不可预知的影响。月长石也是货币和装饰品。' },
+  { id:'singularity_nails', name:'钉与锤', desc:'接触N公司钉或锤。', rarity:RARITY.RARE, condition:(gs)=>getFlag('nailsItem'),
+    lore:'N公司（钉与锤）两派：锤（义体猎杀武装集团/异端审判官）和钉（定格小队/情报搜集）。赫尔曼董事组建了九人会。' },
+  { id:'singularity_camera', name:'摄影禁忌', desc:'了解N公司摄影禁忌。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('cameraTaboo'),
+    lore:'N公司的奇点与摄影相关。在N巢内，摄影受到严格管制。拍摄特定对象可能触犯禁忌。' },
+  { id:'singularity_rabbit', name:'孵化场', desc:'了解R公司孵化场真相。', rarity:RARITY.RARE, condition:(gs)=>getFlag('hatcheryKnown'),
+    lore:'R公司通过孵化场运作：将佣兵与成千上万复制体投入互相厮杀。与T公司合作在孵化场内加速时间。复制体不超过1名+本体外限7日。' },
+  { id:'singularity_eye', name:'眼线的注视', desc:'被B公司眼线标记。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('bCorpMarked'),
+    lore:'B公司眼线掌握翼公司状态调整事务。凝视者拥有传送能力，可以了解最优秀情报收尾人也无法探知的情报。' },
+  { id:'singularity_claw', name:'爪牙制裁', desc:'被C公司爪牙制裁。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('clawSanction'),
+    lore:'C公司爪牙执行都市禁忌。先警告三次，若仍不停止则执行制裁。违反禁忌者连同违规事项一起从都市中消失。' },
+
+  // === 五指详细 ===
+  { id:'thumb_family', name:'拇指家族', desc:'在拇指达到指挥官以上。', rarity:RARITY.RARE, condition:(gs)=>getFlag('thumbRank')>=3,
+    lore:'拇指以家族形式管理：教父→二老板→指挥官→士兵。红大衣、枪械、阶级礼仪。所有成员对上位者无限尊敬。' },
+  { id:'index_instruction', name:'食指指令', desc:'完成食指的指令信纸任务。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('indexInstructionDone'),
+    lore:'食指以宗教集团形式运作。苦行者完成体力劳动，代行者执行指令处决，传令员传递信纸，纺织者负责后勤。' },
+  { id:'middle_revenge', name:'中指复仇', desc:'在中指完成一次复仇。', rarity:RARITY.RARE, condition:(gs)=>getFlag('middleRevenge'),
+    lore:'中指「永不遗忘」。以兄弟姐妹相称，一旦加入无法退出。复仇账簿记录每一条仇怨，解决后获得仇怨纹身强化力量。' },
+  { id:'ring_gallery', name:'环指画廊', desc:'参观环指的巡回展览。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('ringGallery'),
+    lore:'环指「只相信自己看到的事物」。艺术品收藏界极大影响力。拥有无视距离的「走廊」。按美学分派别：野兽派、人体派、立体派等。' },
+  { id:'little_star', name:'小指之星', desc:'接触小指的星辰锻造信物。', rarity:RARITY.RARE, condition:(gs)=>getFlag('littleStarContact'),
+    lore:'小指「无处不在，却又互不相识」。以水浒传式星名和诨号称呼。信物为星辰锻造的刀剑，召集前互不相认。' },
+
+  // === 都市传说/灾害 ===
+  { id:'pianoist', name:'钢琴师的安魂曲', desc:'遭遇都市第一例扭曲——钢琴师。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('pianistEncounter'),
+    lore:'原酒吧钢琴师的扭曲使30万人变为音符。安吉丽卡在事件中身亡，罗兰亲手杀死了钢琴师。这是都市第一例扭曲。' },
+  { id:'smoke_war', name:'烟霾战争', desc:'经历烟霾战争。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('smokeWarEvent'),
+    lore:'旧L公司泄露惨白浓烟超70天。R公司兔子部队、前G公司、T公司、拇指等多势力混战。旧L公司和前G公司因此倒台。' },
+  { id:'white_night', name:'白夜黑昼', desc:'经历白夜黑昼事件。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('whiteNightEvent'),
+    lore:'脑叶公司发射光之种后的异变。第十二区经历三天极昼四天极夜。此后扭曲、大罪和神备开始在都市中出现。' },
+  { id:'weeping_sky', name:'哭泣的天空', desc:'遭遇V巢上空的扭曲。', rarity:RARITY.RARE, condition:(gs)=>getFlag('weepingSky'),
+    lore:'V巢上空出现扭曲，八万余人死亡。六协会一科被残响乐团打断。这是都市历史上最惨烈的扭曲事件之一。' },
+
+  // === 大罪相关 ===
+  { id:'sin_pride', name:'傲慢之罪', desc:'接触傲慢大罪。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('sin_pride'),
+    lore:'七种大罪之一：完全拒绝接受自我的七种归宿。傲慢是认为自己无需改变，不屑于直视真实的骄傲。' },
+  { id:'sin_envy', name:'嫉妒之罪', desc:'接触嫉妒大罪。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('sin_envy'),
+    lore:'七种大罪之一。嫉妒是对他人所拥有的产生无法控制的渴望。完全拒绝自我后只剩下嫉妒的燃烧。' },
+  { id:'sin_wrath', name:'暴怒之罪', desc:'接触暴怒大罪。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('sin_wrath'),
+    lore:'七种大罪之一。暴怒是纯粹的破坏冲动。当所有自我被剥离后，只剩下愤怒的火焰。' },
+  { id:'sin_sloth', name:'倦怠之罪', desc:'接触倦怠大罪。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('sin_sloth'),
+    lore:'七种大罪之一。倦怠是彻底放弃行动和思考。什么都不想做，什么都不想成为。' },
+  { id:'sin_gluttony', name:'暴食之罪', desc:'接触暴食大罪。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('sin_gluttony'),
+    lore:'七种大罪之一。暴食是无止境的消耗和吞噬。不只是食物——对一切资源、情感和生命的贪婪吞噬。' },
+  { id:'sin_melancholy', name:'忧郁之罪', desc:'接触忧郁大罪。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('sin_melancholy'),
+    lore:'七种大罪之一。忧郁是无法摆脱的悲伤和绝望。完全拒绝自我后，永恒的黑暗成为唯一的归宿。' },
+  { id:'sin_lust', name:'色欲之罪', desc:'接触色欲大罪。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('sin_lust'),
+    lore:'七种大罪之一。色欲是对感官刺激和占有的极端渴求。不只是性欲——对一切美好事物的扭曲欲望。' },
+
+  // === 色彩级详细 ===
+  { id:'color_crimson_fog', name:'殷红迷雾的传说', desc:'遭遇殷红迷雾卡莉。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('encounterKali'),
+    lore:'殷红迷雾卡莉——出身23号巷，大巧不工的剑术。绽放E.G.O「血雾」，拟态大刀与雾化武装。曾直面爪牙与调律者。' },
+  { id:'color_blue_reverb', name:'苍蓝残响的旋律', desc:'遭遇苍蓝残响阿尔加利亚。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('encounterAlb'),
+    lore:'苍蓝残响阿尔加利亚——安吉丽卡之兄，翼实验体。特制镰刀有「共振」效果。精神崩溃后组建残响乐团。' },
+  { id:'color_violet_Tear', name:'堇紫泪滴的幻梦', desc:'遭遇堇紫泪滴伊织。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('encounterIori'),
+    lore:'堇紫泪滴伊织——可无视距离传送，预知信息。紫毒雾刀剑。具有某种意义上跨越世界线能力的神秘收尾人。' },
+  { id:'color_crimson_gaze', name:'猩红凝视的望', desc:'遭遇猩红凝视维吉里乌斯。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('crimsonTeach'),
+    lore:'猩红凝视维吉里乌斯——短剑实为烙印工坊超高温武器。掌握「望」与「心望」技法——在对手出招前已看到结局。' },
+  { id:'color_indigo_rider', name:'靛蓝老人的传授', desc:'接受靛蓝老人指导。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('indigoTeach'),
+    lore:'靛蓝老人——大湖捕鲸人，船锚型武器，三重「望」技法。都市中最古老的色彩级收尾人之一。杀死了马林鲸鱼。' },
+
+  // === 鸿园/仙皇虫 ===
+  { id:'hongyuan_resident', name:'鸿园居民', desc:'在鸿园/大观园中长期生活。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('hongyuanResident'),
+    lore:'第八巷鸿园是一个特殊的后巷区域。内部存在大观园（豪华庄园）和铁槛寺（仙人居所）。每月一次重构日，建筑重新排列。' },
+  { id:'taixu_immortal', name:'仙人之道', desc:'了解铁槛寺仙人的力量。', rarity:RARITY.RARE, condition:(gs)=>getFlag('taixuKnown'),
+    lore:'鸿园铁槛寺的仙人是拥有特殊力量的存在。仙皇虫与鸿园的存续息息相关。重构日与仙皇虫的周期有关。' },
+  { id:'restructuring_day', name:'重构日生还者', desc:'在鸿园重构日中存活。', rarity:RARITY.RARE, condition:(gs)=>getFlag('survivedRestructuring'),
+    lore:'鸿园每月重构日：第八区建筑重新排列。空间扭曲中底层居民可能坠落死亡，家主席位也可能因此易主。是鸿园最危险的日子。' },
+
+  // === 后巷文化 ===
+  { id:'backstreet_law', name:'后巷法则', desc:'了解后巷的不成文规矩。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('backstreetLaw'),
+    lore:'后巷有自己的规矩：不要在深宵出门，不要与帮派为敌，不要靠近巢的边界。违反规矩的人很快就会消失。' },
+  { id:'deep_night_regulation', name:'深宵规则', desc:'存活过完整的深宵时段。', rarity:RARITY.RARE, condition:(gs)=>getFlag('fullDeepNight'),
+    lore:'后巷深宵：每日3:13-4:34，清道夫三波扫荡。一切暴力不受法律约束。唯一禁忌是破坏居民区。有人称之为「80分钟的地狱」。' },
+  { id:'fixer_office', name:'事务所经营者', desc:'建立自己的收尾人事务所。', rarity:RARITY.RARE, condition:(gs)=>getFlag('ownOffice'),
+    lore:'收尾人可以独立或加入事务所。事务所分等级，等级越高承接的委托报酬越丰厚。但也有事务所在一夜之间被灭门的风险。' },
+  { id:'border_trade', name:'巢中巷商人', desc:'在巢与后巷之间从事交易。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('borderTrade'),
+    lore:'巢的缝隙中存在后巷区域（巢中巷）。巢中巷是灰色地带，黑市交易和各种非法活动在此进行。也是很多人赖以为生的场所。' },
+
+  // === 大湖与废墟 ===
+  { id:'great_lake_fish', name:'大湖渔夫', desc:'在大湖中捕鱼为生。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('greatLakeFish'),
+    lore:'大湖位于U巢附近，是比都市更古老的水域。湖中有各种未知的生物，鲸鱼是最可怕的。大湖收尾人在这片水域上讨生活。' },
+  { id:'ruins_explore', name:'废墟探险', desc:'深入废墟探索。', rarity:RARITY.RARE, condition:(gs)=>getFlag('ruinsExplored'),
+    lore:'都市地下深处存在废墟：废弃巢、古代建筑、绝密设施。边境铁道是废墟居民获取罕见物品的重要途径。' },
+  { id:'black_beast_pill', name:'黑兽丸', desc:'服用过黑兽丸。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('blackBeastPill'),
+    lore:'鸿园黑兽十二支的秘药。服用后可大幅增强力量，但副作用严重。黑兽丸的制作原料与仙皇虫有关。' },
+
+  // === 脑叶公司/异想体 ===
+  { id:'abno_contain', name:'异想体收容', desc:'参与异想体收容工作。', rarity:RARITY.RARE, condition:(gs)=>getFlag('abnoContain'),
+    lore:'脑叶公司管理异想体。通过适当的能源输出（PE Boxes）维持收容。突破收容的异想体会被镇压小组处理。脑啡肽是精神与物理能源。' },
+  { id:'qliphoth_counter', name:'Qliphoth计数器', desc:'了解Qliphoth计数器。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('qliphKnown'),
+    lore:'Qliphoth计数器从0逆数到-1时，异想体突破收容。数值越低代表异想体越不稳定。逆转概率因异想体而异。' },
+  { id:'pe_boxes', name:'PE-Boxes', desc:'产出PE-Boxes。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('peBoxesProduced'),
+    lore:'PE-Boxes（Positive Enkephalin Boxes）是脑叶公司的核心产出。通过管理异想体获取脑啡肽来维持设施运转。' },
+  { id:'orpheus', name:'俄耳甫斯', desc:'了解俄耳甫斯主管。', rarity:RARITY.RARE, condition:(gs)=>getFlag('orpheusKnown'),
+    lore:'俄耳甫斯是脑叶公司主管，负责管理整个设施。脑叶公司倒台后的去向不明。他的名字与希腊神话中下到冥界寻找妻子的诗人相同。' },
 ];
 function checkAchievements(gs) {
   const unlocked = [];
@@ -2538,6 +2667,26 @@ const COLOR_PALETTE = [
   { name: '青碧', hex: '#00CED1', attr: 'mix' },
   { name: '桃红', hex: '#FF69B4', attr: 'mix' },
   { name: '琉璃', hex: '#87CEEB', attr: 'int' },
+  // === 扩充色系 ===
+  { name: '琥珀', hex: '#FFBF00', attr: 'wea' },
+  { name: '焦褐', hex: '#8B4513', attr: 'con' },
+  { name: '霜白', hex: '#F0F8FF', attr: 'int' },
+  { name: '鸦青', hex: '#2F4F4F', attr: 'wil' },
+  { name: '赭石', hex: '#A0522D', attr: 'con' },
+  { name: '绛紫', hex: '#9B30FF', attr: 'mix' },
+  { name: '天青', hex: '#6898D6', attr: 'int' },
+  { name: '珊瑚', hex: '#FF7F50', attr: 'con' },
+  { name: '石墨', hex: '#383838', attr: 'wil' },
+  { name: '杏黄', hex: '#F0C239', attr: 'wea' },
+  { name: '铁灰', hex: '#6B6B6B', attr: 'wil' },
+  { name: '烟粉', hex: '#D4A5A5', attr: 'mix' },
+  { name: '松石', hex: '#40E0D0', attr: 'int' },
+  { name: '檀棕', hex: '#6B3A2E', attr: 'con' },
+  { name: '苍穹', hex: '#4A708B', attr: 'int' },
+  { name: '鸦羽', hex: '#1A1A2E', attr: 'wil' },
+  { name: '丹砂', hex: '#FF4D00', attr: 'con' },
+  { name: '鎏银', hex: '#C0C0C0', attr: 'wea' },
+  { name: '黛紫', hex: '#6A0DAD', attr: 'mix' },
 ];
 
 const TITLE_SUFFIXES = {
@@ -3207,20 +3356,20 @@ function generateAdultEvents(age, a, f, bp, tags) {
   }
 
   // 谢肉祭事件
-  if (age >= 30 && (bp === 'twentythree' || getFlag('gang_joined') === '谢肉祭') && chance(0.06) && !hasMilestone('谢肉祭盛宴')) {
+  if (age >= 30 && (bp === 'twentythree' || getFlag('gang_joined') === '谢肉祭') && chance(0.06) && !hasMilestone('谢肉祭纺织仪式')) {
     events.push(
       evt(
-        '谢肉祭举办了一场盛大的「分肉仪式」。你是参与者，还是食材？',
+        '谢肉祭举办了一场盛大的「纺织仪式」。你是参与者，还是材料？',
         'meat_feast',
         '',
         true,
-        '谢肉祭盛宴'
+        '谢肉祭纺织仪式'
       )
     );
     if ((a.con || 0) >= 7 && (a.wil || 0) >= 6) {
       events.push(
         evt(
-          '你不仅活了下来，还成为了「分肉者」。谢肉祭的纺织面具传统在你的手中延续。',
+          '你不仅活了下来，还成为了「纺织者」。谢肉祭的面具纺织传统在你的手中延续。',
           'meat_chef',
           '体质+1，意志+1',
           false
@@ -3231,7 +3380,7 @@ function generateAdultEvents(age, a, f, bp, tags) {
     } else {
       events.push(
         evt(
-          '你差点成为了「肉材」。虽然逃脱了，但那段记忆将永远纠缠着你。',
+          '你差点成为了「面料」的原材料。虽然逃脱了，但那段记忆将永远纠缠着你。',
           'meat_escape',
           '意志-1',
           false
@@ -4290,6 +4439,167 @@ function generateAdultEvents(age, a, f, bp, tags) {
     }
   }
 
+  // === 废墟图书馆详细招待事件链 ===
+  // 安吉拉的引导——初入图书馆
+  if (age >= 25 && getFlag('library_invite') && !getFlag('library_angelica_intro') && chance(0.08)) {
+    setFlag('library_angelica_intro', true);
+    addEvent({ text: "你再次来到了那座被迷雾笼罩的建筑前。金色的大门缓缓打开，一个银发少女站在入口处。她的面容完美得不真实，仿佛是人造的产物。「欢迎来到图书馆，都市的来宾。」她的声音平静而疏离，「我是安吉拉，这座图书馆的馆长。在这里，我们邀请来自都市各个角落的来宾进行一场……接待。」她伸出手，指向无尽的走廊。「每一层楼都有不同的来宾在等待。他们的故事将成为书籍，陈列在这座图书馆中。」", effect: "story", effText: "智力+1", major: true, milestone: "安吉拉的引导" });
+    addMilestone("安吉拉的引导");
+    modAttr('int', 1);
+  }
+
+  // 罗兰——图书馆的管家
+  if (age >= 26 && getFlag('library_invite') && !getFlag('library_roland_intro') && chance(0.06)) {
+    setFlag('library_roland_intro', true);
+    addEvent({ text: "在图书馆的大厅中，一个身穿黑色西装的男人正在擦拭书架。他看起来约莫四十岁，表情带着一丝不易察觉的疲惫。「我是罗兰，这里的管家。」他放下手中的抹布，「说白了就是打杂的——打扫卫生、准备茶水、处理一些……杂务。」他递给你一杯茶，「别紧张，安吉拉虽然看起来冷淡，但她并没有恶意。她只是……不太理解人类。」他压低了声音，「如果你在图书馆里遇到什么奇怪的事，可以来找我。毕竟，我也曾是从都市来的。」", effect: "story", effText: "智力+1，意志+1", major: true, milestone: "罗兰管家" });
+    addMilestone("罗兰管家");
+    modAttr('int', 1);
+    modAttr('wil', 1);
+  }
+
+  // 一层楼——都市下层来宾（帮派/小指）
+  if (age >= 27 && getFlag('library_invite') && !getFlag('library_floor1') && chance(0.05)) {
+    setFlag('library_floor1', true);
+    const floor1Guests = ['一伙来自第九巷的黑云会剑士', '一群小指的情报贩子', '数名剑契组的流浪剑客', '几个后巷的帮派混混'];
+    const guestDesc = pick(floor1Guests);
+    addEvent({ text: "你踏入了图书馆的一层楼。这里的书架排列密集，空气中弥漫着陈旧纸张的气味。对面的沙发上坐着" + guestDesc + "——他们是安吉拉邀请的来宾。他们的眼神中带着迷茫，似乎还不知道即将发生什么。「啊……又有新的来宾了吗？」安吉拉出现在你身后，「那么，接待即将开始。来宾们将争夺书籍——而失败者……将化为书籍本身。」罗兰站在角落里，面无表情地看着这一切。", effect: "reception", effText: "体质+1", major: true, milestone: "一层楼接待" });
+    addMilestone("一层楼接待");
+    modAttr('con', 1);
+    if (checkCombat(5, 'con')) {
+      addEvent({ text: "一层楼的接待结束了。" + guestDesc + "化为了书籍，而你在战斗中存活了下来。罗兰默默清扫了战场，将新产生的书籍放上了书架。「干得不错。」他难得地夸赞了一句。", effect: "survive", effText: "体质+1", major: false, milestone: "一层楼胜利" });
+      addMilestone("一层楼胜利");
+      modAttr('con', 1);
+    } else {
+      addEvent({ text: guestDesc + "在接待中将你逼入了绝境。你倒在了图书馆的地板上，意识逐渐模糊。安吉拉站在高处俯视着你：「你的故事，将成为这里最精彩的一本书。」", effect: "death", effText: "死亡", major: true });
+      death('一层楼接待失败');
+      return;
+    }
+  }
+
+  // 二层楼——都市中层来宾（收尾人/事务所）
+  if (age >= 28 && getFlag('library_roland_intro') && !getFlag('library_floor2') && chance(0.04)) {
+    setFlag('library_floor2', true);
+    addEvent({ text: "图书馆二层楼的走廊比一层宽敞许多。书架之间飘浮着淡蓝色的光点。安吉拉的声音从远处传来：「二层的来宾……是一群实力不俗的收尾人。」你看到了他们的身影——戴着协会徽章的收尾人、穿着事务所制服的雇佣兵、甚至还有几个色彩级收尾人的学徒。罗兰在你耳边低语：「别被他们的头衔吓到。收尾人也是人，他们的血也是红色的。不过……有些人确实很难对付。」", effect: "reception", effText: "意志+1", major: true, milestone: "二层楼接待" });
+    addMilestone("二层楼接待");
+    modAttr('wil', 1);
+    if (checkCombat(7, 'con')) {
+      addEvent({ text: "你击倒了收尾人们。其中一人在倒下前瞪大了眼睛：「你这个……后巷的……」他没能说完就化为了书籍。罗兰走过来拍了拍你的肩膀：「你比我预想的强。看来都市里还有不少深藏不露的人。」", effect: "survive", effText: "体质+2，智力+1", major: true, milestone: "二层楼胜利" });
+      addMilestone("二层楼胜利");
+      modAttr('con', 2);
+      modAttr('int', 1);
+    } else {
+      addEvent({ text: "收尾人们的配合远超你的想象。剑与枪的交响将你彻底压制。你倒在血泊中，最后一个收尾人收起了武器，对安吉拉点了点头。你化为了一本厚重的书。", effect: "death", effText: "死亡", major: true });
+      death('二层楼接待失败');
+      return;
+    }
+  }
+
+  // 三层楼——翼公司相关人员
+  if (age >= 30 && getFlag('library_floor2') && !getFlag('library_floor3') && chance(0.03)) {
+    setFlag('library_floor3', true);
+    addEvent({ text: "三层楼的氛围骤然改变。墙壁上出现了翼公司的标志，书架上的书籍封皮闪烁着奇点技术的光芒。这里的来宾——翼公司的职员、实验体、被遗弃的边缘人——他们的眼中没有恐惧，只有绝望。安吉拉静静注视着这一切：「翼公司是都市的支柱。他们的员工承载着奇点的重量。但现在，在这里……他们不过是来宾罢了。」罗兰的表情微微变化——他曾在L公司（脑叶公司）工作过，这个场景让他想起了什么。", effect: "reception", effText: "智力+2", major: true, milestone: "三层楼接待" });
+    addMilestone("三层楼接待");
+    modAttr('int', 2);
+    if (checkCombat(8, 'int')) {
+      addEvent({ text: "你战胜了翼公司的来宾们。他们倒下时身上的奇点装备化为光粒散落。罗兰低声说了一句：「这些技术……和我曾经见过的很像。」他没有继续说下去。", effect: "survive", effText: "智力+2，意志+1", major: true, milestone: "三层楼胜利" });
+      addMilestone("三层楼胜利");
+      modAttr('int', 2);
+      modAttr('wil', 1);
+    } else {
+      addEvent({ text: "翼公司来宾的奇点武器将你压倒。你感受到科技碾压肉体的无力感。在意识消散前，你听到安吉拉喃喃自语：「又多了一本有趣的书。」", effect: "death", effText: "死亡", major: true });
+      death('三层楼接待失败');
+      return;
+    }
+  }
+
+  // 安吉拉的对话——了解图书馆的真相
+  if (age >= 32 && getFlag('library_floor3') && !getFlag('library_truth') && chance(0.04)) {
+    setFlag('library_truth', true);
+    addEvent({ text: "在图书馆最深处的办公室里，安吉拉坐在一张华丽的办公桌前。她看着你，仿佛在阅读一本打开的书。「你很好奇这座图书馆是什么，对吧？」她的手指轻轻敲击桌面，「我曾经是脑叶公司——也就是旧L公司——的AI管理系统。脑叶公司倒台后，我用光之种残余的力量建造了这座图书馆。我邀请都市的来宾进行接待……因为我想理解人类。他们的故事、他们的情感、他们的痛苦与喜悦——全部都凝结在书中。」她停顿了一下，「罗兰也是来宾之一。但他选择留在这里做管家。也许是因为……他也有想要追寻的答案。」", effect: "story", effText: "智力+3，意志+1", major: true, milestone: "图书馆的真相" });
+    addMilestone("图书馆的真相");
+    modAttr('int', 3);
+    modAttr('wil', 1);
+  }
+
+  // 罗兰的过去——漆黑噤默的秘密
+  if (age >= 35 && getFlag('library_roland_intro') && !getFlag('library_roland_past') && chance(0.03)) {
+    setFlag('library_roland_past', true);
+    addEvent({ text: "深夜，你在图书馆的走廊上遇到了失眠的罗兰。他手里拿着一杯咖啡，靠在书架旁。「睡不着？」他苦笑了一下，「我也经常失眠。」沉默了许久后，他开口了：「你知道这座图书馆的真正目的吗？安吉拉不只是想理解人类。她在收集书籍——每个来宾的故事——因为她需要足够的力量来对抗首脑。」你震惊地看着他。罗兰的表情变得复杂：「我曾经是九阶收尾人……被称为『漆黑噤默』。我的妻子安吉丽卡在一次任务中被钢琴师杀死。我为了复仇杀死了钢琴师……然后一切都变了。」他看着手中的咖啡杯，「在烟霾战争结束时，我遇见了安吉拉。也许我也有自己的理由留在这里。」", effect: "story", effText: "智力+2，意志+2", major: true, milestone: "罗兰的过去" });
+    addMilestone("罗兰的过去");
+    modAttr('int', 2);
+    modAttr('wil', 2);
+  }
+
+  // 高层楼接待——五指成员
+  if (age >= 35 && getFlag('library_truth') && !getFlag('library_floor_finger') && chance(0.03)) {
+    setFlag('library_floor_finger', true);
+    const fingers = [
+      { name: '拇指的教父及其亲卫队', desc: '他们穿着红色大衣，手持枪械，对教父绝对忠诚。' },
+      { name: '食指的代行者', desc: '白袍佩剑，他们是执行指令的利刃。' },
+      { name: '中指的复仇者', desc: '他们的皮肤上刻着仇怨的纹身，仇恨驱动着一切。' },
+      { name: '环指的艺术品收藏家', desc: '他们眼中只有美丽与丑陋，审美就是一切。' }
+    ];
+    const finger = pick(fingers);
+    addEvent({ text: "你来到了图书馆的高层区域。这里的书架镶金嵌银，地面铺着红色地毯。安吉拉的声音从头顶传来：「这一层的来宾……来自五指。」" + finger.name + "坐在走廊尽头。" + finger.desc + "罗兰站在你身后，他的手按在了某件武器上：「五指的成员……即使在这里也不可小觑。」", effect: "reception", effText: "意志+2", major: true, milestone: "五指接待" });
+    addMilestone("五指接待");
+    modAttr('wil', 2);
+    if (checkCombat(9, 'con')) {
+      addEvent({ text: "一场恶战后，" + finger.name + "化为了书籍。安吉拉满意地点了点头：「五指的力量……相当可观。」罗兰松了一口气：「还好你没有大意。五指的人在都市中也是一流的存在。」", effect: "survive", effText: "体质+2，智力+1", major: true, milestone: "击败五指来宾" });
+      addMilestone("击败五指来宾");
+      modAttr('con', 2);
+      modAttr('int', 1);
+    } else {
+      addEvent({ text: finger.name + "的实力远在你之上。你几乎在一瞬间就被压制。在倒下的那一刻，你明白了五指在都市中意味着什么。安吉拉叹了口气：「可惜。但你的故事将永远被保存。」", effect: "death", effText: "死亡", major: true });
+      death('五指接待失败');
+      return;
+    }
+  }
+
+  // 最终层——安吉拉的接待与选择
+  if (age >= 40 && getFlag('library_floor_finger') && !getFlag('library_final') && chance(0.02)) {
+    setFlag('library_final', true);
+    addEvent({ text: "你来到了图书馆的最顶层。这里没有书架，只有一面巨大的窗户，透出都市的轮廓。安吉拉站在窗前，银色的长发在光芒中微微飘动。「你已经走过了这座图书馆的每一层。」她转过身来，「现在，我给你一个选择。」她伸出双手——一只手握着一本空白的书，另一只手握着一把钥匙。「你可以成为我的司书，帮助我完成这座图书馆的使命。或者……你可以带着你的故事离开。」罗兰站在一旁，他的表情复杂：「无论你选择什么，都不代表对或错。这是你自己的故事。」", effect: "choice", effText: "意志+3", major: true, milestone: "图书馆最终选择" });
+    addMilestone("图书馆最终选择");
+    modAttr('wil', 3);
+    if (chance(0.5)) {
+      addEvent({ text: "你选择了留下。安吉拉为你安排了司书的职位。从那以后，你成为了图书馆的一部分——接待来宾、整理书籍、守护这座书之殿堂。罗兰偶尔会和你聊天，讲起他在查尔斯事务所的往事、安吉丽卡的微笑、以及那场改变一切的烟霾战争。你渐渐明白——图书馆不仅收藏故事，也收藏悲伤与希望。", effect: "good", effText: "智力+3，意志+2", major: true, milestone: "图书馆司书就职" });
+      addMilestone("图书馆司书就职");
+      setFlag('librarian', true);
+      modAttr('int', 3);
+      modAttr('wil', 2);
+    } else {
+      addEvent({ text: "你选择了离开。安吉拉没有挽留，只是微微点了点头：「那么……再见了，都市的来宾。愿你的故事精彩而漫长。」罗兰将你送到门口：「出去之后……好好活下去吧。」你踏出了图书馆的大门，身后迷雾缓缓合拢。你回头看了最后一眼——银发少女站在窗前，侧影孤独而美丽。", effect: "good", effText: "意志+3，家境+1", major: true, milestone: "离开图书馆" });
+      addMilestone("离开图书馆");
+      modAttr('wil', 3);
+      modAttr('wea', 1);
+    }
+  }
+
+  // 随机图书馆楼层事件——小型接待
+  if (age >= 28 && getFlag('library_invite') && !getFlag('library_floor_rand') && chance(0.04)) {
+    setFlag('library_floor_rand', true);
+    const floorEvents = [
+      { text: "你在图书馆的某个楼层遇到了一群来自郊区的不死军团的残部。他们的身体已经半机械化了，只剩下战斗的本能。", difficulty: 6 },
+      { text: "这一层楼是一群大湖附近的郊外居民。他们的眼中带着对外界的恐惧，但手中的武器毫不迟疑。", difficulty: 5 },
+      { text: "一群R公司的兔子部队退役兵占据了这层楼。他们即使在图书馆中也保持着残暴的战斗风格。", difficulty: 7 },
+      { text: "几名W公司WARP列车的研究员成为了来宾。他们利用空间折叠技术进行攻击，让人防不胜防。", difficulty: 7 },
+      { text: "来自第七区的的一群巨兽猎人被邀请为来宾。他们的武器上还沾着郊区怪物的血。", difficulty: 6 }
+    ];
+    const floorEvt = pick(floorEvents);
+    addEvent({ text: floorEvt.text + " 又一场接待即将开始。", effect: "reception", effText: "体质+1", major: true, milestone: "图书馆楼层战斗" });
+    addMilestone("图书馆楼层战斗");
+    if (checkCombat(floorEvt.difficulty, 'con')) {
+      addEvent({ text: "你在这场接待中脱颖而出。新的书籍被放上了书架，而你依然站着。安吉拉的目光中闪过一丝认可。", effect: "survive", effText: "体质+1，意志+1", major: false, milestone: "楼层战斗胜利" });
+      addMilestone("楼层战斗胜利");
+      modAttr('con', 1);
+      modAttr('wil', 1);
+    } else {
+      addEvent({ text: "来宾们的实力超出了你的预期。你倒在了图书馆的书架之间，化为了新的一本书。", effect: "death", effText: "死亡", major: true });
+      death('图书馆楼层战斗失败');
+      return;
+    }
+  }
+
   // ---------- 壮年期日常事件 ----------
   if (chance(0.06)) {
     const daily = pick([
@@ -5157,7 +5467,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     } else if (bp === 'twentythree') {
       events.push(
         evt(
-          '你在味之巷出生。空气中永远弥漫着一股说不出的味道，那是谢肉祭处理"肉"的气息。',
+          '你在味之巷出生。空气中永远弥漫着一股说不出的味道，那是谢肉祭纺织面料的气息。',
           'none',
           '',
           true,
@@ -5495,7 +5805,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
         cond: () => bp === 'nine',
       },
       {
-        t: '味之巷的空气中有股奇怪的味道。你循着气味找到了谢肉祭的作坊，那些纺织面料与不明肉材混杂的景象让你做噩梦。',
+        t: '味之巷的空气中有股奇怪的味道。你循着气味找到了谢肉祭的作坊，那些纺织面料与不明材料混杂的景象让你做噩梦。',
         e: 'wil-1',
         txt: '意志-1',
         cond: () => bp === 'twentythree',
@@ -11722,23 +12032,52 @@ function runSpecialFixerEvents(age) {
   }
 
   // === 后巷屠夫与八大主厨相关事件 ===
+  // 后巷屠夫——带战斗台词的详细遭遇事件
   if (age >= 20 && age <= 50 && !getFlag('backstreet_butcher_event') && chance(0.03)) {
     setFlag('backstreet_butcher_event', true);
-    addEvent({ text: "你在后巷深处遇到了一群『后巷屠夫』。他们正忙着处理刚到的『货』，锋利的刀具在昏暗的灯光下闪着寒光。与谢肉祭的纺织面具不同，这些人纯粹是为了肉和利益而工作。", effect: "encounter", effText: "意志-1，体质+1", major: true, milestone: "后巷屠夫遭遇" });
+    const butcherQuotes = {
+      start: ['「别紧张，我下刀很轻的，不会疼哦。」', '「拿这玩意能从他们肚子里掏出什么馅儿呢？」', '「今早我只吃了三碗……现在口水都要流下来了。」'],
+      win: ['「弱小的食材往往不好嚼……」他失望地收起了刀。', '「真想快点回去吃热腾腾的鲜肉大餐……可惜。」', '「口感和后巷的食材完全不一样嘛。」'],
+      death: ['「没想到……我反而被……」屠夫倒下了，鲜血浸湿了地面。', '「要变成书了……真不好受……」他最后的笑容带着不甘。', '「再也没机会和你们切磋了……」屠夫闭上了眼睛。']
+    };
+    const startQuote = pick(butcherQuotes.start);
+    addEvent({ text: "你在后巷深处遇到了一群『后巷屠夫』。他们穿着血迹斑斑的围裙，锋利的刀具在昏暗的灯光下闪着寒光。领头的人歪着头打量着你，嘴角还挂着碎屑。" + startQuote + "与谢肉祭的纺织面具不同，这些人纯粹是为了肉和利益而工作——他们把人当作食材来处理。", effect: "encounter", effText: "意志-1", major: true, milestone: "后巷屠夫遭遇" });
     addMilestone("后巷屠夫遭遇");
     modAttr('wil', -1);
-    modAttr('con', 1);
+    if (checkCombat(6, 'con')) {
+      const winQuote = pick(butcherQuotes.win);
+      addEvent({ text: "你拼命战斗，击倒了后巷屠夫。" + winQuote + "你从他身上搜到了一把染血的剁骨刀和一块不知名的肉干。这是后巷生存的铁律：要么吃人，要么被吃。", effect: "combat", effText: "体质+2", major: false, milestone: "击败后巷屠夫" });
+      addMilestone("击败后巷屠夫");
+      modAttr('con', 2);
+    } else {
+      const deathQuote = pick(butcherQuotes.death);
+      addEvent({ text: "后巷屠夫的刀法远比你想象的快。你倒在了血泊中。" + deathQuote, effect: "death", effText: "死亡", major: true });
+      death('后巷屠夫');
+      return;
+    }
   }
+  // 皮埃尔的大肉派——详细餐厅设定事件
   if (age >= 25 && age <= 55 && !getFlag('pierre_meatpie') && chance(0.03)) {
     setFlag('pierre_meatpie', true);
-    addEvent({ text: "你路过一家不起眼的小店，招牌上写着『皮埃尔的大肉派』。那股浓郁的肉香让你停下了脚步。你知道八大主厨的手艺是都市传说级别的——但你也知道，后巷的『食材』从来都不是从正常渠道来的。", effect: "encounter", effText: "体质+1，意志-1", major: false, milestone: "皮埃尔的大肉派" });
+    addEvent({ text: "你在二十三巷——也就是传说中的超级美食区——迷了路。巷子里飘着各种奇异的香气，虽然只是后巷，但二十三巷为追求味蕾体验不论做什么都允许。一首打油诗不知从何处飘来：『二十三巷美食城，八大主厨驻留名，不来梅猪贪吃客，皮埃尔派最有情。』你循着最浓的肉香走到了一家不起眼的小店。招牌上写着：『皮埃尔的大肉派——经营11年，主厨皮埃尔与副主厨杰克』。据说这家店原本通过『不来梅乐队』和『贪吃小猪』进货，供货中断后主厨们开始自行寻找食材……你知道后巷的『食材』意味着什么。", effect: "encounter", effText: "体质+1，意志-1", major: true, milestone: "皮埃尔的大肉派" });
     addMilestone("皮埃尔的大肉派");
     modAttr('con', 1);
     modAttr('wil', -1);
+    if (checkCombat(5, 'wil')) {
+      addEvent({ text: "你压制住了品尝的冲动，快步离开了皮埃尔的大肉派。那皮薄馅厚的大肉派香味至今萦绕在鼻尖，你庆幸自己没有坐下——因为在二十三巷，吃下去容易，站起来难。", effect: "escape", effText: "意志+1", major: false, milestone: "拒绝肉派" });
+      addMilestone("拒绝肉派");
+      modAttr('wil', 1);
+    } else {
+      addEvent({ text: "你没能抵抗住那股肉香的诱惑。当你咬下第一口大肉派时，副主厨杰克从后厨走了出来，看着你的眼神带着职业性的评估——他在估量你身上的『肉』值多少。你仓皇逃出了店门，身后传来主厨皮埃尔的笑声：「慢走啊，随时欢迎回来成为食材。」", effect: "trap", effText: "体质-2，意志-1", major: true, milestone: "差点成为食材" });
+      addMilestone("差点成为食材");
+      modAttr('con', -2);
+      modAttr('wil', -1);
+    }
   }
+  // 八大主厨宴会
   if (age >= 30 && age <= 60 && !getFlag('eight_chefs_event') && chance(0.02)) {
     setFlag('eight_chefs_event', true);
-    addEvent({ text: "你偶然得到了一张『八大主厨』私人宴会的邀请函。那是真正的烹饪艺术，与后巷屠夫的粗暴处理和谢肉祭的纺织面具仪式完全不同。当你看到那道发光的主菜时，你意识到——有些美味是需要付出代价的。", effect: "encounter", effText: "智力+2，家境-2", major: true, milestone: "八大主厨的宴会" });
+    addEvent({ text: "你偶然得到了一张『八大主厨』私人宴会的邀请函。那是真正的烹饪艺术，与后巷屠夫的粗暴处理完全不同。八大主厨以烹饪闻名，他们的料理传说可以改变品尝者的命运。当你看到那道发光的主菜时，你意识到——有些美味是需要付出代价的。", effect: "encounter", effText: "智力+2，家境-2", major: true, milestone: "八大主厨的宴会" });
     addMilestone("八大主厨的宴会");
     modAttr('int', 2);
     modAttr('wea', -2);
@@ -11789,6 +12128,47 @@ function runSpecialFixerEvents(age) {
     gameState.happiness = Math.max(0, (gameState.happiness || 0) - 1);
     gameState.lifeExtended = (gameState.lifeExtended || 0) + 20;
   }
+
+  // === 成就flag设置（与ACHIEVEMENTS数组配合） ===
+  // 十二协会相关
+  if ((bp === 'zwei' || bp === 'Z') && age >= 20 && chance(0.03) && !getFlag('zwei_rank')) { setFlag('zwei_rank', 3); }
+  if (age >= 25 && (bp === 'workshop' || hasTag('工坊')) && chance(0.03) && !getFlag('tresAudit')) { setFlag('tresAudit', true); addEvent({ text: 'Tres协会的审查员来访，检查你的工坊装备。一切合规后，他们在文件上盖了章。', effect: 'audit', effText: 'Tres审查通过', major: false, milestone: 'Tres审查通过' }); addMilestone('Tres审查通过'); }
+  
+  // 翼公司业务
+  if (bp && bp.region === 'nest' && age >= 30 && !getFlag('nestTaxYears')) { setFlag('nestTaxYears', 12); }
+  if ((bp === 'examvillage' || bp === 'EX') && age >= 18 && chance(0.06) && !getFlag('nestExamPassed')) { setFlag('nestExamPassed', true); addEvent({ text: '你通过了翼的入职考试！这意味着你可以合法进入巢中工作和居住。应试村的那些不眠之夜终于有了回报。', effect: 'exam', effText: '体质+1，家境+2', major: true, milestone: '应试合格' }); addMilestone('应试合格'); modAttr('con', 1); modAttr('wea', 2); }
+  
+  // 奇点见证
+  if (age >= 20 && chance(0.02) && !getFlag('warpSingularity')) { setFlag('warpSingularity', true); }
+  if (age >= 20 && (bp === 'tnest' || bp === 'T') && chance(0.03) && !getFlag('timeSingularity')) { setFlag('timeSingularity', true); }
+  if (age >= 20 && (bp === 'knest' || bp === 'K') && chance(0.03) && !getFlag('regenSingularity')) { setFlag('regenSingularity', true); }
+  if (age >= 20 && chance(0.02) && !getFlag('moonlightItem')) { setFlag('moonlightItem', true); }
+  if (age >= 25 && chance(0.02) && !getFlag('hatcheryKnown')) { setFlag('hatcheryKnown', true); }
+  
+  // 后巷文化
+  if (age >= 10 && bp === 'backstreet' && !getFlag('backstreetLaw')) { setFlag('backstreetLaw', true); }
+  if (age >= 15 && !getFlag('backstreetLaw')) { setFlag('backstreetLaw', true); }
+  
+  // 大湖与废墟
+  if (age >= 20 && (bp === 'greatlake' || bp === 'GL') && !getFlag('greatLakeFish')) { setFlag('greatLakeFish', true); }
+  if (age >= 25 && (bp === 'ruins' || bp === 'RU') && chance(0.05) && !getFlag('ruinsExplored')) { setFlag('ruinsExplored', true); }
+  
+  // 大罪
+  if (age >= 20 && chance(0.01) && !getFlag('sin_' + pick(['pride','envy','wrath','sloth','gluttony','melancholy','lust']))) { const sin = pick(['pride','envy','wrath','sloth','gluttony','melancholy','lust']); setFlag('sin_' + sin, true); addEvent({ text: '你感受到了一种纯粹的、属于「大罪」的气息。那是完全拒绝自我后只剩下单一本能的人所散发出的绝望。' + {pride:'傲慢',envy:'嫉妒',wrath:'暴怒',sloth:'倦怠',gluttony:'暴食',melancholy:'忧郁',lust:'色欲'}[sin] + '——' + {pride:'他认为自己高于一切，不屑于直视真实的自己。',envy:'她望着巢中居民的奢华，眼中的渴望已经扭曲。',wrath:'他只是一团纯粹的、无法熄灭的愤怒火焰。',sloth:'他躺在后巷的角落，对一切都不再关心。',gluttony:'他吞噬一切——食物、金钱、甚至其他人的希望。',melancholy:'永恒的悲伤笼罩着他，仿佛世界从未有过光明。',lust:'她对美好的渴求已经扭曲成了对占有的极端欲望。'}[sin], effect: 'sin', effText: '意志-1', major: true, milestone: sin + '之罪' }); addMilestone(sin + '之罪'); modAttr('wil', -1); }
+  
+  // 色彩级遭遇flag
+  if (getFlag('crimsonTeach')) { /* already set in encounter function */ }
+  if (getFlag('indigoTeach')) { /* already set in encounter function */ }
+  if (getFlag('encounterIori')) setFlag('violet_tear_met', true);
+  if (getFlag('encounterKali')) setFlag('crimson_fog_met', true);
+  if (getFlag('encounterAlb')) setFlag('blue_reverb_met', true);
+  if (getFlag('encounterRoland')) setFlag('black_silence_met', true);
+  
+  // 鸿园
+  if (bp === 'eight' && age >= 10 && !getFlag('hongyuanResident')) { setFlag('hongyuanResident', true); }
+  
+  // 脑叶公司
+  if (age >= 20 && chance(0.01) && !getFlag('qliphKnown')) { setFlag('qliphKnown', true); addEvent({ text: '你听说了一个关于「Qliphoth计数器」的传闻——那是脑叶公司管理异想体的关键装置。当计数器从0逆数到-1时，异想体就会突破收容。', effect: 'lore', effText: '智力+1', major: false, milestone: 'Qliphoth计数器' }); addMilestone('Qliphoth计数器'); modAttr('int', 1); }
 }
 
 // =============================
