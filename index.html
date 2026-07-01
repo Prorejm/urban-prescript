@@ -2038,6 +2038,59 @@ function generateAdultEvents(age, a, f, bp, tags) {
     }
   }
 
+  // 代行者事件
+  if (age >= 35 && chance(0.05) && !hasMilestone('代行者')) {
+    events.push(
+      evt(
+        '一位身着纯白西装的人出现在你面前。代行者——首脑的使者，带来了都市的「修正」指令。',
+        'emissary',
+        '',
+        true,
+        '代行者降临'
+      )
+    );
+    if ((a.int || 0) >= 9 && (a.wil || 0) >= 8) {
+      events.push(
+        evt(
+          '你与代行者进行了谈判。你用智慧和意志说服了他，让他相信你对都市还有价值。代行者离开了，但你知道他还会回来。',
+          'emissary_negotiate',
+          '智力+1，意志+1',
+          true,
+          '说服代行者'
+        )
+      );
+      modAttr('int', 1);
+      modAttr('wil', 1);
+    } else if ((a.con || 0) >= 9 && chance(0.3)) {
+      events.push(
+        evt(
+          '你做出了连代行者都意想不到的选择——你主动接受了「修正」，但以自己的方式。你成为了代行者的「合作者」，在暗处执行都市的意志。',
+          'emissary_coop',
+          '全属性+1',
+          true,
+          '代行者的合作者'
+        )
+      );
+      modAttr('con', 1);
+      modAttr('int', 1);
+      modAttr('wil', 1);
+      modAttr('wea', 1);
+      setFlag('emissary_coop', true);
+    } else {
+      events.push(
+        evt(
+          '代行者没有给你任何机会。你成为了都市「修正」的又一个对象，悄无声息地消失了。',
+          'emissary_death',
+          '死亡',
+          true,
+          '被代行者修正'
+        )
+      );
+      death('代行者');
+      return events;
+    }
+  }
+
   // 未交税被爪牙杀死
   if (age >= 30 && (a.wea || 0) < 3 && chance(0.05) && !getFlag('wing_executive')) {
     events.push(
@@ -2633,6 +2686,52 @@ function generateAdultEvents(age, a, f, bp, tags) {
     );
     modAttr('int', 2);
     modAttr('wil', 1);
+  }
+
+  // 漆黑芥末事件
+  if (age >= 30 && chance(0.06) && !hasMilestone('漆黑芥末')) {
+    events.push(
+      evt(
+        '你闻到了一股刺鼻的味道。发狂的漆黑芥末——那团漆黑的、蠕动的物质正在向你逼近。它曾经也是一个人。',
+        'black_mustard',
+        '',
+        true,
+        '发狂的漆黑芥末'
+      )
+    );
+    if ((a.con || 0) >= 8 && (a.wil || 0) >= 6) {
+      events.push(
+        evt(
+          '你拼命逃跑，用尽全力跳入了附近的水中。漆黑芥末在岸边徘徊了一阵，最终离去。你活下来了。',
+          'mustard_escape',
+          '意志+1',
+          false
+        )
+      );
+      modAttr('wil', 1);
+    } else if ((a.con || 0) >= 5) {
+      events.push(
+        evt(
+          '你虽然受了重伤，但侥幸从漆黑芥末手中逃脱。那团黑色的噩梦将永远留在你的记忆中。',
+          'mustard_injured',
+          '体质-2',
+          false
+        )
+      );
+      modAttr('con', -2);
+    } else {
+      events.push(
+        evt(
+          '你试图逃跑，但漆黑芥末的速度远超你的想象。那团黑色的物质吞噬了你，连一声惨叫都没有留下。',
+          'mustard_death',
+          '死亡',
+          true,
+          '被漆黑芥末吞噬'
+        )
+      );
+      death('漆黑芥末');
+      return events;
+    }
   }
 
   return events;
@@ -3577,6 +3676,22 @@ function generateTeenEvents(age, a, f, bp, tags) {
         modAttr('wil', -1);
       }
     }
+  }
+
+  // 烟霾战争入巢彩蛋
+  if (age >= 7 && age <= 13 && getFlag('war_survivor') && getFlag('nest_school') && !hasMilestone('烟霾入巢禁忌')) {
+    events.push(
+      evt(
+        '你收到了巢学校的录取通知书，但紧接着又被退了回来。一位官员冷冷地告诉你：「参加过烟霾战争的人，没有资格进入巢居住。这是规定。」你终于明白，那场战争的烙印将伴随你一生。',
+        'smoke_war_nest_ban',
+        '意志-2',
+        true,
+        '烟霾入巢禁忌'
+      )
+    );
+    modAttr('wil', -2);
+    setFlag('nest_school', false);
+    addMilestone('烟霾入巢禁忌');
   }
 
   // 后巷学校差异
