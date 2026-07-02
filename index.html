@@ -511,7 +511,9 @@ body::after {
   gap: 12px;
   opacity: 0;
   animation: fadeIn 0.5s ease forwards;
+  will-change: opacity, transform;
 }
+.event-entry.animation-done { will-change: auto; }
 
 .event-entry:last-child { border-bottom: none; }
 
@@ -1839,6 +1841,8 @@ let gameState = {
   alignmentData: { lawful: 0, chaotic: 0, good: 0, evil: 0 },  // 九宫格阵营数据
 };
 
+var cachedEventLog = null;
+
 // =============================
 // 组织与身份系统常量
 // =============================
@@ -2869,6 +2873,8 @@ function confirmBirth() {
 // =============================
 
 function startSimulation() {
+  cachedEventLog = null;
+  gameState._scrollPending = false;
   gameState.age = 0;
   gameState.gender = Math.random() < 0.5 ? 'male' : 'female';
   gameState.identities = []; // 记录一生经历的身份
@@ -2878,6 +2884,7 @@ function startSimulation() {
   gameState.alive = true;
   gameState.events = [];
   gameState.milestones = [];
+  gameState.achievedAchievements = [];
   gameState.birthYear = Math.floor(Math.random() * 201) + 785; // 785~985
   gameState.pendingEvents = [];
   gameState.eventIndex = 0;
@@ -3073,7 +3080,12 @@ function showNextEvent(onDone) {
     // More events to show
     if (gameState.simAuto) {
       const speed = getSimSpeed();
-      const delay = getEventDelay(speed);
+      var delay = getEventDelay(speed);
+      // 如果还有大量事件待处理，加快动画
+      var remaining = gameState.pendingEvents.length - gameState.eventIndex;
+      if (remaining > 3) {
+        delay = Math.max(30, delay * 0.6);
+      }
       gameState.simTimer = setTimeout(() => showNextEvent(onDone), delay);
     } else {
       // Manual mode: wait for user to click "下一条"
@@ -3133,8 +3145,8 @@ function chance(p) {
   return Math.random() < p;
 }
 
-function checkAttr(attr, difficulty) {
-  return attr >= difficulty;
+function checkAttr(attr, threshold) {
+  return (gameState.attrs[attr] || 0) >= threshold;
 }
 
 function addMilestone(name) {
@@ -3162,8 +3174,10 @@ function hasTag(tag) {
   return gameState.talentTags && gameState.talentTags.includes(tag);
 }
 
-function modAttr(key, delta) {
-  gameState.attrs[key] = (gameState.attrs[key] || 0) + delta;
+function modAttr(attr, delta) {
+  if (!gameState.attrs[attr]) gameState.attrs[attr] = 0;
+  gameState.attrs[attr] += delta;
+  if (gameState.attrs[attr] < 0) gameState.attrs[attr] = 0;
 }
 
 function recordIdentity(age, identity, org, desc) {
@@ -3328,7 +3342,6 @@ function generateEvents(age) {
   const f = gameState.flags || (gameState.flags = {});
   const bp = gameState.birthplace ? gameState.birthplace.id : 'backstreet';
   const tags = gameState.talentTags || [];
-  window.bp = bp; // 供子代理代码使用
 
   // === 隐藏判定系统：限制特殊事件频率 ===
   if (!gameState.hiddenChecks) gameState.hiddenChecks = {};
@@ -3418,7 +3431,7 @@ function generateEvents(age) {
   }
   // 二次白夜已发生 → 解锁后图书馆时代
   if (getFlag('secondWhiteNight')) {
-    setFlag('era_postLibrary', true);
+    setFlag('era_secondWhiteNight_done', true);
   }
   // 钢琴家事件已发生 → 解锁南部巨变
   if (getFlag('pianistEventFired') || getFlag('pianist_witness')) {
@@ -7260,6 +7273,202 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
       }
       var fam = families[Math.floor(Math.random() * families.length)];
       events.push(evt(fam.text, fam.flag, '', true, '家庭背景'));
+
+      // 贫穷/后巷底层 (wea <= 2)
+      if (wea <= 2) {
+        if (!getFlag('bg_brothel')) {
+          setFlag('bg_brothel', true);
+          events.push(evt('你的母亲是后巷的一名妓女，父亲可能是任何经过那个巷子的人。你在妓院的阁楼里长大，听着楼下的声音入睡。', 'bg_brothel', '体质-1，意志+1', false, '出生背景'));
+          modAttr('con', -1);
+          modAttr('wil', 1);
+        }
+        if (!getFlag('bg_blood_farm')) {
+          setFlag('bg_blood_farm', true);
+          events.push(evt('你的家庭在拉·曼却领的边缘生存，靠为血魔提供人类血液为生。你从小就知道有些存在比人类更危险。', 'bg_blood_farm', '意志-1，智力+1', false, '出生背景'));
+          modAttr('wil', -1);
+          modAttr('int', 1);
+        }
+        if (!getFlag('bg_smog_survivor')) {
+          setFlag('bg_smog_survivor', true);
+          events.push(evt('你的父母都是烟霾战争的幸存者，但战争留下的辐射让他们身体日渐衰弱。你照顾他们的同时学会了坚强。', 'bg_smog_survivor', '体质+1，意志+1', false, '出生背景'));
+          modAttr('con', 1);
+          modAttr('wil', 1);
+        }
+        if (!getFlag('bg_sewer')) {
+          setFlag('bg_sewer', true);
+          events.push(evt('你在后巷的下水道中出生，那里是一个由流浪者组成的地下社区。你的第一个朋友是一只变异的老鼠。', 'bg_sewer', '体质+1，智力-1', false, '出生背景'));
+          modAttr('con', 1);
+          modAttr('int', -1);
+        }
+        if (!getFlag('bg_gear_church')) {
+          setFlag('bg_gear_church', true);
+          events.push(evt('你的家庭是齿轮教会的信徒，虽然贫穷但虔诚。你从小听着齿轮转动的声音入睡，相信机械中蕴含着真理。', 'bg_gear_church', '意志+1，智力+1', false, '出生背景'));
+          modAttr('wil', 1);
+          modAttr('int', 1);
+        }
+        if (!getFlag('bg_failed_fixer')) {
+          setFlag('bg_failed_fixer', true);
+          events.push(evt('你的父亲是一个失败的收尾人，在一次委托中精神崩溃后被协会除名。他整天念叨着一些你听不懂的词。', 'bg_failed_fixer', '意志-1，智力+1', false, '出生背景'));
+          modAttr('wil', -1);
+          modAttr('int', 1);
+        }
+        if (!getFlag('bg_cheap_food')) {
+          setFlag('bg_cheap_food', true);
+          events.push(evt('你的家庭在味之巷经营着一家廉价餐馆，食材来源你最好不要知道。但你学会了用任何材料做出能吃的菜。', 'bg_cheap_food', '体质+1，智力+1', false, '出生背景'));
+          modAttr('con', 1);
+          modAttr('int', 1);
+        }
+        if (!getFlag('bg_exam_ruins')) {
+          setFlag('bg_exam_ruins', true);
+          events.push(evt('你出生在应试村的废墟中，你的父母是在应试失败后被遗弃在那里的人。他们对巢有着复杂的情感。', 'bg_exam_ruins', '意志+1，智力+1', false, '出生背景'));
+          modAttr('wil', 1);
+          modAttr('int', 1);
+        }
+      }
+
+      // 中下阶层 (wea 3-4)
+      if (wea >= 3 && wea <= 4) {
+        if (!getFlag('bg_zwei_sec')) {
+          setFlag('bg_zwei_sec', true);
+          events.push(evt('你的父亲是一名Zwei协会的基层安保人员，母亲是后巷的护士。你们住在巢和后巷的灰色地带。', 'bg_zwei_sec', '体质+1，意志+1', false, '出生背景'));
+          modAttr('con', 1);
+          modAttr('wil', 1);
+        }
+        if (!getFlag('bg_weapon_shop')) {
+          setFlag('bg_weapon_shop', true);
+          events.push(evt('你的家庭经营着一家小型工坊，专门为低级收尾人修理武器。你从小就熟悉了各种工坊武器的构造。', 'bg_weapon_shop', '智力+1，体质+1', false, '出生背景'));
+          modAttr('int', 1);
+          modAttr('con', 1);
+        }
+        if (!getFlag('bg_wing_fired')) {
+          setFlag('bg_wing_fired', true);
+          events.push(evt('你的父母都是某个翼公司的底层员工，但因为违反规定被解雇了。他们对翼公司怀有怨恨，但也教给了你敬畏。', 'bg_wing_fired', '意志+1，智力+1', false, '出生背景'));
+          modAttr('wil', 1);
+          modAttr('int', 1);
+        }
+        if (!getFlag('bg_clinic_black')) {
+          setFlag('bg_clinic_black', true);
+          events.push(evt('你的家庭在后巷开了一家小型诊所，使用黑市上买来的K公司再生安瓿碎片为穷人治病。', 'bg_clinic_black', '智力+1，体质+1', false, '出生背景'));
+          modAttr('int', 1);
+          modAttr('con', 1);
+        }
+        if (!getFlag('bg_retired7')) {
+          setFlag('bg_retired7', true);
+          events.push(evt('你的父亲是一名退役的7级收尾人，虽然不再接取委托，但在后巷仍有威望。他教你如何格斗。', 'bg_retired7', '体质+1，意志+1', false, '出生背景'));
+          modAttr('con', 1);
+          modAttr('wil', 1);
+        }
+        if (!getFlag('bg_warp_inn')) {
+          setFlag('bg_warp_inn', true);
+          events.push(evt('你的家庭在WARP列车的某个站点附近经营着一家旅馆。你见过来来往往的旅客，包括一些不该存在的人。', 'bg_warp_inn', '智力+1，意志-1', false, '出生背景'));
+          modAttr('int', 1);
+          modAttr('wil', -1);
+        }
+        if (!getFlag('bg_info_broker')) {
+          setFlag('bg_info_broker', true);
+          events.push(evt('你的母亲是后巷的一位情报贩子，父亲是普通的建筑工人。你从小就在情报的海洋中长大。', 'bg_info_broker', '智力+1，意志+1', false, '出生背景'));
+          modAttr('int', 1);
+          modAttr('wil', 1);
+        }
+        if (!getFlag('bg_index_fam')) {
+          setFlag('bg_index_fam', true);
+          events.push(evt('你的家庭是食指的信徒家庭。每周你都会看到白色的信纸飘到门口，上面写着你父亲必须执行的指令。', 'bg_index_fam', '意志+1，智力+1', false, '出生背景'));
+          modAttr('wil', 1);
+          modAttr('int', 1);
+        }
+      }
+
+      // 中产阶层 (wea 5-6)
+      if (wea >= 5 && wea <= 6) {
+        if (!getFlag('bg_n_researcher')) {
+          setFlag('bg_n_researcher', true);
+          events.push(evt('你的父亲是N公司的一名低级研究员，母亲是巢中的图书管理员。你的家中有许多被禁止阅读的书籍。', 'bg_n_researcher', '智力+2，意志-1', false, '出生背景'));
+          modAttr('int', 2);
+          modAttr('wil', -1);
+        }
+        if (!getFlag('bg_hana_branch')) {
+          setFlag('bg_hana_branch', true);
+          events.push(evt('你的家庭是Hana协会的一个分支家庭。虽然不属于核心层，但家族历史中有几位知名的收尾人。', 'bg_hana_branch', '体质+1，意志+1', false, '出生背景'));
+          modAttr('con', 1);
+          modAttr('wil', 1);
+        }
+        if (!getFlag('bg_moonstone')) {
+          setFlag('bg_moonstone', true);
+          events.push(evt('你的父母在L巢经营着一家合法的月长石精炼厂。你知道月长石真正的用途远不止装饰品那么简单。', 'bg_moonstone', '智力+1，家境+1', false, '出生背景'));
+          modAttr('int', 1);
+          modAttr('wea', 1);
+        }
+        if (!getFlag('bg_w_corp')) {
+          setFlag('bg_w_corp', true);
+          events.push(evt('你的家庭与W公司有着商业往来，负责为WARP列车的乘客提供后勤服务。你了解空间撕裂技术的一点点内幕。', 'bg_w_corp', '智力+1，家境+1', false, '出生背景'));
+          modAttr('int', 1);
+          modAttr('wea', 1);
+        }
+        if (!getFlag('bg_color_rel')) {
+          setFlag('bg_color_rel', true);
+          events.push(evt('你的父亲是一名色彩级收尾人的远房亲戚。虽然你们没有直接的联系，但那个名字偶尔会为你带来一些便利。', 'bg_color_rel', '意志+1，家境+1', false, '出生背景'));
+          modAttr('wil', 1);
+          modAttr('wea', 1);
+        }
+        if (!getFlag('bg_t_clock')) {
+          setFlag('bg_t_clock', true);
+          events.push(evt('你的家庭在T公司的时间设施附近经营着一家钟表店。店里的钟表偶尔会自己倒转。', 'bg_t_clock', '智力+1，意志-1', false, '出生背景'));
+          modAttr('int', 1);
+          modAttr('wil', -1);
+        }
+        if (!getFlag('bg_r_tech')) {
+          setFlag('bg_r_tech', true);
+          events.push(evt('你的父母是R公司空间折叠技术的维护工程师。你知道空间折叠并不像宣传的那样安全。', 'bg_r_tech', '智力+1，体质+1', false, '出生背景'));
+          modAttr('int', 1);
+          modAttr('con', 1);
+        }
+      }
+
+      // 富裕/上层 (wea >= 7)
+      if (wea >= 7) {
+        if (!getFlag('bg_wing_founder')) {
+          setFlag('bg_wing_founder', true);
+          events.push(evt('你的家庭是某个翼公司创始家族的分支。虽然你们不是核心继承人，但血脉中的联系让你们在巢中备受尊敬。', 'bg_wing_founder', '家境+2，意志-1', false, '出生背景'));
+          modAttr('wea', 2);
+          modAttr('wil', -1);
+        }
+        if (!getFlag('bg_head_retiree')) {
+          setFlag('bg_head_retiree', true);
+          events.push(evt('你的祖父是首脑直属机构的退休成员。他从不谈论自己的工作，但他的眼神中有着常人没有的冷酷。', 'bg_head_retiree', '智力+1，意志+1', false, '出生背景'));
+          modAttr('int', 1);
+          modAttr('wil', 1);
+        }
+        if (!getFlag('bg_lake_manor')) {
+          setFlag('bg_lake_manor', true);
+          events.push(evt('你的家族拥有一个大湖沿岸的私人庄园。每年夏天你都会去那里度假，但你知道那片湖水下隐藏着什么。', 'bg_lake_manor', '家境+1，意志-1', false, '出生背景'));
+          modAttr('wea', 1);
+          modAttr('wil', -1);
+        }
+        if (!getFlag('bg_ring_patron')) {
+          setFlag('bg_ring_patron', true);
+          events.push(evt('你的家庭是环指的重要赞助者。你从小就在艺术的熏陶中长大，但你也知道环指的艺术中有些不可告人的秘密。', 'bg_ring_patron', '智力+2，意志-1', false, '出生背景'));
+          modAttr('int', 2);
+          modAttr('wil', -1);
+        }
+        if (!getFlag('bg_library_surv')) {
+          setFlag('bg_library_surv', true);
+          events.push(evt('你的父母是图书馆事件的幸存者。他们在图书馆关闭前逃了出来，但这段经历改变了他们的一切。', 'bg_library_surv', '智力+1，意志+1', false, '出生背景'));
+          modAttr('int', 1);
+          modAttr('wil', 1);
+        }
+        if (!getFlag('bg_lobotomy')) {
+          setFlag('bg_lobotomy', true);
+          events.push(evt('你的家族收藏着一件来自脑叶公司的遗物。那是一件E.G.O武器的碎片，被封存在家族的保险库中。', 'bg_lobotomy', '意志-1，智力+1', false, '出生背景'));
+          modAttr('wil', -1);
+          modAttr('int', 1);
+        }
+        if (!getFlag('bg_moon_prophecy')) {
+          setFlag('bg_moon_prophecy', true);
+          events.push(evt('你的出生伴随着一个都市预言——据说你出生的那天，都市的月亮比平时大了整整一圈。家族中的老人说你被都市选中了。', 'bg_moon_prophecy', '意志+1，智力+1', false, '出生背景'));
+          modAttr('wil', 1);
+          modAttr('int', 1);
+        }
+      }
     }
   }
 
@@ -9495,24 +9704,51 @@ function addEvent(ev) {
   gameState.events.push(ev);
   if (ev.milestone) gameState.milestones.push(ev.milestone);
 
-  const log = document.getElementById('event-log');
-  const entry = document.createElement('div');
+  // 缓存DOM引用
+  if (!cachedEventLog) cachedEventLog = document.getElementById('event-log');
+  var log = cachedEventLog;
+
+  var entry = document.createElement('div');
   entry.className = 'event-entry' + (ev.major ? ' major' : '');
+
   if (ev.major) {
     entry.style.animation = 'eventMajorIn 0.6s cubic-bezier(0.16,1,0.3,1) forwards';
+    entry.style.willChange = 'opacity, transform';
+    entry.addEventListener('animationend', function() {
+      entry.style.willChange = 'auto';
+    });
   } else {
     entry.style.animation = 'fadeIn 0.4s ease forwards';
+    entry.style.willChange = 'opacity, transform';
+    entry.addEventListener('animationend', function() {
+      entry.style.willChange = 'auto';
+    });
   }
+
   var genderIcon = gameState.gender === 'male' ? '\u2642' : '\u2640';
   var genderColor = gameState.gender === 'male' ? '#5dade2' : '#f1948a';
   entry.innerHTML = '<span class="event-gender" style="color:' + genderColor + ';font-size:0.85rem;margin-right:4px;">' + genderIcon + '</span><div class="event-age">' + gameState.age + '岁</div><div><div class="event-text">' + formatEventText(ev.text) + '</div>' + (ev.effText ? '<div class="event-effect"><span class="' + getEffectClass(ev.effText) + '">' + ev.effText + '</span></div>' : '') + '</div>';
   log.appendChild(entry);
+
+  // 年份过渡动画（新事件年龄徽章）
+  var ageBadge = entry.querySelector('.event-age');
+  if (ageBadge) {
+    ageBadge.style.transition = 'transform 0.3s ease, color 0.3s ease';
+    ageBadge.style.transform = 'scale(1.2)';
+    ageBadge.style.color = '#c9a84c';
+    setTimeout(function() {
+      ageBadge.style.transform = 'scale(1)';
+      ageBadge.style.color = '';
+    }, 300);
+  }
+
   // 特殊事件flash动画
   if (ev.milestone) {
     log.classList.remove('flash-milestone');
     void log.offsetWidth;
     log.classList.add('flash-milestone');
     setTimeout(function() { log.classList.remove('flash-milestone'); }, 1500);
+    gameState.achievedAchievements.push(ev.milestone);
   }
   if (ev.effect === 'death' || ev.effect === 'twist') {
     log.classList.remove(ev.effect === 'death' ? 'flash-death' : 'flash-twist');
@@ -9520,7 +9756,76 @@ function addEvent(ev) {
     log.classList.add(ev.effect === 'death' ? 'flash-death' : 'flash-twist');
     setTimeout(function() { log.classList.remove(ev.effect === 'death' ? 'flash-death' : 'flash-twist'); }, 2000);
   }
-  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+
+  // 使用 requestAnimationFrame 配合节流进行滚动
+  if (!gameState._scrollPending) {
+    gameState._scrollPending = true;
+    requestAnimationFrame(function() {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      gameState._scrollPending = false;
+    });
+  }
+}
+
+function addEventsBatch(evs) {
+  if (!cachedEventLog) cachedEventLog = document.getElementById('event-log');
+  var log = cachedEventLog;
+  var fragment = document.createDocumentFragment();
+
+  evs.forEach(function(ev) {
+    ev.age = gameState.age;
+    gameState.events.push(ev);
+    if (ev.milestone) gameState.milestones.push(ev.milestone);
+
+    var entry = document.createElement('div');
+    entry.className = 'event-entry' + (ev.major ? ' major' : '');
+
+    if (ev.major) {
+      entry.style.animation = 'eventMajorIn 0.6s cubic-bezier(0.16,1,0.3,1) forwards';
+      entry.style.willChange = 'opacity, transform';
+      entry.addEventListener('animationend', function() {
+        entry.style.willChange = 'auto';
+      });
+    } else {
+      entry.style.animation = 'fadeIn 0.4s ease forwards';
+      entry.style.willChange = 'opacity, transform';
+      entry.addEventListener('animationend', function() {
+        entry.style.willChange = 'auto';
+      });
+    }
+
+    var genderIcon = gameState.gender === 'male' ? '\u2642' : '\u2640';
+    var genderColor = gameState.gender === 'male' ? '#5dade2' : '#f1948a';
+    entry.innerHTML = '<span class="event-gender" style="color:' + genderColor + ';font-size:0.85rem;margin-right:4px;">' + genderIcon + '</span><div class="event-age">' + gameState.age + '岁</div><div><div class="event-text">' + formatEventText(ev.text) + '</div>' + (ev.effText ? '<div class="event-effect"><span class="' + getEffectClass(ev.effText) + '">' + ev.effText + '</span></div>' : '') + '</div>';
+    fragment.appendChild(entry);
+  });
+
+  log.appendChild(fragment);
+
+  // 检查是否有特殊事件触发闪屏
+  var hasMilestone = evs.some(function(e) { return e.milestone; });
+  var hasDeath = evs.some(function(e) { return e.effect === 'death' || e.effect === 'twist'; });
+
+  if (hasMilestone) {
+    log.classList.remove('flash-milestone');
+    void log.offsetWidth;
+    log.classList.add('flash-milestone');
+    setTimeout(function() { log.classList.remove('flash-milestone'); }, 1500);
+  }
+  if (hasDeath) {
+    log.classList.remove('flash-death');
+    void log.offsetWidth;
+    log.classList.add('flash-death');
+    setTimeout(function() { log.classList.remove('flash-death'); }, 2000);
+  }
+
+  if (!gameState._scrollPending) {
+    gameState._scrollPending = true;
+    requestAnimationFrame(function() {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      gameState._scrollPending = false;
+    });
+  }
 }
 
 function getEffectClass(effText) {
@@ -9607,6 +9912,7 @@ function finishSim() {
   // Render all events quickly
   const log = document.getElementById('event-log');
   log.innerHTML = '';
+  const fragment = document.createDocumentFragment();
   gameState.events.forEach(ev => {
     const entry = document.createElement('div');
     entry.className = 'event-entry' + (ev.major ? ' major' : '');
@@ -9619,13 +9925,16 @@ function finishSim() {
         ${ev.effText ? `<div class="event-effect"><span class="${getEffectClass(ev.effText)}">${ev.effText}</span></div>` : ''}
       </div>
     `;
-    log.appendChild(entry);
+    fragment.appendChild(entry);
   });
+  log.appendChild(fragment);
 
   setTimeout(() => endSimulation(), 500);
 }
 
 function endSimulation() {
+  cachedEventLog = null;
+  gameState._scrollPending = false;
   gameState.simAuto = false;
   if (gameState.simTimer) clearTimeout(gameState.simTimer);
   const ctrl = document.getElementById('sim-controls');
@@ -9913,46 +10222,7 @@ function showResults() {
         </div>
       </div>` : '';
     })()}
-    ${(() => {
-      var ih = gameState.identityHistory;
-      if (ih.length === 0) return '';
-      var items = ih.map(function(r) {
-        var label = r.age + '岁 - ' + r.identity + (r.org ? '（' + r.org + '）' : '');
-        var descHtml = r.desc ? '<div style="font-size:0.8rem;color:#888;margin-top:2px;">' + r.desc + '</div>' : '';
-        return '<div class="identity-tag">' + label + descHtml + '</div>';
-      }).join('');
-      return '<div class="result-identity" style="margin:20px 0;padding:15px;background:#111;border:1px solid #2a2a2a;border-radius:6px;">' +
-        '<h4 style="color:var(--accent-gold);margin-bottom:10px;text-align:center;">&#10022; 一生身份轨迹 &#10022;</h4>' +
-        '<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;">' + items + '</div></div>';
-    })()}
-    ${(() => {
-      var ad = gameState.alignmentData;
-      var lx = ad.lawful - ad.chaotic;
-      var ly = ad.good - ad.evil;
-      var gridNames = [
-        ['守序善良','中立善良','混乱善良'],
-        ['守序中立','绝对中立','混乱中立'],
-        ['守序邪恶','中立邪恶','混乱邪恶']
-      ];
-      var col = lx >= 3 ? 0 : lx >= -2 ? 1 : 2;
-      var row = ly >= 3 ? 0 : ly >= -2 ? 1 : 2;
-      var gridHtml = '';
-      for (var r = 0; r < 3; r++) {
-        for (var c = 0; c < 3; c++) {
-          var isHighlight = (r === row && c === col);
-          var bg = isHighlight ? 'background:rgba(218,165,32,0.25);border:1px solid #daa520;' : 'background:rgba(255,255,255,0.03);border:1px solid #2a2a2a;';
-          var color = isHighlight ? 'color:#daa520;font-weight:bold;' : 'color:#888;';
-          gridHtml += '<div style="padding:6px 4px;text-align:center;font-size:0.75rem;' + bg + color + 'border-radius:3px;grid-row:' + (r+1) + ';grid-column:' + (c+1) + ';">' + gridNames[r][c] + '</div>';
-        }
-      }
-      var axisLabel = '<div style="grid-column:2;grid-row:4;font-size:0.65rem;color:#555;text-align:center;">守序 &#8596; 混乱</div>' +
-        '<div style="grid-row:2;grid-column:4;font-size:0.65rem;color:#555;writing-mode:vertical-rl;display:flex;align-items:center;justify-content:center;">善良 &#8597; 邪恶</div>';
-      return '<div class="result-alignment" style="margin:20px 0;padding:15px;background:#111;border:1px solid #2a2a2a;border-radius:6px;">' +
-        '<h4 style="color:var(--accent-gold);margin-bottom:10px;text-align:center;">&#10022; 阵营倾向 &#10022;</h4>' +
-        '<div style="display:grid;grid-template-columns:repeat(3,1fr) 20px;grid-template-rows:repeat(3,1fr) 20px;gap:3px;max-width:300px;margin:0 auto;">' +
-        gridHtml + axisLabel + '</div>' +
-        '<div style="text-align:center;margin-top:8px;font-size:0.8rem;color:#b8a99a;">当前阵营：<strong style="color:#daa520;">' + gridNames[row][col] + '</strong></div></div>';
-    })()}
+
     ${storySection}
     ${highlightSection}
     ${libSection}
