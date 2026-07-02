@@ -1839,6 +1839,9 @@ let gameState = {
   godEquip: null,     // 神备名称
   identityHistory: [],  // 一生经历过的身份记录 [{age, identity, org, desc}]
   alignmentData: { lawful: 0, chaotic: 0, good: 0, evil: 0 },  // 九宫格阵营数据
+  lightSeedActive: false,
+  lightSeedNodes: {},
+  lightSeedEternal: false,
 };
 
 var cachedEventLog = null;
@@ -1877,6 +1880,50 @@ const ORG_MUTEX = {
 function isFingerOrg(name) { return ['拇指','食指','中指','环指','小指'].includes(name); }
 function isAssociation(name) { return ['Zwei协会','Seven协会','六协会','し协会','Cinq协会','Hana协会'].includes(name); }
 function isGang(name) { return ['黑云会','剑契组','谢肉祭','不来梅乐队','笑面'].includes(name); }
+
+function checkLightSeedNodes() {
+  if (!gameState.lightSeedActive) return;
+  var nodes = gameState.lightSeedNodes || {};
+  var passed = 0;
+  SEPHIRAH_NODES.forEach(function(node) {
+    if (nodes[node.id]) {
+      passed++;
+      return;
+    }
+    if (node.test(gameState)) {
+      nodes[node.id] = true;
+      gameState.lightSeedNodes = nodes;
+      // 触发节点通过事件
+      var ev = evt(node.eventText, 'light_seed_' + node.id, '', true, node.title);
+      ev.tag = '火剑之路';
+      addEvent(ev);
+      // 奖励属性
+      if (node.reward) {
+        for (var attr in node.reward) {
+          modAttr(attr, node.reward[attr]);
+        }
+      }
+      passed++;
+    }
+  });
+  return passed;
+}
+
+function getLightSeedProgress() {
+  if (!gameState.lightSeedActive) return 0;
+  var nodes = gameState.lightSeedNodes || {};
+  var passed = 0;
+  SEPHIRAH_NODES.forEach(function(node) {
+    if (nodes[node.id]) passed++;
+  });
+  return passed;
+}
+
+function canLaunchLightSeed() {
+  if (!gameState.lightSeedActive) return false;
+  var lastNode = SEPHIRAH_NODES[SEPHIRAH_NODES.length - 1];
+  return lastNode.test(gameState);
+}
 
 function addIdentity(name, org) {
   if (!gameState.identities) gameState.identities = [];
@@ -2558,6 +2605,106 @@ const ACHIEVEMENTS = [
 { id:'ach_love_town', name:'爱之小镇调查者', desc:'得知了W列车爱之小镇的真相。', rarity:RARITY.EPIC, condition:(gs)=>gs.milestones.includes('爱之小镇传闻') },
 { id:'ach_love_crisis', name:'共度危机', desc:'与爱人一起在都市中共同面对了危机。', rarity:RARITY.RARE, condition:(gs)=>gs.milestones.includes('共度危机') },
 ];
+
+// =============================
+// 光之种 / 火剑之路系统
+// =============================
+const SEPHIRAH_NODES = [
+  {
+    id: 'malkuth', name: 'Malkuth — 王国', title: '生存之基',
+    desc: '在后巷的泥沼中扎根，是走向光的第一步。',
+    test: function(gs) { return gs.age >= 10 && (gs.attrs.con || 0) >= 3; },
+    testDesc: '年龄≥10岁且体质≥3',
+    reward: { con: 1, wil: 1 },
+    eventText: '你在后巷的废墟中找到了一块刻有奇怪符号的石板。石板上的文字你不认识，但当你触碰它时，你感受到了一种来自地底的脉动——那是都市的根基，是所有生命得以存在的「王国」。你的生存本能与这块石板产生了共鸣。'
+  },
+  {
+    id: 'yesod', name: 'Yesod — 基础', title: '认知之镜',
+    desc: '理解都市运转的基础规律，是触及真相的前提。',
+    test: function(gs) { return (gs.attrs.int || 0) >= 4; },
+    testDesc: '智力≥4',
+    reward: { int: 2 },
+    eventText: '在一个废弃的图书馆中，你发现了一本记载着都市基础法则的手册。上面写道：「所有的高楼都建立在坚实的基础之上。」你突然理解了——都市的一切混乱背后，都有着不可动摇的底层规则。你的认知在这一刻得到了升华。'
+  },
+  {
+    id: 'hod', name: 'Hod — 荣耀', title: '战斗之辉',
+    desc: '在战斗中证明自己的价值，用力量赢得荣耀。',
+    test: function(gs) { return (gs.attrs.con || 0) >= 5 && gs.milestones.length >= 3; },
+    testDesc: '体质≥5且拥有≥3个里程碑',
+    reward: { con: 1, int: 1 },
+    eventText: '你在后巷的擂台赛中连胜十场。观众们开始呼喊你的名字，那种声音让你感到一种前所未有的荣耀。一个神秘的老者赛后找到你：「荣耀不是来自胜利，而是来自你面对失败时的姿态。」你似懂非懂地点了点头。'
+  },
+  {
+    id: 'netzach', name: 'Netzach — 胜利', title: '不屈之韧',
+    desc: '在绝望中坚守，永不放弃。',
+    test: function(gs) { return (gs.attrs.wil || 0) >= 5 && gs.happiness >= -5; },
+    testDesc: '意志≥5且快乐值≥-5',
+    reward: { wil: 2 },
+    eventText: '你经历了一场几乎致命的委托。当你从废墟中爬出来时，全身是伤，但你活了下来。一个路过的陌生人看着你，说：「能在那种情况下活下来，不是运气——是你的意志在支撑着你。」你感受到了一种名为「胜利」的力量。'
+  },
+  {
+    id: 'tiphereth', name: 'Tiphereth — 美丽', title: '平衡之心',
+    desc: '在混乱中维持内心的平衡。',
+    test: function(gs) {
+      var a = gs.attrs;
+      var vals = [a.con||0, a.int||0, a.wil||0, a.wea||0];
+      var max = Math.max.apply(Math, vals);
+      var min = Math.min.apply(Math, vals);
+      return max - min <= 3 && vals.every(function(v) { return v >= 3; });
+    },
+    testDesc: '四项属性差值≤3且均≥3',
+    reward: { con: 1, int: 1, wil: 1, wea: 1 },
+    eventText: '你在都市的混乱中找到了一种奇妙的平衡。力量与智慧、意志与财富——你不再偏执于任何一方。一个神秘的女子出现在你面前，她的面容美丽得不像人类：「平衡不是妥协，而是让每一面都发光。」她说完便消失了。'
+  },
+  {
+    id: 'gebura', name: 'Gebura — 严厉', title: '力量之巅',
+    desc: '以绝对的力量突破一切阻碍。',
+    test: function(gs) { return (gs.attrs.con || 0) >= 7; },
+    testDesc: '体质≥7',
+    reward: { con: 2, wil: 1 },
+    eventText: '你在后巷的深处遇到了一个被称为「殷红迷雾」的传说级存在。她没有攻击你，只是静静地看着你。那一刻，你感受到了什么是真正的力量——不是压迫，而是守护。你的肌肉和骨骼发出了某种共鸣，仿佛某种封印被打破了。'
+  },
+  {
+    id: 'chesed', name: 'Chesed — 慈悲', title: '善意之泉',
+    desc: '在残酷的都市中保持对他人的善意。',
+    test: function(gs) { return gs.happiness >= 5 && (gs.attrs.wea || 0) >= 3; },
+    testDesc: '快乐值≥5且家境≥3',
+    reward: { wil: 2, wea: 1 },
+    eventText: '你将自己的大部分积蓄捐给了后巷的孤儿院。那些孩子看着你，眼神中有着你无法理解的感激。一个老修女对你说：「在这个城市里，最稀有的不是奇点技术，而是愿意分享的心。」你第一次感受到了「慈悲」的重量。'
+  },
+  {
+    id: 'binah', name: 'Binah — 理解', title: '洞察之眼',
+    desc: '理解奇点的本质，看穿都市的谎言。',
+    test: function(gs) { return (gs.attrs.int || 0) >= 7 && getFlag('metSingularity'); },
+    testDesc: '智力≥7且接触过奇点',
+    reward: { int: 2, wil: 1 },
+    eventText: '你在某个翼公司的废弃实验室中看到了奇点技术的核心。那不是科技——那是从「光」中分离出的某种东西。你突然理解了为什么都市会变成这样：所有人都想要光，却没有人愿意承受获得光的代价。你的视野在这一刻变得前所未有的清晰。'
+  },
+  {
+    id: 'chokmah', name: 'Chokmah — 智慧', title: '智慧之顶',
+    desc: '拥有超越常人的智慧，看透一切因果。',
+    test: function(gs) { return (gs.attrs.int || 0) >= 8 && gs.events.length >= 50; },
+    testDesc: '智力≥8且经历≥50个事件',
+    reward: { int: 2, wil: 2 },
+    eventText: '在一个深夜，你独自坐在后巷的屋顶上，看着整座都市。所有的建筑、所有的人、所有的故事——它们在你脑海中形成了一张巨大的网。你看到了因果的链条，看到了每个人的选择如何影响了整个都市的走向。你拥有了「智慧」——而智慧既是礼物，也是诅咒。'
+  },
+  {
+    id: 'kether', name: 'Kether — 王冠', title: '光之顶端',
+    desc: '所有Sephirah共鸣，发射光之种。',
+    test: function(gs) {
+      var nodes = gs.lightSeedNodes || {};
+      var passed = 0;
+      for (var i = 0; i < SEPHIRAH_NODES.length - 1; i++) {
+        if (nodes[SEPHIRAH_NODES[i].id]) passed++;
+      }
+      return passed >= 9 && (gs.attrs.wil || 0) >= 8;
+    },
+    testDesc: '通过前9个节点且意志≥8',
+    reward: { con: 3, int: 3, wil: 3, wea: 3 },
+    eventText: '你站在都市的最高处，所有的Sephirah在你体内共鸣。你感受到了卡门的意志、安吉拉的悲伤、Ayin的决心——以及那道照亮都市的光芒。光之种在你的掌心中凝聚成形。你可以发射它，让光芒照耀整个都市；或者你可以将它握在手中，成为光的化身。无论选择什么，你都将不再是普通的人类。'
+  }
+];
+
 function checkAchievements(gs) {
   const unlocked = [];
   for (const ach of ACHIEVEMENTS) {
@@ -2613,7 +2760,8 @@ function _originalStartGame() {
     happiness:0, lifeExtended:0, age:0, alive:true, events:[], milestones:[], flags:{},
     simTimer:null, simAuto:false, talentTags:[],
     weapon:null, egoForm:null, godEquip:null,
-    gender:null, identities:[], alignment:{x:0, y:0}
+    gender:null, identities:[], alignment:{x:0, y:0},
+    lightSeedActive:false, lightSeedNodes:{}, lightSeedEternal:false
   };
   refreshTalents();
   showPhase('phase-talent');
@@ -2628,7 +2776,8 @@ function startGame() {
       happiness:0, lifeExtended:0, age:0, alive:true, events:[], milestones:[], flags:{},
       simTimer:null, simAuto:false, talentTags:[],
       weapon:null, egoForm:null, godEquip:null,
-      gender:null, identities:[], alignment:{x:0, y:0}
+      gender:null, identities:[], alignment:{x:0, y:0},
+      lightSeedActive:false, lightSeedNodes:{}, lightSeedEternal:false
     };
     gameState.flags.freeMode = true;
     gameState.attrs.con = 3; gameState.attrs.int = 3; gameState.attrs.wil = 3; gameState.attrs.wea = 2;
@@ -2644,7 +2793,8 @@ function startGame() {
       happiness:0, lifeExtended:0, age:0, alive:true, events:[], milestones:[], flags:{},
       simTimer:null, simAuto:false, talentTags:[],
       weapon:null, egoForm:null, godEquip:null,
-      gender:null, identities:[], alignment:{x:0, y:0}
+      gender:null, identities:[], alignment:{x:0, y:0},
+      lightSeedActive:false, lightSeedNodes:{}, lightSeedEternal:false
     };
     gameState.flags.noTalentMode = true;
     renderAttrPanel();
@@ -2956,6 +3106,11 @@ function nextYear() {
   gameState.pendingEvents = events.map(ev => ({ ...ev, rendered: false }));
   gameState.eventIndex = 0;
 
+  // 检查光之种节点
+  if (gameState.lightSeedActive) {
+    checkLightSeedNodes();
+  }
+
   // If generateEvents caused death during generation
   if (!gameState.alive || gameState.dead) {
     if (gameState.pendingEvents.length > 0) {
@@ -3202,17 +3357,40 @@ function formatEventText(text) {
 }
 
 function death(cause, silent) {
-  // 尝试生命保险/复活判定
-  if (typeof tryResurrection === 'function' && tryResurrection(cause)) {
-    return false;
+  // 光之种永生判定（已存在，保持）
+  if (gameState.lightSeedActive) {
+    var progress = getLightSeedProgress();
+    if (progress >= 10) {
+      addEvent(evt('你的身体停止了呼吸，但你的意识并未消散。光之种在你体内燃烧，维持着你的存在。你超越了生死的界限——这就是与光融为一体的代价和馈赠。', 'light_seed_eternal', '', true, '光之永生'));
+      gameState.deathCause = cause;
+      gameState.lightSeedEternal = true;
+      return false;
+    }
   }
+
   gameState.dead = true;
   gameState.alive = false;
   gameState.deathCause = cause;
-  if (!silent) {
-    addEvent({ text: cause ? '死亡——' + cause : '你迎来了死亡。', effect: 'death', effText: '死亡', major: true });
+
+  // 爪牙/首脑直接杀死：无复活机会，直接进入结算
+  if (cause && (cause.indexOf('爪牙') > -1 || cause.indexOf('首脑') > -1 || cause.indexOf('Binah') > -1 || cause.indexOf('处刑') > -1)) {
+    addEvent(evt('你被『' + cause + '』终结了生命。面对绝对的力量，没有任何挣扎的余地。', 'death_' + cause, '死亡', true, cause));
+    endSimulation();
+    return true;
   }
-  return true;
+
+  if (!silent) {
+    addEvent(evt('你死了。死因：' + cause, 'death', '死亡', true, cause));
+  }
+
+  // 尝试复活（仅在 auto 模式下且存在复活条件时）
+  if (gameState.simAuto) {
+    tryResurrection();
+  }
+
+  if (!gameState.alive) {
+    endSimulation();
+  }
 }
 
 // 子代理代码的事件适配函数
@@ -3558,6 +3736,20 @@ function generateEvents(age) {
     if (typeof runExtendedRoutes === 'function') runExtendedRoutes(age);
     if (typeof runWorldLoreChainEvents === 'function') runWorldLoreChainEvents(age);
   
+  // ===== 光之种接触事件 =====
+  if (!gameState.lightSeedActive && age >= 15 && chance(0.003)) {
+    // 触发条件：接触过脑叶公司/异化体/光之种相关事件
+    var hasLCorpContact = getFlag('metLCorp') || getFlag('lcorp_agent_memory') || getFlag('lcorp_sephirah');
+    var hasAbnoContact = getFlag('metAbnormality') || getFlag('abno_breach') || getFlag('abno_friendly');
+    var hasLightContact = getFlag('lightSeedLaunched') || getFlag('whiteNightEvent');
+    if (hasLCorpContact || hasAbnoContact || hasLightContact || (gameState.attrs.int || 0) >= 6) {
+      gameState.lightSeedActive = true;
+      gameState.lightSeedNodes = {};
+      events.push(evt('你在后巷的深处遇到了一个奇怪的装置——它看起来像是一台古老的光学仪器，但上面刻着你不认识的符号。当你靠近时，它发出了一道微弱的光芒，直接照进了你的眼中。你听到了一个声音：「火剑之路已经为你打开。」你不知道自己听到了什么，但你感觉到某种古老的力量正在觉醒。', 'light_seed_awaken', '意志+2', true, '光之种觉醒'));
+      modAttr('wil', 2);
+    }
+  }
+
   // 更新本年龄的特殊事件计数
   if (!gameState.ageEventCount) gameState.ageEventCount = {};
   gameState.ageEventCount[age] = (Object.keys(gameState.flags).length - flagsBefore) + (gameState.milestones.length - milestonesBefore);
@@ -3660,6 +3852,67 @@ function generateEvents(age) {
   if (chance(0.008) && !getFlag('limbus_vergilius')) { setFlag('limbus_vergilius'); events.push(evt('你在后巷遇到了一个穿着深蓝色风衣的高大男人。他的身上散发着令人窒息的压迫感——你立刻认出了他。那是 Vergilius，色彩级收尾人『蓝色档案』。他在注视着那群罪人。', 'limbus_vergilius', '智力+1', false)); modAttr('int', 1); }
   if (chance(0.008) && !getFlag('limbus_risen')) { setFlag('limbus_risen'); events.push(evt('边狱公司在后巷的影响力越来越大。有人说他们已经收集了足够多的金枝，能够打开通往某个禁忌之地的大门。你不知道这意味着什么——但你知道，禁忌之地从不意味着好事。', 'limbus_risen', '智力+1', false)); modAttr('int', 1); }
   if (chance(0.008) && !getFlag('limbus_heathcliff')) { setFlag('limbus_heathcliff'); events.push(evt('你在后巷的酒馆里遇到了一个满身伤痕的年轻人。他喝了很多酒，嘴里不停念叨着『庄园』和『复仇』。他的战斗技巧是自学的——但那种狂暴的战斗风格让经验丰富的收尾人都感到畏惧。', 'limbus_heathcliff', '体质+1', false)); modAttr('con', 1); }
+
+  // ===== 额外随机事件（增加每年的事件密度）=====
+  var extraEvents = [];
+
+  // 通用随机事件池
+  var commonPool = [
+    { text: '你在后巷的街头听到了一段有趣的对话。', flag: 'hear_conversation' },
+    { text: '你帮助了一个迷路的陌生人找到了方向。', flag: 'help_stranger' },
+    { text: '你在废墟中找到了一些有用的材料。', flag: 'find_materials' },
+    { text: '后巷的天气格外糟糕，你不得不躲在屋子里一整天。', flag: 'bad_weather' },
+    { text: '你遇到了一个老朋友，一起喝了一杯。', flag: 'meet_old_friend' },
+    { text: '你在黑市上买到了一件便宜的工具。', flag: 'black_market_buy' },
+    { text: '一个奇怪的商人向你推销某种神秘的商品。', flag: 'mystery_merchant' },
+    { text: '你在墙上看到了一张新的悬赏令。', flag: 'see_bounty' },
+    { text: '后巷的某个帮派发生了小规模冲突，你远远避开了。', flag: 'gang_skirmish' },
+    { text: '你发现了一条通往巢的隐秘小路。', flag: 'secret_path' }
+  ];
+
+  // 根据年龄段添加通用事件
+  var ageGroupEvents = [];
+  if (age < 7) {
+    ageGroupEvents = [
+      { text: '你在后巷的角落里发现了一只流浪猫。', flag: 'find_cat' },
+      { text: '你做了一个奇怪的梦，醒来后记不太清了。', flag: 'strange_dream' },
+      { text: '你在地上画了一幅画，虽然画得很糟糕，但你很开心。', flag: 'draw_picture' },
+      { text: '你跟着大孩子们学会了后巷的一种游戏。', flag: 'learn_game' }
+    ];
+  } else if (age < 18) {
+    ageGroupEvents = [
+      { text: '你在后巷的书摊上买到了一本旧书。', flag: 'buy_old_book' },
+      { text: '你尝试了一种新的食物，味道出人意料地好。', flag: 'try_new_food' },
+      { text: '你在街上看到了一场街头表演。', flag: 'street_performance' },
+      { text: '你和朋友们打了一架，但第二天又和好了。', flag: 'friend_fight' }
+    ];
+  } else if (age < 40) {
+    ageGroupEvents = [
+      { text: '你接到了一个意外的委托。', flag: 'unexpected_job' },
+      { text: '你在酒馆里听到了一些关于都市的传闻。', flag: 'hear_rumors' },
+      { text: '你的武器需要维修了。', flag: 'weapon_repair' },
+      { text: '你遇到了一个值得尊敬的对手。', flag: 'worthy_opponent' }
+    ];
+  } else {
+    ageGroupEvents = [
+      { text: '你开始怀念年轻时的日子。', flag: 'miss_youth' },
+      { text: '一个年轻人向你请教问题。', flag: 'young_ask_advice' },
+      { text: '你发现自己对很多事情的看法都变了。', flag: 'changed_perspective' },
+      { text: '你决定把一些东西整理一下，留作纪念。', flag: 'organize_memories' }
+    ];
+  }
+
+  var allPool = commonPool.concat(ageGroupEvents);
+
+  // 每年随机触发1-3个额外事件
+  var extraCount = Math.floor(Math.random() * 3) + 1;
+  for (var i = 0; i < extraCount; i++) {
+    var ev = allPool[Math.floor(Math.random() * allPool.length)];
+    if (!getFlag(ev.flag)) {
+      setFlag(ev.flag);
+      events.push(evt(ev.text, ev.flag, '', false));
+    }
+  }
 
   return events;
 }
@@ -5385,7 +5638,7 @@ function generateAdultEvents(age, a, f, bp, tags) {
 
   // ---------- 壮年期日常事件 ----------
   if (chance(0.06)) {
-    const daily = pick([
+    var dailyPool = [
       { t: '你的孩子问了一个问题：「爸爸/妈妈，天空为什么是灰色的？」你沉默了很久，不知道该怎么回答。', e: 'wil-1', txt: '意志-1' },
       { t: '你在公司的年会上喝醉了，对着高管们大骂翼公司的剥削。第二天你收到了升职通知——他们决定把你调到更危险的岗位。', e: 'wea+1', txt: '家境+1' },
       { t: '你的体检报告出来了。医生说你的肺里有某种不明物质，可能是烟霾战争的残留。治疗费用是你三年的薪水。', e: 'con-1', txt: '体质-1' },
@@ -5403,10 +5656,15 @@ function generateAdultEvents(age, a, f, bp, tags) {
       { t: '你的上司在帮派火并中死了。新上司提拔了你，不是因为你的能力，而是因为你在那次火并中什么都没做——新上司认为「什么都不做」是一种智慧。', e: 'wea+2', txt: '家境+2' },
       { t: '你在深夜的街头看到了一个扭曲的人形。它在你面前停下，看了你一眼，然后继续向前走去。那一眼让你三天没睡好。', e: 'wil-2', txt: '意志-2' },
       { t: '你攒了一笔钱，带家人去了一次H巢的温泉。那是你人生中第一次感到「安全」，虽然只持续了三天。', e: 'wil+2', txt: '意志+2' },
-      { t: '你的父母老了。你每个月给他们寄钱，但你已经三年没有见过他们。在都市里，连亲情都需要用邮费来衡量。', e: 'wil-1', txt: '意志-1' },
       { t: '你在公司的档案室里发现了一份关于「奇点科技」的备忘录。你复印了一份，卖给了黑市的情报商。那笔钱够你付半年的房租。', e: 'wea+3', txt: '家境+3' },
       { t: '你的体检医生偷偷告诉你：「你有扭曲的前兆。」你杀了他，把他的尸体扔进了清道夫经常出没的街道。然后你喝了一整瓶酒。', e: 'wil-2', txt: '意志-2' },
-    ]);
+    ];
+    if (!getFlag('orphan')) {
+      dailyPool.push(
+        { t: '你的父母老了。你每个月给他们寄钱，但你已经三年没有见过他们。在都市里，连亲情都需要用邮费来衡量。', e: 'wil-1', txt: '意志-1' }
+      );
+    }
+    const daily = pick(dailyPool);
     events.push(evt(daily.t, 'adult_daily', daily.txt, false));
     if (daily.e.includes('con+1')) modAttr('con', 1);
     if (daily.e.includes('con-1')) modAttr('con', -1);
@@ -5420,7 +5678,7 @@ function generateAdultEvents(age, a, f, bp, tags) {
 
   // ---------- 新增壮年期常见都市事件 ----------
   if (chance(0.32)) {
-    const adultCityEvents = [
+    var adultCityEvents = [
       { t: '你的孩子问你为什么天空是灰色的。你沉默了很久，最后说：「因为都市喜欢灰色。」', e: 'wil-1', txt: '意志-1' },
       { t: '你在公司的地位越来越边缘化。年轻的实习生比你更懂新技术，而你只能靠加班来证明价值。', e: 'int-1', txt: '智力-1' },
       { t: '你的老朋友在深宵中失踪了。没人报案，没人寻找。你独自去他常去的酒吧喝了一杯。', e: 'wil-1', txt: '意志-1' },
@@ -5433,7 +5691,6 @@ function generateAdultEvents(age, a, f, bp, tags) {
       { t: '你在深夜的街头遇到了一个曾经的战友。他现在是一个扭曲者，在街道上徘徊。你没有叫醒他。', e: 'wil-2', txt: '意志-2' },
       { t: '你的公司宣布了一项新的「效率优化」政策。每天工作时间延长到十六个小时，但薪水不变。', e: 'con-1', txt: '体质-1' },
       { t: '你在后巷的夜市里淘到了一幅旧画。画中的风景让你想起了小时候听过的故事——关于蓝色的天空。', e: 'wil+1', txt: '意志+1' },
-      { t: '你的父母开始频繁地提起「过去」。你说「过去」在都市里是最没用的东西，但你心里知道不是这样。', e: 'wil-1', txt: '意志-1' },
       { t: '你在WARP列车上目击了一场帮派火并。列车员通过广播说：「请乘客不要离开座位，空间撕裂即将开始。」', e: 'con+1', txt: '体质+1' },
       { t: '你的上司让你去「说服」一个不肯搬家的老人。你去了，但站在门口很久，最后转身离开了。', e: 'wil+1', txt: '意志+1' },
       { t: '你在巢的商场里看到了一件适合孩子的衣服。价格标签让你把衣服放了回去，然后对孩子说「下次再买」。', e: 'wea-1', txt: '家境-1' },
@@ -5462,6 +5719,11 @@ function generateAdultEvents(age, a, f, bp, tags) {
       { t: '你在后巷的格斗场下注，赢了一笔。你用这笔钱给孩子买了一件巢里的衣服。他很开心。', e: 'wea+1', txt: '家境+1' },
       { t: '你在公司的年会上看到了一个扭曲的前同事。保安把他带走了，年会继续进行，就像什么都没发生。', e: 'wil-1', txt: '意志-1' },
     ];
+    if (!getFlag('orphan')) {
+      adultCityEvents.push(
+        { t: '你的父母开始频繁地提起「过去」。你说「过去」在都市里是最没用的东西，但你心里知道不是这样。', e: 'wil-1', txt: '意志-1' }
+      );
+    }
     const aev = pick(adultCityEvents);
     events.push(evt(aev.t, 'adult_common', aev.txt, false));
     if (aev.e.includes('con+1')) modAttr('con', 1);
@@ -5834,6 +6096,25 @@ function generateAdultEvents(age, a, f, bp, tags) {
   if (chance(0.005) && !getFlag('ad_greatlake_wreck')) { setFlag('ad_greatlake_wreck'); events.push(evt('你在一次大湖探索中发现了一个沉没在水底的翼公司设施。通过潜水装备进入设施后，你发现里面的设备仍在运转——这是一个被遗忘的翼公司遗迹，拥有着尚未被都市知晓的奇点技术。设施中的自动记录仪还在工作，记录着数十年前设施被紧急关闭的原因。你读取了记录，脸色变了。这个翼公司不是因为经营不善而关闭的——它被另一个翼公司蓄意摧毁了。', 'ad_greatlake_wreck', '智力+3，家境+1', true, '大湖沉没设施')); modAttr('int', 3); modAttr('wea', 1); }
   if (chance(0.005) && !getFlag('ad_exam_village_ruin')) { setFlag('ad_exam_village_ruin'); events.push(evt('你来到了应试村的废墟。这里曾经挤满了为巢入学考试而拼命学习的孩子们——现在，只剩下扭曲的残骸。应试的压力扭曲了一部分儿童，他们变成了不属于人类的怪物，在废墟中游荡。你看到了一个扭曲的儿童——它曾经是一个十岁的男孩，现在是一团由课本和血肉组成的畸形体。你默默地离开了应试村的废墟，心中充满了无法言说的愤怒和悲伤。', 'ad_exam_village_ruin', '快乐-2，意志+1', true, '应试村废墟')); modAttr('wil', 1); gameState.happiness -= 2; }
   if (chance(0.005) && !getFlag('ad_second_white_night')) { setFlag('ad_second_white_night'); events.push(evt('第二白夜黑昼降临了。光芒再次笼罩了整个都市——但这一次你看到了更多。在光芒中，你理解了脑叶公司曾经试图做的事情：用一个足够强烈的正面刺激来对抗扭曲的力量。你看到了白夜中那些试图帮助他人的人——他们在光芒中自发地组织起来，保护着那些被光芒影响的人。在都市的绝望中，人类的善意依然存在。那道光也许不只是灾难——它也是一种证明。', 'ad_second_white_night', '意志+2，智力+1，快乐+1', true, '第二白夜黑昼')); modAttr('wil', 2); modAttr('int', 1); gameState.happiness += 1; }
+
+  // 额外成年期日常事件
+  var adultExtras = [
+    { text: '你在后巷的某个角落发现了一家隐藏的餐馆，味道出奇地好。', flag: 'ad_hidden_restaurant' },
+    { text: '你帮助了一个陷入困境的陌生人，没要任何报酬。', flag: 'ad_help_stranger_free' },
+    { text: '你在黑市上发现了一件稀有物品，但买不起。', flag: 'ad_rare_item_unaffordable' },
+    { text: '后巷的某个区域发生了火灾，你参与了救援。', flag: 'ad_fire_rescue' },
+    { text: '你遇到了一个声称能预知未来的人。', flag: 'ad_fortune_teller' },
+    { text: '你在废墟中发现了一具骸骨，旁边有一本日记。', flag: 'ad_skeleton_diary' },
+    { text: '一个翼公司的 propaganda 广告飞艇从头顶飞过。', flag: 'ad_propaganda_blimp' },
+    { text: '你在后巷的地下通道中迷路了。', flag: 'ad_lost_underground' }
+  ];
+  if (chance(0.15)) {
+    var aex = adultExtras[Math.floor(Math.random() * adultExtras.length)];
+    if (!getFlag(aex.flag)) {
+      setFlag(aex.flag);
+      events.push(evt(aex.text, aex.flag, '', false));
+    }
+  }
 
   return events;
 }
@@ -6487,6 +6768,25 @@ function generateMiddleAgeEvents(age, a, f, bp, tags) {
   if (chance(0.005) && !getFlag('ma_turning_eye_removed')) { setFlag('ma_turning_eye_removed'); events.push(evt('你收到了一份来自首脑的眼的加密通知——你的名字从监控名单上被移除了。这在都市中极为罕见，几乎等同于首脑的赦免。你不知道自己做了什么值得这种待遇，但你终于可以松一口气了。几十年的提心吊胆，在这一刻化为了释然。', 'ma_turning_eye_removed', '快乐+2，意志+1', false)); modAttr('wil', 1); gameState.happiness += 2; }
   if (chance(0.005) && !getFlag('ma_turning_monument')) { setFlag('ma_turning_monument'); events.push(evt('你在后巷的某个角落建立了一座纪念碑。碑上没有名字，只有简单的文字：『致在混乱中安息的人。』每天都会有人在碑前放上一朵花。你知道，在都市中死去的人大多不会被记住——但至少在这个角落，他们被纪念了。', 'ma_turning_monument', '快乐+2，意志+1', false)); modAttr('wil', 1); gameState.happiness += 2; }
 
+  // 额外中年期日常事件
+  var middleAgeExtras = [
+    { text: '你开始注意到自己的反应速度不如从前了。', flag: 'ma_ex_slower_reflex' },
+    { text: '你在后巷的某个老朋友去世了，你去参加了他的葬礼。', flag: 'ma_ex_friend_funeral' },
+    { text: '你把自己的一些经验写在了一本笔记本上，准备留给后人。', flag: 'ma_ex_write_notes' },
+    { text: '你在巢的广场上看到了一场公开处刑，心情复杂。', flag: 'ma_ex_public_execution' },
+    { text: '你的一个老委托找上门来，请求你最后一次出山。', flag: 'ma_ex_last_job' },
+    { text: '你在废墟中发现了一个旧时代的音乐播放器，里面还有一首完整的歌。', flag: 'ma_ex_old_music' },
+    { text: '后巷的孩子们在街上玩耍，你看着他们想起了自己的童年。', flag: 'ma_ex_watch_children' },
+    { text: '你在黑市上卖掉了一些不再需要的装备，换了一笔小钱。', flag: 'ma_ex_sell_gear' }
+  ];
+  if (chance(0.15)) {
+    var mex = middleAgeExtras[Math.floor(Math.random() * middleAgeExtras.length)];
+    if (!getFlag(mex.flag)) {
+      setFlag(mex.flag);
+      events.push(evt(mex.text, mex.flag, '', false));
+    }
+  }
+
   return events;
 }
 
@@ -6742,7 +7042,7 @@ function generateElderEvents(age, a, f, bp, tags) {
 
   // ---------- 晚年期日常事件 ----------
   if (chance(0.06)) {
-    const daily = pick([
+    var dailyPool = [
       { t: '你的孙子问你：「爷爷/奶奶，你年轻时是什么样的？」你想了很久，回答说：「和你一样，只是更傻。」', e: 'wil+1', txt: '意志+1' },
       { t: '你开始在清晨四点醒来，再也睡不着。你坐在窗前，看着清道夫的红光渐渐消失在黎明中。这是你一天中最平静的时刻。', e: 'wil+1', txt: '意志+1' },
       { t: '你的老伴去世了。葬礼很简单，只有几个老邻居出席。你在墓前站了很久，不知道该说什么。在都市里，连悼词都是一种奢侈。', e: 'wil-2', txt: '意志-2' },
@@ -6760,8 +7060,13 @@ function generateElderEvents(age, a, f, bp, tags) {
       { t: '你把一生的故事讲给了一个来采访的年轻记者。他听完后哭了。你拍了拍他的肩膀：「孩子，在都市里，眼泪是最没用的东西。」', e: 'wil+1', txt: '意志+1' },
       { t: '你开始每天去同一个公园散步。那里的长椅是你和老伴第一次约会的地方。椅子已经换了三次，但你还记得那个位置。', e: 'wil+1', txt: '意志+1' },
       { t: '你的记忆力越来越差了。有时候你会忘记自己是否吃过饭，有时候你会忘记自己的名字。但你始终记得那个梦——蓝色的天空。', e: 'int-1', txt: '智力-1' },
-      { t: '一个陌生人来拜访你，说你是他父亲的救命恩人。你不记得了。他留下了一箱眼，说：「这是我父亲欠你的。」你把钱捐给了孤儿院。', e: 'wea+2', txt: '家境+2' },
-    ]);
+    ];
+    if (!getFlag('orphan')) {
+      dailyPool.push(
+        { t: '一个陌生人来拜访你，说你是他父亲的救命恩人。你不记得了。他留下了一箱眼，说：「这是我父亲欠你的。」你把钱捐给了孤儿院。', e: 'wea+2', txt: '家境+2' }
+      );
+    }
+    const daily = pick(dailyPool);
     events.push(evt(daily.t, 'elder_daily', daily.txt, false));
     if (daily.e.includes('con+1')) modAttr('con', 1);
     if (daily.e.includes('con-1')) modAttr('con', -1);
@@ -6908,7 +7213,7 @@ function generateElderEvents(age, a, f, bp, tags) {
   if (chance(0.005) && !getFlag('el_moon_toast')) { setFlag('el_moon_toast'); events.push(evt('在一个安静的夜晚，你独自坐在后巷的屋顶上，对着月亮举起了酒杯。都市的灯火在脚下延伸到天际线，像是一片发光的海洋。你轻声说：『敬这个疯狂的世界。』然后一饮而尽。也许这是最后一杯了，但一定是最好的一杯。', 'el_moon_toast', '快乐+2', false)); gameState.happiness += 2; }
 
   // ==================== 高稀有度特色事件：人生回顾(7) ====================
-  if (chance(0.005) && !getFlag('el_three_moments')) { setFlag('el_three_moments'); events.push(evt('你回忆起了一生中最重要的三个时刻——出生时母亲的微笑、第一次战斗后颤抖的双手、以及那个改变一切的决定。这三个瞬间串成了你的人生，像是一根线穿起了散落的珠子。你突然明白，人生不是由伟大的成就定义的，而是由这些微小的瞬间构成的。', 'el_three_moments', '智力+2，快乐+1', false)); modAttr('int', 2); gameState.happiness += 1; }
+  if (chance(0.005) && !getFlag('el_three_moments') && !getFlag('orphan')) { setFlag('el_three_moments'); events.push(evt('你回忆起了一生中最重要的三个时刻——出生时母亲的微笑、第一次战斗后颤抖的双手、以及那个改变一切的决定。这三个瞬间串成了你的人生，像是一根线穿起了散落的珠子。你突然明白，人生不是由伟大的成就定义的，而是由这些微小的瞬间构成的。', 'el_three_moments', '智力+2，快乐+1', false)); modAttr('int', 2); gameState.happiness += 1; }
   if (chance(0.005) && !getFlag('el_dream_reunion')) { setFlag('el_dream_reunion'); events.push(evt('你在梦中与已故的朋友们重聚了。他们还是年轻时的样子——充满活力、不知疲倦。你们笑着聊起了当年的蠢事，就像时光从未流逝。梦醒了，你的枕头是湿的。但你微笑着——因为至少在梦里，你们又在一起了。', 'el_dream_reunion', '快乐+1', false)); gameState.happiness += 1; }
   if (chance(0.005) && !getFlag('el_old_diary')) { setFlag('el_old_diary'); events.push(evt('你在整理旧物时找到了年轻时的日记。翻开泛黄的纸页，那个天真的自己和现在的你判若两人。日记里写的不是委托和战斗，而是『今天吃到了好吃的面』『那条街上的猫又来蹭我了』之类的小事。你读着读着笑了——原来年轻时的你，也是这样的温柔。', 'el_old_diary', '快乐+2', false)); gameState.happiness += 2; }
   if (chance(0.005) && !getFlag('el_words_that_changed')) { setFlag('el_words_that_changed'); events.push(evt('你对后巷的年轻人说了一句改变他/她一生的话。你甚至不记得自己说了什么——也许只是『别放弃』或者『你会没事的』。但多年以后，那个人成为了都市中举足轻重的人物，他说一切始于你那句不经意的话。你不知道一句话可以有如此巨大的力量。', 'el_words_that_changed', '快乐+2，智力+1', false)); modAttr('int', 1); gameState.happiness += 2; }
@@ -6941,6 +7246,23 @@ function generateElderEvents(age, a, f, bp, tags) {
   if (chance(0.005) && !getFlag('el_whole_backlane_funeral')) { setFlag('el_whole_backlane_funeral'); events.push(evt('你的葬礼上来了整个后巷的人。从前帮派首领到普通居民，从翼公司的代表到手指组织的特使——所有人都来了。不是因为你有权有势，而是因为你是为数不多真心为后巷做过事的人。葬礼上没有人哭——他们都面带微笑，因为你说过：『别为我哭，为我笑。我活得够本了。』', 'el_whole_backlane_funeral', '意志+2', false)); modAttr('wil', 2); }
   if (chance(0.005) && !getFlag('el_river_embrace')) { setFlag('el_river_embrace'); events.push(evt('在生命的最后一刻，你感到了河流的拥抱。那种感觉是温暖的——就像回到了母亲怀中。你看到了河流中无数的灵魂，他们都在朝你微笑。你认出了故去的战友、先走的朋友、以及那些在你生命中短暂停留过的人。你不再是孤独的了。', 'el_river_embrace', '快乐+3，意志+1', false)); modAttr('wil', 1); gameState.happiness += 3; }
   if (chance(0.005) && !getFlag('el_tombstone_words')) { setFlag('el_tombstone_words'); events.push(evt('你留下了最后一句话，让人刻在你的墓碑上：『我在这座都市中活了，也值了。』后巷的人们来看你的时候，都会在墓碑前站一会儿。有人放花，有人放酒，有人只是站着。他们都知道——你值得这句墓志铭。在都市中活过，并且活得值得——这是最高的赞誉。', 'el_tombstone_words', '快乐+2，意志+2', false)); modAttr('wil', 2); gameState.happiness += 2; }
+
+  // 额外晚年期日常事件
+  var elderExtras = [
+    { text: '你在阳光明媚的下午坐在门口，看着后巷的人来人往。', flag: 'el_ex_sunny_afternoon' },
+    { text: '一个年轻的收尾人来向你请教经验，你给他讲了一个故事。', flag: 'el_ex_tell_story' },
+    { text: '你在整理旧物时发现了一枚很久以前得到的徽章。', flag: 'el_ex_old_badge' },
+    { text: '后巷的邻居经常来看你，帮你带些食物。', flag: 'el_ex_neighbor_visit' },
+    { text: '你梦见了已经故去的旧友，醒来后久久不能平静。', flag: 'el_ex_dream_friend' },
+    { text: '你在墙上刻下了一道痕迹，记录自己又多活了一年。', flag: 'el_ex_mark_wall' }
+  ];
+  if (chance(0.1)) {
+    var eex = elderExtras[Math.floor(Math.random() * elderExtras.length)];
+    if (!getFlag(eex.flag)) {
+      setFlag(eex.flag);
+      events.push(evt(eex.text, eex.flag, '', false));
+    }
+  }
 
   return events;
 }
@@ -7274,6 +7596,11 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
       var fam = families[Math.floor(Math.random() * families.length)];
       events.push(evt(fam.text, fam.flag, '', true, '家庭背景'));
 
+      // 设置孤儿标志（家庭背景直接判定）
+      if (fam.flag === 'family_orphan_fixer' || fam.flag === 'family_missing_parents') {
+        setFlag('orphan', true);
+      }
+
       // 贫穷/后巷底层 (wea <= 2)
       if (wea <= 2) {
         if (!getFlag('bg_brothel')) {
@@ -7469,6 +7796,17 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
           modAttr('int', 1);
         }
       }
+
+      // 设置孤儿标志
+      if (!getFlag('orphan_set')) {
+        setFlag('orphan_set', true);
+        var isOrphan = getFlag('family_orphan_fixer') || getFlag('bg_sewer') || getFlag('bg_brothel');
+        // 也检查可能性中是否选择了孤儿
+        var hasOrphanTalent = (gameState.selectedTalents || []).some(function(t) { return t.tag && t.tag.indexOf('孤儿') > -1; });
+        if (isOrphan || hasOrphanTalent) {
+          setFlag('orphan', true);
+        }
+      }
     }
   }
 
@@ -7479,7 +7817,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
         t: '你在后巷的街道上玩耍，突然听到远处传来枪声。你的母亲冲出来把你抱回了屋里。',
         e: 'con+1',
         txt: '体质+1',
-        cond: () => true,
+        cond: () => !getFlag('orphan'),
       },
       {
         t: '你在垃圾堆里发现了一本破旧的书。虽然你不识字，但书中的插图让你着迷。',
@@ -7503,7 +7841,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
         t: '你的父亲给你讲了一个关于「色彩级收尾人」的故事。你梦想着有一天也能成为那样的人。',
         e: 'wil+1',
         txt: '意志+1',
-        cond: () => true,
+        cond: () => !getFlag('orphan'),
       },
       {
         t: '你第一次看到了WARP列车。那巨大的钢铁身躯和扭曲的空间让你目瞪口呆。',
@@ -7515,13 +7853,13 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
         t: '一个陌生人给了你一块糖。当你要吃的时候，你的母亲夺走了它——那是来自环指的「礼物」。',
         e: 'wil+1',
         txt: '意志+1',
-        cond: () => bp === 'ring' || chance(0.05),
+        cond: () => !getFlag('orphan') && (bp === 'ring' || chance(0.05)),
       },
       {
         t: '你跟着父母去了一次巢。那里的繁华让你目瞪口呆，你发誓有一天要住在那里。',
         e: 'wea+1',
         txt: '家境+1',
-        cond: () => a.wea >= 3,
+        cond: () => !getFlag('orphan') && a.wea >= 3,
       },
       {
         t: '你在街上捡到了一枚拇指的徽章。一个红大衣看到了你，点了点头，没有说什么。',
@@ -7673,15 +8011,13 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
 
   // ---------- 幼年期日常事件 ----------
   if (chance(0.06)) {
-    const daily = pick([
+    var dailyPool = [
       { t: '你在垃圾堆旁发现了一只受伤的流浪猫。你偷偷把它带回家，用破布给它做了一个窝。', e: 'wil+1', txt: '意志+1' },
       { t: '邻居的大孩子抢走了你的玩具。你哭了，但没人来帮你。在都市里，弱小就是原罪。', e: 'wil-1', txt: '意志-1' },
-      { t: '妈妈教你唱了一首古老的童谣。你不知道歌词的意思，但旋律让你在深宵时不再害怕。', e: 'wil+1', txt: '意志+1' },
       { t: '你在后巷的墙缝里发现了一枚眼。那是都市的通用货币，由首脑发行，足够买三块面包。', e: 'wea+1', txt: '家境+1' },
       { t: '一个收尾人路过时给了你一颗糖。那是你吃过最甜的东西，你记住了他腰间的剑鞘。', e: 'con+1', txt: '体质+1' },
       { t: '你在废弃的管道里和朋友们玩捉迷藏。那管道通向某个翼公司的地下设施，你们没敢深入。', e: 'int+1', txt: '智力+1' },
       { t: '深宵时你听到了清道夫的嗡嗡声，你躲在床底下发抖，直到黎明到来。', e: 'wil-1', txt: '意志-1' },
-      { t: '你帮妈妈跑腿去便利店，收银员多找了你一枚眼。你犹豫了一下，还是把钱还了回去。', e: 'wil+1', txt: '意志+1' },
       { t: '后巷的孩子们组成了一个"帮派"，你是最小的成员。你们的武器是木棍和石头。', e: 'con+1', txt: '体质+1' },
       { t: '你在废墟里找到了一本破损的图画书，上面画着蓝天和白云——那是你从未见过的景象。', e: 'int+1', txt: '智力+1' },
       { t: '一个食指的代行者路过，面无表情地递给你一张指令纸：「今日必须吃蔬菜」。你不明所以，但照做了。', e: 'wil-1', txt: '意志-1' },
@@ -7689,7 +8025,14 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
       { t: '你在巢的边界看到了一堵高墙。墙那边是后巷，墙这边是天堂——至少大人是这么说的。', e: 'int+1', txt: '智力+1' },
       { t: '一个老人教你在废墟里辨认哪些东西还能卖钱。你学会了从垃圾中寻找价值。', e: 'int+1', txt: '智力+1' },
       { t: '你第一次尝到了肉的味道，虽然那只是合成蛋白块。在都市里，这已经是奢侈。', e: 'con+1', txt: '体质+1' },
-    ]);
+    ];
+    if (!getFlag('orphan')) {
+      dailyPool.push(
+        { t: '妈妈教你唱了一首古老的童谣。你不知道歌词的意思，但旋律让你在深宵时不再害怕。', e: 'wil+1', txt: '意志+1' },
+        { t: '你帮妈妈跑腿去便利店，收银员多找了你一枚眼。你犹豫了一下，还是把钱还了回去。', e: 'wil+1', txt: '意志+1' }
+      );
+    }
+    const daily = pick(dailyPool);
     events.push(evt(daily.t, 'childhood_daily', daily.txt, false));
     if (daily.e.includes('con+1')) modAttr('con', 1);
     if (daily.e.includes('con-1')) modAttr('con', -1);
@@ -7703,38 +8046,42 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
 
   // ---------- 新增幼年期常见都市事件 ----------
   if (chance(0.25)) {
-    const childCityEvents = [
+    var childCityEvents = [
       { t: '你在巷子口看到了一只清道夫。它的红色光芒在白天也亮得刺眼，但你并不害怕——它还不会动。', e: 'wil+1', txt: '意志+1' },
-      { t: '妈妈用旧报纸给你折了一只纸船。你把它放在雨水沟里，看着它漂向了下水道的黑暗。', e: 'wil-1', txt: '意志-1' },
       { t: '你在街头捡到了半块没吃完的合成蛋白棒。那是你这一天唯一的食物。', e: 'con-1', txt: '体质-1' },
       { t: '一个手指的成员给了你一颗糖，叫你记住他的脸。你不知道那是什么意思，但糖很甜。', e: 'con+1', txt: '体质+1' },
       { t: '你在废弃的瓦砾堆里发现了一面碎镜子。镜子里的人看起来不像你。', e: 'wil-1', txt: '意志-1' },
       { t: '后巷的井水有一股铁锈味。大人说那是正常的，所有人都这么喝。', e: 'con-1', txt: '体质-1' },
-      { t: '你学会了数数，数到了一百。妈妈抱着你哭了，说你是她的希望。', e: 'int+1', txt: '智力+1' },
       { t: '深宵的警报响了，你躲在被子里捂住耳朵。邻居的惨叫还是传了进来。', e: 'wil-1', txt: '意志-1' },
       { t: '你在垃圾堆里找到了一个旧玩具熊。它少了一只眼睛，但你抱着它睡得很香。', e: 'wil+1', txt: '意志+1' },
       { t: '一个收尾人的尸体倒在巷子里，血汇成了小溪。大人们让你别看，但你看了很久。', e: 'wil-1', txt: '意志-1' },
       { t: '你在巢的围墙外听到了里面的笑声。那笑声和你听过的不一样，更轻，更脆。', e: 'int+1', txt: '智力+1' },
-      { t: '妈妈教你如何在清道夫来之前藏好。这是后巷孩子的第一课。', e: 'int+1', txt: '智力+1' },
       { t: '你在街头看到了一个扭曲的人形从远处走过。大人说那是「生病的人」，让你不要靠近。', e: 'wil-1', txt: '意志-1' },
-      { t: '你的乳牙掉了，妈妈把它扔到了屋顶上。她说那样新的牙齿才会长得快。', e: 'con+1', txt: '体质+1' },
       { t: '你在后巷的集市上看到了一只活老鼠。你追了它很久，最后它钻进了一个洞里。', e: 'con+1', txt: '体质+1' },
       { t: '一个老人坐在门口晒太阳，给你讲了一个关于「图书馆」的故事。你说那一定是骗人的。', e: 'int+1', txt: '智力+1' },
-      { t: '你的衣服破了，妈妈用旧报纸补上了破洞。第二天，报纸上的字印在了你的皮肤上。', e: 'wil-1', txt: '意志-1' },
       { t: '你在巷子里踢石子玩，石子踢到了一个人的脚上。他看了你一眼，走掉了。你后来知道那个人是个色彩级收尾人。', e: 'wil+1', txt: '意志+1' },
       { t: '深宵之后，你和朋友们去街道上捡清道夫没注意到的东西。你们找到了一枚眼。', e: 'wea+1', txt: '家境+1' },
       { t: '你在废墟里找到了一张旧照片，上面是一家四口在蓝天下的合影。你不相信那是真的。', e: 'wil+1', txt: '意志+1' },
-      { t: '妈妈让你去排队领救济粮。队伍很长，有人插队，有人打架。你排了三个小时。', e: 'con+1', txt: '体质+1' },
       { t: '你在街头艺人那里看到了魔术表演。他让一只鸽子消失了，你说那一定是奇点科技。', e: 'int+1', txt: '智力+1' },
       { t: '你的床底下藏着一个铁盒子，里面是你收集的「宝藏」：玻璃珠、铁丝、半张纸币。', e: 'wil+1', txt: '意志+1' },
-      { t: '一个食指的代行者递给妈妈一张指令：「今日不得外出」。你们饿了一天。', e: 'wil-1', txt: '意志-1' },
       { t: '你在后巷的墙上看到了一幅涂鸦，画着一个长着翅膀的人。大人让你不要看。', e: 'int+1', txt: '智力+1' },
-      { t: '你发了一场高烧。妈妈用湿毛巾敷在你的额头上，祈祷你能挺过去。', e: 'con-1', txt: '体质-1' },
       { t: '你和朋友们用破布和木棍搭了一个「巢」。你们假装自己是翼公司的董事，吃着泥土做的「大餐」。', e: 'wil+1', txt: '意志+1' },
       { t: '一个陌生人给了你一本破旧的识字书。你学会了写自己的名字，那是你最重要的东西。', e: 'int+1', txt: '智力+1' },
       { t: '你在巷子里看到了一只野狗在吃某种东西。你没有走近，但那个画面一直留在你的记忆里。', e: 'wil-1', txt: '意志-1' },
-      { t: '妈妈告诉你，只要好好读书，就能搬进巢里。你相信了，虽然你还没有见过学校。', e: 'wil+1', txt: '意志+1' },
     ];
+    if (!getFlag('orphan')) {
+      childCityEvents.push(
+        { t: '妈妈用旧报纸给你折了一只纸船。你把它放在雨水沟里，看着它漂向了下水道的黑暗。', e: 'wil-1', txt: '意志-1' },
+        { t: '你学会了数数，数到了一百。妈妈抱着你哭了，说你是她的希望。', e: 'int+1', txt: '智力+1' },
+        { t: '妈妈教你如何在清道夫来之前藏好。这是后巷孩子的第一课。', e: 'int+1', txt: '智力+1' },
+        { t: '你的乳牙掉了，妈妈把它扔到了屋顶上。她说那样新的牙齿才会长得快。', e: 'con+1', txt: '体质+1' },
+        { t: '你的衣服破了，妈妈用旧报纸补上了破洞。第二天，报纸上的字印在了你的皮肤上。', e: 'wil-1', txt: '意志-1' },
+        { t: '妈妈让你去排队领救济粮。队伍很长，有人插队，有人打架。你排了三个小时。', e: 'con+1', txt: '体质+1' },
+        { t: '一个食指的代行者递给妈妈一张指令：「今日不得外出」。你们饿了一天。', e: 'wil-1', txt: '意志-1' },
+        { t: '你发了一场高烧。妈妈用湿毛巾敷在你的额头上，祈祷你能挺过去。', e: 'con-1', txt: '体质-1' },
+        { t: '妈妈告诉你，只要好好读书，就能搬进巢里。你相信了，虽然你还没有见过学校。', e: 'wil+1', txt: '意志+1' }
+      );
+    }
     const cev = pick(childCityEvents);
     events.push(evt(cev.t, 'childhood_common', cev.txt, false));
     if (cev.e.includes('con+1')) modAttr('con', 1);
@@ -7748,7 +8095,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
   }
 
   // ===== 幼年期日常补充 =====
-  if (age >= 0 && age <= 2 && chance(0.08)) {
+  if (age >= 0 && age <= 2 && chance(0.08) && !getFlag('orphan')) {
     events.push(evt('你在襁褓中听到了远处的爆炸声。那是后巷帮派火并的声音。你大哭起来，母亲用疲惫的双臂紧紧抱着你，低声说：没事的，没事的。', 'baby', '', false));
   }
   if (age >= 1 && age <= 3 && chance(0.06) && bp === 'nest') {
@@ -7811,7 +8158,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     setFlag('gender_boy_play_fixer', true);
     events.push(evt('你和邻居家的小男孩们玩起了『收尾人和异化体』的游戏。你自告奋勇扮演收尾人，用废铁管当武器，把小伙伴们扮演的异化体打得落花流水。大人们看着你们笑了笑——在这个都市里，孩子的游戏就是未来的预演。', 'play', '体质+1', false));
   }
-  if (age >= 4 && age <= 6 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_boy_workshop_show')) {
+  if (age >= 4 && age <= 6 && chance(0.01) && gameState.gender === 'male' && !getFlag('gender_boy_workshop_show') && !getFlag('orphan')) {
     setFlag('gender_boy_workshop_show', true);
     events.push(evt('你父亲带你去看了工坊的武器展览。虽然你个子小，只能从大人的腿缝中偷看，但那些闪着寒光的刀刃、精密的枪械和散发着奇异光芒的E.G.O残片让你目不转睛。你拉着父亲的手说：『爸爸，我以后也要造这个。』', 'edu', '智力+1，武器+1', false));
   }
@@ -7823,7 +8170,7 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
     setFlag('gender_girl_stalker', true);
     events.push(evt('你在后巷被一个奇怪的大人跟踪了。你加快脚步，心跳如擂鼓，在巷子转角处钻进了一条只有孩子才能通过的缝隙。那个人在外面徘徊了很久才离开。从那天起，你学会了在后巷行走时永远要看身后。', 'danger', '意志+1', false));
   }
-  if (age >= 4 && age <= 6 && chance(0.012) && gameState.gender === 'female' && !getFlag('gender_girl_mother_teach')) {
+  if (age >= 4 && age <= 6 && chance(0.012) && gameState.gender === 'female' && !getFlag('gender_girl_mother_teach') && !getFlag('orphan')) {
     setFlag('gender_girl_mother_teach', true);
     events.push(evt('你的母亲开始教你如何在后巷保护自己。她教你走路的姿态要坚定、不要在深夜出门、遇到危险时该往哪里跑。她说：『在都市里，女孩要学的东西比男孩多得多——这不公平，但这是事实。』', 'survival', '意志+1，体质+1', false));
   }
@@ -7841,10 +8188,10 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
   }
 
   // ===== 高稀有度特色事件（幼年期） =====
-  if (chance(0.005) && !getFlag('child_rare_birthday_bread')) { setFlag('child_rare_birthday_bread'); events.push(evt('你在后巷的第一个生日没有蛋糕——你的母亲用一块发硬的面包代替，在上面歪歪扭扭地画了一朵花。那是你吃过最甜的面包，即使它几乎硌掉了你的牙。母亲笑着说：『这是都市给你的第一份礼物，虽然不太体面。』你的眼眶湿了，但你没哭。后巷的孩子不哭。', 'child_rare_birthday_bread', '意志+1', false)); modAttr('wil', 1); gameState.happiness += 1; }
+  if (chance(0.005) && !getFlag('child_rare_birthday_bread') && !getFlag('orphan')) { setFlag('child_rare_birthday_bread'); events.push(evt('你在后巷的第一个生日没有蛋糕——你的母亲用一块发硬的面包代替，在上面歪歪扭扭地画了一朵花。那是你吃过最甜的面包，即使它几乎硌掉了你的牙。母亲笑着说：『这是都市给你的第一份礼物，虽然不太体面。』你的眼眶湿了，但你没哭。后巷的孩子不哭。', 'child_rare_birthday_bread', '意志+1', false)); modAttr('wil', 1); gameState.happiness += 1; }
   if (chance(0.005) && !getFlag('child_rare_gear_bible')) { setFlag('child_rare_gear_bible'); events.push(evt('你在后巷的垃圾堆中找到了一本绘本。书页已经泛黄发霉，但你用袖子擦干净后认出了封面上的字——《齿轮教会的故事》。你花了整整一个月学会了认字，就靠着这本绘本。书里说齿轮转动着世界，而你相信你就是那个被齿轮选中的人。', 'child_rare_gear_bible', '智力+2', false)); modAttr('int', 2); }
   if (chance(0.005) && !getFlag('child_rare_first_death')) { setFlag('child_rare_first_death'); events.push(evt('你第一次在后巷看到有人死去。一个男人倒在巷口，胸口有一道整齐的切口——那是工坊武器造成的。你躲在垃圾桶后面，双手捂住嘴，不敢发出任何声音。血从他的身体下蔓延到你脚边，染红了你仅有的鞋子。那天晚上你发了一个月的噩梦，但你学会了在后巷保持沉默。', 'child_rare_first_death', '意志+1，快乐-1', false)); modAttr('wil', 1); gameState.happiness -= 1; }
-  if (chance(0.005) && !getFlag('child_rare_winter_fever')) { setFlag('child_rare_winter_fever'); events.push(evt('后巷的冬天格外寒冷，你发起了高烧。你的额头滚烫，身体像被火烧一样。你的家人守在你身边，但你看到母亲的眼泪滴在你的枕头上。他们买不起K公司的再生安瓿——那种昂贵的药只属于巢内的人。你靠着自己的意志力挺了过来，但那场高烧在你的记忆中烙下了永久的印记。', 'child_rare_winter_fever', '体质-1，意志+2', false)); modAttr('con', -1); modAttr('wil', 2); }
+  if (chance(0.005) && !getFlag('child_rare_winter_fever') && !getFlag('orphan')) { setFlag('child_rare_winter_fever'); events.push(evt('后巷的冬天格外寒冷，你发起了高烧。你的额头滚烫，身体像被火烧一样。你的家人守在你身边，但你看到母亲的眼泪滴在你的枕头上。他们买不起K公司的再生安瓿——那种昂贵的药只属于巢内的人。你靠着自己的意志力挺了过来，但那场高烧在你的记忆中烙下了永久的印记。', 'child_rare_winter_fever', '体质-1，意志+2', false)); modAttr('con', -1); modAttr('wil', 2); }
   if (chance(0.004) && !getFlag('child_rare_moonstone')) { setFlag('child_rare_moonstone'); events.push(evt('一个后巷的老人在弥留之际叫住了你。他从怀中掏出了一块月长石——那是一颗散发着微弱光芒的石头，大小刚好能握在孩子手中。他说：『这是你父母留下的。他们……他们去了河流的那边。』没等你说完，他就闭上了眼。你握着月长石，感受到一种说不清的温暖从掌心传遍全身。', 'child_rare_moonstone', '意志+1，快乐+1', false)); modAttr('wil', 1); gameState.happiness += 1; }
   if (chance(0.005) && !getFlag('child_rare_nest_wall')) { setFlag('child_rare_nest_wall'); events.push(evt('你在巢的边界线上看到了另一个世界。巢内的孩子穿着干净的衣服，在铺着草坪的庭院里追逐蝴蝶。而你站在铁栅栏的另一边，衣服破旧，脸上沾着后巷的煤灰。你第一次理解了世界的不公——不是因为你做了什么错事，而是因为你出生的位置不对。你攥紧了拳头，转身走进了黑暗的巷子中。', 'child_rare_nest_wall', '智力+1，意志+1', false)); modAttr('int', 1); modAttr('wil', 1); }
   if (chance(0.005) && !getFlag('child_rare_toy_stolen')) { setFlag('child_rare_toy_stolen'); events.push(evt('后巷的混混抢走了你唯一的玩具——那是你花了整整一周用废铁自己焊接的小机器人。你追了他们三条街，直到被踢翻在地上。你看着他们把你的机器人砸成碎片，却一句话都没说。回到家后，你用更废旧的铁片重新做了一个，这一次你做得更小、更锋利。', 'child_rare_toy_stolen', '武器+1，意志+1', false)); modAttr('wpn', 1); modAttr('wil', 1); }
@@ -7871,6 +8218,23 @@ function generateChildhoodEvents(age, a, f, bp, tags) {
   if (chance(0.004) && !getFlag('child_rare_math_prodigy')) { setFlag('child_rare_math_prodigy'); events.push(evt('你对数字有着异常的天赋。后巷的黑市商人无意中让你帮忙算账时，你在几秒内心算出了一套复杂的交易利润——那是成年人需要用纸笔才能算清的数字。商人惊讶地看着你，说：『你这脑子不该待在后巷。』他给了你一本算术书作为报酬。你花了一个晚上就把它全读完了。', 'child_rare_math_prodigy', '智力+3', false)); modAttr('int', 3); }
   if (chance(0.005) && !getFlag('child_rare_night_vision')) { setFlag('child_rare_night_vision'); events.push(evt('你发现自己能在黑暗中看得很清楚。起初你以为是后巷的孩子习惯了黑暗，但渐渐地你意识到——你真的能看到黑暗中的一切，每一个细节都清晰如白昼。这种能力在后巷中极为有用：你能在其他人都摔倒的地方安然行走，能在伸手不见五指的废墟中找到藏着的物资。你不知道为什么会这样，但它救了你不止一次。', 'child_rare_night_vision', '智力+1，体质+1', false)); modAttr('int', 1); modAttr('con', 1); }
   if (chance(0.005) && !getFlag('child_rare_danger_intuition')) { setFlag('child_rare_danger_intuition'); events.push(evt('你的直觉异常敏锐。你总能在危险来临前感到不安——一种从脊椎底部升起的寒意，像是有什么东西在警告你。第一次证实这一点是在一个建筑物倒塌的前十分钟——你拉着附近的小伙伴跑开了，紧接着那栋楼就轰然坍塌。从那以后，后巷的人开始用另一种眼神看你：一种混杂着敬畏和恐惧的眼神。', 'child_rare_danger_intuition', '智力+2，意志+1', false)); modAttr('int', 2); modAttr('wil', 1); }
+
+  // 额外幼年期日常事件
+  var childExtras = [
+    { text: '你在地上捡到了一颗漂亮的石头，把它当作宝贝藏了起来。', flag: 'child_ex_pretty_stone' },
+    { text: '你跟着大孩子们在巷子里跑，结果迷了路，最后被邻居送了回来。', flag: 'child_ex_get_lost' },
+    { text: '你在角落里发现了一只死掉的虫子，盯着它看了很久。', flag: 'child_ex_dead_bug' },
+    { text: '你的家人给你讲了一个关于都市之外的童话故事。', flag: 'child_ex_fairy_tale' },
+    { text: '你在下雨天跑到外面踩水坑，结果被大人拎了回来。', flag: 'child_ex_rain_puddle' },
+    { text: '你用废纸和木棍做了一把小剑，觉得自己像个英雄。', flag: 'child_ex_paper_sword' }
+  ];
+  if (chance(0.2)) {
+    var cex = childExtras[Math.floor(Math.random() * childExtras.length)];
+    if (!getFlag(cex.flag)) {
+      setFlag(cex.flag);
+      events.push(evt(cex.text, cex.flag, '', false));
+    }
+  }
 
   return events;
 }
@@ -8370,12 +8734,11 @@ function generateTeenEvents(age, a, f, bp, tags) {
 
   // ---------- 新增少年期常见都市事件 ----------
   if (chance(0.3)) {
-    const teenCityEvents = [
+    var teenCityEvents = [
       { t: '你在学校的厕所里听到了关于「扭曲」的传闻。高年级的学长说，那是都市对弱者的惩罚。', e: 'wil-1', txt: '意志-1' },
       { t: '你偷偷溜进了巢的商业区。那里的灯比后巷亮一百倍，食物散发着诱人的香气。你被保安赶了出来。', e: 'wil-1', txt: '意志-1' },
       { t: '你在后巷的格斗场下注，赢了三枚眼。这是你第一次靠自己赚到钱。', e: 'wea+1', txt: '家境+1' },
       { t: '你的数学老师在课堂上讲错了都市的历史。你举手纠正了他。第二天，他对你刮目相看。', e: 'int+1', txt: '智力+1' },
-      { t: '你帮妈妈送外卖到一栋高级公寓。电梯里的镜子照出了你破旧的衣服，你不敢抬头。', e: 'wil-1', txt: '意志-1' },
       { t: '你在废弃的地铁隧道里发现了一面墙，上面刻满了名字。有人说那是深宵遇难者的名单。', e: 'wil-1', txt: '意志-1' },
       { t: '一个协会收尾人来学校做宣讲。他说成为收尾人可以改变命运。你记下了他的联系方式。', e: 'wil+1', txt: '意志+1' },
       { t: '你在黑市买了一把弹簧刀。不是为了打架，只是为了在深宵时让自己安心一点。', e: 'con+1', txt: '体质+1' },
@@ -8388,7 +8751,6 @@ function generateTeenEvents(age, a, f, bp, tags) {
       { t: '你参加了一次模拟考试。你的成绩在后巷的学校里排名第一，但在巢里只能排倒数。', e: 'int+1', txt: '智力+1' },
       { t: '一个拇指的成员看中了你的打架天赋。他说等你成年了可以去找他。', e: 'con+1', txt: '体质+1' },
       { t: '你在深夜的屋顶上和朋友抽烟。烟是从废墟里捡来的，味道很冲。你们对着灰色的天空发呆。', e: 'wil+1', txt: '意志+1' },
-      { t: '你的妈妈病了，你需要去黑市买药。药贩子骗了你，卖给你的是面粉。你学会了一个教训。', e: 'int+1', txt: '智力+1' },
       { t: '你在学校的走廊里看到了一个食指的代行者。他面无表情地递给你一张指令：「安静学习」。', e: 'wil-1', txt: '意志-1' },
       { t: '你偷了一家便利店的面包。被抓到了，但店主只是叹了口气，说：「下次饿了直接说。」', e: 'wil-1', txt: '意志-1' },
       { t: '你在废墟里发现了一台旧游戏机。它还能用，你和朋友玩了一整个夏天。', e: 'wil+1', txt: '意志+1' },
@@ -8401,7 +8763,6 @@ function generateTeenEvents(age, a, f, bp, tags) {
       { t: '你在废品站找到了一本破旧的都市历史书。书里说，曾经的天空是蓝色的。你把那一页撕下来藏好了。', e: 'int+1', txt: '智力+1' },
       { t: '你和朋友们打赌谁敢去废墟深处。你输了，不得不进去捡了一块石头出来。石头上刻着你不认识的字。', e: 'con+1', txt: '体质+1' },
       { t: '你的学校来了一位新老师，她教你们唱一首关于「光」的歌。一周后，她消失了。', e: 'wil-1', txt: '意志-1' },
-      { t: '你在街头帮人跑腿，赚到的钱刚好够买一份巢里的便当。你舍不得吃，带回去给了妈妈。', e: 'wil+1', txt: '意志+1' },
       { t: '一个血棒商贩给了你一根免费试吃的血棒。味道很奇怪，但确实能填饱肚子。', e: 'con+1', txt: '体质+1' },
       { t: '你在WARP列车站台看到了一个迷路的孩子。你帮他找到了妈妈，她给了你一枚眼作为谢礼。', e: 'wea+1', txt: '家境+1' },
       { t: '你的体育老师以前是某个帮派的成员。他教你如何用一根铁管对付三个敌人。', e: 'con+1', txt: '体质+1' },
@@ -8412,6 +8773,13 @@ function generateTeenEvents(age, a, f, bp, tags) {
       { t: '你在废弃的建筑里发现了一架旧钢琴。你按下一个键，声音在空荡的大楼里回响了很久。', e: 'wil+1', txt: '意志+1' },
       { t: '你第一次独自在深宵中生存了下来。当你看到黎明的灰色天空时，你觉得自己长大了。', e: 'wil+1', txt: '意志+1' },
     ];
+    if (!getFlag('orphan')) {
+      teenCityEvents.push(
+        { t: '你帮妈妈送外卖到一栋高级公寓。电梯里的镜子照出了你破旧的衣服，你不敢抬头。', e: 'wil-1', txt: '意志-1' },
+        { t: '你的妈妈病了，你需要去黑市买药。药贩子骗了你，卖给你的是面粉。你学会了一个教训。', e: 'int+1', txt: '智力+1' },
+        { t: '你在街头帮人跑腿，赚到的钱刚好够买一份巢里的便当。你舍不得吃，带回去给了妈妈。', e: 'wil+1', txt: '意志+1' }
+      );
+    }
     const tev = pick(teenCityEvents);
     events.push(evt(tev.t, 'teen_common', tev.txt, false));
     if (tev.e.includes('con+1')) modAttr('con', 1);
@@ -8513,7 +8881,7 @@ function generateTeenEvents(age, a, f, bp, tags) {
     setFlag('gender_teen_girl_nest_talent', true);
     events.push(evt('巢的选拔委员会注意到了你的天赋。在一次例行评估中，你的各项指标都远超同龄人。委员会的一位老者私下找到你，暗示你可能会获得进入翼公司实习的机会——对后巷的孩子来说，这几乎等同于中彩票。', 'opportunity', '智力+2，家境+1', false));
   }
-  if (age >= 13 && age <= 16 && chance(0.012) && gameState.gender === 'female' && !getFlag('gender_teen_girl_exam_pressure')) {
+  if (age >= 13 && age <= 16 && chance(0.012) && gameState.gender === 'female' && !getFlag('gender_teen_girl_exam_pressure') && !getFlag('orphan')) {
     setFlag('gender_teen_girl_exam_pressure', true);
     events.push(evt('你在应试村承受着巨大的压力。每一天都是考试、学习、再考试，循环往复。你开始怀疑这一切的意义——难道人生的价值就由一纸试卷决定吗？但看到父母期待的眼神，你把疑问咽了回去，继续埋头苦读。', 'stress', '智力+1，意志-1', false));
   }
@@ -8569,6 +8937,25 @@ function generateTeenEvents(age, a, f, bp, tags) {
   if (chance(0.005) && !getFlag('teen_rare_flow_state')) { setFlag('teen_rare_flow_state'); events.push(evt('你发现自己能在战斗中进入某种「心流」状态。那是在地下拳场的一场苦战中——你已经精疲力竭，但对手的拳头飞来的那一刻，一切突然变得异常清晰。时间变慢了，你能看到对手每一个肌肉的微小动作，能预判每一拳的轨迹。你的身体在意识之前就已经做出了反应。几秒钟后状态退去，你发现自己已经赢了。你不知道这种能力从何而来，但它让你在战斗中变得可怕。', 'teen_rare_flow_state', '武器+2，体质+1，智力+1', false)); modAttr('wpn', 2); modAttr('con', 1); modAttr('int', 1); }
   if (chance(0.004) && !getFlag('teen_rare_singularity_spark')) { setFlag('teen_rare_singularity_spark'); events.push(evt('你的身体开始出现微弱的奇点反应。第一次是在你接触WARP站台的安全门时——你的指尖突然迸出了一串蓝色的火花，安全门短暂地失灵了。第二次是在你经过一个翼公司的设备检测门时，整栋楼的警报都被触发了。你体内的某种东西在回应着奇点技术——你与这个都市最核心的科技之间存在着某种未知的共鸣。', 'teen_rare_singularity_spark', '智力+2，武器+1', false)); modAttr('int', 2); modAttr('wpn', 1); }
   if (chance(0.004) && !getFlag('teen_rare_fate_understanding')) { setFlag('teen_rare_fate_understanding'); events.push(evt('你在某一刻突然理解了自己的命运。那不是来自外界的启示，而是一种从心底涌出的确信——你不是普通人。你有自己的「可能性」，一种能够改变这个都市走向的潜能。这个念头太过庞大，几乎让你的大脑停止运转。但你清楚地感觉到了它，就像感觉到自己的心跳一样真实。你站在后巷的黑暗中，第一次觉得自己的人生不仅仅是为了活下去。', 'teen_rare_fate_understanding', '意志+2，智力+1，快乐+1', false)); modAttr('wil', 2); modAttr('int', 1); gameState.happiness += 1; }
+
+  // 额外少年期日常事件
+  var teenExtras = [
+    { text: '你在学校的角落里发现了一本被遗弃的漫画书，偷偷看完了它。', flag: 'teen_ex_comic_book' },
+    { text: '你和朋友们在后巷的废墟中搭建了一个秘密基地。', flag: 'teen_ex_secret_base' },
+    { text: '你在街上看到了一个收尾人的战斗，那场面让你既害怕又向往。', flag: 'teen_ex_see_fight' },
+    { text: '你尝试了自己做一顿饭，结果味道意外地不错。', flag: 'teen_ex_cook_try' },
+    { text: '你在黑市上帮大人跑腿，赚了一点零花钱。', flag: 'teen_ex_errand_money' },
+    { text: '你在后巷的墙上看到了一幅奇怪的涂鸦，画的是一只巨大的眼睛。', flag: 'teen_ex_wall_graffiti' },
+    { text: '你和朋友们打赌谁敢进入某栋废弃的建筑，你赢了。', flag: 'teen_ex_dare_building' },
+    { text: '你在巢的入口处站了很久，想象着里面的生活是什么样的。', flag: 'teen_ex_nest_entrance' }
+  ];
+  if (chance(0.2)) {
+    var tex = teenExtras[Math.floor(Math.random() * teenExtras.length)];
+    if (!getFlag(tex.flag)) {
+      setFlag(tex.flag);
+      events.push(evt(tex.text, tex.flag, '', false));
+    }
+  }
 
   return events;
 }
@@ -9215,7 +9602,7 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
 
   // ---------- 青年期日常事件 ----------
   if (chance(0.06)) {
-    const daily = pick([
+    var dailyPool = [
       { t: '你租了一间后巷的公寓，月租占了你薪水的三分之一。房东警告你：深宵时千万不要出门。', e: 'wea-1', txt: '家境-1' },
       { t: '你在通勤的WARP列车上遇到了一个奇怪的人。他声称自己曾在空间撕裂中「迷路」，被困在列车里整整三天——但外界只过去了三分钟。然后在你眨眼间，他所在的车厢被撕裂到了你够不到的地方。', e: 'int+1', txt: '智力+1' },
       { t: '加班到深夜，你在便利店里买了一份便当。那是你今天的唯一一餐，味道像纸板。', e: 'con-1', txt: '体质-1' },
@@ -9224,7 +9611,6 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
       { t: '你在后巷的夜市里淘到了一把旧匕首。摊主说那是某个退役收尾人的遗物，你只花了五枚眼。', e: 'con+1', txt: '体质+1' },
       { t: '你喜欢上了一个人。你们在后巷的屋顶上看星星——虽然都市的天空根本看不到星星。', e: 'wil+1', txt: '意志+1' },
       { t: '你生了一场病。K公司的再生安瓿太贵了，你只能去黑市买假药。你活了下来，但留下了后遗症。', e: 'con-1', txt: '体质-1' },
-      { t: '你的父母在电话中说一切都好。但你听到了背景中的枪声，还有清道夫那熟悉的嗡嗡声。', e: 'wil-1', txt: '意志-1' },
       { t: '你在公司的储物柜里发现了一封没有署名的信。信上只有一句话：「不要深究L公司的过去。」', e: 'int+1', txt: '智力+1' },
       { t: '周末你去了一趟味之巷。后巷屠夫的肉铺前人头攒动，但你知道那些肉可能来自哪里。', e: 'con+1', txt: '体质+1' },
       { t: '你的房东涨租了。你不得不搬到更深层、更危险的后巷。深宵时，你能听到隔壁的惨叫。', e: 'wea-1', txt: '家境-1' },
@@ -9240,7 +9626,13 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
       { t: '你在深夜的巷子里救了一个被抢劫的老人。他自称是某个事务所的退役收尾人，教了你三招防身术。', e: 'con+1', txt: '体质+1' },
       { t: '你买了一台二手电视。深夜里，它自动打开了，画面中是安吉拉的脸。她说：「图书馆恭候您的光临。」然后信号断了。', e: 'wil-1', txt: '意志-1' },
       { t: '你的上司把一份黑锅甩给了你。你咬着牙承担了，因为你知道，失业在都市里等同于死刑。', e: 'wil+1', txt: '意志+1' },
-    ]);
+    ];
+    if (!getFlag('orphan')) {
+      dailyPool.push(
+        { t: '你的父母在电话中说一切都好。但你听到了背景中的枪声，还有清道夫那熟悉的嗡嗡声。', e: 'wil-1', txt: '意志-1' }
+      );
+    }
+    const daily = pick(dailyPool);
     events.push(evt(daily.t, 'young_adult_daily', daily.txt, false));
     if (daily.e.includes('con+1')) modAttr('con', 1);
     if (daily.e.includes('con-1')) modAttr('con', -1);
@@ -9288,7 +9680,6 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
       { t: '你的邻居是一对年轻夫妇。他们每天晚上都吵架，直到有一天晚上安静了。第二天，他们「搬走了」。', e: 'wil-1', txt: '意志-1' },
       { t: '你在后巷的地下赌场当服务员。一个客人输光了所有，把手指押了上去。你吐了。', e: 'wil-1', txt: '意志-1' },
       { t: '你在街头看到了一个协会的色彩级收尾人路过。人群自动让开一条路，就像摩西分红海。', e: 'wil+1', txt: '意志+1' },
-      { t: '你的妈妈打电话来，问你过得好不好。你说很好，尽管你已经三天没吃饭了。', e: 'wil-1', txt: '意志-1' },
       { t: '你在废墟里找到了一箱旧衣服。尺寸刚好适合你，而且质量比你自己买的好十倍。', e: 'wea+1', txt: '家境+1' },
       { t: '一个齿轮教会的成员试图说服你加入。他说人类应该与机械融合。你摸了摸自己的牙，说还是算了吧。', e: 'int+1', txt: '智力+1' },
       { t: '你在公司的储物柜里发现了一包违禁品。你不知道是谁的，但你把它交给了保安。第二天，保安「离职」了。', e: 'wil-1', txt: '意志-1' },
@@ -9308,6 +9699,11 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
       { t: '你在公司的年会上抽到了三等奖：一箱合成蛋白块。你默默地把它带回了家。', e: 'wea+1', txt: '家境+1' },
       { t: '一个环指的艺术审查员来你的街区检查。他说你们这里的「美学水平」太低，需要「整改」。', e: 'wil-1', txt: '意志-1' },
     ];
+    if (!getFlag('orphan')) {
+      youngAdultCityEvents.push(
+        { t: '你的妈妈打电话来，问你过得好不好。你说很好，尽管你已经三天没吃饭了。', e: 'wil-1', txt: '意志-1' }
+      );
+    }
     const yev = pick(youngAdultCityEvents);
     events.push(evt(yev.t, 'young_adult_common', yev.txt, false));
     if (yev.e.includes('con+1')) modAttr('con', 1);
@@ -9694,6 +10090,25 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
   if (chance(0.006) && !getFlag('ya_enemy_to_friend')) { setFlag('ya_enemy_to_friend'); events.push(evt('你曾经最大的敌人现在站在你面前——不是来战斗，而是来请求你的帮助。他/她的组织覆灭了，手下被杀殆尽，走投无路。你想起了你们之间那些血腥的交锋，然后做了一个在后巷几乎没有人做的决定：你伸出了手。他握住了它。在都市中，没有永远的敌人——只有永远的利益和偶尔的善意。', 'ya_enemy_to_friend', '智力+1，快乐+1', true, '宿敌化友')); modAttr('int', 1); gameState.happiness += 1; }
   if (chance(0.005) && !getFlag('ya_master_truth')) { setFlag('ya_master_truth'); events.push(evt('你在一个偶然的机会中发现了一个真相——你师父，那个教会你一切的人，就是当年杀死你父母的凶手。证据确凿，毫无辩解余地。你的师父看着你发现了真相的表情，沉默了很久，然后说：『我一直在等你发现。这是你最后的一课——选择。』你的手握在武器上，整个世界都安静了。', 'ya_master_truth', '意志+2，快乐-2', true, '师父的真相')); modAttr('wil', 2); gameState.happiness -= 2; }
   if (chance(0.006) && !getFlag('ya_family_found')) { setFlag('ya_family_found'); events.push(evt('在一个你本以为只是普通委托的任务中，你遇到了一个人——他长得和你一模一样，只是更老。那是你的兄弟姐妹，你以为已经在后巷中死去多年的家人。他们告诉你，你失踪后他们一直在都市的某个角落生活，始终相信你还活着。你们在一条肮脏的后巷里紧紧拥抱，哭泣。在都市的残酷中，这是最不可能的奇迹。', 'ya_family_found', '快乐+3，意志+1', true, '找到家人')); modAttr('wil', 1); gameState.happiness += 3; }
+
+  // 额外青年期日常事件
+  var youngAdultExtras = [
+    { text: '你在一个深夜的委托中遇到了一个神秘的同行，他声称知道某个翼公司的秘密通道。', flag: 'ya_ex_secret_passage' },
+    { text: '你在后巷的格斗场赢了一场关键的比赛，获得了不错的奖金。', flag: 'ya_ex_arena_win' },
+    { text: '你在废墟中找到了一件旧时代的武器，虽然破损但仍有价值。', flag: 'ya_ex_old_weapon' },
+    { text: '你参加了一个翼公司举办的招聘会，虽然没有被录用，但学到了很多。', flag: 'ya_ex_job_fair' },
+    { text: '你在后巷的酒馆里听到了关于某个色彩级收尾人的传闻。', flag: 'ya_ex_color_rumor' },
+    { text: '你的住处附近发生了一起帮派火并，你被迫在枪声中躲了一整夜。', flag: 'ya_ex_gang_fight_nearby' },
+    { text: '你在黑市上遇到了一个卖情报的掮客，他提供了一些有趣的信息。', flag: 'ya_ex_info_broker' },
+    { text: '你在巢的边缘看到了一台自动贩卖机，里面卖的东西让你感到不安。', flag: 'ya_ex_vending_machine' }
+  ];
+  if (chance(0.2)) {
+    var yex = youngAdultExtras[Math.floor(Math.random() * youngAdultExtras.length)];
+    if (!getFlag(yex.flag)) {
+      setFlag(yex.flag);
+      events.push(evt(yex.text, yex.flag, '', false));
+    }
+  }
 
   return events;
 }
@@ -10423,6 +10838,34 @@ function showResults() {
     mbtiHtml += '<div style="text-align:center;font-size:0.85rem;color:#888;line-height:1.6;margin-top:6px;">' + mbtiInfo.desc + '</div>';
     mbtiDiv.innerHTML = mbtiHtml;
     card.appendChild(mbtiDiv);
+
+  // ===== 光之种结局 =====
+  if (gameState.lightSeedActive) {
+    var progress = getLightSeedProgress();
+    var lightDiv = document.createElement('div');
+    lightDiv.style.cssText = 'margin:16px 0;padding:15px;background:#111;border:2px solid #c9a84c;border-radius:6px;';
+    var lightHtml = '<h4 style="color:#c9a84c;margin-bottom:10px;text-align:center;">&#10022; 火剑之路 &#10022;</h4>';
+    lightHtml += '<div style="text-align:center;margin-bottom:8px;"><span style="font-size:1.1rem;color:#d4c5a0;">已觉醒节点：' + progress + ' / 10</span></div>';
+    lightHtml += '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;width:250px;margin:0 auto 10px;">';
+    SEPHIRAH_NODES.forEach(function(node) {
+      var isPassed = (gameState.lightSeedNodes || {})[node.id];
+      var bgColor = isPassed ? '#c9a84c' : '#1a1a1a';
+      var borderColor = isPassed ? '#c9a84c' : '#333';
+      var textColor = isPassed ? '#111' : '#555';
+      lightHtml += '<div style="display:flex;align-items:center;justify-content:center;border:1px solid ' + borderColor + ';background:' + bgColor + ';border-radius:3px;font-size:0.65rem;color:' + textColor + ';padding:4px 2px;text-align:center;">' + node.id.substring(0,3) + '</div>';
+    });
+    lightHtml += '</div>';
+    if (progress >= 10) {
+      lightHtml += '<div style="text-align:center;font-size:1rem;color:#c9a84c;font-weight:bold;margin-top:8px;">你与光融为一体</div>';
+      lightHtml += '<div style="text-align:center;font-size:0.85rem;color:#888;line-height:1.6;margin-top:6px;">所有Sephirah在你体内共鸣。你发射了光之种，光芒照耀了整个都市。你不再是普通的人类——你成为了光的化身。在结算中，你将获得特殊评价。</div>';
+    } else if (progress >= 5) {
+      lightHtml += '<div style="text-align:center;font-size:0.85rem;color:#888;line-height:1.6;">火剑之路已经走了一半。你感受到了光的力量，但距离发射光之种还有很长的路要走。</div>';
+    } else {
+      lightHtml += '<div style="text-align:center;font-size:0.85rem;color:#888;line-height:1.6;">火剑之路刚刚开始。光之种的力量在你体内沉睡，等待着被唤醒。</div>';
+    }
+    lightDiv.innerHTML = lightHtml;
+    card.appendChild(lightDiv);
+  }
 
   showSummary();
 }
@@ -12774,8 +13217,52 @@ function lifeInsuranceRevive() {
   return true;
 }
 
-// 为 death() 函数提供统一的复活入口
-const tryResurrection = lifeInsuranceRevive;
+function tryResurrection() {
+  // 光之种永生已在 death() 中处理
+  if (gameState.lightSeedEternal) return true;
+
+  // 检查是否有复活手段
+  var hasInsurance = getFlag('lifeInsurance');
+  var hasKCorp = getFlag('k_ampoule') || getFlag('k_ampoule_eternal');
+  var hasWingTech = getFlag('revive_tech');
+
+  if (!hasInsurance && !hasKCorp && !hasWingTech) {
+    // 无任何复活手段，直接结束
+    return false;
+  }
+
+  // 生命保险复活
+  if (hasInsurance && chance(0.5)) {
+    gameState.alive = true;
+    gameState.dead = false;
+    addEvent(evt('你的生命保险生效了。你在一间陌生的病房中醒来，身上插满了管子。', 'resurrect_insurance', '复活', true, '生命保险'));
+    modAttr('con', -2);
+    modAttr('wil', 1);
+    return true;
+  }
+
+  // K公司安瓿复活
+  if (hasKCorp && chance(0.4)) {
+    gameState.alive = true;
+    gameState.dead = false;
+    addEvent(evt('K公司的再生安瓿发挥了作用。你从死亡边缘被拉了回来，但你的身体似乎发生了某种微妙的变化。', 'resurrect_kcorp', '复活', true, '再生安瓿'));
+    modAttr('con', -1);
+    modAttr('wil', 2);
+    return true;
+  }
+
+  // 翼公司复活技术
+  if (hasWingTech && chance(0.3)) {
+    gameState.alive = true;
+    gameState.dead = false;
+    addEvent(evt('翼公司的尖端技术将你从死亡线上救了回来。但你知道，这种技术的代价远不止金钱。', 'resurrect_wing', '复活', true, '翼公司技术'));
+    modAttr('con', -3);
+    modAttr('wea', -2);
+    return true;
+  }
+
+  return false;
+}
 
 // ============================================
 // 模块导出 / 事件调度
