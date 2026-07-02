@@ -1984,16 +1984,21 @@ function shiftAlignment(dx, dy) {
 }
 
 function getIdentityTier() {
-  var score = (gameState.attrs.wea||0) + (gameState.attrs.wil||0) + (gameState.attrs.int||0) + getIdentityCount();
-  if (score >= 40) return { name:'人上人', desc:'裁剪都市未来可能失控的枝条，收税，制定法律。首脑、眼线、爪牙、翼之董事。', color:'#ffd700' };
-  if (score >= 30) return { name:'上等人', desc:'喝茶聊天划分利益蛋糕。翼公司董事、协会部长、拇指二老板。', color:'#c0c0c0' };
-  if (score >= 20) return { name:'中等人', desc:'给公司打工，给协会打工，以高低不同的形式给人打工。', color:'#cd853f' };
-  if (score >= 12) return { name:'下等人', desc:'在后巷苟延残喘，常常受到帮派盘剥。', color:'#808080' };
-  if (score >= 6) return { name:'人下人', desc:'不知道自己明天是不是还是个人。郊区难民。', color:'#4a4a4a' };
-  if (getFlag('ring_affected') || getFlag('carnival_art') || getFlag('bremen_artist')) return { name:'疯子', desc:'被都市折磨疯了，开始制作各种形式的"艺术品"。环指、不莱梅等。', color:'#ff69b4' };
-  if (getFlag('gear_church_member') || getFlag('index_follower')) return { name:'邪教徒', desc:'依靠宗教信仰麻痹自己。齿轮教会、食指。', color:'#9370db' };
-  if (getFlag('cyborg_full') || getFlag('blood_cyborg') || getFlag('sub_human')) return { name:'亚人', desc:'被改变了躯体构造与对自我的认知。', color:'#00ced1' };
-  return { name:'下等人', desc:'在后巷苟延残喘。', color:'#808080' };
+  var a = gameState.attrs;
+  var score = (a.wea||0) + (a.wil||0) + (a.int||0) + getIdentityCount();
+  // 特殊身份优先判定（一旦触发，覆盖分数判定）
+  if (getFlag('head_shadow') || getFlag('claw_visited') || getFlag('eye_watched')) return { name:'人上人', desc:'你与都市的最高存在产生了交集。首脑制定法律，眼线监视一切，爪牙执行调律。在都市中，没有什么比被首脑注视更危险，也没有什么比成为首脑的一部分更令人恐惧。', color:'#ffd700' };
+  if (getFlag('wing_director') || getFlag('association_minister')) return { name:'上等人', desc:'你身处都市的权力核心。翼公司董事喝茶聊天划分利益蛋糕，协会部长统筹收尾人协会的大小事务。真正能让他们全神贯注的是拉钩会议和翼间战争——以及首脑突然上门。', color:'#c0c0c0' };
+  if (getFlag('cyborg_full') || getFlag('blood_cyborg') || getFlag('sub_human') || getFlag('non_human')) return { name:'亚人', desc:'你被改变了躯体构造与对自我的认知。非人禁忌禁止义体仿照人类身体制作，但你已超越了这条界限。你的生活观念与都市的普通人截然不同——清道夫靠液化吸收人类为生，血魔以吸血维生，而全身义体化的你已分不清自己还剩下多少是"人"。', color:'#00ced1' };
+  if (getFlag('ring_affected') || getFlag('carnival_art') || getFlag('bremen_artist') || getFlag('distortion')) return { name:'疯子', desc:'你被都市折磨疯了，或是想要如此获得自由与解脱。环指的艺术家将人变成素材，不莱梅乐团用音乐扭曲灵魂，谢肉祭用人形面料制作"艺术品"。你开始放弃一切地去制作各种形式的"艺术品"与进行"表演"，受害者被传染做类似的事情。', color:'#ff69b4' };
+  if (getFlag('gear_church_member') || getFlag('index_follower') || getFlag('church_devout')) return { name:'邪教徒', desc:'你依靠宗教信仰麻痹自己，忘记都市的折磨。齿轮教会的信徒崇拜机械，将人体改造视为神圣的进化；食指的追随者盲目服从"信"的命令，在神秘主义的指引下生存。你的生存观念已被宗教彻底重塑。', color:'#9370db' };
+  // 分数层级判定
+  if (score >= 40) return { name:'人上人', desc:'裁剪都市未来可能失控的枝条，收税，制定法律，保护都市免于外部威胁。你与首脑、眼线、爪牙同处一个世界——或者你就是其中之一。', color:'#ffd700' };
+  if (score >= 30) return { name:'上等人', desc:'喝茶聊天划分利益蛋糕，一盘菜吃掉后巷一栋房，不时隐秘地满足一下"个人癖好"。作为翼公司董事、协会部长或拇指二老板，真正能令你全神贯注的是拉钩会议和翼间战争这类的事情。以及……首脑上门。', color:'#c0c0c0' };
+  if (score >= 20) return { name:'中等人', desc:'给公司打工，给协会打工，给事务所打工，给帮派打工，以高低不同、花样繁多的形式给人打工。从拇指指挥官到底层帮派成员、从特色到九阶的各大收尾人、从翼到后巷的各类公司职员——最低也能吃上三餐和养活一个家庭。', color:'#cd853f' };
+  if (score >= 12) return { name:'下等人', desc:'在后巷苟延残喘，抱团取暖，勉强做个什么生意糊口，常常受到帮派盘剥，交不上保护金就地去世。耗子、崩塌的巢中的普通居民，起码没啥大事还能活命。', color:'#808080' };
+  if (score >= 6) return { name:'人下人', desc:'不知道自己明天是不是还是个人，不知道下一秒周围的石头会不会咬人。郊区难民，废墟里不知道还有没有活人。你的存在本身就是都市的容错空间——"您的生命已如风中残烛"。', color:'#4a4a4a' };
+  return { name:'人下人', desc:'在都市的最底层挣扎求生。', color:'#4a4a4a' };
 }
 
 function getIdentityCount() {
@@ -3926,6 +3931,12 @@ function generateEvents(age) {
   // 义体改造事件
   if (typeof addCyberneticsEvents === 'function' && gameState.alive && !gameState.dead) {
     addCyberneticsEvents(age);
+  }
+
+  // 世界观设定集事件
+  if (typeof addWorldSettingEvents === 'function' && gameState.alive && !gameState.dead) {
+    var wsEvents = addWorldSettingEvents(age);
+    events = events.concat(wsEvents);
   }
 
   // 食指特色收尾人事件
@@ -11547,6 +11558,49 @@ function showResults() {
       ${gameState.milestones.map(m => `<div class="milestone-item">${m}</div>`).join('')}
     </div>` : ''}
 
+    ${(() => {
+      var resultsHtml = '';
+
+      // 一生故事线
+      var milestones = gameState.milestones || [];
+      if (milestones.length > 0) {
+        resultsHtml += '<div style="background:rgba(255,255,255,0.05);border:1px solid #555;border-radius:8px;padding:12px;margin:10px 0;">';
+        resultsHtml += '<div style="color:#8cf;font-weight:bold;font-size:1rem;margin-bottom:8px;">一生轨迹</div>';
+        var storyParts = [];
+        for (var mi = 0; mi < milestones.length; mi++) {
+          storyParts.push('<span style="display:inline-block;background:rgba(100,200,255,0.15);border:1px solid rgba(100,200,255,0.3);border-radius:4px;padding:2px 6px;margin:2px;font-size:0.8rem;color:#8cf;">' + milestones[mi] + '</span>');
+        }
+        resultsHtml += '<div style="line-height:2;">' + storyParts.join(' → ') + '</div>';
+        resultsHtml += '</div>';
+      }
+
+      // 重要人际关系
+      var relations = [];
+      if (getFlag('roland_encounter')) relations.push({ name:'漆黑噤默罗兰', desc:'色彩级收尾人' });
+      if (getFlag('roland_happy')) relations.push({ name:'幸福罗兰一家', desc:'安吉丽卡存活的温馨结局' });
+      if (getFlag('c1_barry_flower')) relations.push({ name:'白月骑士巴里', desc:'探寻花朵的旅行者' });
+      if (getFlag('moses_encounter')) relations.push({ name:'扭曲侦探摩西', desc:'追寻真相的扭曲' });
+      if (getFlag('wajit_encounter')) relations.push({ name:'瓦吉特', desc:'独特的扭曲存在' });
+      if (getFlag('blue_reverb_invited')) relations.push({ name:'苍蓝残响', desc:'残响乐团的邀请' });
+      if (getFlag('library_visitor')) relations.push({ name:'图书馆', desc:'被邀请进入的死亡图书馆' });
+      if (getFlag('angelica_saved')) relations.push({ name:'安吉丽卡', desc:'被你从命运中拯救的女子' });
+      if (getFlag('head_shadow')) relations.push({ name:'首脑', desc:'都市的最高存在' });
+      if (getFlag('don_quixote_encounter')) relations.push({ name:'堂吉诃德', desc:'拉·曼却领的血与梦' });
+      if (relations.length > 0) {
+        resultsHtml += '<div style="background:rgba(255,255,255,0.05);border:1px solid #555;border-radius:8px;padding:12px;margin:10px 0;">';
+        resultsHtml += '<div style="color:#f8a;font-weight:bold;font-size:1rem;margin-bottom:8px;">重要交集</div>';
+        for (var ri = 0; ri < relations.length; ri++) {
+          resultsHtml += '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">';
+          resultsHtml += '<span style="color:#f8a;">' + relations[ri].name + '</span>';
+          resultsHtml += '<span style="color:#888;font-size:0.85rem;">' + relations[ri].desc + '</span>';
+          resultsHtml += '</div>';
+        }
+        resultsHtml += '</div>';
+      }
+
+      return resultsHtml;
+    })()}
+
   `;
 
   if (gameState.flags.library && Math.random() < 0.3 && !gameState.flags.twisted && !libEnd) {
@@ -16117,31 +16171,22 @@ function addMaterialAndRingEvents(age) {
   // --- 环指艺术家盯上 ---
   if (!getFlag('ring_noticed') && age >= 16 && age <= 55 && chance(0.12)) {
     setFlag('ring_noticed', true);
-    events.push(evt(
-      '一个穿着奇异的人注意到了你。他的眼睛在昏暗的后巷中闪烁着不自然的光芒，手中握着一本满是素描的笔记本。他盯着你看了很久，像是在打量一件未完成的作品。"你的线条……很有趣。"他留下这句话便消失在了巷尾。',
-      function() { modAttr('wil', -1); addLog('有人在注视你，你感到不安。'); },
-      '意志-1', true, 'ring_noticed'
-    ));
+    events.push(evt('一个穿着奇异的人注意到了你。他的眼睛在昏暗的后巷中闪烁着不自然的光芒，手中握着一本满是素描的笔记本。他盯着你看了很久，像是在打量一件未完成的作品。"你的线条……很有趣。"他留下这句话便消失在了巷尾。你感到一阵不安。', 'ring_noticed', '意志-1', true, 'ring_noticed'));
+    modAttr('wil', -1);
   }
 
   // --- 成为素材：被环指掳走 ---
   if (!getFlag('ring_captured') && getFlag('ring_noticed') && age >= 18 && age <= 50 && chance(0.15)) {
     setFlag('ring_captured', true);
-    events.push(evt(
-      '你在后巷行走时，突然被人从背后捂住口鼻。意识模糊间，你被拖入了一个充满颜料和雕塑的地下室。醒来时，你发现自己被绑在一张操作台上，周围摆满了各种工具——刀片、颜料、针线。"恭喜你，"那个人的声音从阴影中传来，"你被选中了。你将成为我的素材。"',
-      function() { modAttr('con', -2); modAttr('wil', -1); modAttr('int', 1); setFlag('ring_affected', true); },
-      '体质-2，意志-1，智力+1', true, 'ring_captured'
-    ));
+    events.push(evt('你在后巷行走时，突然被人从背后捂住口鼻。意识模糊间，你被拖入了一个充满颜料和雕塑的地下室。醒来时，你发现自己被绑在一张操作台上，周围摆满了各种工具——刀片、颜料、针线。"恭喜你，"那个人的声音从阴影中传来，"你被选中了。你将成为我的素材。"', 'ring_captured', '体质-2，意志-1，智力+1', true, 'ring_captured'));
+    modAttr('con', -2); modAttr('wil', -1); modAttr('int', 1); setFlag('ring_affected', true);
   }
 
   // --- 素材改造：颜料浸染 ---
   if (getFlag('ring_captured') && !getFlag('ring_painted') && age >= 19 && chance(0.2)) {
     setFlag('ring_painted', true);
-    events.push(evt(
-      '他们将你浸泡在一种你从未见过的颜料中。颜料渗入你的皮肤，改变了你的身体——你感到自己的血液仿佛变成了流淌的油彩。疼痛难以忍受，但你无法反抗。艺术家在一旁微笑着记录下你每一个细微的变化。"多美啊……这就是活着的艺术。"',
-      function() { modAttr('con', -1); modAttr('int', 2); modAttr('wil', -2); },
-      '体质-1，智力+2，意志-2', true, 'ring_painted'
-    ));
+    events.push(evt('他们将你浸泡在一种你从未见过的颜料中。颜料渗入你的皮肤，改变了你的身体——你感到自己的血液仿佛变成了流淌的油彩。疼痛难以忍受，但你无法反抗。艺术家在一旁微笑着记录下你每一个细微的变化。"多美啊……这就是活着的艺术。"', 'ring_painted', '体质-1，智力+2，意志-2', true, 'ring_painted'));
+    modAttr('con', -1); modAttr('int', 2); modAttr('wil', -2);
   }
 
   // --- 素材改造：人体雕塑 ---
@@ -16149,9 +16194,10 @@ function addMaterialAndRingEvents(age) {
     setFlag('ring_sculpted', true);
     events.push(evt(
       '你的四肢被重新塑造。骨骼被打断后用金属丝重新连接，皮肤被缝合成了不自然的形状。你不再是人形——你变成了一件"雕塑"。艺术家退后几步，满意地端详着自己的作品。"完美。你的痛苦让这件作品更加深刻。"',
-      function() { modAttr('con', -3); modAttr('wea', -1); modAttr('int', 3); },
+      'ring_sculpted',
       '体质-3，武器-1，智力+3', true, 'ring_sculpted'
     ));
+    modAttr('con', -3); modAttr('wea', -1); modAttr('int', 3);
   }
 
   // --- 素材改造：活体画布 ---
@@ -16159,9 +16205,10 @@ function addMaterialAndRingEvents(age) {
     setFlag('ring_canvas', true);
     events.push(evt(
       '你的身体成为了一块画布。每一寸皮肤都被刻上了精密的图案，有些甚至深入到了肌肉层。你在镜子中看到自己——身上布满了色彩斑斓却扭曲变形的纹样。那些纹路仿佛在蠕动，像是活着的寄生虫。',
-      function() { modAttr('wil', -2); modAttr('int', 2); modAttr('con', -1); },
+      'ring_canvas',
       '意志-2，智力+2，体质-1', true, 'ring_canvas'
     ));
+    modAttr('wil', -2); modAttr('int', 2); modAttr('con', -1);
   }
 
   // --- 逃离环指 ---
@@ -16170,15 +16217,17 @@ function addMaterialAndRingEvents(age) {
     if ((a.con || 0) >= 5 && (a.wil || 0) >= 4) {
       events.push(evt(
         '你趁着艺术家外出展览的机会，用被改造过的手指解开了束缚。你的身体虽然已经面目全非，但你还是逃了出来。后巷的夜风打在你满是颜料的皮肤上，你第一次觉得自由如此痛苦。',
-        function() { modAttr('wil', 2); modAttr('con', 1); addLog('你逃出了环指的工坊。'); },
+        'ring_escaped',
         '意志+2，体质+1', true, 'ring_escaped'
       ));
+      modAttr('wil', 2); modAttr('con', 1); addLog('你逃出了环指的工坊。');
     } else {
       events.push(evt(
         '你试图逃跑，但被改造过的身体已经无法支撑你走太远。你在后巷中跌倒，被巡逻的帮派成员发现——幸运的是，他们把你交给了一个地下医生。',
-        function() { modAttr('con', -2); modAttr('wil', 1); addLog('你勉强活了下来，但身体更加残破。'); },
+        'ring_escaped_fail',
         '体质-2，意志+1', true, 'ring_escaped_fail'
       ));
+      modAttr('con', -2); modAttr('wil', 1); addLog('你勉强活了下来，但身体更加残破。');
     }
   }
 
@@ -16187,9 +16236,10 @@ function addMaterialAndRingEvents(age) {
     setFlag('ring_exhibition', true);
     events.push(evt(
       '你被邀请参观环指举办的地下艺术展览。展厅位于后巷深处，入口伪装成一个废弃的仓库。展厅内陈列着各种令人毛骨悚然的"艺术品"——有些看起来像是被改造过的人体，有些是仍在呼吸的活体雕塑。观众们穿着考究，用专业的术语讨论着这些作品的艺术价值。',
-      function() { modAttr('int', 1); modAttr('wil', -1); },
+      'ring_exhibition',
       '智力+1，意志-1', false, 'ring_exhibition'
     ));
+    modAttr('int', 1); modAttr('wil', -1);
   }
 
   // --- 环指选中的恐惧 ---
@@ -16197,9 +16247,10 @@ function addMaterialAndRingEvents(age) {
     setFlag('ring_fear', true);
     events.push(evt(
       '自从那个艺术家注意到你之后，你每天都在恐惧中度过。每次有人从背后靠近，你都会猛地回头。你在自己的房间门窗上加装了额外的锁，但你知道如果环指真的想找到你，这些都没有用。后巷的流言说，被环指选中的人，从来没有能"完整"退出的。',
-      function() { modAttr('wil', -1); modAttr('int', 1); },
+      'ring_fear',
       '意志-1，智力+1', false, 'ring_fear'
     ));
+    modAttr('wil', -1); modAttr('int', 1);
   }
 
   // --- 环指艺术品交易 ---
@@ -16207,9 +16258,10 @@ function addMaterialAndRingEvents(age) {
     setFlag('ring_trade', true);
     events.push(evt(
       '你在一次后巷的地下交易中，无意间目睹了环指的艺术品拍卖。买家们戴着面具，用数额惊人的钱币竞标那些"作品"。你认出其中一件——那分明是一个人的身体，被精心改造成了某种花瓶的形状。拍卖师高声宣布："这件作品名为\'永恒的容器\'，起拍价——一万币。"',
-      function() { modAttr('int', 2); modAttr('wil', -2); },
+      'ring_trade',
       '智力+2，意志-2', true, 'ring_trade'
     ));
+    modAttr('int', 2); modAttr('wil', -2);
   }
 
   // --- 环指学徒的考核 ---
@@ -16217,9 +16269,10 @@ function addMaterialAndRingEvents(age) {
     setFlag('ring_apprentice', true);
     events.push(evt(
       '一个自称是环指学徒的人找到了你。他说他注意到了你的"艺术天赋"——虽然你并不知道自己在哪方面有天赋。他递给你一张卡片，上面画着一个扭曲的指纹图案。"环指正在招募新的学徒。如果你通过考核，你将获得学习真正艺术的机会。当然，如果失败了……素材总是不够用的。"',
-      function() { modAttr('int', 1); },
+      'ring_apprentice',
       '智力+1', false, 'ring_apprentice'
     ));
+    modAttr('int', 1);
   }
 
   // --- 偶像玛莉亚 ---
@@ -16227,19 +16280,17 @@ function addMaterialAndRingEvents(age) {
     setFlag('idol_maria', true);
     events.push(evt(
       '你看到了偶像玛莉亚的演出广告。海报上的少女笑容灿烂，眼中却有一丝不易察觉的空洞。据说她是环指旗下最受欢迎的偶像之一——她的歌声能够"净化"听众的心灵，但流言说那些被"净化"的人后来都变得不太正常。',
-      function() { modAttr('wil', -1); modAttr('int', 1); },
+      'idol_maria',
       '意志-1，智力+1', false, 'idol_maria'
     ));
+    modAttr('wil', -1); modAttr('int', 1);
   }
 
   // --- 偶像练歌 ---
   if (getFlag('idol_maria') && !getFlag('idol_practice') && age >= 15 && age <= 35 && chance(0.15)) {
     setFlag('idol_practice', true);
-    events.push(evt(
-      '你偶然路过一间练习室，听到里面传来令人沉醉的歌声。透过门缝，你看到偶像玛莉亚正在进行秘密练歌。她的歌声在空气中编织出某种旋律——你的身体不由自主地开始跟随节奏摇摆。当你回过神来，发现自己已经站了整整两个小时。',
-      function() { modAttr('wil', -1); modAttr('con', 1); },
-      '意志-1，体质+1', false, 'idol_practice'
-    ));
+    events.push(evt('你偶然路过一间练习室，听到里面传来令人沉醉的歌声。透过门缝，你看到偶像玛莉亚正在进行秘密练歌。她的歌声在空气中编织出某种旋律——你的身体不由自主地开始跟随节奏摇摆。当你回过神来，发现自己已经站了整整两个小时。', 'idol_practice', '意志-1，体质+1', false, 'idol_practice'));
+    modAttr('wil', -1); modAttr('con', 1);
   }
 
   // --- 偶像演出 ---
@@ -16304,21 +16355,15 @@ function addMaterialAndRingEvents(age) {
   // --- 谢肉祭（Carnival）相关 ---
   if (!getFlag('carnival_art') && age >= 18 && age <= 45 && chance(0.08)) {
     setFlag('carnival_art', true);
-    events.push(evt(
-      '谢肉祭的人在后巷留下了一批"面料样品"。那些面料触感柔软至极，但你凑近细看时，发现纹理中隐约浮现出人的面孔——它们在无声地哭泣。一个戴着面料面具的女人在你身后出现："喜欢吗？这是我们的最新作品——纯天然人形面料。每一匹都是独一无二的艺术品。"她的声音像是丝绸在摩擦。',
-      function() { modAttr('wil', -2); modAttr('int', 2); },
-      '意志-2，智力+2', true, 'carnival_art'
-    ));
+    events.push(evt('谢肉祭的人在后巷留下了一批"面料样品"。那些面料触感柔软至极，但你凑近细看时，发现纹理中隐约浮现出人的面孔——它们在无声地哭泣。一个戴着面料面具的女人在你身后出现："喜欢吗？这是我们的最新作品——纯天然人形面料。每一匹都是独一无二的艺术品。"她的声音像是丝绸在摩擦。', 'carnival_art', '意志-2，智力+2', true, 'carnival_art'));
+    modAttr('wil', -2); modAttr('int', 2);
   }
 
   // --- 被后巷屠夫盯上 ---
   if (!getFlag('backstreet_butcher') && age >= 20 && age <= 55 && chance(0.07)) {
     setFlag('backstreet_butcher', true);
-    events.push(evt(
-      '后巷屠夫出现在你的视野中。这个传说中的人物身穿血迹斑斑的围裙，手提一把巨大的剁骨刀。他的目光扫过你，像是在评估一块肉的价值。"不错，"他低声嘟囔，"肉质鲜嫩，筋骨均匀。有客户会喜欢的。"你感到一阵彻骨的寒意——他不是在开玩笑。',
-      function() { modAttr('wil', -2); modAttr('con', -1); },
-      '意志-2，体质-1', true, 'backstreet_butcher'
-    ));
+    events.push(evt('后巷屠夫出现在你的视野中。这个传说中的人物身穿血迹斑斑的围裙，手提一把巨大的剁骨刀。他的目光扫过你，像是在评估一块肉的价值。"不错，"他低声嘟囔，"肉质鲜嫩，筋骨均匀。有客户会喜欢的。"你感到一阵彻骨的寒意——他不是在开玩笑。', 'backstreet_butcher', '意志-2，体质-1', true, 'backstreet_butcher'));
+    modAttr('wil', -2); modAttr('con', -1);
   }
 
   // --- 味之巷的美食相关 ---
@@ -16363,31 +16408,22 @@ function addMaterialAndRingEvents(age) {
   // --- 环指的画廊参观（事后） ---
   if (getFlag('ring_exhibition') && !getFlag('ring_gallery_horror') && age >= 22 && chance(0.15)) {
     setFlag('ring_gallery_horror', true);
-    events.push(evt(
-      '你再次路过环指的画廊，发现大门敞开。好奇心驱使你走了进去——展厅内空无一人，但"作品"们都在。你走近一件雕塑，突然意识到它还在呼吸。那是一个活人，被浇筑在透明的树脂中，只能转动眼珠。他的眼中充满了无声的哀求。',
-      function() { modAttr('wil', -3); modAttr('int', 2); },
-      '意志-3，智力+2', true, 'ring_gallery_horror'
-    ));
+    events.push(evt('你再次路过环指的画廊，发现大门敞开。好奇心驱使你走了进去——展厅内空无一人，但"作品"们都在。你走近一件雕塑，突然意识到它还在呼吸。那是一个活人，被浇筑在透明的树脂中，只能转动眼珠。他的眼中充满了无声的哀求。', 'ring_gallery_horror', '意志-3，智力+2', true, 'ring_gallery_horror'));
+    modAttr('wil', -3); modAttr('int', 2);
   }
 
   // --- 被不莱梅（Bremen）的艺术家影响 ---
   if (!getFlag('bremen_artist') && age >= 18 && age <= 40 && chance(0.06)) {
     setFlag('bremen_artist', true);
-    events.push(evt(
-      '一个自称属于不莱梅乐队的音乐家在后巷演奏了一首诡异的曲子。旋律像是来自另一个世界——你感到自己的记忆和情感被音符搅动，那些你早已遗忘或刻意压制的东西涌上心头。曲终时，音乐家对你露出了一个意味深长的微笑。"听到了吗？那就是你灵魂的颜色。"',
-      function() { modAttr('wil', -2); modAttr('int', 3); },
-      '意志-2，智力+3', true, 'bremen_artist'
-    ));
+    events.push(evt('一个自称属于不莱梅乐队的音乐家在后巷演奏了一首诡异的曲子。旋律像是来自另一个世界——你感到自己的记忆和情感被音符搅动，那些你早已遗忘或刻意压制的东西涌上心头。曲终时，音乐家对你露出了一个意味深长的微笑。"听到了吗？那就是你灵魂的颜色。"', 'bremen_artist', '意志-2，智力+3', true, 'bremen_artist'));
+    modAttr('wil', -2); modAttr('int', 3);
   }
 
   // --- 环指的高级素材改造 ---
   if (getFlag('ring_painted') && getFlag('ring_sculpted') && !getFlag('ring_masterpiece') && age >= 25 && chance(0.2)) {
     setFlag('ring_masterpiece', true);
-    events.push(evt(
-      '艺术家终于满意了。你的身体经过无数次改造后，已经完全不像一个人类。你拥有了某种超越常人的感知能力——你能"看到"颜色的情感，"听到"形状的旋律。代价是你再也无法回到正常的生活中。你成为了环指的一件"杰作"。',
-      function() { modAttr('int', 5); modAttr('con', -3); modAttr('wil', -2); modAttr('wea', 2); },
-      '智力+5，武器+2，体质-3，意志-2', true, 'ring_masterpiece'
-    ));
+    events.push(evt('艺术家终于满意了。你的身体经过无数次改造后，已经完全不像一个人类。你拥有了某种超越常人的感知能力——你能"看到"颜色的情感，"听到"形状的旋律。代价是你再也无法回到正常的生活中。你成为了环指的一件"杰作"。', 'ring_masterpiece', '智力+5，武器+2，体质-3，意志-2', true, 'ring_masterpiece'));
+    modAttr('int', 5); modAttr('con', -3); modAttr('wil', -2); modAttr('wea', 2);
   }
 
   // --- 环指的委托：寻找新素材 ---
@@ -16412,10 +16448,167 @@ function addMaterialAndRingEvents(age) {
   // --- 环指的艺术品市场观察 ---
   if (!getFlag('ring_market') && age >= 28 && age <= 55 && chance(0.05)) {
     setFlag('ring_market', true);
+    events.push(evt('你进入了环指控制的地下艺术品市场。这里的商品与普通市场截然不同——活体雕塑被摆放在橱窗中，由呼吸装置维持生命；人皮画作被小心翼翼地卷在画筒里；还有用骨骼制成的乐器，据说能奏出"人类最后的旋律"。你看到一个买家花了天文数字买走了一件作品，而那个作品分明还在流泪。', 'ring_market', '智力+3，意志-3', true, 'ring_market'));
+    modAttr('int', 3); modAttr('wil', -3);
+  }
+
+  // --- 变体事件1：点彩派大师选中 ---
+  if (!getFlag('ring_pointillist') && age >= 18 && age <= 45 && chance(0.08)) {
+    setFlag('ring_pointillist', true);
+    events.push(evt('点彩派的大师找到了你。他手持一把沾满颜料的画笔，眼神中闪烁着对"一与无限"的狂热追求。"你的身体是一块未经点染的画布，"他说，"每一笔都将是一次奇迹的诞生。"他将颜料挥洒在你身上——那些颜料在接触皮肤的瞬间产生了异常反应，像是无数微小的光点在你的体表炸开，然后缓慢渗入你的毛孔。你感到自己正在被重新定义。', 'ring_pointillist', '体质-1，智力+2，意志-1', true, 'ring_pointillist'));
+    modAttr('con', -1); modAttr('int', 2); modAttr('wil', -1); setFlag('ring_affected', true);
+  }
+
+  // --- 变体事件2：野兽派动物面具战斗 ---
+  if (!getFlag('ring_fauve_fight') && age >= 17 && age <= 40 && chance(0.07)) {
+    setFlag('ring_fauve_fight', true);
     events.push(evt(
-      '你进入了环指控制的地下艺术品市场。这里的商品与普通市场截然不同——活体雕塑被摆放在橱窗中，由呼吸装置维持生命；人皮画作被小心翼翼地卷在画筒里；还有用骨骼制成的乐器，据说能奏出"人类最后的旋律"。你看到一个买家花了天文数字买走了一件作品，而那个作品分明还在流泪。',
-      function() { modAttr('int', 3); modAttr('wil', -3); },
-      '智力+3，意志-3', true, 'ring_market'
+      '你被野兽派的成员盯上了。他们戴着各种动物面具——狼、熊、蟒、豹——面具上的表情诡异而生动，仿佛真的在模仿野兽的神态。"加入我们的狩猎，"一个戴着野猪面具的人说，"规则很简单：戴上面具，注入颜料，然后……释放你体内的野兽。如果你赢了，你可以活着离开。"他将一个鹰隼面具递到你面前。',
+      function() {
+        if (rollCheck('con', 4)) {
+          modAttr('wea', 2); modAttr('con', 1); modAttr('wil', -1);
+          addLog('你在野兽派的狩猎中活了下来。面具下的颜料让你获得了异常的力量。');
+        } else {
+          modAttr('con', -2); modAttr('wil', -2);
+          addLog('你被野兽派成员击败，身上的颜料灼烧着你。你勉强逃了出来。');
+        }
+      },
+      '根据体质判定结果不同', true, 'ring_fauve_fight'
+    ));
+  }
+
+  // --- 变体事件3：目睹埃米尔·贝努瓦挥出巨蟒 ---
+  if (!getFlag('ring_emil_benoit') && age >= 20 && age <= 50 && chance(0.05)) {
+    setFlag('ring_emil_benoit', true);
+    events.push(evt('你在后巷深处目睹了野兽派大师埃米尔·贝努瓦的"表演"。他只戴着一个简朴的蟒蛇面具，但当他将颜料注入手中的武器时——一道巨大的蟒蛇从颜料中凝聚成形，盘旋着朝目标扑去。巨蟒的鳞片由纯色颜料构成，每一片都散发着令人窒息的压迫感。你看到那蟒蛇将一整栋建筑缠绕压碎，而埃米尔只是微笑着说："野兽从不为自己的力量道歉。"', 'ring_emil_benoit', '意志-2，智力+2', true, 'ring_emil_benoit'));
+    modAttr('wil', -2); modAttr('int', 2);
+  }
+
+  // --- 变体事件4：被人体派制成人偶 ---
+  if (!getFlag('ring_human_puppet') && age >= 16 && age <= 40 && (a.con || 0) <= 5 && chance(0.06)) {
+    setFlag('ring_human_puppet', true);
+    events.push(evt('人体派的大师将你制成了一个自动攻击人偶。你的四肢被替换成了精心制作的机械关节，皮肤下植入了一套以人类肌肉和骨骼为材料的动力系统。你的意识被困在残存的大脑中——你能看到、能感知，却无法控制自己的身体。你变成了人体派某件装置艺术的"核心部件"，在画廊中为参观者表演"自动格斗"。', 'ring_human_puppet', '体质-3，武器+3，意志-3，智力+1', true, 'ring_human_puppet'));
+    modAttr('con', -3); modAttr('wea', 3); modAttr('wil', -3); modAttr('int', 1); setFlag('ring_affected', true);
+  }
+
+  // --- 变体事件5：进入环指走廊迷路 ---
+  if (!getFlag('ring_corridor') && age >= 15 && age <= 50 && chance(0.07)) {
+    setFlag('ring_corridor', true);
+    events.push(evt(
+      '你不小心踏入了一扇不属于任何建筑的门——那是环指走廊的后门之一。走廊无视距离，连接着都市中无数的房间和建筑。你在其中行走，每扇门后都是不同的场景：某个人的浴室、环指的地下工坊、一个你从未见过的花园……你迷路了，走廊像活物一样不断变化布局。就在你快要绝望时，你看到前方有一个展厅——里面陈列着那些和你一样迷路的人，他们被变成了艺术品。',
+      function() {
+        if (rollCheck('int', 4)) {
+          modAttr('int', 2); modAttr('wil', -1);
+          addLog('你凭借观察力找到了正确的门，逃出了环指走廊。你发誓再也不碰任何来历不明的门。');
+        } else {
+          modAttr('con', -2); modAttr('wil', -2); modAttr('int', 1);
+          addLog('你在走廊中徘徊了很久，差点成为展品。最终你撞开了一扇门，跌落在一条陌生的后巷中。');
+        }
+      },
+      '根据智力判定结果不同', true, 'ring_corridor'
+    ));
+  }
+
+  // --- 变体事件6：环指艺术考试 ---
+  if (!getFlag('ring_exam') && age >= 16 && age <= 28 && chance(0.06)) {
+    setFlag('ring_exam', true);
+    events.push(evt(
+      '你被迫参加了一场环指的艺术考试。考场设在环指的一间地下大厅中，墙上挂满了历届考生的"作品"——有些是画作，有些是雕塑，有些……你不想细看。考官是一位面无表情的环指大师，他递给你一块空白画布和一罐颜料。"你有一小时。创造一件让我感兴趣的作品。"你颤抖着拿起画笔，脑海中一片空白。',
+      function() {
+        if (rollCheck('int', 5)) {
+          modAttr('int', 3); modAttr('wil', 1);
+          addLog('你凭直觉完成了一件令考官满意的作品。他给了你A-的评价——"有潜力，但缺乏痛苦。"]');
+        } else if (rollCheck('int', 3)) {
+          modAttr('int', 1); modAttr('wil', -1);
+          addLog('你的作品勉强及格，获得C+。考官评价："平庸，但至少没有侮辱艺术。"]');
+        } else {
+          modAttr('con', -1); modAttr('wil', -2);
+          addLog('你的作品被评价为"不可回收的垃圾"。你被扔出了考场，但至少还活着。');
+        }
+      },
+      '根据智力判定获得不同评价', true, 'ring_exam'
+    ));
+  }
+
+  // --- 变体事件7：环指艺术学校招生 ---
+  if (!getFlag('ring_school') && age >= 8 && age <= 14 && chance(0.05)) {
+    setFlag('ring_school', true);
+    events.push(evt('一群穿着黑色制服的人来到了你所在的区域。他们自称来自"环指艺术学校"，正在选拔具有"艺术潜质"的年轻人。他们用一种你从未见过的仪器扫描每个孩子的身体，然后在你面前停了下来。"这个孩子的身体线条很有趣，"一个戴着眼镜的人对同伴低语，"适合做人体派的素材……或者点彩派的画布。带走吧。"你被塞进了一辆没有窗户的车里。', 'ring_school', '意志-2，智力+1，体质-1', true, 'ring_school'));
+    modAttr('wil', -2); modAttr('int', 1); modAttr('con', -1); setFlag('ring_affected', true);
+  }
+
+  // --- 变体事件8：画廊闭馆后逗留 ---
+  if (!getFlag('ring_gallery_night') && age >= 18 && age <= 45 && chance(0.06)) {
+    setFlag('ring_gallery_night', true);
+    if (rollCheck('wil', 4)) {
+      events.push(evt('画廊闭馆后，你因为躲雨而留在了展厅中。当最后一盏灯熄灭时，你听到远处传来了脚步声——环指的巡逻队。你保持冷静，在黑暗中找到了一条通风管道，成功逃离了画廊。', 'ring_gallery_night', '意志+2，智力+1', true, '环指画廊'));
+      modAttr('wil', 2); modAttr('int', 1);
+    } else {
+      events.push(evt('画廊闭馆后，你因为躲雨而留在了展厅中。当最后一盏灯熄灭时，环指的巡逻队发现了你。他们审问你很久，最终决定你不是间谍——只是个倒霉的闯入者。你被扔出了画廊，浑身是伤。', 'ring_gallery_night', '体质-2，意志-2', true, '环指画廊'));
+      modAttr('con', -2); modAttr('wil', -2);
+    }
+  }
+
+  // --- 变体事件9：目睹立体派大师解构三维物体 ---
+  if (!getFlag('ring_cubist') && age >= 20 && age <= 50 && chance(0.05)) {
+    setFlag('ring_cubist', true);
+    events.push(evt('你在一次环指的内部展示中，目睹了立体派大师的创作过程。他将一个三维的活体雕塑放在展示台上，然后用一种特殊的手法——你无法用语言描述——将它的所有"面"同时展现在一个视角中。物体的正面、背面、内部、外部，所有的面都在同一个平面上呈现，却毫不混乱。你看着那个被解构的生物，它仍在呼吸，但它的存在已经超越了三维的理解。"深度，"大师说，"只是一个幻觉。真正的艺术，是看到一切。"', 'ring_cubist', '智力+3，意志-2', true, 'ring_cubist'));
+    modAttr('int', 3); modAttr('wil', -2);
+  }
+
+  // --- 变体事件10：环指颜料注射获得异常力量 ---
+  if (getFlag('ring_captured') && !getFlag('ring_inject_power') && age >= 22 && chance(0.15)) {
+    setFlag('ring_inject_power', true);
+    events.push(evt('环指的艺术家向你注射了一种浓缩的特殊颜料。颜料在你的血管中扩散，你感到自己的身体正在发生剧烈的变化——肌肉膨胀、骨骼加固、感知变得异常敏锐。你获得了超越常人的力量，但代价是你的皮肤开始变色——从蓝色到紫色到红色，像是打翻的调色盘。你照镜子时几乎认不出自己。', 'ring_inject_power', '体质+2，武器+2，意志-1', true, 'ring_inject_power'));
+    modAttr('con', 2); modAttr('wea', 2); modAttr('wil', -1);
+  }
+
+  // --- 变体事件11：点彩派"玻璃窗"技术展示 ---
+  if (!getFlag('ring_glass_window') && age >= 18 && age <= 45 && chance(0.05)) {
+    setFlag('ring_glass_window', true);
+    events.push(evt('点彩派的艺术家向你展示了他们的核心技术——"玻璃窗"。他将无数微小的颜料颗粒排列在一块透明的基板上，每一个颗粒都精确到纳米级别。当光穿过这些颗粒时，你看到画面上出现了活动的影像——不是投影，不是全息，而是颜料本身在"讲述"一个故事。"点彩的终极形态，"艺术家说，"是用无数个\'一\'来构成\'无限\'。每一粒颜料都是一个世界，而它们加在一起，就是全部。"', 'ring_glass_window', '智力+3，意志-1', true, 'ring_glass_window'));
+    modAttr('int', 3); modAttr('wil', -1);
+  }
+
+  // --- 变体事件12：被要求介绍作品否则处决 ---
+  if (!getFlag('ring_guide_death') && age >= 20 && age <= 50 && chance(0.06)) {
+    setFlag('ring_guide_death', true);
+    if (rollCheck('int', 5)) {
+      events.push(evt('一个环指讲解员拦住了你。他面带微笑，但眼中没有丝毫笑意。"你好，参观者，"他礼貌地说，"按照环指的规定，每位参观者都有义务为我们介绍一件作品的艺术价值。请选择面前任意一件作品，发表你的看法。"你环顾四周，每一件展品都让你感到恐惧。但你的评价令讲解员露出了满意的神色。"有深度，"他说，"你今天可以完整地离开。"', 'ring_guide_death', '智力+2，意志+1', true, 'ring_guide_death'));
+      modAttr('int', 2); modAttr('wil', 1);
+    } else {
+      events.push(evt('一个环指讲解员拦住了你。他面带微笑，但眼中没有丝毫笑意。"你好，参观者，"他礼貌地说，"按照环指的规定，每位参观者都有义务为我们介绍一件作品的艺术价值。"你的评价被认为是"平庸的"。讲解员的表情变得冰冷，但他最终说："下次就不会这么幸运了。"你被粗暴地赶出了画廊。', 'ring_guide_death', '体质-1，意志-2', true, 'ring_guide_death'));
+      modAttr('con', -1); modAttr('wil', -2);
+    }
+  }
+
+  // --- 变体事件13：成为环指大师的"活体画布" ---
+  if (!getFlag('ring_living_canvas') && getFlag('ring_captured') && age >= 23 && chance(0.12)) {
+    setFlag('ring_living_canvas', true);
+    events.push(evt('环指的一位大师决定将你制成他的"活体画布"——这是一种特殊的素材形式，不同于普通的改造。你的皮肤被注入了一种能与大师思想共鸣的颜料，大师在冥想时，你身上的图案就会自动变化。你成了他灵感的延伸，一件始终在"完成中"的作品。每次大师有新的想法，你的身体就会不由自主地展现出新的画面——有时是壮丽的风景，有时是扭曲的噩梦。', 'ring_living_canvas', '智力+3，意志-3，体质-2', true, 'ring_living_canvas'));
+    modAttr('int', 3); modAttr('wil', -3); modAttr('con', -2);
+  }
+
+  // --- 变体事件14：环指走廊后门出现在家中 ---
+  if (!getFlag('ring_door_home') && age >= 20 && age <= 55 && chance(0.04)) {
+    setFlag('ring_door_home', true);
+    events.push(evt('一天早晨你醒来，发现自己家的一面墙壁上出现了一扇不属于这里的门。门框由某种暗红色的物质构成，门板上刻着环指的指纹标记。当你打开它时，里面是一条漫长而昏暗的走廊——环指走廊的后门。走廊中偶尔传来脚步声和低语声。你知道，从此以后，无论你走到都市的哪个角落，环指都可能通过这扇门找到你。你试图砸毁它，但它会在第二天重新出现。', 'ring_door_home', '意志-2，智力+1', true, 'ring_door_home'));
+    modAttr('wil', -2); modAttr('int', 1);
+  }
+
+  // --- 变体事件15：目睹至上派大师创作 ---
+  if (!getFlag('ring_suprematist') && age >= 22 && age <= 50 && chance(0.05)) {
+    setFlag('ring_suprematist', true);
+    events.push(evt(
+      '你有幸（或不幸）目睹了至上派大师的创作过程。大师在一个纯白色的空间中悬浮着，他的手——不，他的整个身体都在绘制某种几何图案。圆形、三角形、正方形、直线……它们在空中自动排列，构成了一种极其复杂的抽象构图。那些几何图形不是静态的——它们在缓慢旋转、变化、组合，仿佛在进行某种超越人类理解的数学运算。你盯着看了太久，开始感到自己的思维被那些图案同化。',
+      function() {
+        modAttr('int', 2); modAttr('wil', -2);
+        if (chance(0.3)) {
+          modAttr('int', 2);
+          addLog('你从至上派的创作中获得了一种超越常人的空间理解能力。');
+        }
+      },
+      '智力+2~4，意志-2', true, 'ring_suprematist'
     ));
   }
 
@@ -19727,6 +19920,836 @@ function checkAchievement(ach, gs) {
     });
   });
 })();
+
+// ==================== 世界观设定集事件 ====================
+function addWorldSettingEvents(age) {
+  var events = [];
+  if (!gameState.alive || gameState.dead) return events;
+  var a = gameState.attrs;
+
+  // ====== 奇点技术相关事件（约20个）======
+
+  // 1. F公司妖灵——开锁道具
+  if (age >= 16 && age <= 60 && chance(0.004) && !getFlag('ws_fcorp_spirit')) {
+    setFlag('ws_fcorp_spirit', true);
+    events.push(evt('你在后巷的废墟中发现了一只散发着微弱光芒的F公司妖灵。这种奇点道具据说能够打开一切形式与物质上的"锁"——从物理层面的门锁到概念层面的封印。你试着用它打开了一扇锈死的铁门，妖灵在接触锁具的瞬间绽放出耀眼的光芒，门应声而开。但每次使用都会消耗妖灵储存的能量，光芒也明显暗淡了几分。"省着点用，这玩意儿的充能可不容易。"你将妖灵小心翼翼地收好。', '奇点技术', '智力+2', false, 'F公司妖灵'));
+    modAttr('int', 2);
+  }
+
+  // 2. F公司妖灵能量耗尽
+  if (age >= 18 && age <= 65 && getFlag('ws_fcorp_spirit') && !getFlag('ws_fcorp_spirit_depleted') && chance(0.006)) {
+    setFlag('ws_fcorp_spirit_depleted', true);
+    events.push(evt('你手中的F公司妖灵在一次紧急脱逃中被过度使用，光芒彻底熄灭，变成了一块冰冷的无光晶体。你尝试了各种方法为它充能，但普通手段根本无法让它恢复。据说只有F公司内部才有妖灵的充能设备，而那意味着需要支付一笔你难以承受的费用，或者……成为F公司的员工。你只能暂时将它收起来，祈祷有朝一日能找到出路。', '奇点技术', '家境-1，智力-1', true, '妖灵耗尽'));
+    modAttr('wea', -1);
+    modAttr('int', -1);
+  }
+
+  // 3. G公司球体——控制重力
+  if (age >= 20 && age <= 55 && chance(0.003) && !getFlag('ws_gcorp_sphere')) {
+    setFlag('ws_gcorp_sphere', true);
+    events.push(evt('你在一个黑市商人那里看到了一枚嵌入合金框架中的G公司球体——那是一种能够控制重力变化的奇点装置。商人演示着将球体激活，他手中的铁块突然变得轻如鸿毛，缓缓飘上半空；再次调节后，铁块又重重砸落地面，在地板上留下一个深坑。"纳米尔工坊就用了这东西做手铠，"商人压低声音，"不过你可得小心，这玩意儿的重力控制一旦失控，你自己也会变成被碾碎的铁块。"你仔细考量后决定入手。', '奇点技术', '武器+2，体质+1', false, 'G公司球体'));
+    modAttr('wea', 2);
+    modAttr('con', 1);
+  }
+
+  // 4. M公司月长石——吸收精神损害
+  if (age >= 18 && age <= 50 && chance(0.004) && !getFlag('ws_mcorp_moonstone')) {
+    setFlag('ws_mcorp_moonstone', true);
+    events.push(evt('你在一次任务中从一名倒下的六协会收尾人制服上取下了一枚月长石。这种M公司的奇点产品可以吸收抵御精神损害，据说其来源与都市底部的"海洋"有着某种联系。你将它握在掌心，一股温暖而宁静的感觉从掌心蔓延至全身，那些因目睹都市残酷而积累的精神压力似乎减轻了不少。六协会的制服中就镶嵌着月长石作为纹样，让穿戴者在艰苦的战斗中保持心神明快。', '奇点技术', '意志+3，智力+1', false, 'M公司月长石'));
+    modAttr('wil', 3);
+    modAttr('int', 1);
+  }
+
+  // 5. M公司月长石——回归海洋之感
+  if (age >= 22 && age <= 55 && getFlag('ws_mcorp_moonstone') && !getFlag('ws_mcorp_ocean_feeling') && chance(0.005)) {
+    setFlag('ws_mcorp_ocean_feeling', true);
+    events.push(evt('长时间佩戴月长石后，你开始在入睡时做同一个梦——广阔无垠的深蓝色海洋将你包裹，没有痛苦，没有恐惧，只有永恒的宁静。你在梦中感到一种强烈的冲动，想要回归那片海洋，永远沉溺其中。你猛然惊醒，发现自己的手紧紧攥着月长石，掌心满是汗水。制取月长石的过程会使人产生"回归海洋"的感觉——这是来自世界底部"原始海洋"的呼唤。你决定暂时收起月长石，以免自己真的沉溺于那份虚假的安宁。', '奇点技术', '意志+1，智力+2，体质-1', true, '海洋回归之感'));
+    modAttr('wil', 1);
+    modAttr('int', 2);
+    modAttr('con', -1);
+  }
+
+  // 6. N公司自杀自动售货机
+  if (age >= 16 && age <= 65 && chance(0.003) && !getFlag('ws_ncorp_vending')) {
+    setFlag('ws_ncorp_vending', true);
+    events.push(evt('你路过了N巢的一台自杀自动售货机。这种设施是钉与锤公司的代表象征之一，也是N公司的主要收入来源和文化。有无数居民搬迁至N巢，只为使用它。自动售货机的金属表面倒映着你疲惫的面容，屏幕上滚动着令人不安的广告语："解脱，是一种选择。"你驻足凝视了片刻，最终摇了摇头走开了。在都市，死亡并不稀缺，但主动选择死亡这件事本身，却成了一种消费。', '奇点技术', '意志+1', false, 'N公司自杀自动售货机'));
+    modAttr('wil', 1);
+  }
+
+  // 7. N公司经验罐头
+  if (age >= 17 && age <= 45 && chance(0.005) && !getFlag('ws_ncorp_exp_can')) {
+    setFlag('ws_ncorp_exp_can', true);
+    events.push(evt('你从西西弗百货购入了一罐N公司的经验罐头。这是一种能让食用者获得一段特定记忆的奇点产品——启封吃下后，一股粥状物滑入喉咙，你的脑海中瞬间涌入了大量陌生的画面：一场与持刀歹徒的殊死搏斗，每一个动作、每一个反应都清晰无比，仿佛是你亲身经历。这种得来的记忆过分生动可信，你险些将它错认作自己的经历，覆盖了原有的记忆。你定了定神，告诉自己这只是"别人的经验"——但那种虚假的自信感，确实让你在面对危险时多了几分底气。', '奇点技术', '武器+2，智力+1，意志-1', false, 'N公司经验罐头'));
+    modAttr('wea', 2);
+    modAttr('int', 1);
+    modAttr('wil', -1);
+  }
+
+  // 8. N公司经验罐头依赖
+  if (age >= 20 && age <= 50 && getFlag('ws_ncorp_exp_can') && !getFlag('ws_ncorp_exp_addiction') && chance(0.005)) {
+    setFlag('ws_ncorp_exp_addiction', true);
+    events.push(evt('你已经对N公司的经验罐头产生了依赖。每当遇到棘手的状况，你下意识地想要购买一罐新的经验罐头来"补充经验"，而不是依靠自己在现实中积累的能力。你开始混淆哪些记忆是自己的，哪些是从罐头中得来的——某段在豪宅中参加宴会的记忆如此真实，以至于你一度以为那是你的人生。经验罐头的量产型混入了被曲解的信息，那些调制记忆越来越强烈地侵蚀着你对现实的判断。', '奇点技术', '智力+2，意志-3', true, '经验罐头依赖'));
+    modAttr('int', 2);
+    modAttr('wil', -3);
+  }
+
+  // 9. U公司共鸣音叉——物质融合
+  if (age >= 20 && age <= 55 && chance(0.003) && !getFlag('ws_ucorp_fork')) {
+    setFlag('ws_ucorp_fork', true);
+    events.push(evt('你在第二十一区的黑市上见识到了U公司共鸣音叉的奇点力量。一只音叉被敲响后，两块完全不同的物质——金属与木材——竟然完美地融合在了一起，变成了一件浑然天成的武器。共鸣音叉可以将毫不相干的物质进行完全的融合，U公司对大湖中"鲸鱼"身上物质的需求量极大，正是因为这种奇点技术。你小心翼翼地购买了一把利用共鸣音叉融合技术打造的武器，触感冰凉却异常坚韧。', '奇点技术', '武器+3', false, 'U公司共鸣音叉'));
+    modAttr('wea', 3);
+  }
+
+  // 10. U公司现状保存
+  if (age >= 18 && age <= 60 && chance(0.004) && !getFlag('ws_ucorp_preserve')) {
+    setFlag('ws_ucorp_preserve', true);
+    events.push(evt('你的一位同伴在战斗中受了致命伤。千钧一发之际，你掏出了U公司的现状保存匣，将濒死之人的身体放入其中——他的状态被完美定格在了放入时的那一刻。现状保存技术可以将物品保持在放入时的状态，U公司生产的罐装食品就是应用了这种技术。在都市中，这种技术时常被用于保存濒死之人的大脑，使其可以在后续得到生命保险或装载义体的"复活"。只要保存在匣中，你的同伴就还有一线生机。', '奇点技术', '智力+1，家境-1', false, 'U公司现状保存'));
+    modAttr('int', 1);
+    modAttr('wea', -1);
+  }
+
+  // 11. W公司空间撕裂
+  if (age >= 22 && age <= 55 && chance(0.003) && !getFlag('ws_wcorp_rip')) {
+    setFlag('ws_wcorp_rip', true);
+    events.push(evt('你目睹了W公司清扫人员使用空间撕裂装备进行作业——他们的武器划过空气，在虚空中撕开一道道裂缝，将堵塞的车厢干净利落地切割成碎片。W公司拥有能够打开空间缝隙的设施与道具，但几乎不能从外界掌握空间缝隙内的情况。在白夜黑昼事件后，已有新兴企业尝试挑战W公司在这一领域的权威，研发类似"传送门"的技术，但在传送精度和稳定性上仍存在问题，时有物体被切割的事故发生。', '奇点技术', '智力+2，武器+1', false, 'W公司空间撕裂'));
+    modAttr('int', 2);
+    modAttr('wea', 1);
+  }
+
+  // 12. W公司现状还原
+  if (age >= 25 && age <= 60 && chance(0.003) && !getFlag('ws_wcorp_restore')) {
+    setFlag('ws_wcorp_restore', true);
+    events.push(evt('你搭乘Warp列车进行了一次长途旅行。经济舱的票价令你满意，但列车途中的经历却令你毛骨悚然——车厢内的时间似乎被无限拉长，周围的乘客在漫长的岁月中变得面目全非。幸运的是，在你即将抵达目的地时，W公司的清扫人员出现了，利用现状还原技术将你和其他乘客恢复到了记录时的状态。"欢迎到站，"广播声温柔地响起，"本次旅程用时十秒。"你恍惚地走出车厢，关于那漫长旅途的记忆已经被配合使用的记忆删除程序抹去——只留下了隐约的不安。', '奇点技术', '意志+2，体质+1', true, 'W公司现状还原'));
+    modAttr('wil', 2);
+    modAttr('con', 1);
+  }
+
+  // 13. X公司特殊合金
+  if (age >= 20 && age <= 55 && chance(0.004) && !getFlag('ws_xcorp_alloy')) {
+    setFlag('ws_xcorp_alloy', true);
+    events.push(evt('你在第二十四区X公司的开采区目睹了工人们从地下挖掘出各种不可思议的物品——从"超合金微波炉"到完整的汽车轮胎，都被包裹在一层异常坚固的合金外壳中。X公司所出产的合金异常坚固，其本质不明。你设法获取了一块X公司的特殊合金，用它加固了自己的防具。这块合金的重量比钢铁轻，硬度却远超你的想象——普通刀剑在它面前只会留下白印。', '奇点技术', '体质+3，武器+1，家境-1', false, 'X公司特殊合金'));
+    modAttr('con', 3);
+    modAttr('wea', 1);
+    modAttr('wea', -1);
+  }
+
+  // 14. J公司锁——封锁概念
+  if (age >= 18 && age <= 55 && chance(0.003) && !getFlag('ws_jcorp_lock')) {
+    setFlag('ws_jcorp_lock', true);
+    events.push(evt('第十区J公司的业务遍布整个都市。你购买了一项J公司的"锁"服务——价格高昂，但效果令人惊叹。J公司的奇点可以实现与F公司奇点完全相反的作用：它可以将处于任何形式与物质层面"开放"的事物进行封锁，甚至可能封锁包括"运气"这样的概念。锁存认知后，你可以无声无息地行动，仿佛从世界中消失了；还有一种锁可以让人无法说出某件事，只能通过特别手段绕过或翘开。你为自己的安全上了"锁"。', '奇点技术', '智力+2，家境-2', false, 'J公司锁'));
+    modAttr('int', 2);
+    modAttr('wea', -2);
+  }
+
+  // 15. J公司愿力——买卖运势
+  if (age >= 20 && age <= 50 && chance(0.004) && !getFlag('ws_jcorp_wishpower')) {
+    setFlag('ws_jcorp_wishpower', true);
+    events.push(evt('第十区有一种并不被广泛承认为奇点的技术——愿力。你从一名愿力贩子那里购入了一张"愿力纹身贴"，只要在合适的时机抽出一张纸状的愿力，贴上就能带来好运。有数万人仅仅依靠着愿力而生活，他们买卖运气如同买卖钞票。贴上纹身贴后，你感到了一种微妙的变化——周围的事物似乎开始朝着有利于你的方向发展。但你也知道，你的好运意味着某个倒霉蛋正在失去他等量的愿力。', '奇点技术', '家境+2，智力+1', false, 'J公司愿力'));
+    modAttr('wea', 2);
+    modAttr('int', 1);
+  }
+
+  // 16. Q公司符咒/诅咒——念咒文生效
+  if (age >= 18 && age <= 55 && chance(0.004) && !getFlag('ws_qcorp_charm')) {
+    setFlag('ws_qcorp_charm', true);
+    events.push(evt('你在都市东部得到了一块Q公司生产的布料，这种布料可以制成眼罩、束发带等多种样式，在东部区域广为流通。佩戴后，它能够实时扫描目标信息、强化视觉、提供战术分析。更重要的是，Q公司拥有名为"符咒"与"诅咒"的技术——需要念诵咒文来生效，可以使武器具有特殊效果、创造暂时性的建筑物。第八区鸿园的一位家主候选人王清山就曾以僧人打扮驱使着充满邪气的咒杀僧进行战斗。', '奇点技术', '武器+2，智力+2', false, 'Q公司符咒'));
+    modAttr('wea', 2);
+    modAttr('int', 2);
+  }
+
+  // 17. P公司完全保护——分子层面隔离
+  if (age >= 22 && age <= 55 && chance(0.003) && !getFlag('ws_pcorp_shield')) {
+    setFlag('ws_pcorp_shield', true);
+    events.push(evt('你获得了进入P公司避难所的机会。P公司的奇点据说可以提供分子层面的保护，其避难所可以对于外界完全隔离，这是一种广域空间扭曲技术。当你踏入避难所的瞬间，一种前所未有的安全感笼罩了你——仿佛整个世界都被隔绝在了外面。据说这种技术与当地的血魔家系有所联系，P巢中的拉曼却领血魔自治领就拥有扭曲空间的技术，甚至能以血铸造出摩天轮和游乐场。', '奇点技术', '体质+3，意志+2', false, 'P公司完全保护'));
+    modAttr('con', 3);
+    modAttr('wil', 2);
+  }
+
+  // 18. R公司超级佣兵——复制人孵化场
+  if (age >= 25 && age <= 55 && chance(0.003) && !getFlag('ws_rcorp_clone')) {
+    setFlag('ws_rcorp_clone', true);
+    events.push(evt('你亲眼见证了R公司"孵化场"的运作——在时间加速的设施内，成千上万的复制人正在互相厮杀，以选出最强大的个体成为R公司的佣兵。R公司可以为任何有需求的客户提供强大的集团佣兵武装支援，其提供的佣兵无惧死亡，能力多样。但由于复制人禁忌的限制，复制体包括本体在内不得超过一名，且存在时长不得超过七日。一旦外界时间到达七天仍有超过一个的复制人，连R公司也会招致眼线B公司的停业处理。', '奇点技术', '武器+2，智力+1，意志-1', false, 'R公司超级佣兵'));
+    modAttr('wea', 2);
+    modAttr('int', 1);
+    modAttr('wil', -1);
+  }
+
+  // 19. S公司食物生产——肉血骨农牧产业
+  if (age >= 15 && age <= 65 && chance(0.005) && !getFlag('ws_scorp_food')) {
+    setFlag('ws_scorp_food', true);
+    events.push(evt('你在第十九区体验了S公司"肉血骨农牧产业"的产物。S公司垄断了都市的农畜产业，在这里可以品尝到来自东部的特色美食——包括著名的"火腿嘭嘭三明治"快餐品牌产品，这被认为是都市社会发展的一个正面结果。但鸿园的餐桌上，一盘菜的价值可以与后巷居民的一栋住房相当。你在一处路边摊买了一份相对实惠的三明治，热腾腾的火腿和松软的面包在口中化开——在都市，能吃上一顿好饭已是一种奢侈的幸福。', '奇点技术', '体质+2，家境-1', false, 'S公司食物生产'));
+    modAttr('con', 2);
+    modAttr('wea', -1);
+  }
+
+  // 20. H公司丸药——鸿园炼制技术
+  if (age >= 18 && age <= 50 && chance(0.004) && !getFlag('ws_hcorp_pill')) {
+    setFlag('ws_hcorp_pill', true);
+    events.push(evt('你在第八区鸿园从一名丸药师那里购得了一颗特制丸药。鸿园长期以来盛行着将各种药材以精细而复杂的理论谨慎炼制，制成丸状的技术——丸可以直接服用，也可以溶于水后以"膏"的形态涂抹使用，或是稀释后浸入绷带中用作包扎治疗。H公司各大家族势力持有着各类丸药秘方，丸药可以为人类植入各种动植物的特性、或是单纯对某一方面的能力进行强化。你服下丸药后感到浑身充满了力量，但你注意到丸药师的脸色有些凝重："长期使用丸药来增强自身，会积累副作用而外强中干。"', '奇点技术', '体质+3，武器+1，智力-1', false, 'H公司丸药'));
+    modAttr('con', 3);
+    modAttr('wea', 1);
+    modAttr('int', -1);
+  }
+
+  // ====== 都市税收/禁忌相关事件（约15个）======
+
+  // 21. 产品税——Tres协会审查
+  if (age >= 20 && age <= 60 && chance(0.004) && !getFlag('ws_tax_product')) {
+    setFlag('ws_tax_product', true);
+    events.push(evt('都市的武器装备在研发完成后都要由Tres协会审查，并将结果上报给首脑，然后征收税款。你从一名工坊收尾人那里得知，他耗费三个月心血打造的新型武器因未能通过Tres协会的安全标准而被禁止使用——"枪械使用时必须能听到枪声"，他的消音设计触犯了枪械禁忌。工坊收尾人们充满科技与狠活，没有他们不敢造与卖的武器，只有他们想不想与能不能——禁忌与Tres协会的审查决定了工坊野蛮生长的上下限。', '都市税收', '智力+1，家境-1', false, '产品税'));
+    modAttr('int', 1);
+    modAttr('wea', -1);
+  }
+
+  // 22. 弹药税——两枚弹匣比肩一把枪
+  if (age >= 18 && age <= 55 && chance(0.005) && !getFlag('ws_tax_ammo')) {
+    setFlag('ws_tax_ammo', true);
+    events.push(evt('都市对于枪械弹药的征税极高，导致两枚弹匣就足以比肩一把枪的价格。你在黑市上试图为你的武器补充弹药时被这个残酷的现实打击了——"这价格够买一把新枪了。"你无奈地将弹匣放回柜台。特殊弹药的价格更是令人咋舌：南部拇指使用的彻甲弹、烧夷弹、冰封弹，东部拇指使用的推进弹，每一种都是天价。对于大多数后巷居民来说，弹药税是比帮派保护费更令人窒息的负担。', '都市税收', '家境-2，武器-1', false, '弹药税'));
+    modAttr('wea', -2);
+    modAttr('wea', -1);
+  }
+
+  // 23. T公司时间税——时间被价值化
+  if (age >= 20 && age <= 55 && chance(0.004) && !getFlag('ws_tax_time')) {
+    setFlag('ws_tax_time', true);
+    events.push(evt('你在第二十区短暂逗留，亲身体验了T公司时间税的恐怖。因为T公司的奇点技术，二十区居民的时间均被价值化——通过作为身份证件的怀表，一天的时间多少可以与都市的眼钞相互兑换。你眼睁睁看着一个欠缴时间税的人被时间征收人员用征收稿插入身体，他的时间被一点一滴地抽走。在他怀表上的指针飞速旋转，最终停在了一个微小的刻度上——他只剩下不到四个小时的"生命"。在T巢，时间就是真正的货币，而贫穷意味着你的时间将被剥夺殆尽。', '都市税收', '智力+2，意志+1，家境-1', false, '时间税'));
+    modAttr('int', 2);
+    modAttr('wil', 1);
+    modAttr('wea', -1);
+  }
+
+  // 24. 鸿园土地税——重构日
+  if (age >= 20 && age <= 55 && chance(0.004) && !getFlag('ws_tax_land')) {
+    setFlag('ws_tax_land', true);
+    events.push(evt('鸿园一月一次的"重构日"到了。你目睹了整个鸿园的结构在短短数小时内进行重组——墙壁移动、楼层变换、空间折叠——然后按照居民的劳动价值与收入资产重新分配居住空间。"富者田连阡陌，贫者无立锥之地"在鸿园并非夸张。那些未能缴纳土地税的营业场所随着重构日的到来而消失，仿佛从未存在。你看到一名后巷的庶民因居住空间突然丧失而失足从高空坠落，尖叫声在钢铁丛林中回荡，却无人驻足。', '都市税收', '家境-2，意志+1', true, '鸿园土地税'));
+    modAttr('wea', -2);
+    modAttr('wil', 1);
+  }
+
+  // 25. 首脑三次警告函
+  if (age >= 25 && age <= 60 && chance(0.003) && !getFlag('ws_warning_letters')) {
+    setFlag('ws_warning_letters', true);
+    events.push(evt('你收到了来自首脑的第一封警告函——白色信封上没有任何署名，只有一行冰冷的文字："您有未缴纳的税款。"你知道，进入都市生活，就要按时缴纳首脑制定的税款，否则就会在三次警告函后面临爪牙的制裁。C公司的爪牙总是展示着一种极为简洁的恐怖暴力，将违抗都市禁忌的存在格杀勿论。你不敢拖延，立刻想尽办法筹措了税款。但那封白色信封带给你的恐惧，至今未曾消散。', '都市税收', '家境-2，意志-1', true, '首脑警告函'));
+    modAttr('wea', -2);
+    modAttr('wil', -1);
+  }
+
+  // 26. 枪械禁忌——枪管长度与口径负相关
+  if (age >= 18 && age <= 55 && chance(0.004) && !getFlag('ws_taboo_gun')) {
+    setFlag('ws_taboo_gun', true);
+    events.push(evt('你在后巷的工坊中亲眼看到一名枪械匠因违反枪械禁忌而被Tres协会的审查人员带走。"枪管的长度应与口径的大小呈负相关"——这是《枪械生产指南》中的基本准则。他试图制造一支短管大口径的霰弹枪，触犯了这条规定。"任何枪械都不得拥有能够击穿钢铁或建筑物墙壁的火力"，审查员面无表情地记下了违规事项。那个枪械匠从此人间蒸发，连同他的工坊和所有作品一起，仿佛从未存在。', '都市禁忌', '智力+2', false, '枪械禁忌'));
+    modAttr('int', 2);
+  }
+
+  // 27. 深宵禁忌——凌晨3:13清道夫扫荡
+  if (age >= 16 && age <= 60 && chance(0.005) && !getFlag('ws_taboo_midnight')) {
+    setFlag('ws_taboo_midnight', true);
+    events.push(evt('你犯了一个致命的错误——在后巷深宵时段（凌晨3:13至4:34）外出。深夜的后巷格外安静，直到第一批清道夫的潮水般涌来。完全由液体组成的生物穿着密封的特制服装，将挡在路上的一切液化吸收——人类的尖叫、金属的扭曲、混凝土的碎裂，一切声音都被深宵吞噬。连续三波清道夫扫荡了整个后巷，共计80分钟。你拼尽全力躲进了一处申报过的居民住所——这是深宵期间唯一的禁忌：禁止破坏居民区。清道夫绕过了你的藏身之处，但那种被液体怪物包围的恐惧，刻骨铭心。', '都市禁忌', '意志+2，体质-1', true, '深宵遭遇'));
+    modAttr('wil', 2);
+    modAttr('con', -1);
+  }
+
+  // 28. 非人禁忌——义体不得仿照人类
+  if (age >= 20 && age <= 55 && chance(0.004) && !getFlag('ws_taboo_inhuman')) {
+    setFlag('ws_taboo_inhuman', true);
+    events.push(evt('你在后巷的黑市上看到了一则广告——"完美仿生义体，触感如真人肌肤"。你还没有来得及细看，广告就被一名路过的Tres协会审查员撕得粉碎。"义体部件不得仿照人类的身体制作"——这是首脑制定的非人禁忌之一。再精美的机械义体也不能跟人的外貌一样，不能外面看起来是肉而戳开是一堆芯片与齿轮——总之，不能让人感觉机械和人没有区别。那个非法义体匠的摊位在当晚被爪牙清空，连同他本人一起，从此销声匿迹。', '都市禁忌', '智力+1，意志+1', false, '非人禁忌'));
+    modAttr('int', 1);
+    modAttr('wil', 1);
+  }
+
+  // 29. 复活禁忌——不允许完美复活
+  if (age >= 25 && age <= 60 && chance(0.003) && !getFlag('ws_taboo_resurrection')) {
+    setFlag('ws_taboo_resurrection', true);
+    events.push(evt('你的一名同伴在战斗中失去了生命。他的大脑还完好，自我意识也没有消失，而且你们恰好购买了第八区的生命保险——在未能损伤大脑的情况下，只要签约了相应合同就能够起死回生。但他从"复活"后变得不太一样了，大脑会在这种死而复生的过程中逐渐变得麻木，以至于流失记忆乃至人格。这是复活禁忌的体现——不允许有完美的复活。可能按照首脑的理解，肉体、灵魂、精神全部再现，或逐一寻回的复活才算是真正的"复活"。', '都市禁忌', '意志+2，智力-1', true, '复活禁忌'));
+    modAttr('wil', 2);
+    modAttr('int', -1);
+  }
+
+  // 30. 复制人禁忌——不得超过七日
+  if (age >= 20 && age <= 55 && chance(0.003) && !getFlag('ws_taboo_clone7day')) {
+    setFlag('ws_taboo_clone7day', true);
+    events.push(evt('你在R公司的外围区域目击了一次复制人禁忌的执行。一群复制人因超过七日的时限而面临被全部抹杀的命运——"复制体包括本体在内不得超过一名，且于都市内存在时长不得超过七日。"即使R公司利用T公司的技术使得孵化场内的时间加速到足够成千上万的复制人厮杀到最后，但一旦孵化场外的标准时间到达七天仍有超过一个的复制体，即使是R公司也会招致眼线B公司的停业处理。那群复制人被处刑者有机利用多种功能不同的血清组成的阵线迅速解决，你默默转身离去。', '都市禁忌', '智力+2', false, '复制人禁忌'));
+    modAttr('int', 2);
+  }
+
+  // 31. 爆炸物禁忌——必须安置在物体表面
+  if (age >= 20 && age <= 55 && chance(0.004) && !getFlag('ws_taboo_explosive')) {
+    setFlag('ws_taboo_explosive', true);
+    events.push(evt('你在一次任务中差点犯下大错——手雷不小心在空中爆炸了。都市的爆炸物禁忌规定：爆炸物必须安置在物体表面，且爆炸半径受到限制。"扔手雷不小心在空中炸了"这类情况都可能面临爪牙的处理。万幸这次爆炸没有造成太大破坏，也没有被眼线的监控设备捕捉到。你的同伴事后教训你："在都市，大规模使用导弹作为武器是不太现实的——你以为那些翼公司为什么都用奇点武器？因为常规爆炸物根本用不了！"', '都市禁忌', '智力+1，武器+1', false, '爆炸物禁忌'));
+    modAttr('int', 1);
+    modAttr('wea', 1);
+  }
+
+  // 32. 专利禁忌——三次警告函
+  if (age >= 22 && age <= 55 && chance(0.004) && !getFlag('ws_taboo_patent')) {
+    setFlag('ws_taboo_patent', true);
+    events.push(evt('你无意中使用了一件未经专利授权的装备。三天后，一封来自A公司的警告函出现在你面前：未经允许使用他人专利技术将会受到巨额罚款，需要在三次警告函之前缴纳，否则爪牙便会前来。在都市，凡是向A公司申报专利成功且处于保护期内的技术，都必须在有其专利权所有人许可的情况下使用。你赶紧停止了那件装备的使用，并四处筹措罚款——在都市，连"使用什么东西"这件事本身都受着严格的管控。', '都市税收', '家境-2，智力+1', false, '专利禁忌'));
+    modAttr('wea', -2);
+    modAttr('int', 1);
+  }
+
+  // 33. K公司再生安瓿/崩解安瓿
+  if (age >= 18 && age <= 55 && chance(0.004) && !getFlag('ws_taboo_ampoule')) {
+    setFlag('ws_taboo_ampoule', true);
+    events.push(evt('你在战斗中使用了K公司的再生安瓿——绿色的液体注入体内后，你的伤口以肉眼可见的速度愈合。K公司的奇点能够瞬间修复生物的任何伤势，其本质是将形似眼球的"流泪之物"所产出的能够使生物回归原初的"眼泪"进行提炼加工后的产物。但同时你也知道，K公司的另一面是崩解安瓿——"迅速使生物化作绿色浓浆"的恐怖武器。逃离战场者会被注射崩解安瓿，没有人知道死亡的过程有多痛苦。', '都市禁忌', '体质+2，武器+1', false, 'K公司安瓿'));
+    modAttr('con', 2);
+    modAttr('wea', 1);
+  }
+
+  // 34. 记录禁忌——U公司大湖规则
+  if (age >= 20 && age <= 55 && chance(0.003) && !getFlag('ws_taboo_record')) {
+    setFlag('ws_taboo_record', true);
+    events.push(evt('你在第二十一区差点犯了一个致命的错误——试图用笔记本记录大湖的运行规则。"未经许可就以文字记述大湖的规则"是第二十一区的禁忌。一名当地的老水手及时制止了你："规则可以记在脑子里，但绝不能落在纸上，"他指着远处几个匆忙离开的背影，"那些人就是因为试图把规则写下来，被U公司的禁忌猎人追杀。"老水手递给你一杯浊酒，"在大湖活得久的水手，全靠脑子记。"你默默撕掉了那页笔记。', '都市禁忌', '智力+2，意志+1', false, 'U公司记录禁忌'));
+    modAttr('int', 2);
+    modAttr('wil', 1);
+  }
+
+  // 35. 改造禁忌——不够资格不得接受超出限度的改造
+  if (age >= 20 && age <= 55 && chance(0.004) && !getFlag('ws_taboo_modify')) {
+    setFlag('ws_taboo_modify', true);
+    events.push(evt('你的一位朋友试图接受超出自身资格的改造——他不够巢的居住资格，却想通过后巷的黑市诊所获得只有巢内居民才能享有的高级义体改造。改造进行到一半时，诊所被翼公司的禁忌猎人突袭——"不够资格的居民不得接受超出一定限度的改造。"你的朋友被强行拖出手术台，义体与血肉的交界处在粗暴的拆卸中撕裂，鲜血浸透了手术台。你从那以后再也没见过他。在都市，改造需要资格，而资格是用金钱和地位买来的。', '都市禁忌', '意志+1，家境-1', true, '改造禁忌'));
+    modAttr('wil', 1);
+    modAttr('wea', -1);
+  }
+
+  // ====== 手指组织深度事件（约20个）======
+
+  // 36. 拇指——《拇指月刊》与《拇指基础教本》
+  if (age >= 16 && age <= 55 && chance(0.004) && !getFlag('ws_thumb_journal')) {
+    setFlag('ws_thumb_journal', true);
+    events.push(evt('你意外获得了一本《拇指基础教本》——这本厚达1271页的教材详细记载了拇指组织的阶级礼仪规范。拇指以红大衣、枪械与纪律严明为特征，其行为方针为"阶级礼仪"、"礼"。获得晋升的拇指成员需要撰写"晋升者的故事"，如实填写对晋升的感想，优秀撰稿人的作品将会刊登于《拇指月刊》，并在日后晋升时作为正面参考材料。你翻阅着教本中密密麻麻的规章制度——"出言不逊，当割其舌；擅自发言，当碎其颚"——后背一阵发凉。', '手指组织', '智力+2', false, '拇指月刊'));
+    modAttr('int', 2);
+  }
+
+  // 37. 拇指配餐制度
+  if (age >= 18 && age <= 50 && chance(0.004) && !getFlag('ws_thumb_meal')) {
+    setFlag('ws_thumb_meal', true);
+    events.push(evt('你受邀参加了一场拇指组织的内部晚宴。拇指成员每天会在规定的时间获得规定分量的配餐，且只有在高于自身阶级的成员用餐结束后才能进食。你观察着士兵们等待指挥官用完餐后才拿起餐具的恭敬姿态，每一口食物都咀嚼得一丝不苟——不是因为美味，而是因为规定的分量就是这么多，多吃一口都是对阶级的僭越。在收尾人调查问卷中，拇指位于"最不想牵扯到的帮派"榜首，此刻你深刻理解了原因。', '手指组织', '意志+1，智力+1', false, '拇指配餐'));
+    modAttr('wil', 1);
+    modAttr('int', 1);
+  }
+
+  // 38. 拇指东部推进弹——枪械刺刀突刺
+  if (age >= 20 && age <= 55 && chance(0.003) && !getFlag('ws_thumb_east_ammo')) {
+    setFlag('ws_thumb_east_ammo', true);
+    events.push(evt('你在都市东部目睹了拇指成员独特的战斗方式——他们似乎不会将枪械弹药用于直接射击，而是以其作为推力，使得枪械刺刀能够进行强力的突刺或斩击。东部拇指成员携带的推进弹可以产生冲力，使得持枪者像是踩了油门的汽车一般陡然前进，更有力道更强的虎标弹和猛虎标弹，以及变种的灼热推进弹。一名拇指士兵手持长枪刺刀向你演示——推进弹激发的瞬间，他的身影化作一道红色残影，刺刀在空气中留下灼热的轨迹。', '手指组织', '武器+3', false, '东部推进弹'));
+    modAttr('wea', 3);
+  }
+
+  // 39. 拇指南部彻甲弹/烧夷弹/冰封弹
+  if (age >= 20 && age <= 55 && chance(0.003) && !getFlag('ws_thumb_south_ammo')) {
+    setFlag('ws_thumb_south_ammo', true);
+    events.push(evt('你在都市南部遇到了一队拇指巡逻兵，他们的装备与东部同僚截然不同。南部拇指成员使用具有特殊效果的子弹——彻甲弹可以降低命中目标的防御性能，烧夷弹对目标造成灼烧，冰封弹则能将目标冻成冰雕。你看到一名拇指士兵在练习中连续发射三种弹药，先以彻甲弹破防，再以烧夷弹引燃，最后以冰封弹速冻——三种弹药的价格加起来，足以让一个后巷家庭吃上一年。拇指的枪械与弹药采用了独特的工艺与材料，由其所管理的工坊制作，这些内容似乎受到专利保护。', '手指组织', '武器+2，智力+1', false, '南部特殊弹药'));
+    modAttr('wea', 2);
+    modAttr('int', 1);
+  }
+
+  // 40. 食指苦行者——蒙眼追随指令
+  if (age >= 16 && age <= 55 && chance(0.004) && !getFlag('ws_index_ascetic')) {
+    setFlag('ws_index_ascetic', true);
+    events.push(evt('你在食指领地内遇到了一群蒙眼的苦行者。他们用并不阻挡视野的黑布蒙上眼睛，代表决定追随指令。食指以白长袍、佩剑与信纸指令为特征，其行为方针为"谨遵指令之意"、"信"。不知具体来源的各种指令会出现在食指的领地中，所有领地中的人类都需要完成这些信纸中的指令。没有正确完成指令的人会被食指成员按照指令处理，无论其是谁。苦行者会因为完成指令的情况而获得纯白的布料，交给裁缝加长身上的白袍——面积达到一定程度后就会获得晋升的选择。', '手指组织', '意志+2，智力+1', false, '食指苦行者'));
+    modAttr('wil', 2);
+    modAttr('int', 1);
+  }
+
+  // 41. 食指代行者——佩剑处决
+  if (age >= 20 && age <= 55 && chance(0.003) && !getFlag('ws_index_enforcer')) {
+    setFlag('ws_index_enforcer', true);
+    events.push(evt('你亲眼目睹了一名食指代行者执行指令。他按照指令摘下黑布，拥有了践行指令之意的专属佩剑——一肩佩戴着三道金色横杠的饰品，这意味着他在食指中拥有极高的地位，能够在色彩级收尾人面前维持相当的镇定。代行者负责维护指令的意志，时常处决居民与敌对势力的执行效率令人胆寒。他的剑术行云流水，没有任何多余的动作——因为指令的意志不需要犹豫，指令的命运不会被凡人的挣扎所改变。', '手指组织', '武器+2，智力+2', false, '食指代行者'));
+    modAttr('wea', 2);
+    modAttr('int', 2);
+  }
+
+  // 42. 食指终端派——魔法哔哔机
+  if (age >= 18 && age <= 50 && chance(0.003) && !getFlag('ws_index_terminal')) {
+    setFlag('ws_index_terminal', true);
+    events.push(evt('你遇到了一名食指终端派成员。与纸条派不同，终端派需要完成的指令会以"魔法哔哔机"为载体呈现，指令可能会迅速变化，每当指令需要更快完成时，魔法哔哔机的哔哔声就会越快。这名成员腰间的魔法哔哔机正在疯狂地发出急促的声响，他的面色凝重——"指令变了，要加快速度。"在终端派中存在着名为"神谕代行者"的职位，会得到某位都市之神赐予的遗物并需要完成极为特别的一系列指令。终端派似乎背后的神明被称为赫尔墨斯。', '手指组织', '智力+2，意志+1', false, '食指终端派'));
+    modAttr('int', 2);
+    modAttr('wil', 1);
+  }
+
+  // 43. 食指E.G.O——代行绽放
+  if (age >= 25 && age <= 55 && chance(0.002) && !getFlag('ws_index_ego')) {
+    setFlag('ws_index_ego', true);
+    events.push(evt('你在一个扭曲事件的现场目睹了食指成员觉醒绽放E.G.O的瞬间。那名代行者在完成一系列指令后，自身的本望与指令的命运逐渐贴合——近乎令自己与指令之意一致时，绽放E.G.O"代行"降临了。他的佩剑被光芒笼罩，周围的空气仿佛凝固，指令的力量化作了他手中斩断一切阻碍的利刃。在食指中，指令根源于扭曲而破碎的都市之震动——寄宿着期待的颤动之中有着未来，寄宿着悔恨的残响之中有着过去。而捕捉到因果之外的微弱频率的都市之神，写下的是混杂着原因与结果的命运回响。', '手指组织', '武器+3，意志+2，智力+1', true, '食指绽放E.G.O'));
+    modAttr('wea', 3);
+    modAttr('wil', 2);
+    modAttr('int', 1);
+  }
+
+  // 44. 食指纺织者——密室机械
+  if (age >= 18 && age <= 55 && chance(0.003) && !getFlag('ws_index_weaver')) {
+    setFlag('ws_index_weaver', true);
+    events.push(evt('你通过一个偶然的机会获知了食指"纺织者"的存在。他们是按照指令来到密室，看管按照都市的震动书写指令的巨大机械的人——一旦成为纺织者，就不再外出。那台巨大机械不知疲倦地在纸面上书写着来自都市深处的指令，仿佛整座都市的心跳都汇聚于此。纺织者将写好的指令交给传令员，由传令员携带信纸和解释在食指领地内穿行，确保每一条指令都被正确传达和完成。指令的根源于扭曲而破碎的都市之震动——你开始理解，食指的"信"并非盲目，而是对都市命运的虔诚。', '手指组织', '智力+3', false, '食指纺织者'));
+    modAttr('int', 3);
+  }
+
+  // 45. 中指复仇账簿——出言不逊割舌
+  if (age >= 20 && age <= 55 && chance(0.004) && !getFlag('ws_middle_revenge')) {
+    setFlag('ws_middle_revenge', true);
+    events.push(evt('你不小心冒犯了一名中指成员。他翻开随身携带的"复仇账簿"，在一长串罪行情报中寻找对应的条款。"对中指幼兄出言不逊——第6条，第2项A列——"他念出条目时，周围的中指成员们已经开始摩拳擦掌。中指以紫色穿搭、纹身与勇武无赖为特征，行为方针为"永不遗忘"、"义"。所有中指成员都携带复仇账簿，规定了什么是对中指的冒犯以及相应的惩罚。你低头赔罪，承诺补偿——"那就算了，"他合上账簿，"下次注意。"', '手指组织', '意志+2，智力+1', false, '中指复仇账簿'));
+    modAttr('wil', 2);
+    modAttr('int', 1);
+  }
+
+  // 46. 中指仇怨纹身与忠义锁链
+  if (age >= 22 && age <= 55 && chance(0.003) && !getFlag('ws_middle_tattoo')) {
+    setFlag('ws_middle_tattoo', true);
+    events.push(evt('你近距离观察了一名中指长兄的纹身——那些密密麻麻的纹身并非装饰，而是每一条仇怨的证明。中指成员每解决一条自己的仇怨，就可以为自己多加一道仇怨纹身，强化一份力量；而帮助他人解决仇怨，则可以得到一条忠义锁链作为回报。解决仇怨越多的中指成员，在中指中的威望就越高。而那条忠义锁链——由金属编织的锁链缠绕在他的手腕上，在阳光下闪烁着暗淡的光泽——据说每一环都代表一次为兄弟姐妹拼尽全力的义举。中指内部有四个段位：长兄/姊、幼兄/姊、长弟/妹、幼弟/妹。', '手指组织', '武器+1，意志+2，智力+1', false, '中指纹身'));
+    modAttr('wea', 1);
+    modAttr('wil', 2);
+    modAttr('int', 1);
+  }
+
+  // 47. 中指段位——长兄与幼兄
+  if (age >= 25 && age <= 55 && chance(0.003) && !getFlag('ws_middle_ranks')) {
+    setFlag('ws_middle_ranks', true);
+    events.push(evt('你了解到中指内部的晋升之路。幼兄如果晋升到长兄的位置，需要进行名为"忠义巡礼"的活动——其具体内容尚不明了，但据说极其危险。中指成员之间以兄弟姐妹相称，并将之视为牢不可破的羁绊。对内，任何人都可以加入中指，任何人都有可能在中指获得晋升——但一旦想要退出，就要剥夺中指给予的一切，哪怕是记忆与思维。据说即使背叛了中指、杀害了兄弟姐妹的人物，也依然会被视为中指的成员，只是不再被承认其在中指的地位。离开中指的唯一方式……你不敢想下去。', '手指组织', '智力+2，意志+1', false, '中指段位'));
+    modAttr('int', 2);
+    modAttr('wil', 1);
+  }
+
+  // 48. 环指走廊——无视距离的后门
+  if (age >= 20 && age <= 55 && chance(0.004) && !getFlag('ws_ring_corridor')) {
+    setFlag('ws_ring_corridor', true);
+    events.push(evt('你通过向导的指引进入了环指的"走廊"——这是一种特别的技术，无论在哪儿建出一道出口，环指的走廊上就一定会有相应的入口。走廊里有数不清的后门，无视距离地连接着不同的区域。你跟随向导穿过一扇又一扇门，每一扇门后都是完全不同的景象——有时是繁华的巢内街道，有时是幽暗的后巷深处，有时甚至是一片你从未见过的建筑废墟。走廊的入口根据紧密复杂的规则连接在一起，需要知道起点和终点才能找到路，知道哪里开始和结束的人永远不会迷失。', '手指组织', '智力+3', false, '环指走廊'));
+    modAttr('int', 3);
+  }
+
+  // 49. 环指考试——C+及格
+  if (age >= 18 && age <= 55 && chance(0.004) && !getFlag('ws_ring_exam')) {
+    setFlag('ws_ring_exam', true);
+    events.push(evt('你生活在环指的领地内，迎来了定期的艺术考试。环指需要其领地内的所有居民定期参加艺术考试，作品得到C+等及格的评价才能继续在环指的领地居住，第一次不合格给予警告，第二次不合格失去保护，第三次不合格则会被处决——或自身成为艺术作品素材。你战战兢兢地提交了自己的作品——一件粗糙但用心的手工制品。几名环指讲解员审视良久，最终给出了"C"的评价。"及格了，"你长出一口气，但心中清楚，下一次考试不会这么幸运。', '手指组织', '意志+2，智力+1', false, '环指考试'));
+    modAttr('wil', 2);
+    modAttr('int', 1);
+  }
+
+  // 50. 环指野兽派——动物面具
+  if (age >= 20 && age <= 55 && chance(0.003) && !getFlag('ws_ring_fauvism')) {
+    setFlag('ws_ring_fauvism', true);
+    events.push(evt('你在环指的一次展览上见识了野兽派的狂野。加入此派需要确定一种自己的动物，在其之上添加或更换其他动物。成员佩戴动物面具与各种由动物制作的可穿戴武器，会将颜料注入自身，操作武器达成野兽般的攻击。野兽派的大师埃米尔-贝努瓦能顷刻间挥出巨蟒进行攻击。你看到一名野兽派学徒操控着融入了豹与鹰特征的混合体武器，动作迅猛得几乎无法用肉眼追踪——追求野兽的强烈与生动，是这一派的核心美学。', '手指组织', '武器+2，体质+1', false, '环指野兽派'));
+    modAttr('wea', 2);
+    modAttr('con', 1);
+  }
+
+  // 51. 环派人人体派——以人类为材料的装置艺术
+  if (age >= 22 && age <= 55 && chance(0.003) && !getFlag('ws_ring_bodyart')) {
+    setFlag('ws_ring_bodyart', true);
+    events.push(evt('你偶然进入了环指人体派的画廊。这是一个已经落伍的派系，成员会制作以人类为材料的各种装置艺术——包括令人难以承受的塑像、自动攻击的人偶以及富有生命的武器。你看到了用人体骨骼和肌肉编织成的机械装置在角落中缓缓移动，发出骨骼摩擦的细微声响。人体派的大师与仅有的学徒都将自身绝大多数的部分制成了作品——你无法分辨他们哪些部位是原来的血肉，哪些是精心打造的艺术。在环指，有些大师的作品甚至可以拍卖到上百亿眼钞。', '手指组织', '意志-1，智力+2', true, '环指人体派'));
+    modAttr('wil', -1);
+    modAttr('int', 2);
+  }
+
+  // 52. 环指点彩派——玻璃窗技术
+  if (age >= 20 && age <= 55 && chance(0.003) && !getFlag('ws_ring_pointillism')) {
+    setFlag('ws_ring_pointillism', true);
+    events.push(evt('你遇到了环指点彩派的成员。他们追求一与无限，会使用画笔将颜料挥洒给予敌人异常的效果。点彩派的成员对于"玻璃窗"技术及其衍生物具有一定研究与狂热——白夜黑昼事件后，基于九人会的发明"玻璃窗"、"镜子"等技术，让人"感受其他世界"的物品开始在见不得光的交易中流通。一名点彩派大师挥动画笔，无数色彩斑斓的颜料粒子在空中凝聚成一幅绚丽的画面——画中的世界仿佛拥有了自身的意志。', '手指组织', '智力+2，武器+1', false, '环指点彩派'));
+    modAttr('int', 2);
+    modAttr('wea', 1);
+  }
+
+  // 53. 小指星名信物——水浒传108好汉命名
+  if (age >= 20 && age <= 55 && chance(0.004) && !getFlag('ws_pinky_starnames')) {
+    setFlag('ws_pinky_starnames', true);
+    events.push(evt('你在后巷结识了一个自称"插翅虎"的人——他以小指的方式相互称呼。小指成员以"天退星"、"地慧星"这类的星名和诨号（大概率参考自《水浒传》的一百零八好汉）相互称呼，并持有一般不能向外人说明来源的特别装备为信物。小指所持有的信物似乎都是以星辰锻造的刀剑，是产自都市以外区域的遗物。在受到召集而行动之前，小指的成员往往互不认识——"无处不在，却又互不相识"，这是小指的行为方针。据说在都市东部，小指既有可能是拇指的指挥官，也有可能是黑兽部队的魁首。', '手指组织', '智力+2，武器+1', false, '小指星名'));
+    modAttr('int', 2);
+    modAttr('wea', 1);
+  }
+
+  // 54. 手指拉勾会议
+  if (age >= 25 && age <= 55 && chance(0.003) && !getFlag('ws_fingers_pinky_promise')) {
+    setFlag('ws_fingers_pinky_promise', true);
+    events.push(evt('五指"拉勾"会议即将召开的消息在后巷中传开了。五个手指相互有所联系与对立，唯一的相同点是都有着极为我行我素的行为方针。由于不同的利益与观念，手指之间的矛盾总是存在的，只是同时还存在着一些互不侵犯的条约。在定期召开的"拉勾"会议前后，其下属帮派之间的交战也将尽可能避免。各手指的后巷势力都在为会议做着准备——你知道，在会议前后，后巷会迎来短暂的平静，而在平静之后，新的风暴也将随之而来。', '手指组织', '智力+2，意志+1', false, '拉勾会议'));
+    modAttr('int', 2);
+    modAttr('wil', 1);
+  }
+
+  // 55. 环指颜料注射
+  if (age >= 20 && age <= 50 && chance(0.003) && !getFlag('ws_ring_paint_inject')) {
+    setFlag('ws_ring_paint_inject', true);
+    events.push(evt('你亲眼看到一名环指成员将颜料直接注入自己的手臂。环指所使用的颜料可以对人进行涂抹使其被赋予异常的效果，也可以向自身注射以达到如此。颜料是环指不可或缺的创作要素，不同派别的环指所使用的颜料效果也不同。注入后，那人的手臂表面浮现出流动的彩色纹路，肌肉轮廓变得更加鲜明——野兽派的颜料注射后能增强攻击性和力量，点彩派的颜料则能让武器附带追踪效果。"颜料是我们的命，"那人对你说，"没有颜料，环指就不存在。"', '手指组织', '武器+2，体质+1', false, '环指颜料'));
+    modAttr('wea', 2);
+    modAttr('con', 1);
+  }
+
+  // ====== 地区文化事件（约15个）======
+
+  // 56. 东部——中古东亚风格，东部十剑评选
+  if (age >= 18 && age <= 55 && chance(0.004) && !getFlag('ws_district_east')) {
+    setFlag('ws_district_east', true);
+    events.push(evt('你踏入了都市东部的领土，周遭的一切都染上了中古东亚的色彩——翘角的飞檐、朱红的廊柱、身着汉服与旗袍的行人。东部倾向于中古东亚风格的穿搭与风俗习惯，甚至存在典型的东亚封建朝廷式的翼公司。你在茶馆中听到了"东部十剑"评选的最新消息——这是东部地区对最强剑士的排名，入选者大多是来自S公司各流派的武者或独立修行的剑术家。第十九区S公司中踏入武道一途者皆憧憬着故土第一剑"云剑"的头衔，三门流派——肉、血、骨——各自记载着能斩开山君这类巨型野兽的招式。', '地区文化', '智力+2，武器+1', false, '东部文化'));
+    modAttr('int', 2);
+    modAttr('wea', 1);
+  }
+
+  // 57. 西部——中古西欧风格，骑士团收尾人
+  if (age >= 18 && age <= 55 && chance(0.004) && !getFlag('ws_district_west')) {
+    setFlag('ws_district_west', true);
+    events.push(evt('都市西部呈现出一幅中古西欧的画卷。你在街角看到了穿着板甲、披着深蓝披风的Zwei协会西部收尾人，他们手持等身的门板巨剑巡视街巷，引人瞩目，以隐藏需要保护的人——那些装备是工坊制作的，不会拖累行动。Cinq协会西部成员则身着法国"巴洛克"风格的骑士服，随身携带迅捷剑，需要遵循严格的用剑礼仪，享受相当长的茶点时间。西部的决斗往往以向他人丢出手套来发起，你在街头就亲眼看到一名绅士将手套掷向对手的面庞——决斗开始了。', '地区文化', '智力+1，武器+1，意志+1', false, '西部文化'));
+    modAttr('int', 1);
+    modAttr('wea', 1);
+    modAttr('wil', 1);
+  }
+
+  // 58. 南部——热带风格，海盗团
+  if (age >= 18 && age <= 55 && chance(0.004) && !getFlag('ws_district_south')) {
+    setFlag('ws_district_south', true);
+    events.push(evt('都市南部的空气中弥漫着热带的湿热气息。南部倾向于热带地区的穿搭与风俗习惯，在大湖区域活动的帮派在当地被称为海盗团——在捕鲸活动之外，也会如常为了钱绑架、勒索、杀人。你在南部后巷看到了一支海盗团——他们的装备简陋但实用，以大湖的鲸鱼残骸加工品为原材料制成的武器散发着腥咸的海风味道。大湖捕鲸是一项规模庞大的产业，鲸的尸体会被分解加工为各种商品流入市场，无数收尾人与帮派活动于大湖。', '地区文化', '武器+1，体质+1', false, '南部文化'));
+    modAttr('wea', 1);
+    modAttr('con', 1);
+  }
+
+  // 59. 北部——寒带风格，大绒袄
+  if (age >= 16 && age <= 65 && chance(0.004) && !getFlag('ws_district_north')) {
+    setFlag('ws_district_north', true);
+    events.push(evt('都市的北方相当寒冷。你裹紧了身上厚重的大绒袄——北部倾向于寒带地区的穿搭与风俗习惯，这里的居民大多穿着厚实的皮毛和绒织物。Девять协会北部地区的衣着风格与极地探险风格接近，他们的"派送箱"装载着助理AI进行辅助功能，负责路线导航和用时提醒。你在寒风中看到了一辆派送箱的光刃在冰面上划出蓝色的轨迹——据说战斗持续越久能量积攒就越多，但过长时间就会开始反噬收尾人。这也是为什么该协会收尾人大多会准时到达的原因。', '地区文化', '体质+2，意志+1', false, '北部文化'));
+    modAttr('con', 2);
+    modAttr('wil', 1);
+  }
+
+  // 60. 都市饮食——火腿嘭嘭三明治与巢内上流
+  if (age >= 15 && age <= 65 && chance(0.005) && !getFlag('ws_culture_food')) {
+    setFlag('ws_culture_food', true);
+    events.push(evt('你在巢内的一家高档餐厅外驻足。透过落地窗，你看到上流人士的餐桌上摆满了价值连城的珍馐——一盘菜可以与后巷居民的一栋住房相当，这在巢内是司空见惯的事情。而你手中拿着的"火腿嘭嘭三明治"——都市社会发展的一个正面结果——是后巷居民难得的美味慰藉。在都市，饮食文化极为丰富，但后巷与巢之间、人与人之间的食物差距，就如同这颗星球两端般遥远。你默默咬了一口三明治，火腿的咸香在口中化开，这是你今天唯一的幸福时刻。', '地区文化', '体质+1，意志+1', false, '都市饮食'));
+    modAttr('con', 1);
+    modAttr('wil', 1);
+  }
+
+  // 61. 都市游戏——与身家性命挂钩
+  if (age >= 18 && age <= 55 && chance(0.004) && !getFlag('ws_culture_game')) {
+    setFlag('ws_culture_game', true);
+    events.push(evt('你被朋友拉去参加了一场后巷的地下游戏。从花扎扑克到麻将象棋，从文字跑团到真人秀，似乎几乎没什么游戏是在都市无法享受的。但都市的许多游戏都会与参与者的身家性命相挂钩——你坐在牌桌前，对面的赌注不是眼钞，而是你的一根手指。在第十区J公司的赌场中，白银等级的赌局上不会有太多监管，但黄金等级以上的赌场会有公证收尾人巡查。你选择在第一轮就放弃了——"活着比赢更重要。"你的朋友苦笑着表示理解。', '地区文化', '智力+1，意志+1', false, '都市游戏'));
+    modAttr('int', 1);
+    modAttr('wil', 1);
+  }
+
+  // 62. 收尾人亚文化——收尾人粉丝与偶像周边
+  if (age >= 16 && age <= 55 && chance(0.004) && !getFlag('ws_culture_fixer_fan')) {
+    setFlag('ws_culture_fixer_fan', true);
+    events.push(evt('你在巢内的商业街看到了一面巨大的海报——那是色彩级收尾人"蜜黄标枪"韦斯帕的宣传照。都市中以收尾人为主题的亚文化颇为兴盛，传奇收尾人往往会被制作出各式各样的影片和专属周边，宛如现实中的偶像。有记者以追踪采访颇具名气的收尾人为任务，就连注定与收尾人为敌的某些手指成员也乐在其中。你在周边店门口排了好久的队，终于买到了一柄蜜黄标枪的限定款模型武器——"冈格尼尔"的仿制品，虽然只是纪念品，但你仍然感到一种莫名的激励。', '地区文化', '武器+1，意志+1', false, '收尾人亚文化'));
+    modAttr('wea', 1);
+    modAttr('wil', 1);
+  }
+
+  // 63. 应试村——为翼公司入职考试做准备
+  if (age >= 15 && age <= 30 && chance(0.005) && !getFlag('ws_exam_village')) {
+    setFlag('ws_exam_village', true);
+    events.push(evt('你来到了一处名为"应试村"的区域——这里的居民拥挤地生活在狭小的空间内，日夜不停地为翼公司的入职考试做着准备。如果后巷的居民想要进入巢生活，那么很可能就要在应试村这样的地方居住，在那里为翼的入职考试做无休止的准备。巢每年举办一次大学能力考试，这次考试会决定大部分人的人生，成绩差的就会去后巷的大学然后一事无成。你看着周围面容憔悴却目光坚定的考生们——在都市，教育和考试是通往巢的唯一阶梯，而这条阶梯上挤满了拼命攀爬的人。', '地区文化', '智力+2，意志+2，体质-1', false, '应试村'));
+    modAttr('int', 2);
+    modAttr('wil', 2);
+    modAttr('con', -1);
+  }
+
+  // 64. 后巷深宵实际遭遇——三波扫荡
+  if (age >= 20 && age <= 55 && chance(0.004) && !getFlag('ws_midnight_three_waves')) {
+    setFlag('ws_midnight_three_waves', true);
+    events.push(evt('你被迫在后巷深宵时段（3:13-4:34）行动——因为某个紧急任务不允许等待。深夜的后巷格外安静，空气中弥漫着一种说不清道不明的压抑感。第一波清道夫如潮水般涌来，你的心脏几乎要从胸腔中跳出。幸运的是，如果你实力足够，也可以利用深宵时间处理一些"生活小烦恼"——在这段允许一切恐怖行为的时间内，许多帮派和个人也会选择在此时外出。但清道夫之间的互称"家人"和"邻居"，以及他们对"家人"之间羁绊的重视，让你对这群怪物产生了一丝复杂的情感。', '地区文化', '意志+3，体质-1', true, '深宵三波扫荡'));
+    modAttr('wil', 3);
+    modAttr('con', -1);
+  }
+
+  // 65. 第九区——音乐人生，钢琴家的阴影
+  if (age >= 18 && age <= 55 && chance(0.004) && !getFlag('ws_district_ninth')) {
+    setFlag('ws_district_ninth', true);
+    events.push(evt('你来到了第九区——"音乐人生"。这里基本由I公司治理，音乐文化浓厚，充满着各种各样的音乐家与器乐师。在其后巷音之巷，没有乐感的家伙就是失败者。但在欢乐的表象之下，阴影从未消散——在白夜黑昼事件发生后，都市的第一例扭曲、都市梦魇级别的灾害"钢琴家"就是从这里诞生的，残杀了三十余万人。你路过一家酒吧，看到一名落魄的钢琴师正在被醉汉推搡——你犹豫了一下，上前拉开了醉汉。钢琴家事件之后，第九区的每个人都害怕着同样的悲剧重演。', '地区文化', '意志+1，智力+2', false, '第九区音乐'));
+    modAttr('wil', 1);
+    modAttr('int', 2);
+  }
+
+  // 66. 第十九区——S公司科举与奴婢
+  if (age >= 18 && age <= 55 && chance(0.004) && !getFlag('ws_district_19th')) {
+    setFlag('ws_district_19th', true);
+    events.push(evt('你在第十九区S公司的领地内目睹了科举考试的盛况——S公司统治下的巢具有极为古代东方色彩的政治体制，用品级划分地位，位处一品的三政丞分别有左议政、右议政、领议政。但光鲜的科举背后是残酷的现实——S公司会将治下百姓分为三六九等，高官权贵可以罗织罪名将人贬为"奴婢"，打上会削弱其气力的烙印。成为奴婢的S巢居民将承受非人的折磨，而推奴人——那些以狩猎方式追捕奴婢换取赏钱的收尾人——戴着标有"推"字的眼罩在街上游走。', '地区文化', '智力+2，意志-1', false, '第十九区'));
+    modAttr('int', 2);
+    modAttr('wil', -1);
+  }
+
+  // 67. 第二十一区——大湖鲸鱼
+  if (age >= 22 && age <= 55 && chance(0.003) && !getFlag('ws_district_21st')) {
+    setFlag('ws_district_21st', true);
+    events.push(evt('你搭乘船只驶入了第二十一区的大湖。大湖被未知手段分割为泾渭分明的各个块状湖域，基本规则极为简单——"在一个区域停留过久，就会遭遇浪潮侵袭，要按照特定时间与条件渡过湖域。"但你亲眼看到一片平时风和日丽的湖域突然变得血红，海底冒出无数不可名状的触手。船上经验丰富的水手大喊着调整航向，"快转舵！那是变红湖域！"在都市，大湖有五大灾害——每一个都是几乎匹敌都市之星的庞然巨物，但其中的马林鲸与白鲸已先后死亡。', '地区文化', '智力+2，意志+2', true, '大湖航行'));
+    modAttr('int', 2);
+    modAttr('wil', 2);
+  }
+
+  // 68. 第十区——愿力当铺
+  if (age >= 20 && age <= 55 && chance(0.004) && !getFlag('ws_district_10th_pawn')) {
+    setFlag('ws_district_10th_pawn', true);
+    events.push(evt('你走进了J公司当铺。在这里，能当出多少钱取决于今天的运气——如果十分幸运，就能拿到额外的钱；如果特别倒霉，连本钱都收不回来。第十区弥漫着与赌博文化相关的一切事物，包括严密的赌场监控和确保赌局可靠的公证收尾人。赌场有着白银、黄金、钻石、蓝钻四个会员等级，等级越高赌注越大、监管越严。你在白银级赌局中观察了一圈——这里不会有太多对出千作弊的监管，但赌资和规模也相对较小。"要不要试试手气？"你暗暗问自己。', '地区文化', '家境+1，智力+1', false, '第十区当铺'));
+    modAttr('wea', 1);
+    modAttr('int', 1);
+  }
+
+  // 69. 第二十三区——味之巷，食人文化
+  if (age >= 22 && age <= 55 && chance(0.003) && !getFlag('ws_district_23rd')) {
+    setFlag('ws_district_23rd', true);
+    events.push(evt('你不慎误入了第二十三区——"味之巷"。这里的后巷被称为都市中令人谈之色变的地方，食人的阴暗习俗是公开的人文风尚。为了追求味蕾的终极体验，不论做什么都是允许的——人肉已经是一种过于常见的普通食材，甚至郊区的非人知性体和深宵的清道夫也是值得尝试的潜在美味。被称为"八大主厨"的存在是二十三号巷的食物链顶点，是八名确实存在的顶级厨师，拥有着都市绝顶的料理技艺。你紧了紧衣领，快步离开了这条弥漫着诡异香气的街道。', '地区文化', '意志+2，体质-1', true, '第二十三区'));
+    modAttr('wil', 2);
+    modAttr('con', -1);
+  }
+
+  // 70. 巢内上流社会——翼公司董事阶层
+  if (age >= 25 && age <= 60 && chance(0.003) && !getFlag('ws_nest_upperclass')) {
+    setFlag('ws_nest_upperclass', true);
+    events.push(evt('你获得了一次进入巢内高级社交场合的机会。在这里，翼公司董事级别的人物一边品茶一边讨论着足以改变整个地区格局的决策。在都市的阶层中，他们是"上等人"——喝茶聊天划分利益蛋糕，一盘菜吃掉后巷一栋房，不时隐秘地满足"个人癖好"。真正能让他们全神贯注的，是拉勾会议和翼间战争这类的事情——以及……首脑上门。你端着酒杯站在角落，默默观察着这些掌握着千万人命运的翼公司高层——他们的笑容温和，眼中却透着冷光。', '地区文化', '智力+2，家境+1', false, '巢内上流'));
+    modAttr('int', 2);
+    modAttr('wea', 1);
+  }
+
+  // ====== 工坊相关事件（约10个）======
+
+  // 71. 烙印工坊——烙印武器
+  if (age >= 20 && age <= 55 && chance(0.004) && !getFlag('ws_workshop_brand')) {
+    setFlag('ws_workshop_brand', true);
+    events.push(evt('你在Tres协会的推荐下来到了烙印工坊——都市知名的高级工坊之一。烙印工坊生产能够产生极强光热的武器，其武器刃面所带有的特殊纹样会烙印在被切断的物体上，难以抹去。猩红凝视维吉里乌斯的罗马式短剑、黎明事务所代表的德式大剑都是烙印工坊的杰作。你委托工坊打造了一柄属于自己的武器——当刀刃划过空气时，滚烫的纹样在试斩的木桩上留下了焦黑的印记。"这就是烙印，"工坊主人自豪地说，"你的每一击都会被世界记住。"', '工坊', '武器+3，家境-2', false, '烙印工坊'));
+    modAttr('wea', 3);
+    modAttr('wea', -2);
+  }
+
+  // 72. 螺丝工作室——电力充能武器
+  if (age >= 20 && age <= 55 && chance(0.004) && !getFlag('ws_workshop_screw')) {
+    setFlag('ws_workshop_screw', true);
+    events.push(evt('你在后巷的一家工坊中发现了螺丝工作室的作品——螺丝钻锤这类通过电力充能发挥威力的武器。"这里的东西使用起来要小心哦，"工坊老板递给你一把钻锤，"不注意的话，挥舞的人可能会电到自己！"你握着钻锤时，低沉的电流嗡鸣声从手柄传来，钻头在旋转中闪过蓝色的电弧。螺丝工作室是都市知名的高级工坊之一，他们的产品以独特的充能系统闻名——缺点是使用者如果不熟练，被电击的风险不小。', '工坊', '武器+2，智力+1', false, '螺丝工作室'));
+    modAttr('wea', 2);
+    modAttr('int', 1);
+  }
+
+  // 73. 纳米尔工坊——重力手套
+  if (age >= 22 && age <= 55 && chance(0.003) && !getFlag('ws_workshop_namul')) {
+    setFlag('ws_workshop_namul', true);
+    events.push(evt('你购入了一副纳米尔工坊的手铠——都市知名的高级工坊产品。手铠使用了G公司的奇点技术，嵌入手铠中心的"球体"可以自由调节重量。"要想好好使用的话，需要在空中按下开关使其启动，然后利用重量砸下去。如果用得好，会非常疼哦！"卖家一边演示一边将手铠的重量调至最大，然后轻松地一拳击碎了面前的水泥砖。纳米尔工坊将奇点技术巧妙地融入武器设计，让你可以用一只手套制造出相当于铁锤的冲击力。', '工坊', '武器+3，家境-2', false, '纳米尔工坊'));
+    modAttr('wea', 3);
+    modAttr('wea', -2);
+  }
+
+  // 74. 玫瑰扳手工坊——尼柯的忙碌
+  if (age >= 20 && age <= 55 && chance(0.004) && !getFlag('ws_workshop_rosewrench')) {
+    setFlag('ws_workshop_rosewrench', true);
+    events.push(evt('你在K巢周边的后巷找到了玫瑰扳手工坊——一家业务繁忙的工坊，似乎以带有链锯的武器为主要产品。工坊代表尼柯是业务繁忙的主因：他最近染上了网络赌博的恶习而经常性搁置自己的工作，但他的战斗和交际能力确实能为工坊带来源源不断的订单。你等了三天才等到你的武器修理完成——"抱歉抱歉，昨晚手气不太好……"尼柯挠着头赔笑，手中还拿着一把正在测试的链锯刀。', '工坊', '武器+2，家境-1', false, '玫瑰扳手工坊'));
+    modAttr('wea', 2);
+    modAttr('wea', -1);
+  }
+
+  // 75. 风之谷工坊——强风手铠
+  if (age >= 20 && age <= 55 && chance(0.003) && !getFlag('ws_workshop_valley')) {
+    setFlag('ws_workshop_valley', true);
+    events.push(evt('你试用了风之谷工坊的手铠——这种高级工坊产品可以在出拳时带出强风。工坊匠人向你展示了手铠的风力调节功能：轻风模式可以用于吹散烟气等有毒物质，强风模式则能在近距离格斗中将对手击退数米。"六协会的某些装备就借鉴了我们的技术，"匠人自豪地说。你在试拳时释放了一道气流，将训练用的假人吹得摇摇欲坠——这种手铠在控制距离的战斗中具有极大的优势。', '工坊', '武器+2，体质+1', false, '风之谷工坊'));
+    modAttr('wea', 2);
+    modAttr('con', 1);
+  }
+
+  // 76. 榉树工坊——页锤与战斧
+  if (age >= 22 && age <= 55 && chance(0.003) && !getFlag('ws_workshop_beech')) {
+    setFlag('ws_workshop_beech', true);
+    events.push(evt('你在一家高级武器收藏店中看到了榉树工坊的标志作品——漆黑噤默曾经收藏的页锤与战斧。榉树工坊是都市知名的高级工坊，其标志性的武器以独特的锤面设计和斧刃弧度闻名。据说漆黑噤默在活跃时期对榉树工坊的作品情有独钟，她收藏的页锤能在挥击时释放出类似翻书般的冲击波，而战斧则以精准的下劈能力著称。你虽然买不起正版的榉树工坊武器，但从仿制品的做工中也能窥见这家高级工坊的非凡水准。', '工坊', '武器+1，智力+1', false, '榉树工坊'));
+    modAttr('wea', 1);
+    modAttr('int', 1);
+  }
+
+  // 77. 琅琊工坊与墨工坊——东部武器特色
+  if (age >= 20 && age <= 55 && chance(0.003) && !getFlag('ws_workshop_langya_ink')) {
+    setFlag('ws_workshop_langya_ink', true);
+    events.push(evt('你在都市东部考察了两家知名工坊——琅琊工坊和墨工坊。琅琊工坊的拳套与指爪在东部收尾人中颇有名气，墨工坊则以太刀闻名——据说漆黑噤默收藏的墨工坊太刀在罗兰手上可以释放多重剑气。墨工坊的名称疑似来源于中国古代春秋战国时期的墨家，似乎与小指存在联系。你在东部武馆中看到了一名剑客使用墨工坊的太刀进行练习，每一次挥刀都带出三道凌厉的剑气——"墨家机关术的后裔，"旁边有人低声赞叹。', '工坊', '武器+2，智力+1', false, '琅琊工坊与墨工坊'));
+    modAttr('wea', 2);
+    modAttr('int', 1);
+  }
+
+  // 78. 阿拉斯工坊——骤然加速武器
+  if (age >= 22 && age <= 55 && chance(0.003) && !getFlag('ws_workshop_arras')) {
+    setFlag('ws_workshop_arras', true);
+    events.push(evt('你获得了阿拉斯工坊的产品——这家高级工坊生产能够骤然加速的武器，其手套能给予动作五倍的加速度。"这里的制品个个都能砰的一声爆发出强劲的加速度，真是爽快极了！"你戴上手套的瞬间，手臂仿佛被注入了闪电——出拳的速度快到连你自己都难以追踪。漆黑噤默收藏的阿拉斯工坊长枪据说能在冲刺中刺穿任何防御，可惜那样的高级产品你负担不起。即使如此，你手中的手套已经让你在战斗中如虎添翼。', '工坊', '武器+3，体质-1', false, '阿拉斯工坊'));
+    modAttr('wea', 3);
+    modAttr('con', -1);
+  }
+
+  // 79. 尤里亚工坊——会员制
+  if (age >= 25 && age <= 55 && chance(0.002) && !getFlag('ws_workshop_yuria')) {
+    setFlag('ws_workshop_yuria', true);
+    events.push(evt('你收到了一封来自尤里亚工坊的会员招待状——这家会员制高级工坊常年由一人维持，只有收到招待状的人才能进入。其工坊代表尤里亚对绽放E.G.O（神备）怀抱强烈追求，为此即使雇佣帮派和打破翼的禁忌也不会觉得危险。在觉醒其绽放E.G.O后，她能指挥随身携带的口袋空间内的毛绒熊开展工坊日常工作，制作可以用于提升绽放E.G.O效果的饰品。你走进3米大的正立方体建筑物，电梯通往地下深处的工坊本体——里面陈列的武器装备令你目不暇接。', '工坊', '武器+3，智力+2，家境-2', false, '尤里亚工坊'));
+    modAttr('wea', 3);
+    modAttr('int', 2);
+    modAttr('wea', -2);
+  }
+
+  // 80. E.G.O武器打造
+  if (age >= 25 && age <= 55 && chance(0.002) && !getFlag('ws_workshop_ego')) {
+    setFlag('ws_workshop_ego', true);
+    events.push(evt('你从一名流浪工匠那里听到了关于E.G.O武器打造的消息。绽放E.G.O——又称神备——是仿佛与扭曲相对的另一种怪异现象，表现为一个人拥有了独一无二、难以复制的特殊武器与装备。据说尤里亚工坊的尤里亚能够制作提升绽放E.G.O效果的饰品，而食指代行者觉醒的"代行绽放"更是将指令的意志化作武器。工匠压低声音："如果你想打造属于自己的E.G.O武器，首先需要理解自己——完全接受自己的痛苦与罪孽，才能将内心之光转化为现实的力量。"', '工坊', '智力+2，武器+1，意志+1', false, 'E.G.O武器'));
+    modAttr('int', 2);
+    modAttr('wea', 1);
+    modAttr('wil', 1);
+  }
+
+  // ====== 亚人相关事件（约10个）======
+
+  // 81. 清道夫——液化吸收人类
+  if (age >= 18 && age <= 55 && chance(0.004) && !getFlag('ws_ah_butcher')) {
+    setFlag('ws_ah_butcher', true);
+    events.push(evt('你在白天的暗处近距离观察了一名清道夫。完全由液体组成的生物包裹着密封的特制服装，任何运动都需要消耗组成其的液体——即"燃料"。清道夫可以通过武器将人体液化，并吸收作为"燃料"。它们互以"家人"、"邻居"相称，对"家人"之间的羁绊相当重视。有传闻称清道夫通过绑架后巷与郊区的孩童来壮大自身，它们具有一套独立的语言系统，管理者是被称为"嬷嬷"的存在。你看着那名清道夫缓缓移动，液态的身体在特制服装下微微波动——在都市的亚人之中，清道夫或许是最令人恐惧的一种。', '亚人', '智力+2，意志+1', false, '清道夫观察'));
+    modAttr('int', 2);
+    modAttr('wil', 1);
+  }
+
+  // 82. 血魔——红色眼睛与恐水症
+  if (age >= 20 && age <= 55 && chance(0.004) && !getFlag('ws_ah_vampire')) {
+    setFlag('ws_ah_vampire', true);
+    events.push(evt('你在一次任务中遭遇了一名血魔。血魔在都市中存在已久，几乎遍布都市各处——甚至"手指"当中也存在着血魔。他的眼睛是红色的，瞳孔之中有血光在摇曳——这是血魔的特征之一。当你试图用水瓶泼向他时，他惊恐地后退——血魔们都极度恐惧水，即便水并不会造成物理伤害。血魔的宗族关系使得忤逆亲族基本不可能，最初的来源是很久以前一栋宅邸的异变——"从在那宅子里浸满血的瞬间开始，我们的血脉相互连接。"他低声说出这句话时，红色的瞳孔闪烁着古老而悲伤的光。', '亚人', '智力+2，武器+1', false, '血魔遭遇'));
+    modAttr('int', 2);
+    modAttr('wea', 1);
+  }
+
+  // 83. 人鱼——鲸的所有物
+  if (age >= 22 && age <= 55 && chance(0.003) && !getFlag('ws_ah_mermaid')) {
+    setFlag('ws_ah_mermaid', true);
+    events.push(evt('你在大湖航行时遭遇了鲸的袭击——被活鲸的油脂吞噬，就会变成鲸的"人鱼"。你亲眼看到一艘遇难的船只上，几名水手被鲸油覆盖后开始变异——身体扭曲、皮肤变得苍白透明、眼瞳空洞无神。大湖的一些鲸鱼存在着如人类一般的构造，人鱼的转化是可以被阻滞的——需要在完全转化之前，使自己成为"鲸鱼"，在精神层面上令同伴成为无条件服从自己的"美人鲸"。水手们流传着"如果遇到漂浮在海面上的苍白色的伪船，必须避开"的传说。', '亚人', '智力+2，意志+2', true, '人鱼遭遇'));
+    modAttr('int', 2);
+    modAttr('wil', 2);
+  }
+
+  // 84. 扭曲——都市第一例
+  if (age >= 20 && age <= 55 && chance(0.004) && !getFlag('ws_ah_distortion')) {
+    setFlag('ws_ah_distortion', true);
+    events.push(evt('你经历了白夜黑昼事件后的世界变化。扭曲是光之种发射后在都市普遍发生的怪异现象——一些建筑或人类的外貌莫名其妙地出现变异，并开始以各种形式影响他人的正常生活。轻者会变得没有知觉走向死亡，重者则会引发如同自然灾害一般的混乱。你目睹了远处一栋建筑发生了集体性扭曲——整个结构开始变形，仿佛有了自己的意志。扭曲、神备、大罪在根本上是脑叶公司"光之种"计划在全都市范围扩散的产物。如果一个人只能部分接受自我的真实形象，那个温柔的声音就会帮助其转化为扭曲。', '亚人', '智力+3，意志-1', true, '扭曲见证'));
+    modAttr('int', 3);
+    modAttr('wil', -1);
+  }
+
+  // 85. 神备——绽放E.G.O
+  if (age >= 25 && age <= 55 && chance(0.002) && !getFlag('ws_ah_ego_awaken')) {
+    setFlag('ws_ah_ego_awaken', true);
+    events.push(evt('你见证了一个人觉醒绽放E.G.O的瞬间。神备，又被称为绽放E.G.O，是仿佛与扭曲相对的另一种现象——那个人的精神面貌相较以往更加坚定，并拥有了独一无二、难以复制的特殊武器与装备。光芒从他的体内迸发，将内心的痛苦与罪孽转化为了可以使用的力量。在白夜黑昼事件后，都市开始出现被称为E.G.O.I.S.T或神备者的人，他们使用"来自于心灵的力量"在收尾人或帮派中崭露头角。你注视着那道光，心中涌起一个疑问——你能否也做到？', '亚人', '意志+3，武器+2，智力+1', true, '神备见证'));
+    modAttr('wil', 3);
+    modAttr('wea', 2);
+    modAttr('int', 1);
+  }
+
+  // 86. 大罪——七种完全坏掉的人类
+  if (age >= 22 && age <= 55 && chance(0.003) && !getFlag('ws_ah_sin')) {
+    setFlag('ws_ah_sin', true);
+    events.push(evt('你在一次任务中遭遇了大罪——完全坏掉的人类，只剩下一种本能的情绪表现。目前只有七种大罪：傲慢、嫉妒、暴怒、倦怠、暴食、忧郁、色欲。与千变万化的扭曲和神备不同，大罪不会有细分个体，它们是纯粹的、原始的情感化身。你面对的是一个由暴怒凝聚而成的怪物——它没有理性，没有策略，只有无尽的愤怒和足以撕裂钢铁的力量。你勉强击退了它，但那恐怖的力量让你明白了一件事：如果一个人拒绝去接受任何自我的真实形象，就会褪掉所有曾经属于自身的部分，成为大罪。', '亚人', '意志+2，武器+1', true, '大罪遭遇'));
+    modAttr('wil', 2);
+    modAttr('wea', 1);
+  }
+
+  // 87. 概念焚化炉——彻底毁灭
+  if (age >= 25 && age <= 55 && chance(0.003) && !getFlag('ws_ah_concept_furnace')) {
+    setFlag('ws_ah_concept_furnace', true);
+    events.push(evt('你在废墟深处发现了一座概念焚化炉——都市中存在的装置，能够将被投入其中焚烧的物体彻底毁灭，包括与该物体相关的记忆。不过仅限与物体的"价值"相对应的记忆，不会出现"烧掉一根笔便让人类从未写过字"的荒诞状况——除非烧掉的是"人类创造的第一根笔"这类的东西。你犹豫了很久，最终将一件承载着痛苦回忆的物品投入了炉中。火焰燃起，物品化为灰烬——而与之相关的记忆也随之模糊、消退。你感到一种异样的轻松，又有一丝莫名的失落。', '亚人', '意志+2，智力+1', false, '概念焚化炉'));
+    modAttr('wil', 2);
+    modAttr('int', 1);
+  }
+
+  // 88. 裁缝——使用人类纺织的面料
+  if (age >= 22 && age <= 55 && chance(0.003) && !getFlag('ws_ah_tailor')) {
+    setFlag('ws_ah_tailor', true);
+    events.push(evt('你在后巷深处遇到了被称为"裁缝"的诡异存在——整个身体与认知都极为怪异的生物。裁缝能够将人类吞入身体，并将其作为素材纺织为可以制成衣服的面料。这些面料能够为人带来减轻体重、增加速度、提升力气等神奇效果——由不同的人所纺织面料会出现效果的明显不同，需要裁缝的细心挑选。这是某个被折断的翼曾经拥有的奇点，其专利技术如今已经流入后巷。你看着裁缝展示的一件由面料缝制的衣物——它轻若无物，却散发着令人不安的温暖。', '亚人', '武器+1，体质+1，智力+1', false, '裁缝面料'));
+    modAttr('wea', 1);
+    modAttr('con', 1);
+    modAttr('int', 1);
+  }
+
+  // 89. 鸿园虫技术——记忆移植
+  if (age >= 20 && age <= 55 && chance(0.003) && !getFlag('ws_ah_memory_bug')) {
+    setFlag('ws_ah_memory_bug', true);
+    events.push(evt('你在第八区鸿园听闻了"虫化"技术——鸿园中可以将人炼制为"虫"的技术。虫的头部外形类似人类，放入体内后便能获得成为其材料之人的记忆。体内的虫被同化后，在满足制作虫时刻下的条件之前，用任何手段都无法取出。但如果虫当中所存有的记忆过多，就可能使得将其同化的人反而被其所存储的意志同化，导致人格出现巨大的转变。你遇到了一名使用过虫化技术的人——他的眼神中闪烁着不属于他的记忆片段，"那个人的一生……现在也成为了我的一部分。"', '亚人', '智力+3，意志-1', false, '鸿园虫技术'));
+    modAttr('int', 3);
+    modAttr('wil', -1);
+  }
+
+  // 90. 纹身手术——已解除专利
+  if (age >= 20 && age <= 55 && chance(0.004) && !getFlag('ws_ah_tattoo_surgery')) {
+    setFlag('ws_ah_tattoo_surgery', true);
+    events.push(evt('你找到了一家提供纹身手术的诊所。这是某个被折断的翼曾经拥有的奇点，专利权如今已经被解除。纹身手术会根据颜料的成分和质量产生千差万别的效果——使肌肉力量得到爆发性的增长乃至拥有钢铁般坚硬的表皮，一些纹身还会自行移动替宿主阻挡伤害。但劣质的纹身也可能导致溶解肌肉的效果。名为黑云会、丧家犬的大量帮派都是纹身手术的拥趸。你经过慎重考虑，选择了一款中等质量的纹身——一个能在攻击时自行移动到受击部位的黑蛇纹样。', '亚人', '体质+2，武器+1，家境-1', false, '纹身手术'));
+    modAttr('con', 2);
+    modAttr('wea', 1);
+    modAttr('wea', -1);
+  }
+
+  // ====== 改造禁忌与义体细节事件（约10个）======
+
+  // 91. 非人禁忌——义体限制细节
+  if (age >= 20 && age <= 55 && chance(0.004) && !getFlag('ws_cyber_inhuman_detail')) {
+    setFlag('ws_cyber_inhuman_detail', true);
+    events.push(evt('你深入了解了非人禁忌对义体的具体限制。首脑制定的《人工智能伦理修订案》明确规定：义体部件不得仿照人类的身体制作，不得存在具有知性的人工智能。允许人工智能存在，但就算计算能力再强也不能产生自我认知，必须是"中文房间"那样没有实际内核的工具。再精美的机械义体也不能跟人的外貌一样——不能外面看起来是肉，戳开是一堆芯片与齿轮。除了人工智能，拥有智慧但不具有某些重要人类特征的兽人也不允许在都市存在——连其"曾存在过的信息"都会遭到严格的抹杀。', '改造禁忌', '智力+2', false, '非人禁忌细节'));
+    modAttr('int', 2);
+  }
+
+  // 92. N公司"纯净人类"诉求
+  if (age >= 22 && age <= 55 && chance(0.003) && !getFlag('ws_cyber_ncorp_pure')) {
+    setFlag('ws_cyber_ncorp_pure', true);
+    events.push(evt('你在第十四区接触到了N公司内部的极端思潮——"纯净人类"。N公司内部似乎存在着"纯净人类"的强烈诉求，甚至有人因此想要"消灭所有义体改造者"、"破坏所有可能性的世界"。N公司的下属势力"异端审判官"高喊着"净化"之名，对身上存在义体的都市居民滥用私刑——他们使用带有透明针筒的长钉穿刺人体抽取某种东西制作经验罐头。十四区极力重视"人的纯洁"，重视丧葬、遗物、罪孽等事物。你看着街上一队异端审判官高喊着口号走过，心中对"纯净"一词产生了复杂的理解。', '改造禁忌', '意志+2，智力+1', true, '纯净人类诉求'));
+    modAttr('wil', 2);
+    modAttr('int', 1);
+  }
+
+  // 93. K公司义体——摘除人员与安瓿适应性
+  if (age >= 22 && age <= 55 && chance(0.003) && !getFlag('ws_cyber_kcorp_extractor')) {
+    setFlag('ws_cyber_kcorp_extractor', true);
+    events.push(evt('你了解到了K公司内部的深层改造体系。对安瓿适性高的员工会被选作K公司"摘除人员"，其武器上装配有对活体组织有反应的刀刃。3级员工在无需部署时，为提高对安瓿的适应性与始终保持K公司规定的"最稳定状态"，会被强制在玻璃管中生活。在玻璃管中，他们的意识机能会被完全中止——因为就算是在梦中改变的潜意识，也有导致崩解的风险。K公司的再生安瓿能够瞬间修复生物的任何伤势，而崩解安瓿则能迅速使生物化作绿色浓浆。你在K巢的高墙外，对那座以"令人落泪的童话"著称的翼巢心生敬畏。', '改造禁忌', '智力+2，体质+1', false, 'K公司摘除人员'));
+    modAttr('int', 2);
+    modAttr('con', 1);
+  }
+
+  // 94. 联盟公司活体装备——U公司共鸣音叉与义体融合
+  if (age >= 22 && age <= 55 && chance(0.003) && !getFlag('ws_cyber_union_implant')) {
+    setFlag('ws_cyber_union_implant', true);
+    events.push(evt('你在黑市上了解到了联盟公司的活体装备——在所有活体装备的品牌中，联盟公司的工坊制品最受欢迎。其产品价格即使传闻级别的帮派或事务所都能轻松负担，性能优良、没有排异反应，还能随时更换。有猜测认为联盟公司即位于都市南部大湖海域上的U公司——其奇点"共鸣音叉"似乎也很适合将武器与人体直接融合。受到共鸣音叉奇点影响，名为废料蟹的怪物会与武器融为一体，像是使用身体的一部分一样使用那些武器。你决定尝试一件联盟公司的活体义肢——它与你的身体完美融合，几乎感觉不到异物感。', '改造禁忌', '武器+2，体质+2，家境-1', false, '联盟公司义体'));
+    modAttr('wea', 2);
+    modAttr('con', 2);
+    modAttr('wea', -1);
+  }
+
+  // 95. 翼公司义体特色——各翼的改造风格
+  if (age >= 22 && age <= 55 && chance(0.004) && !getFlag('ws_cyber_wing_styles')) {
+    setFlag('ws_cyber_wing_styles', true);
+    events.push(evt('你在后巷的义体诊所中翻阅了各翼公司义体改造的资料。K公司的机械义肢最为常见可靠；W公司的空间技术被用于储物义体；T公司的义眼与时间感知相关；G公司的球体技术被纳米尔工坊用于重力控制手铠；X公司的特殊合金则被广泛用于防具加固。而H公司鸿园的丸药技术则提供了另一种路线——通过药物植入动植物特性来强化人体。你意识到，在都市，身体改造的手段之多远远超出了你的想象——每一种都有其代价和风险。', '改造禁忌', '智力+2，武器+1', false, '翼公司义体特色'));
+    modAttr('int', 2);
+    modAttr('wea', 1);
+  }
+
+  // 96. 翼公司改造禁忌——资格限制
+  if (age >= 22 && age <= 55 && chance(0.003) && !getFlag('ws_cyber_qualification')) {
+    setFlag('ws_cyber_qualification', true);
+    events.push(evt('你亲眼看到一名翼公司禁忌猎人执行改造禁忌的追查。有些翼所管辖的巢内会禁止不够资格的居民接受超出一定限度的改造——翼公司拥有至少一种奇点技术专利，能够提供远超后巷技术水平的改造方案，但这些技术的使用受到严格的资格限制。没有巢居住权的后巷居民只能在后巷的黑市诊所接受简陋的改造——那些诊所的设备粗糙、技术落后，失败率和副作用远高于翼公司的正规改造。你看着那个因非法改造而被禁忌猎人追捕的人消失在巷角，庆幸自己从未越界。', '改造禁忌', '智力+1，意志+1', false, '改造资格'));
+    modAttr('int', 1);
+    modAttr('wil', 1);
+  }
+
+  // 97. R公司复制人——孵化场与记忆删除
+  if (age >= 25 && age <= 55 && chance(0.003) && !getFlag('ws_cyber_rcorp_memory')) {
+    setFlag('ws_cyber_rcorp_memory', true);
+    events.push(evt('你从一名退役的R公司员工口中得知了更多关于孵化场的秘密。R公司的复制人在完成任务后必须接受记忆删除，不得对L公司旗下设施的功能及用途抱有任何疑问。R公司的士兵似乎会辨别自身受到的精神污染程度，并执行相应的自动清理程序——污染达到最大值时执行风险抹除程序。而完全失去作战能力后，他们似乎也不会留下尸体——仿佛从未存在。R公司必须遵守同首脑定下的约定：复制体在七日后只允许留一名生者。违反该条款，连R公司都将面临B公司的停业处理。', '改造禁忌', '智力+2，意志-1', false, 'R公司记忆删除'));
+    modAttr('int', 2);
+    modAttr('wil', -1);
+  }
+
+  // 98. 黑云会纹身——阻挡刀剑伤害
+  if (age >= 22 && age <= 55 && chance(0.003) && !getFlag('ws_cyber_blackcloud')) {
+    setFlag('ws_cyber_blackcloud', true);
+    events.push(evt('你在后巷遇到了黑云会的成员——这个大型帮派是纹身手术的坚定拥趸。云工坊可能与黑云会存在联系，每代黑云会副会长都会持有其制作的黑云刀。黑云会的纹身技术能在纹身者肉身被刀剑攻击时自行汇集到受击部位阻挡伤害——你亲眼看到一名黑云会成员被刺中腹部时，他手臂上的黑色纹路瞬间流向伤口，在皮肤表面形成了一层坚不可摧的黑色屏障。"纹身是我们的第二层皮肤，"他得意地展示着纹路消退后完好无损的腹部，"只要你不怕疼，就能变强。"', '改造禁忌', '体质+2，武器+1，家境-1', false, '黑云会纹身'));
+    modAttr('con', 2);
+    modAttr('wea', 1);
+    modAttr('wea', -1);
+  }
+
+  // 99. 郊区与废墟——未知设施探索
+  if (age >= 25 && age <= 55 && chance(0.003) && !getFlag('ws_wasteland_ruins')) {
+    setFlag('ws_wasteland_ruins', true);
+    events.push(evt('你参加了一次废墟探索任务。都市的地下深处存在有未知的废墟，可能包含已经废弃的巢、都市建立之前的人类建筑、某些组织势力的绝密设施等神秘事物。在废墟中，各种遗失的技术与信息等待回收挖掘，但同时充满了未知的诡异环境与不明来源的怪物。R公司与一些实力强大的收尾人会前往废墟中寻求利益，Dieci协会则是都市公认的废墟专家。你在废墟深处发现了一面墙壁上刻满了无法辨认的符号——那种符号让你的大脑隐隐作痛，仿佛触碰到了某种不该被凡人理解的事物。', '改造禁忌', '智力+3，意志+1', true, '废墟探索'));
+    modAttr('int', 3);
+    modAttr('wil', 1);
+  }
+
+  // 100. 郊区之外——星星的领域
+  if (age >= 30 && age <= 60 && chance(0.002) && !getFlag('ws_beyond_stars')) {
+    setFlag('ws_beyond_stars', true);
+    events.push(evt('你在一次极为罕见的远征中接近了都市的边界。郊区之外，是超越一般人类理解的未知领域——存在着能够以神秘方式实现愿望的"星星"。在郊区居住的人类几乎只能仰赖运气或怪物猎人的守护艰难存活，而郊区的铁道上有行经的火车，郊区居民可以从铁道上获得罕见的物品。你的向导指着远方天际线上若隐若现的光芒："那就是星星所在的地方……在那里，愿望会被实现。"你凝望着那光芒，一种既渴望又恐惧的感觉油然而生。K公司创始人、T公司代表、以及无数都市的传奇人物都曾前往郊区边界，向星星许下各自的愿望——而那些愿望的代价，往往比他们想象的更加沉重。', '改造禁忌', '智力+3，意志+2', true, '郊区之外'));
+    modAttr('int', 3);
+    modAttr('wil', 2);
+  }
+
+  return events;
+}
 </script>
 </body>
 </html>
