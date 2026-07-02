@@ -13232,6 +13232,14 @@ function getIdentityTier() {
     return { name:'色彩级', desc:'传说之上的传说——你是都市中仅存的几位色彩级收尾人之一。一阶收尾人用实力说话，而你用色彩定义世界。当你的色彩在都市中闪耀，连首脑也会侧目。', color:'#ff4500' };
   }
   
+  // 安吉丽卡IF线身份
+  if (getFlag('if_angelica_ending')) {
+    return { name: '安吉丽卡的战友', desc: '你在钢琴家事件中救下了安吉丽卡。罗兰没有失去最重要的人。查尔斯事务所的门一直开着。你是那场命运的交汇点——一个改变了都市传奇走向的人。', color: '#2d2d2d' };
+  }
+  if (getFlag('saved_angelica') && !getFlag('if_angelica_ending')) {
+    return { name: '安吉丽卡的救命恩人', desc: '你在钢琴家事件中救下了安吉丽卡。这个在后巷与罗兰并肩而行的女人，因为你的存在而多了一段人生。', color: '#4a4a4a' };
+  }
+  
   // 3. 首脑相关 flag → 人上人
   if (getFlag('head_shadow') || getFlag('claw_visited') || getFlag('eye_watched')) {
     return { name:'人上人', desc:'你与都市的最高存在产生了交集。首脑制定法律，眼线监视一切，爪牙执行调律。在都市中，没有什么比被首脑注视更危险，也没有什么比成为首脑的一部分更令人恐惧。', color:'#ffd700' };
@@ -14978,6 +14986,17 @@ function formatEventText(text) {
 }
 
 const DEATH_EVENTS = [
+  // ===== 死亡原因世界观分类参考 =====
+  // 1. combat: 战斗中死亡、收尾人委托失败、帮派火并
+  // 2. taboo: 触犯禁忌被首脑处刑、被爪牙制裁、违反翼公司规定
+  // 3. deepnight: 深宵遭遇清道夫、3:13-4:34在外被液化吸收
+  // 4. distortion: 被扭曲杀死、被大罪生物吞噬
+  // 5. bloodfiend: 被血魔吸血致死、血红之夜中被转化为血袋
+  // 6. pianist: 被钢琴家旋律化作音符
+  // 7. poverty: 饿死、冻死、伤病无钱医治
+  // 8. environment: 郊区危险、废墟陷阱、大湖沉没
+  // 9. old_age: 寿终正寝
+  //
   // 后巷暴力死亡
   { cause: '后巷械斗', text: '你被卷入了后巷的一场械斗。当你意识到发生了什么时，一把工坊制造的匕首已经刺穿了你的心脏。后巷的地面很凉，但比起死亡来说已经不重要了。', attrs: { con: -10 } },
   { cause: '帮派火并', text: '你所在的区域突然爆发了帮派火并。子弹和E.G.O武器的光芒在你周围交织，你试图逃跑，但一颗流弹击中了你的头部。在失去意识前的最后一秒，你听到了某个帮派成员的笑声。', attrs: { con: -10 } },
@@ -15061,6 +15080,27 @@ const DEATH_EVENTS = [
 ];
 
 function death(cause, silent) {
+  // 死亡前置检查：严格按照世界观确保死亡合理
+  if (cause) {
+    var deathFlags = gameState.deathFlags || {};
+    // 后巷死亡：需要后巷身份或出生地
+    if (cause.indexOf('后巷') !== -1 && !gameState.birthplace.id !== 'backstreet' && !gameState.identities.some(function(id) { return id.name.indexOf('后巷') !== -1 })) {
+      // 即使不在后巷出生也可能因故在后巷死亡，这是合理的
+    }
+    // 清道夫死亡：需要前置flag或深宵在外
+    if (cause.indexOf('清道夫') !== -1 && !getFlag('sweeper_witness') && !getFlag('deepnight_outside')) {
+      // 如果没有前置事件，降低概率而非阻止
+      if (Math.random() > 0.1) return; // 90%概率跳过不合理的死亡
+    }
+    // 首脑/爪牙死亡：需要触犯禁忌flag
+    if ((cause.indexOf('首脑') !== -1 || cause.indexOf('爪牙') !== -1) && !getFlag('taboo_violation') && !getFlag('head_warning')) {
+      return; // 完全阻止，没有触犯禁忌不会突然被首脑处刑
+    }
+    // 帮派火并死亡：需要帮派相关flag
+    if (cause.indexOf('帮派') !== -1 && !getFlag('gang_member') && !getFlag('gang_conflict')) {
+      if (Math.random() > 0.3) return; // 70%概率跳过
+    }
+  }
   // 光之种永生判定
   if (gameState.lightSeedActive) {
     var progress = getLightSeedProgress();
@@ -21795,6 +21835,40 @@ function generateYoungAdultEvents(age, a, f, bp, tags) {
     }
   }
 
+  // ===== 安吉丽卡IF线：救下她之后的后续事件链 =====
+  if (getFlag('saved_angelica')) {
+    // 致谢与相会
+    if (age >= 27 && age <= 30 && !getFlag('if_angelica_thanks') && chance(0.1)) {
+      setFlag('if_angelica_thanks', true);
+      events.push(evt('你在后巷的酒吧里再次见到了她——安吉丽卡。她认出了你，微笑着邀请你同桌。罗兰坐在她身旁，依旧是那副慵懒的表情。安吉丽卡说：「谢谢你。」简简单单的两个字，但你知道这个份量。', 'if_angelica_thanks', '魅力+1, 精神+2', true, '安吉丽卡IF'));
+      modAttr('chr', 1); modAttr('spr', 2);
+    }
+    // 晚餐
+    if (age >= 28 && age <= 32 && !getFlag('if_angelica_dinner') && chance(0.08)) {
+      setFlag('if_angelica_dinner', true);
+      events.push(evt('安吉丽卡和罗兰邀请你去他们的事务所做客。安吉丽卡亲手做了火腿砰砰葱饼——味道意外地好。罗兰倒了两杯廉价的酒，嘟囔着：「她总是这样招待客人，我都快破产了。」安吉丽卡笑着打了他一下。你坐在这个破旧却温暖的事务所里，觉得这一刻的安宁，比整个都市都要美好。', 'if_angelica_dinner', '精神+3, 魅力+2, 金钱-2', true, '安吉丽卡IF'));
+      modAttr('spr', 3); modAttr('chr', 2); modAttr('mny', -2);
+    }
+    // 漆黑噤默亲自传授
+    if (age >= 30 && age <= 35 && !hasMilestone('漆黑噤默亲传') && chance(0.05)) {
+      addMilestone('漆黑噤默亲传');
+      events.push(evt('安吉丽卡主动提出要教你几手。她说：「如果那天你都能冲进钢琴家的旋律里救我，那你值得学一些真东西。」她取下手套——那副可以变化出无数武器的漆黑手套——演示了三种武器的切换。罗兰靠在门框上看着你练习，难得地露出了一丝微笑。你获得了漆黑噤默本人的亲自指导。', 'if_angelica_train', '体质+3, 力量+2, 意志+2', true, '安吉丽卡IF'));
+      modAttr('con', 3); modAttr('str', 2); modAttr('wil', 2);
+    }
+    // IF线蝴蝶效应
+    if (age >= 35 && age <= 45 && !getFlag('if_angelica_butterfly') && chance(0.04)) {
+      setFlag('if_angelica_butterfly', true);
+      events.push(evt('你和安吉丽卡在后巷处理委托时，你问了她一个问题：「如果那天我没有救你……都市会变成什么样？」安吉丽卡沉默了一会儿——她显然也想过这个问题。她说：「罗兰会崩溃。他会变成一个空壳，在都市里游荡。也许会做出一些无法挽回的事。」她转过头看着你：「但因为有你……这些事情永远不会发生了。」她对你笑了。那是一个有未来的笑容。', 'if_angelica_butterfly', '精神+3, 意志+2', true, '安吉丽卡IF'));
+      modAttr('spr', 3); modAttr('wil', 2);
+    }
+    // IF线结局
+    if (age >= 50 && !getFlag('if_angelica_ending') && chance(0.02)) {
+      setFlag('if_angelica_ending', true);
+      events.push(evt('你在后巷的某个角落看到了一个铭牌——上面刻着查尔斯事务所的名字。门开着。安吉丽卡和罗兰坐在里面的沙发上，正在喝茶。他们都老了。墙上挂着一张照片——是你、安吉丽卡、罗兰三人在某个任务后的合影。安吉丽卡看到你，朝你招了招手：「进来吧。水正烧着。」你走进去。门在你身后轻轻关上。在都市这个从不给人幸福的地方——你为两个人带来了一个幸福的结局。', 'if_angelica_ending', '精神+5, 魅力+3', true, '安吉丽卡IF'));
+      modAttr('spr', 5); modAttr('chr', 3);
+    }
+  }
+
   // 血红之夜
   if (age >= 24 && age <= 30 && chance(0.06) && !hasMilestone('血红之夜')) {
     events.push(
@@ -23059,6 +23133,14 @@ function calculateRank() {
       note: '你是收尾人中的传奇，色彩级的威名响彻都市。',
       achievements: achievements
     };
+  }
+
+  // 安吉丽卡IF线快速通道
+  if (getFlag('if_angelica_ending')) {
+    return { rank: 'S', label: '安吉丽卡的战友', title: '安吉丽卡的战友', disaster: '都市梦魇', quote: '你不仅活了下来——你还让一个本应死去的人活了下来。你改变了一个都市的传奇走向。', color: '#2d2d2d', score: 880, achievements: achievements, note: '漆黑噤默安吉丽卡在钢琴家事件中因你而幸存。都市的历史因此发生了偏移。' };
+  }
+  if (getFlag('if_angelica_train')) {
+    return { rank: 'A+', label: '漆黑噤默的亲传', title: '一阶收尾人', disaster: '都市恶疾', quote: '漆黑噤默亲自指导过的人——在都市中，你的名字已经开始被一些人记住了。', color: '#daa520', score: 780, achievements: achievements, note: '你获得了漆黑噤默本人的亲自指导。' };
   }
 
   // === 综合评分 ===
@@ -48067,5 +48149,8 @@ const COLOR_TITLES = [
 <script src="events/identity-merchant.js"></script>
 <script src="events/worldsetting-part1.js"></script>
 <script src="events/worldsetting-part2.js"></script>
+<script src="events/storyline-history.js"></script>
+<script src="events/storyline-locations.js"></script>
+<script src="events/enemies.js"></script>
 </body>
 </html>
