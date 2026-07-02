@@ -4130,6 +4130,10 @@ function generateEvents(age) {
     var urbEvents = addUrbanLifeEvents(age);
     events = events.concat(urbEvents);
   }
+  if (typeof addMoonPlanMemeEvents === 'function' && gameState.alive && !gameState.dead) {
+    var memeEvents = addMoonPlanMemeEvents(age);
+    events = events.concat(memeEvents);
+  }
   // 记录本年龄开始时的flag数量
   const flagsBefore = Object.keys(gameState.flags).length;
   const milestonesBefore = gameState.milestones.length;
@@ -24345,266 +24349,490 @@ function addAbnormalExistenceEvents(age) {
 
   // ========== 清道夫（15个） ==========
   // Common 7
-  if (age >= 5 && age <= 80) {
-    events.push(evt('abu_sweeper_liquefy_witness', '后巷的暗角中，你亲眼目睹了清道夫用那奇特的武器将一具人体缓缓液化，然后被那密封服装下的液体身躯吸收殆尽。那景象让你数日难眠。', 'Common', {spr: -1, str: 1}));
+  if (age >= 5 && age <= 80 && chance(0.06) && !getFlag('abu_sweeper_liquefy_witness')) {
+    setFlag('abu_sweeper_liquefy_witness', true);
+    events.push(evt('后巷的暗角中，你亲眼目睹了清道夫用那奇特的武器将一具人体缓缓液化，然后被那密封服装下的液体身躯吸收殆尽。那景象让你数日难眠。', 'abu_sweeper_liquefy_witness', '精神-1，力量+1', false, '清道夫'));
+    modAttr('spr', -1);
+    modAttr('str', 1);
   }
-  if (age >= 8 && age <= 70) {
-    events.push(evt('abu_sweeper_nest_rumor', '流浪者们低声谈论着清道夫的巢穴——据说在某个废弃地铁站的深处，有成群的清道夫在白天沉睡，它们的"嬷嬷"在那里指挥一切。', 'Common', {int: 1, luk: -1}));
+  if (age >= 8 && age <= 70 && chance(0.06) && !getFlag('abu_sweeper_nest_rumor')) {
+    setFlag('abu_sweeper_nest_rumor', true);
+    events.push(evt('流浪者们低声谈论着清道夫的巢穴——据说在某个废弃地铁站的深处，有成群的清道夫在白天沉睡，它们的"嬷嬷"在那里指挥一切。', 'abu_sweeper_nest_rumor', '智力+1，幸运-1', false, '清道夫'));
+    modAttr('int', 1);
+    modAttr('luk', -1);
   }
-  if (age >= 12 && age <= 75) {
-    events.push(evt('abu_sweeper_family_bond', '你看见两个清道夫相遇时，它们用那咕噜咕噜的语言互相称呼"家人"，然后一同前行。那种对羁绊的重视让你感到一种诡异的温暖与恐惧交织。', 'Common', {chr: -1, int: 1}));
+  if (age >= 12 && age <= 75 && chance(0.06) && !getFlag('abu_sweeper_family_bond')) {
+    setFlag('abu_sweeper_family_bond', true);
+    events.push(evt('你看见两个清道夫相遇时，它们用那咕噜咕噜的语言互相称呼"家人"，然后一同前行。那种对羁绊的重视让你感到一种诡异的温暖与恐惧交织。', 'abu_sweeper_family_bond', '魅力-1，智力+1', false, '清道夫'));
+    modAttr('chr', -1);
+    modAttr('int', 1);
   }
-  if (age >= 6 && age <= 80) {
-    events.push(evt('abu_sweeper_day_hiding', '白天路过一条阴暗的小巷时，你瞥见一个清道夫蜷缩在垃圾桶后的阴影里，密封服装上的污渍显示它正在保存"燃料"，避免与人类接触。', 'Common', {luk: 1, str: 1}));
+  if (age >= 6 && age <= 80 && chance(0.06) && !getFlag('abu_sweeper_day_hiding')) {
+    setFlag('abu_sweeper_day_hiding', true);
+    events.push(evt('白天路过一条阴暗的小巷时，你瞥见一个清道夫蜷缩在垃圾桶后的阴影里，密封服装上的污渍显示它正在保存"燃料"，避免与人类接触。', 'abu_sweeper_day_hiding', '幸运+1，力量+1', false, '清道夫'));
+    modAttr('luk', 1);
+    modAttr('str', 1);
   }
-  if (age >= 10 && age <= 65) {
-    events.push(evt('abu_sweeper_fuel_absorb', '深宵的街道上，你透过窗户缝隙看见清道夫将液化的人体残渣像饮水一样吸入服装的接口处，那声音像是抽水机在运转。', 'Common', {spr: -2, mny: 1}));
+  if (age >= 10 && age <= 65 && chance(0.06) && !getFlag('abu_sweeper_fuel_absorb')) {
+    setFlag('abu_sweeper_fuel_absorb', true);
+    events.push(evt('深宵的街道上，你透过窗户缝隙看见清道夫将液化的人体残渣像饮水一样吸入服装的接口处，那声音像是抽水机在运转。', 'abu_sweeper_fuel_absorb', '精神-2，金钱+1', false, '清道夫'));
+    modAttr('spr', -2);
+    modAttr('mny', 1);
   }
-  if (age >= 7 && age <= 80) {
-    events.push(evt('abu_sweeper_language_heard', '深夜中，你听到了一种不属于任何都市通用语言的声音——咕噜咕噜、带着液体颤动的音节。后来你才知道，那是清道夫的独立语言。', 'Common', {int: 1, spr: -1}));
+  if (age >= 7 && age <= 80 && chance(0.06) && !getFlag('abu_sweeper_language_heard')) {
+    setFlag('abu_sweeper_language_heard', true);
+    events.push(evt('深夜中，你听到了一种不属于任何都市通用语言的声音——咕噜咕噜、带着液体颤动的音节。后来你才知道，那是清道夫的独立语言。', 'abu_sweeper_language_heard', '智力+1，精神-1', false, '清道夫'));
+    modAttr('int', 1);
+    modAttr('spr', -1);
   }
-  if (age >= 15 && age <= 70) {
-    events.push(evt('abu_sweeper_deep_night_rumor', '老人们告诫你：后巷深宵从凌晨3:13到4:34，清道夫会分三波从巢的一端扫荡到另一端，任何人在街上都是它们的"燃料"。', 'Common', {spr: -1, int: 1}));
+  if (age >= 15 && age <= 70 && chance(0.06) && !getFlag('abu_sweeper_deep_night_rumor')) {
+    setFlag('abu_sweeper_deep_night_rumor', true);
+    events.push(evt('老人们告诫你：后巷深宵从凌晨3:13到4:34，清道夫会分三波从巢的一端扫荡到另一端，任何人在街上都是它们的"燃料"。', 'abu_sweeper_deep_night_rumor', '精神-1，智力+1', false, '清道夫'));
+    modAttr('spr', -1);
+    modAttr('int', 1);
   }
-
   // Rare 4
-  if (age >= 18 && age <= 60) {
-    events.push(evt('abu_sweeper_deep_night_first_wave', '凌晨3:13，第一波清道夫从街道尽头涌来。你躲在申报过的住人车辆里，听着它们整齐的液体脚步声从车外经过，足足持续了二十分钟。', 'Rare', {spr: -2, str: 2, luk: 1}));
+  if (age >= 18 && age <= 60 && chance(0.025) && !getFlag('abu_sweeper_deep_night_first_wave')) {
+    setFlag('abu_sweeper_deep_night_first_wave', true);
+    events.push(evt('凌晨3:13，第一波清道夫从街道尽头涌来。你躲在申报过的住人车辆里，听着它们整齐的液体脚步声从车外经过，足足持续了二十分钟。', 'abu_sweeper_deep_night_first_wave', '精神-2，力量+2，幸运+1', false, '清道夫'));
+    modAttr('spr', -2);
+    modAttr('str', 2);
+    modAttr('luk', 1);
   }
-  if (age >= 20 && age <= 55) {
-    events.push(evt('abu_sweeper_child_kidnap_witness', '你目击了一个清道夫拖走了一个后巷的流浪孩童。传闻说清道夫通过绑架孩童来壮大自身，那个孩子再也没有出现过。', 'Rare', {spr: -3, chr: -1}));
+  if (age >= 20 && age <= 55 && chance(0.025) && !getFlag('abu_sweeper_child_kidnap_witness')) {
+    setFlag('abu_sweeper_child_kidnap_witness', true);
+    events.push(evt('你目击了一个清道夫拖走了一个后巷的流浪孩童。传闻说清道夫通过绑架孩童来壮大自身，那个孩子再也没有出现过。', 'abu_sweeper_child_kidnap_witness', '精神-3，魅力-1', false, '清道夫'));
+    modAttr('spr', -3);
+    modAttr('chr', -1);
   }
-  if (age >= 16 && age <= 65) {
-    events.push(evt('abu_sweeper_second_wave', '4:00左右，第二波清道夫经过。这一批的数量更多，它们似乎在清理第一波遗漏的"痕迹"，你屏住呼吸不敢出声。', 'Rare', {str: 2, spr: -2, luk: 2}));
+  if (age >= 16 && age <= 65 && chance(0.025) && !getFlag('abu_sweeper_second_wave')) {
+    setFlag('abu_sweeper_second_wave', true);
+    events.push(evt('4:00左右，第二波清道夫经过。这一批的数量更多，它们似乎在清理第一波遗漏的"痕迹"，你屏住呼吸不敢出声。', 'abu_sweeper_second_wave', '力量+2，精神-2，幸运+2', false, '清道夫'));
+    modAttr('str', 2);
+    modAttr('spr', -2);
+    modAttr('luk', 2);
   }
-  if (age >= 25 && age <= 60) {
-    events.push(evt('abu_sweeper_momma_tale', '一位老收尾人向你讲述了他年轻时见过的"嬷嬷"——那是比普通清道夫庞大数倍的液体聚合体，据说能指挥整个区域的清道夫行动。', 'Rare', {int: 2, spr: -1}));
+  if (age >= 25 && age <= 60 && chance(0.025) && !getFlag('abu_sweeper_momma_tale')) {
+    setFlag('abu_sweeper_momma_tale', true);
+    events.push(evt('一位老收尾人向你讲述了他年轻时见过的"嬷嬷"——那是比普通清道夫庞大数倍的液体聚合体，据说能指挥整个区域的清道夫行动。', 'abu_sweeper_momma_tale', '智力+2，精神-1', false, '清道夫'));
+    modAttr('int', 2);
+    modAttr('spr', -1);
   }
-
   // Epic 3
-  if (age >= 22 && age <= 55) {
-    events.push(evt('abu_sweeper_third_wave', '4:20，最危险的第三波清道夫涌过街道。这是数量最多、最敏锐的一批，你几乎能感觉到它们透过墙壁在嗅探活人的气息。', 'Epic', {str: 3, spr: -3, luk: 2}));
+  if (age >= 22 && age <= 55 && chance(0.01) && !getFlag('abu_sweeper_third_wave')) {
+    setFlag('abu_sweeper_third_wave', true);
+    events.push(evt('4:20，最危险的第三波清道夫涌过街道。这是数量最多、最敏锐的一批，你几乎能感觉到它们透过墙壁在嗅探活人的气息。', 'abu_sweeper_third_wave', '力量+3，精神-3，幸运+2', true, '清道夫'));
+    modAttr('str', 3);
+    modAttr('spr', -3);
+    modAttr('luk', 2);
   }
-  if (age >= 30 && age <= 50) {
-    events.push(evt('abu_sweeper_talk_attempt', '在深宵的绝境中，你尝试用手势与一个清道夫交流。它歪了歪那密封的头盔，发出了几个类似疑问的音节，最终转身离去，没有攻击你。', 'Epic', {chr: 2, int: 2, spr: -2}));
+  if (age >= 30 && age <= 50 && chance(0.01) && !getFlag('abu_sweeper_talk_attempt')) {
+    setFlag('abu_sweeper_talk_attempt', true);
+    events.push(evt('在深宵的绝境中，你尝试用手势与一个清道夫交流。它歪了歪那密封的头盔，发出了几个类似疑问的音节，最终转身离去，没有攻击你。', 'abu_sweeper_talk_attempt', '魅力+2，智力+2，精神-2', true, '清道夫'));
+    modAttr('chr', 2);
+    modAttr('int', 2);
+    modAttr('spr', -2);
   }
-  if (age >= 28 && age <= 55) {
-    events.push(evt('abu_sweeper_sealed_suit_close', '你近距离观察了一个停止活动的清道夫。那密封服装由某种特制材料制成，接缝处精密得不可思议，内部的液体呈现出淡红色的浑浊光泽。', 'Epic', {int: 3, str: 1}));
+  if (age >= 28 && age <= 55 && chance(0.01) && !getFlag('abu_sweeper_sealed_suit_close')) {
+    setFlag('abu_sweeper_sealed_suit_close', true);
+    events.push(evt('你近距离观察了一个停止活动的清道夫。那密封服装由某种特制材料制成，接缝处精密得不可思议，内部的液体呈现出淡红色的浑浊光泽。', 'abu_sweeper_sealed_suit_close', '智力+3，力量+1', true, '清道夫'));
+    modAttr('int', 3);
+    modAttr('str', 1);
   }
-
   // Legend 1
-  if (age >= 35 && age <= 50) {
-    events.push(evt('abu_sweeper_social_glimpse', '一场意外让你短暂进入了清道夫的巢穴深处。你看到了它们复杂的社会结构——不同体型的清道夫分工明确，"嬷嬷"在中央的液体池中 pulsating，孩童被转化为新的液体居民。你几乎精神崩溃地逃了出来。', 'Legend', {int: 4, spr: -5, str: 3}));
+  if (age >= 35 && age <= 50 && chance(0.003) && !getFlag('abu_sweeper_social_glimpse')) {
+    setFlag('abu_sweeper_social_glimpse', true);
+    events.push(evt('一场意外让你短暂进入了清道夫的巢穴深处。你看到了它们复杂的社会结构——不同体型的清道夫分工明确，"嬷嬷"在中央的液体池中 pulsating，孩童被转化为新的液体居民。你几乎精神崩溃地逃了出来。', 'abu_sweeper_social_glimpse', '智力+4，精神-5，力量+3', true, '清道夫'));
+    modAttr('int', 4);
+    modAttr('spr', -5);
+    modAttr('str', 3);
   }
 
   // ========== 血魔（15个） ==========
   // Common 7
-  if (age >= 5 && age <= 80) {
-    events.push(evt('abu_bloodfiend_red_eyes', '你在人群中注意到了一双不同寻常的眼睛——鲜红的瞳孔中仿佛有血光在摇曳，你本能地移开了视线。那是一名血魔。', 'Common', {spr: -1, int: 1}));
+  if (age >= 5 && age <= 80 && chance(0.06) && !getFlag('abu_bloodfiend_red_eyes')) {
+    setFlag('abu_bloodfiend_red_eyes', true);
+    events.push(evt('你在人群中注意到了一双不同寻常的眼睛——鲜红的瞳孔中仿佛有血光在摇曳，你本能地移开了视线。那是一名血魔。', 'abu_bloodfiend_red_eyes', '精神-1，智力+1', false, '血魔'));
+    modAttr('spr', -1);
+    modAttr('int', 1);
   }
-  if (age >= 8 && age <= 75) {
-    events.push(evt('abu_bloodfiend_water_fear', '你看到一个红眼睛的人在雨天惊慌失措地躲进建筑，哪怕只是几滴雨水也能让他面色惨白。你后来得知血魔都极度恐惧水。', 'Common', {int: 1, chr: -1}));
+  if (age >= 8 && age <= 75 && chance(0.06) && !getFlag('abu_bloodfiend_water_fear')) {
+    setFlag('abu_bloodfiend_water_fear', true);
+    events.push(evt('你看到一个红眼睛的人在雨天惊慌失措地躲进建筑，哪怕只是几滴雨水也能让他面色惨白。你后来得知血魔都极度恐惧水。', 'abu_bloodfiend_water_fear', '智力+1，魅力-1', false, '血魔'));
+    modAttr('int', 1);
+    modAttr('chr', -1);
   }
-  if (age >= 10 && age <= 70) {
-    events.push(evt('abu_bloodfiend_blood_desire', '目击一名血魔在受伤者面前突然僵住，眼中的红色骤然浓烈，血腥味从他身上散发出来。对血液的渴望让他几乎失去了理性。', 'Common', {spr: -2, str: 1}));
+  if (age >= 10 && age <= 70 && chance(0.06) && !getFlag('abu_bloodfiend_blood_desire')) {
+    setFlag('abu_bloodfiend_blood_desire', true);
+    events.push(evt('目击一名血魔在受伤者面前突然僵住，眼中的红色骤然浓烈，血腥味从他身上散发出来。对血液的渴望让他几乎失去了理性。', 'abu_bloodfiend_blood_desire', '精神-2，力量+1', false, '血魔'));
+    modAttr('spr', -2);
+    modAttr('str', 1);
   }
-  if (age >= 12 && age <= 65) {
-    events.push(evt('abu_bloodfiend_clan_rule', '你听闻了血魔的宗族规矩——忤逆亲族对它们来说几乎不可能，即使是心理上也会极度抵触。这种家长制的束缚深入骨髓。', 'Common', {int: 1, chr: 1}));
+  if (age >= 12 && age <= 65 && chance(0.06) && !getFlag('abu_bloodfiend_clan_rule')) {
+    setFlag('abu_bloodfiend_clan_rule', true);
+    events.push(evt('你听闻了血魔的宗族规矩——忤逆亲族对它们来说几乎不可能，即使是心理上也会极度抵触。这种家长制的束缚深入骨髓。', 'abu_bloodfiend_clan_rule', '智力+1，魅力+1', false, '血魔'));
+    modAttr('int', 1);
+    modAttr('chr', 1);
   }
-  if (age >= 15 && age <= 70) {
-    events.push(evt('abu_bloodfiend_regen', '你看见一名血魔在战斗中被斩断手臂，但断肢处迅速涌出血液，重新凝聚成新的肢体。那种再生能力令人不寒而栗。', 'Common', {str: 1, spr: -1}));
+  if (age >= 15 && age <= 70 && chance(0.06) && !getFlag('abu_bloodfiend_regen')) {
+    setFlag('abu_bloodfiend_regen', true);
+    events.push(evt('你看见一名血魔在战斗中被斩断手臂，但断肢处迅速涌出血液，重新凝聚成新的肢体。那种再生能力令人不寒而栗。', 'abu_bloodfiend_regen', '力量+1，精神-1', false, '血魔'));
+    modAttr('str', 1);
+    modAttr('spr', -1);
   }
-  if (age >= 18 && age <= 65) {
-    events.push(evt('abu_bloodfiend_blood_bag', '后巷的角落里，你遇到了一个血袋——那个可怜的人还保有生前部分战斗习惯，但已经完全沦为血魔补充血液的便携干粮，眼神空洞。', 'Common', {spr: -2, str: 2}));
+  if (age >= 18 && age <= 65 && chance(0.06) && !getFlag('abu_bloodfiend_blood_bag')) {
+    setFlag('abu_bloodfiend_blood_bag', true);
+    events.push(evt('后巷的角落里，你遇到了一个血袋——那个可怜的人还保有生前部分战斗习惯，但已经完全沦为血魔补充血液的便携干粮，眼神空洞。', 'abu_bloodfiend_blood_bag', '精神-2，力量+2', false, '血魔'));
+    modAttr('spr', -2);
+    modAttr('str', 2);
   }
-  if (age >= 20 && age <= 60) {
-    events.push(evt('abu_bloodfiend_rational_cunning', '你与一名保理性的血魔交谈过。它克制着对血液的渴望，表现得十分狡黠，但你知道它眼中深处的饥渴终会将一切理智焚烧殆尽。', 'Common', {int: 2, chr: -1, spr: -1}));
+  if (age >= 20 && age <= 60 && chance(0.06) && !getFlag('abu_bloodfiend_rational_cunning')) {
+    setFlag('abu_bloodfiend_rational_cunning', true);
+    events.push(evt('你与一名保理性的血魔交谈过。它克制着对血液的渴望，表现得十分狡黠，但你知道它眼中深处的饥渴终会将一切理智焚烧殆尽。', 'abu_bloodfiend_rational_cunning', '智力+2，魅力-1，精神-1', false, '血魔'));
+    modAttr('int', 2);
+    modAttr('chr', -1);
+    modAttr('spr', -1);
   }
-
   // Rare 4
-  if (age >= 22 && age <= 60) {
-    events.push(evt('abu_bloodfiend_bite_transform', '你目击了血魔转化的瞬间——一个血魔咬住了人类的脖颈，被摄取者开始在短时间内变异为血袋，这个过程无法中断，必然发生。', 'Rare', {spr: -3, str: 2}));
+  if (age >= 22 && age <= 60 && chance(0.025) && !getFlag('abu_bloodfiend_bite_transform')) {
+    setFlag('abu_bloodfiend_bite_transform', true);
+    events.push(evt('你目击了血魔转化的瞬间——一个血魔咬住了人类的脖颈，被摄取者开始在短时间内变异为血袋，这个过程无法中断，必然发生。', 'abu_bloodfiend_bite_transform', '精神-3，力量+2', false, '血魔'));
+    modAttr('spr', -3);
+    modAttr('str', 2);
   }
-  if (age >= 25 && age <= 55) {
-    events.push(evt('abu_bloodfiend_p_company_link', '从某些渠道你了解到，P公司的广域空间扭曲奇点技术与当地血魔家系似乎有着某种神秘的联系，血魔的领地中存在着类似避难所的空间异常。', 'Rare', {int: 2, mny: -1}));
+  if (age >= 25 && age <= 55 && chance(0.025) && !getFlag('abu_bloodfiend_p_company_link')) {
+    setFlag('abu_bloodfiend_p_company_link', true);
+    events.push(evt('从某些渠道你了解到，P公司的广域空间扭曲奇点技术与当地血魔家系似乎有着某种神秘的联系，血魔的领地中存在着类似避难所的空间异常。', 'abu_bloodfiend_p_company_link', '智力+2，金钱-1', false, '血魔'));
+    modAttr('int', 2);
+    modAttr('mny', -1);
   }
-  if (age >= 18 && age <= 65) {
-    events.push(evt('abu_bloodfiend_hunter_meet', '你在后巷遇到了一名血魔猎人——那是专门跟踪血魔动向、以解决血魔危害为使命的收尾人，他的装备上刻满了对抗血魔的符文。', 'Rare', {str: 2, int: 1, luk: 1}));
+  if (age >= 18 && age <= 65 && chance(0.025) && !getFlag('abu_bloodfiend_hunter_meet')) {
+    setFlag('abu_bloodfiend_hunter_meet', true);
+    events.push(evt('你在后巷遇到了一名血魔猎人——那是专门跟踪血魔动向、以解决血魔危害为使命的收尾人，他的装备上刻满了对抗血魔的符文。', 'abu_bloodfiend_hunter_meet', '力量+2，智力+1，幸运+1', false, '血魔'));
+    modAttr('str', 2);
+    modAttr('int', 1);
+    modAttr('luk', 1);
   }
-  if (age >= 28 && age <= 55) {
-    events.push(evt('abu_bloodfiend_hard_blood_weapon', '你见识了拉曼却领血魔的硬血武器——血液在它们手中凝固成质地极为坚硬的猩红利刃，能够轻易斩断钢铁。', 'Rare', {str: 2, int: 2}));
+  if (age >= 28 && age <= 55 && chance(0.025) && !getFlag('abu_bloodfiend_hard_blood_weapon')) {
+    setFlag('abu_bloodfiend_hard_blood_weapon', true);
+    events.push(evt('你见识了拉曼却领血魔的硬血武器——血液在它们手中凝固成质地极为坚硬的猩红利刃，能够轻易斩断钢铁。', 'abu_bloodfiend_hard_blood_weapon', '力量+2，智力+2', false, '血魔'));
+    modAttr('str', 2);
+    modAttr('int', 2);
   }
-
   // Epic 3
-  if (age >= 30 && age <= 55) {
-    events.push(evt('abu_bloodfiend_lamancha_culture', '你接触了拉曼却领血魔的文化遗迹——那个曾经的游乐园，用献血换取游玩，用血棒填补饥饿。你看到了硬血制成的摩天轮残骸。', 'Epic', {int: 3, spr: -3, chr: -1}));
+  if (age >= 30 && age <= 55 && chance(0.01) && !getFlag('abu_bloodfiend_lamancha_culture')) {
+    setFlag('abu_bloodfiend_lamancha_culture', true);
+    events.push(evt('你接触了拉曼却领血魔的文化遗迹——那个曾经的游乐园，用献血换取游玩，用血棒填补饥饿。你看到了硬血制成的摩天轮残骸。', 'abu_bloodfiend_lamancha_culture', '智力+3，精神-3，魅力-1', true, '血魔'));
+    modAttr('int', 3);
+    modAttr('spr', -3);
+    modAttr('chr', -1);
   }
-  if (age >= 35 && age <= 60) {
-    events.push(evt('abu_bloodfiend_elder_encounter', '你偶然见到了一位血魔长老——那是一位自称一代眷属的老夫人，她经营着一家酒店，在暗中吸取住客的血液，却也确实保障着住客的安全。', 'Epic', {chr: 2, int: 3, spr: -2}));
+  if (age >= 35 && age <= 60 && chance(0.01) && !getFlag('abu_bloodfiend_elder_encounter')) {
+    setFlag('abu_bloodfiend_elder_encounter', true);
+    events.push(evt('你偶然见到了一位血魔长老——那是一位自称一代眷属的老夫人，她经营着一家酒店，在暗中吸取住客的血液，却也确实保障着住客的安全。', 'abu_bloodfiend_elder_encounter', '魅力+2，智力+3，精神-2', true, '血魔'));
+    modAttr('chr', 2);
+    modAttr('int', 3);
+    modAttr('spr', -2);
   }
-  if (age >= 25 && age <= 50) {
-    events.push(evt('abu_bloodfiend_crimson_night', '你听闻了"血红之夜"伊莲娜的传说——那位一代眷属曾创造了成千上万的血袋，在血魔社会中被认为是纯粹的暴力与过错。', 'Epic', {int: 3, spr: -2}));
+  if (age >= 25 && age <= 50 && chance(0.01) && !getFlag('abu_bloodfiend_crimson_night')) {
+    setFlag('abu_bloodfiend_crimson_night', true);
+    events.push(evt('你听闻了"血红之夜"伊莲娜的传说——那位一代眷属曾创造了成千上万的血袋，在血魔社会中被认为是纯粹的暴力与过错。', 'abu_bloodfiend_crimson_night', '智力+3，精神-2', true, '血魔'));
+    modAttr('int', 3);
+    modAttr('spr', -2);
   }
-
   // Legend 1
-  if (age >= 40 && age <= 55) {
-    events.push(evt('abu_bloodfiend_lineage_war_history', '通过某位古老血魔的口述，你了解到了二百年前的血魔之战——拉曼却领的吉诃德率领家系投入旷日持久的战争，战败的家系有着风车般的手臂或沸腾的巨人身躯。那是血魔最血腥的历史。', 'Legend', {int: 5, spr: -4, str: 2}));
+  if (age >= 40 && age <= 55 && chance(0.003) && !getFlag('abu_bloodfiend_lineage_war_history')) {
+    setFlag('abu_bloodfiend_lineage_war_history', true);
+    events.push(evt('通过某位古老血魔的口述，你了解到了二百年前的血魔之战——拉曼却领的吉诃德率领家系投入旷日持久的战争，战败的家系有着风车般的手臂或沸腾的巨人身躯。那是血魔最血腥的历史。', 'abu_bloodfiend_lineage_war_history', '智力+5，精神-4，力量+2', true, '血魔'));
+    modAttr('int', 5);
+    modAttr('spr', -4);
+    modAttr('str', 2);
   }
 
   // ========== 人鱼（10个） ==========
   // Common 4
-  if (age >= 5 && age <= 80) {
-    events.push(evt('abu_mermaid_lake_rumor', '在大湖边的酒馆里，水手们低声谈论着人鱼——那些被活鲸的油脂吞噬后，经过排列重组变成的怪物。', 'Common', {int: 1, spr: -1}));
+  if (age >= 5 && age <= 80 && chance(0.06) && !getFlag('abu_mermaid_lake_rumor')) {
+    setFlag('abu_mermaid_lake_rumor', true);
+    events.push(evt('在大湖边的酒馆里，水手们低声谈论着人鱼——那些被活鲸的油脂吞噬后，经过排列重组变成的怪物。', 'abu_mermaid_lake_rumor', '智力+1，精神-1', false, '人鱼'));
+    modAttr('int', 1);
+    modAttr('spr', -1);
   }
-  if (age >= 10 && age <= 75) {
-    events.push(evt('abu_mermaid_sailor_story', '一位老水手醉后告诉你，被鲸吞噬的人会变成"人鱼"，而若是被死鲸的油脂吞没，自我会逐渐稀薄，慢慢融解消散。', 'Common', {int: 1, luk: -1}));
+  if (age >= 10 && age <= 75 && chance(0.06) && !getFlag('abu_mermaid_sailor_story')) {
+    setFlag('abu_mermaid_sailor_story', true);
+    events.push(evt('一位老水手醉后告诉你，被鲸吞噬的人会变成"人鱼"，而若是被死鲸的油脂吞没，自我会逐渐稀薄，慢慢融解消散。', 'abu_mermaid_sailor_story', '智力+1，幸运-1', false, '人鱼'));
+    modAttr('int', 1);
+    modAttr('luk', -1);
   }
-  if (age >= 15 && age <= 70) {
-    events.push(evt('abu_mermaid_whale_oil_seen', '你目击了鲸油吞噬物体的过程——那黏稠的物质覆盖了一切，将其包裹、溶解，然后重组为某种完全不同的存在。', 'Common', {spr: -2, str: 1}));
+  if (age >= 15 && age <= 70 && chance(0.06) && !getFlag('abu_mermaid_whale_oil_seen')) {
+    setFlag('abu_mermaid_whale_oil_seen', true);
+    events.push(evt('你目击了鲸油吞噬物体的过程——那黏稠的物质覆盖了一切，将其包裹、溶解，然后重组为某种完全不同的存在。', 'abu_mermaid_whale_oil_seen', '精神-2，力量+1', false, '人鱼'));
+    modAttr('spr', -2);
+    modAttr('str', 1);
   }
-  if (age >= 18 && age <= 65) {
-    events.push(evt('abu_mermaid_hole_whale_seen', '在大湖某处，你看到了一块被误认为岛屿的粗糙物体——那其实是孔穴鲸，无数孔洞中有人鱼在钻出，它们的模样令人作呕。', 'Common', {spr: -2, int: 1}));
+  if (age >= 18 && age <= 65 && chance(0.06) && !getFlag('abu_mermaid_hole_whale_seen')) {
+    setFlag('abu_mermaid_hole_whale_seen', true);
+    events.push(evt('在大湖某处，你看到了一块被误认为岛屿的粗糙物体——那其实是孔穴鲸，无数孔洞中有人鱼在钻出，它们的模样令人作呕。', 'abu_mermaid_hole_whale_seen', '精神-2，智力+1', false, '人鱼'));
+    modAttr('spr', -2);
+    modAttr('int', 1);
   }
-
   // Rare 3
-  if (age >= 20 && age <= 60) {
-    events.push(evt('abu_mermaid_song_heard', '你听到了人鱼的歌声——那声音从大湖深处传来，既美丽又令人毛骨悚然，仿佛有什么东西在召唤你跳入水中。', 'Rare', {chr: -2, spr: -2, int: 2}));
+  if (age >= 20 && age <= 60 && chance(0.025) && !getFlag('abu_mermaid_song_heard')) {
+    setFlag('abu_mermaid_song_heard', true);
+    events.push(evt('你听到了人鱼的歌声——那声音从大湖深处传来，既美丽又令人毛骨悚然，仿佛有什么东西在召唤你跳入水中。', 'abu_mermaid_song_heard', '魅力-2，精神-2，智力+2', false, '人鱼'));
+    modAttr('chr', -2);
+    modAttr('spr', -2);
+    modAttr('int', 2);
   }
-  if (age >= 25 && age <= 55) {
-    events.push(evt('abu_mermaid_transformation_witness', '你目睹了一个人类被活鲸油脂逐渐转化的过程——他的四肢开始扭曲，皮肤变得黏滑，眼中失去了人性的光芒，最终成为了人鱼。', 'Rare', {spr: -3, str: 2, int: 1}));
+  if (age >= 25 && age <= 55 && chance(0.025) && !getFlag('abu_mermaid_transformation_witness')) {
+    setFlag('abu_mermaid_transformation_witness', true);
+    events.push(evt('你目睹了一个人类被活鲸油脂逐渐转化的过程——他的四肢开始扭曲，皮肤变得黏滑，眼中失去了人性的光芒，最终成为了人鱼。', 'abu_mermaid_transformation_witness', '精神-3，力量+2，智力+1', false, '人鱼'));
+    modAttr('spr', -3);
+    modAttr('str', 2);
+    modAttr('int', 1);
   }
-  if (age >= 22 && age <= 60) {
-    events.push(evt('abu_mermaid_beauty_whale_ecology', '你了解到大湖鲸鱼生态中的残酷法则——成为"鲸鱼"的人类可以令同伴成为服从自己的"美人鲸"，这是阻滞转化的唯一方式。', 'Rare', {int: 3, chr: -1}));
+  if (age >= 22 && age <= 60 && chance(0.025) && !getFlag('abu_mermaid_beauty_whale_ecology')) {
+    setFlag('abu_mermaid_beauty_whale_ecology', true);
+    events.push(evt('你了解到大湖鲸鱼生态中的残酷法则——成为"鲸鱼"的人类可以令同伴成为服从自己的"美人鲸"，这是阻滞转化的唯一方式。', 'abu_mermaid_beauty_whale_ecology', '智力+3，魅力-1', false, '人鱼'));
+    modAttr('int', 3);
+    modAttr('chr', -1);
   }
-
   // Epic 2
-  if (age >= 30 && age <= 55) {
-    events.push(evt('abu_mermaid_white_whale_tale', '你听闻了白鲸的传说——五大灾害之一，仅能在郊区观测到的白色巨鲸，它所途径的一切都会被"白化"，被吞噬的人会保留技能攻击一切活物。', 'Epic', {int: 3, spr: -3, luk: -1}));
+  if (age >= 30 && age <= 55 && chance(0.01) && !getFlag('abu_mermaid_white_whale_tale')) {
+    setFlag('abu_mermaid_white_whale_tale', true);
+    events.push(evt('你听闻了白鲸的传说——五大灾害之一，仅能在郊区观测到的白色巨鲸，它所途径的一切都会被"白化"，被吞噬的人会保留技能攻击一切活物。', 'abu_mermaid_white_whale_tale', '智力+3，精神-3，幸运-1', true, '人鱼'));
+    modAttr('int', 3);
+    modAttr('spr', -3);
+    modAttr('luk', -1);
   }
-  if (age >= 28 && age <= 50) {
-    events.push(evt('abu_mermaid_lava_whale_encounter', '你远远看到了熔岩鲸——那剧烈搏动的心脏使周围湖水都带上鲜红的色泽，炽热而危险。与它的距离让你捡回了一条命。', 'Epic', {str: 3, spr: -2, luk: 2}));
+  if (age >= 28 && age <= 50 && chance(0.01) && !getFlag('abu_mermaid_lava_whale_encounter')) {
+    setFlag('abu_mermaid_lava_whale_encounter', true);
+    events.push(evt('你远远看到了熔岩鲸——那剧烈搏动的心脏使周围湖水都带上鲜红的色泽，炽热而危险。与它的距离让你捡回了一条命。', 'abu_mermaid_lava_whale_encounter', '力量+3，精神-2，幸运+2', true, '人鱼'));
+    modAttr('str', 3);
+    modAttr('spr', -2);
+    modAttr('luk', 2);
   }
-
   // Legend 1
-  if (age >= 35 && age <= 50) {
-    events.push(evt('abu_mermaid_marlin_whale_legend', '你听到了关于马林鲸的故事——那贯穿一切的五大灾害之一，在边狱公司活跃时期被那位传说中的靛蓝老人钓起。水手们说，遇到漂浮在海面上的苍白色伪船，必须远远绕开。', 'Legend', {int: 4, str: 2, spr: -3}));
+  if (age >= 35 && age <= 50 && chance(0.003) && !getFlag('abu_mermaid_marlin_whale_legend')) {
+    setFlag('abu_mermaid_marlin_whale_legend', true);
+    events.push(evt('你听到了关于马林鲸的故事——那贯穿一切的五大灾害之一，在边狱公司活跃时期被那位传说中的靛蓝老人钓起。水手们说，遇到漂浮在海面上的苍白色伪船，必须远远绕开。', 'abu_mermaid_marlin_whale_legend', '智力+4，力量+2，精神-3', true, '人鱼'));
+    modAttr('int', 4);
+    modAttr('str', 2);
+    modAttr('spr', -3);
   }
 
   // ========== 扭曲（15个） ==========
   // Common 6
-  if (age >= 5 && age <= 80) {
-    events.push(evt('abu_distortion_heard', '白夜黑昼事件后，你听闻了"扭曲"——人类或建筑莫名其妙地变异，以各种形式影响他人的怪异现象。', 'Common', {int: 1, spr: -1}));
+  if (age >= 5 && age <= 80 && chance(0.06) && !getFlag('abu_distortion_heard')) {
+    setFlag('abu_distortion_heard', true);
+    events.push(evt('白夜黑昼事件后，你听闻了"扭曲"——人类或建筑莫名其妙地变异，以各种形式影响他人的怪异现象。', 'abu_distortion_heard', '智力+1，精神-1', false, '扭曲'));
+    modAttr('int', 1);
+    modAttr('spr', -1);
   }
-  if (age >= 8 && age <= 75) {
-    events.push(evt('abu_distortion_witness_mild', '你目击了一个轻微的扭曲者——那人的头部变成了浮空的气球，正漫无目的地走向死亡，毫无知觉。', 'Common', {spr: -2, int: 1}));
+  if (age >= 8 && age <= 75 && chance(0.06) && !getFlag('abu_distortion_witness_mild')) {
+    setFlag('abu_distortion_witness_mild', true);
+    events.push(evt('你目击了一个轻微的扭曲者——那人的头部变成了浮空的气球，正漫无目的地走向死亡，毫无知觉。', 'abu_distortion_witness_mild', '精神-2，智力+1', false, '扭曲'));
+    modAttr('spr', -2);
+    modAttr('int', 1);
   }
-  if (age >= 10 && age <= 70) {
-    events.push(evt('abu_distortion_pianist_rumor', '你从传闻中得知了钢琴家——那个都市的第一例扭曲，在九号巷弹奏着死亡的旋律，使三十万听众成为了音符。', 'Common', {spr: -2, int: 1}));
+  if (age >= 10 && age <= 70 && chance(0.06) && !getFlag('abu_distortion_pianist_rumor')) {
+    setFlag('abu_distortion_pianist_rumor', true);
+    events.push(evt('你从传闻中得知了钢琴家——那个都市的第一例扭曲，在九号巷弹奏着死亡的旋律，使三十万听众成为了音符。', 'abu_distortion_pianist_rumor', '精神-2，智力+1', false, '扭曲'));
+    modAttr('spr', -2);
+    modAttr('int', 1);
   }
-  if (age >= 15 && age <= 65) {
-    events.push(evt('abu_distortion_collective_knowledge', '你了解到存在"集体性扭曲"——某种区域性的共同愿望会导致特定场所变异，比如学校变成数字的角斗场。', 'Common', {int: 2, spr: -1}));
+  if (age >= 15 && age <= 65 && chance(0.06) && !getFlag('abu_distortion_collective_knowledge')) {
+    setFlag('abu_distortion_collective_knowledge', true);
+    events.push(evt('你了解到存在"集体性扭曲"——某种区域性的共同愿望会导致特定场所变异，比如学校变成数字的角斗场。', 'abu_distortion_collective_knowledge', '智力+2，精神-1', false, '扭曲'));
+    modAttr('int', 2);
+    modAttr('spr', -1);
   }
-  if (age >= 18 && age <= 60) {
-    events.push(evt('abu_distortion_black_stone_rumor', '你听说了黑石碑——边狱公司从脑叶公司支部废墟发掘出的物品，据说具有加速人产生扭曲倾向的作用。', 'Common', {int: 2, luk: -1}));
+  if (age >= 18 && age <= 60 && chance(0.06) && !getFlag('abu_distortion_black_stone_rumor')) {
+    setFlag('abu_distortion_black_stone_rumor', true);
+    events.push(evt('你听说了黑石碑——边狱公司从脑叶公司支部废墟发掘出的物品，据说具有加速人产生扭曲倾向的作用。', 'abu_distortion_black_stone_rumor', '智力+2，幸运-1', false, '扭曲'));
+    modAttr('int', 2);
+    modAttr('luk', -1);
   }
-  if (age >= 12 && age <= 70) {
-    events.push(evt('abu_distortion_crying_child_heard', '你听闻了"哭泣之子"——那个出现在V巢上空、造成八万余人死亡的扭曲，连六协会一科都一度束手无策。', 'Common', {spr: -2, int: 1}));
+  if (age >= 12 && age <= 70 && chance(0.06) && !getFlag('abu_distortion_crying_child_heard')) {
+    setFlag('abu_distortion_crying_child_heard', true);
+    events.push(evt('你听闻了"哭泣之子"——那个出现在V巢上空、造成八万余人死亡的扭曲，连六协会一科都一度束手无策。', 'abu_distortion_crying_child_heard', '精神-2，智力+1', false, '扭曲'));
+    modAttr('spr', -2);
+    modAttr('int', 1);
   }
-
   // Rare 5
-  if (age >= 22 && age <= 60) {
-    events.push(evt('abu_distortion_detective_moses', '你遇到了摩西——那位Seven协会下辖的扭曲侦探，手持烟杆造型的E.G.O，带着新人以斯拉调查扭曲事件。', 'Rare', {int: 2, chr: 1, str: 1}));
+  if (age >= 22 && age <= 60 && chance(0.025) && !getFlag('abu_distortion_detective_moses')) {
+    setFlag('abu_distortion_detective_moses', true);
+    events.push(evt('你遇到了摩西——那位Seven协会下辖的扭曲侦探，手持烟杆造型的E.G.O，带着新人以斯拉调查扭曲事件。', 'abu_distortion_detective_moses', '智力+2，魅力+1，力量+1', false, '扭曲'));
+    modAttr('int', 2);
+    modAttr('chr', 1);
+    modAttr('str', 1);
   }
-  if (age >= 25 && age <= 55) {
-    events.push(evt('abu_distortion_moses_office', '你了解到摩西事务所的历史——负责人摩西因烟霾战争的惨剧而怀疑使命，在白夜黑昼后以"扭曲侦探"身份活动。', 'Rare', {int: 3, spr: -1}));
+  if (age >= 25 && age <= 55 && chance(0.025) && !getFlag('abu_distortion_moses_office')) {
+    setFlag('abu_distortion_moses_office', true);
+    events.push(evt('你了解到摩西事务所的历史——负责人摩西因烟霾战争的惨剧而怀疑使命，在白夜黑昼后以"扭曲侦探"身份活动。', 'abu_distortion_moses_office', '智力+3，精神-1', false, '扭曲'));
+    modAttr('int', 3);
+    modAttr('spr', -1);
   }
-  if (age >= 20 && age <= 60) {
-    events.push(evt('abu_distortion_ego_sign_seen', '你接触到了被称为"金枝"的道具，它在你身上展现了某些异常——依附于身体的轻微变形、外溢的记忆影像。你似乎正处于某种潜伏期。', 'Rare', {spr: -2, int: 2, chr: 1}));
+  if (age >= 20 && age <= 60 && chance(0.025) && !getFlag('abu_distortion_ego_sign_seen')) {
+    setFlag('abu_distortion_ego_sign_seen', true);
+    events.push(evt('你接触到了被称为"金枝"的道具，它在你身上展现了某些异常——依附于身体的轻微变形、外溢的记忆影像。你似乎正处于某种潜伏期。', 'abu_distortion_ego_sign_seen', '精神-2，智力+2，魅力+1', false, '扭曲'));
+    modAttr('spr', -2);
+    modAttr('int', 2);
+    modAttr('chr', 1);
   }
-  if (age >= 28 && age <= 55) {
-    events.push(evt('abu_distortion_inner_voice', '在极度疲惫的时刻，你听到了一个甜美而温柔的声音，它在引导你去了解当前自我的真实形象。你知道这是扭曲降临的前兆。', 'Rare', {spr: -3, int: 2, chr: 2}));
+  if (age >= 28 && age <= 55 && chance(0.025) && !getFlag('abu_distortion_inner_voice')) {
+    setFlag('abu_distortion_inner_voice', true);
+    events.push(evt('在极度疲惫的时刻，你听到了一个甜美而温柔的声音，它在引导你去了解当前自我的真实形象。你知道这是扭曲降临的前兆。', 'abu_distortion_inner_voice', '精神-3，智力+2，魅力+2', false, '扭曲'));
+    modAttr('spr', -3);
+    modAttr('int', 2);
+    modAttr('chr', 2);
   }
-  if (age >= 18 && age <= 65) {
-    events.push(evt('abu_distortion_building_warp', '你所在的街区有一栋建筑发生了变异——墙壁变成了血肉，窗户成为了巨大的眼睛，整栋楼都在呼吸。这是扭曲在物质上的显现。', 'Rare', {spr: -3, str: 2}));
+  if (age >= 18 && age <= 65 && chance(0.025) && !getFlag('abu_distortion_building_warp')) {
+    setFlag('abu_distortion_building_warp', true);
+    events.push(evt('你所在的街区有一栋建筑发生了变异——墙壁变成了血肉，窗户成为了巨大的眼睛，整栋楼都在呼吸。这是扭曲在物质上的显现。', 'abu_distortion_building_warp', '精神-3，力量+2', false, '扭曲'));
+    modAttr('spr', -3);
+    modAttr('str', 2);
   }
-
   // Epic 3
-  if (age >= 35 && age <= 55) {
-    events.push(evt('abu_distortion_crying_child_witness', '你远远看见了哭泣之子——那扭曲的形体悬浮在巢的上空，哭声化为实质的破坏，所经之处建筑崩塌，人们化为灰烬。你拼命逃离了那个区域。', 'Epic', {str: 3, spr: -4, luk: 3}));
+  if (age >= 35 && age <= 55 && chance(0.01) && !getFlag('abu_distortion_crying_child_witness')) {
+    setFlag('abu_distortion_crying_child_witness', true);
+    events.push(evt('你远远看见了哭泣之子——那扭曲的形体悬浮在巢的上空，哭声化为实质的破坏，所经之处建筑崩塌，人们化为灰烬。你拼命逃离了那个区域。', 'abu_distortion_crying_child_witness', '力量+3，精神-4，幸运+3', true, '扭曲'));
+    modAttr('str', 3);
+    modAttr('spr', -4);
+    modAttr('luk', 3);
   }
-  if (age >= 30 && age <= 55) {
-    events.push(evt('abu_distortion_library_rumor', '你听闻了图书馆——那个由非人知性体安吉拉建立的扭曲存在，能将来宾变为书籍。它已被首脑放逐至郊区，但关于它的传说仍在都市流传。', 'Epic', {int: 3, spr: -2}));
+  if (age >= 30 && age <= 55 && chance(0.01) && !getFlag('abu_distortion_library_rumor')) {
+    setFlag('abu_distortion_library_rumor', true);
+    events.push(evt('你听闻了图书馆——那个由非人知性体安吉拉建立的扭曲存在，能将来宾变为书籍。它已被首脑放逐至郊区，但关于它的传说仍在都市流传。', 'abu_distortion_library_rumor', '智力+3，精神-2', true, '扭曲'));
+    modAttr('int', 3);
+    modAttr('spr', -2);
   }
-  if (age >= 32 && age <= 50) {
-    events.push(evt('abu_distortion_residual_collector', '你遭遇了残响乐团的成员——苍蓝残响阿尔加利亚的手下正在收集扭曲实体，他们对任何与扭曲有关的人都充满兴趣。', 'Epic', {str: 2, spr: -3, int: 2}));
+  if (age >= 32 && age <= 50 && chance(0.01) && !getFlag('abu_distortion_residual_collector')) {
+    setFlag('abu_distortion_residual_collector', true);
+    events.push(evt('你遭遇了残响乐团的成员——苍蓝残响阿尔加利亚的手下正在收集扭曲实体，他们对任何与扭曲有关的人都充满兴趣。', 'abu_distortion_residual_collector', '力量+2，精神-3，智力+2', true, '扭曲'));
+    modAttr('str', 2);
+    modAttr('spr', -3);
+    modAttr('int', 2);
   }
-
   // Legend 1
-  if (age >= 40 && age <= 55) {
-    events.push(evt('abu_distortion_pianist_witness', '你在九号巷的废墟中见证了钢琴家的残余——那扭曲的钢琴仍在自动演奏，旋律使附近的人失去生命成为音符。你捂紧耳朵，在彻底疯狂前逃离了那里。', 'Legend', {str: 4, spr: -5, int: 3, luk: -2}));
+  if (age >= 40 && age <= 55 && chance(0.003) && !getFlag('abu_distortion_pianist_witness')) {
+    setFlag('abu_distortion_pianist_witness', true);
+    events.push(evt('你在九号巷的废墟中见证了钢琴家的残余——那扭曲的钢琴仍在自动演奏，旋律使附近的人失去生命成为音符。你捂紧耳朵，在彻底疯狂前逃离了那里。', 'abu_distortion_pianist_witness', '力量+4，精神-5，智力+3，幸运-2', true, '扭曲'));
+    modAttr('str', 4);
+    modAttr('spr', -5);
+    modAttr('int', 3);
+    modAttr('luk', -2);
   }
 
   // ========== 神备（5个） ==========
   // Common 2
-  if (age >= 10 && age <= 70) {
-    events.push(evt('abu_ego_heard', '你听闻了"神备"——与扭曲相对的现象，也被称为绽放E.G.O。那是当一个人完全接受自我真实形象后，获得的独一无二的力量与装备。', 'Common', {int: 1, spr: 1}));
+  if (age >= 10 && age <= 70 && chance(0.06) && !getFlag('abu_ego_heard')) {
+    setFlag('abu_ego_heard', true);
+    events.push(evt('你听闻了"神备"——与扭曲相对的现象，也被称为绽放E.G.O。那是当一个人完全接受自我真实形象后，获得的独一无二的力量与装备。', 'abu_ego_heard', '智力+1，精神+1', false, '神备'));
+    modAttr('int', 1);
+    modAttr('spr', 1);
   }
-  if (age >= 15 && age <= 65) {
-    events.push(evt('abu_ego_aspiration', '了解到神备者的故事后，你心中燃起了向往。你希望自己也能像那些坚定的人一样，将内心的光芒转化为现实中的力量。', 'Common', {spr: 2, str: 1}));
+  if (age >= 15 && age <= 65 && chance(0.06) && !getFlag('abu_ego_aspiration')) {
+    setFlag('abu_ego_aspiration', true);
+    events.push(evt('了解到神备者的故事后，你心中燃起了向往。你希望自己也能像那些坚定的人一样，将内心的光芒转化为现实中的力量。', 'abu_ego_aspiration', '精神+2，力量+1', false, '神备'));
+    modAttr('spr', 2);
+    modAttr('str', 1);
   }
-
   // Rare 1
-  if (age >= 25 && age <= 55) {
-    events.push(evt('abu_ego_witness_battle', '你目击了一名神备者的战斗——那独一无二的武器散发着光芒，装备与持有者仿佛融为一体。他面对的扭曲被彻底净化。', 'Rare', {str: 2, spr: 2, int: 1}));
+  if (age >= 25 && age <= 55 && chance(0.025) && !getFlag('abu_ego_witness_battle')) {
+    setFlag('abu_ego_witness_battle', true);
+    events.push(evt('你目击了一名神备者的战斗——那独一无二的武器散发着光芒，装备与持有者仿佛融为一体。他面对的扭曲被彻底净化。', 'abu_ego_witness_battle', '力量+2，精神+2，智力+1', false, '神备'));
+    modAttr('str', 2);
+    modAttr('spr', 2);
+    modAttr('int', 1);
   }
-
   // Epic 1
-  if (age >= 30 && age <= 50) {
-    events.push(evt('abu_ego_awaken_attempt', '面对内心声音的引导，你尝试完全接受自我的真实形象——承担自己的痛苦与罪孽，理解自己在都市中既是受害者也是加害者。你触碰到了某种门槛。', 'Epic', {spr: 4, str: 2, int: 2}));
+  if (age >= 30 && age <= 50 && chance(0.01) && !getFlag('abu_ego_awaken_attempt')) {
+    setFlag('abu_ego_awaken_attempt', true);
+    events.push(evt('面对内心声音的引导，你尝试完全接受自我的真实形象——承担自己的痛苦与罪孽，理解自己在都市中既是受害者也是加害者。你触碰到了某种门槛。', 'abu_ego_awaken_attempt', '精神+4，力量+2，智力+2', true, '神备'));
+    modAttr('spr', 4);
+    modAttr('str', 2);
+    modAttr('int', 2);
   }
-
   // Legend 1
-  if (age >= 35 && age <= 50) {
-    events.push(evt('abu_ego_awaken_success', '在生死关头，你彻底接受了自己的真实形象。内心的声音离开了，而你获得了属于自己的神备——独一无二的武器与装备围绕着你，你的精神面貌前所未有的坚定。', 'Legend', {str: 5, spr: 5, int: 3, chr: 3}));
+  if (age >= 35 && age <= 50 && chance(0.003) && !getFlag('abu_ego_awaken_success')) {
+    setFlag('abu_ego_awaken_success', true);
+    events.push(evt('在生死关头，你彻底接受了自己的真实形象。内心的声音离开了，而你获得了属于自己的神备——独一无二的武器与装备围绕着你，你的精神面貌前所未有的坚定。', 'abu_ego_awaken_success', '力量+5，精神+5，智力+3，魅力+3', true, '神备'));
+    modAttr('str', 5);
+    modAttr('spr', 5);
+    modAttr('int', 3);
+    modAttr('chr', 3);
   }
 
   // ========== 大罪（10个） ==========
   // Common 4
-  if (age >= 5 && age <= 80) {
-    events.push(evt('abu_sin_pride_encounter', '你遭遇了一只傲慢大罪——那扭曲的形体散发着令人窒息的优越感，它俯视着你，仿佛你是世间最卑微的存在。', 'Common', {spr: -2, chr: -2}));
+  if (age >= 5 && age <= 80 && chance(0.06) && !getFlag('abu_sin_pride_encounter')) {
+    setFlag('abu_sin_pride_encounter', true);
+    events.push(evt('你遭遇了一只傲慢大罪——那扭曲的形体散发着令人窒息的优越感，它俯视着你，仿佛你是世间最卑微的存在。', 'abu_sin_pride_encounter', '精神-2，魅力-2', false, '大罪'));
+    modAttr('spr', -2);
+    modAttr('chr', -2);
   }
-  if (age >= 8 && age <= 75) {
-    events.push(evt('abu_sin_envy_encounter', '嫉妒大罪出现在你面前——它用那充满妒火的双眼盯着你的一切，渴望夺走你拥有的一切，那种恶意几乎化为实体。', 'Common', {spr: -2, mny: -1}));
+  if (age >= 8 && age <= 75 && chance(0.06) && !getFlag('abu_sin_envy_encounter')) {
+    setFlag('abu_sin_envy_encounter', true);
+    events.push(evt('嫉妒大罪出现在你面前——它用那充满妒火的双眼盯着你的一切，渴望夺走你拥有的一切，那种恶意几乎化为实体。', 'abu_sin_envy_encounter', '精神-2，金钱-1', false, '大罪'));
+    modAttr('spr', -2);
+    modAttr('mny', -1);
   }
-  if (age >= 10 && age <= 70) {
-    events.push(evt('abu_sin_wrath_encounter', '暴怒大罪向你冲来——那是纯粹的愤怒化身，没有任何理性，只有毁灭一切的冲动。你勉强躲过了它的攻击。', 'Common', {str: 2, spr: -2}));
+  if (age >= 10 && age <= 70 && chance(0.06) && !getFlag('abu_sin_wrath_encounter')) {
+    setFlag('abu_sin_wrath_encounter', true);
+    events.push(evt('暴怒大罪向你冲来——那是纯粹的愤怒化身，没有任何理性，只有毁灭一切的冲动。你勉强躲过了它的攻击。', 'abu_sin_wrath_encounter', '力量+2，精神-2', false, '大罪'));
+    modAttr('str', 2);
+    modAttr('spr', -2);
   }
-  if (age >= 12 && age <= 70) {
-    events.push(evt('abu_sin_gluttony_encounter', '暴食大罪正在吞噬周围的一切——它不分敌我地将所有物质塞入那不断扩张的巨口中，连钢铁和混凝土都不放过。', 'Common', {spr: -2, str: 1}));
+  if (age >= 12 && age <= 70 && chance(0.06) && !getFlag('abu_sin_gluttony_encounter')) {
+    setFlag('abu_sin_gluttony_encounter', true);
+    events.push(evt('暴食大罪正在吞噬周围的一切——它不分敌我地将所有物质塞入那不断扩张的巨口中，连钢铁和混凝土都不放过。', 'abu_sin_gluttony_encounter', '精神-2，力量+1', false, '大罪'));
+    modAttr('spr', -2);
+    modAttr('str', 1);
   }
-
   // Rare 4
-  if (age >= 15 && age <= 65) {
-    events.push(evt('abu_sin_lust_encounter', '色欲大罪向你展露了它扭曲的魅惑——那是完全坏掉的人类对本能的极致表现，美丽而令人作呕。你强忍着精神污染逃离了。', 'Rare', {spr: -3, chr: -1, int: 1}));
+  if (age >= 15 && age <= 65 && chance(0.025) && !getFlag('abu_sin_lust_encounter')) {
+    setFlag('abu_sin_lust_encounter', true);
+    events.push(evt('色欲大罪向你展露了它扭曲的魅惑——那是完全坏掉的人类对本能的极致表现，美丽而令人作呕。你强忍着精神污染逃离了。', 'abu_sin_lust_encounter', '精神-3，魅力-1，智力+1', false, '大罪'));
+    modAttr('spr', -3);
+    modAttr('chr', -1);
+    modAttr('int', 1);
   }
-  if (age >= 18 && age <= 65) {
-    events.push(evt('abu_sin_sloth_encounter', '怠惰大罪横亘在你的道路上——那庞大的躯体散发着令人昏昏欲睡的气息，它拒绝一切行动，也拒绝让任何人通过。', 'Rare', {str: -1, spr: -2, int: 2}));
+  if (age >= 18 && age <= 65 && chance(0.025) && !getFlag('abu_sin_sloth_encounter')) {
+    setFlag('abu_sin_sloth_encounter', true);
+    events.push(evt('怠惰大罪横亘在你的道路上——那庞大的躯体散发着令人昏昏欲睡的气息，它拒绝一切行动，也拒绝让任何人通过。', 'abu_sin_sloth_encounter', '力量-1，精神-2，智力+2', false, '大罪'));
+    modAttr('str', -1);
+    modAttr('spr', -2);
+    modAttr('int', 2);
   }
-  if (age >= 20 && age <= 60) {
-    events.push(evt('abu_sin_greed_encounter', '贪婪大罪盯上了你——它想要你的一切，金钱、肢体、灵魂，永无止境的欲望从那空洞的眼眶中倾泻而出。', 'Rare', {mny: -2, spr: -2, str: 2}));
+  if (age >= 20 && age <= 60 && chance(0.025) && !getFlag('abu_sin_greed_encounter')) {
+    setFlag('abu_sin_greed_encounter', true);
+    events.push(evt('贪婪大罪盯上了你——它想要你的一切，金钱、肢体、灵魂，永无止境的欲望从那空洞的眼眶中倾泻而出。', 'abu_sin_greed_encounter', '金钱-2，精神-2，力量+2', false, '大罪'));
+    modAttr('mny', -2);
+    modAttr('spr', -2);
+    modAttr('str', 2);
   }
-  if (age >= 16 && age <= 65) {
-    events.push(evt('abu_sin_melancholy_encounter', '忧郁大罪在阴影中注视着你——那沉重的悲伤如同实质般压在你肩上，让你几乎无法呼吸，只想放弃一切。', 'Rare', {spr: -3, str: -1, int: 2}));
+  if (age >= 16 && age <= 65 && chance(0.025) && !getFlag('abu_sin_melancholy_encounter')) {
+    setFlag('abu_sin_melancholy_encounter', true);
+    events.push(evt('忧郁大罪在阴影中注视着你——那沉重的悲伤如同实质般压在你肩上，让你几乎无法呼吸，只想放弃一切。', 'abu_sin_melancholy_encounter', '精神-3，力量-1，智力+2', false, '大罪'));
+    modAttr('spr', -3);
+    modAttr('str', -1);
+    modAttr('int', 2);
   }
-
   // Epic 2
-  if (age >= 25 && age <= 60) {
-    events.push(evt('abu_sin_influence_survive', '你被大罪的气息严重侵染，情绪被扭曲为单一的极致表现。但你凭借顽强的意志从中恢复过来，对七种罪孽有了更深的理解。', 'Epic', {spr: 3, int: 3, str: 1}));
+  if (age >= 25 && age <= 60 && chance(0.01) && !getFlag('abu_sin_influence_survive')) {
+    setFlag('abu_sin_influence_survive', true);
+    events.push(evt('你被大罪的气息严重侵染，情绪被扭曲为单一的极致表现。但你凭借顽强的意志从中恢复过来，对七种罪孽有了更深的理解。', 'abu_sin_influence_survive', '精神+3，智力+3，力量+1', true, '大罪'));
+    modAttr('spr', 3);
+    modAttr('int', 3);
+    modAttr('str', 1);
   }
-  if (age >= 28 && age <= 55) {
-    events.push(evt('abu_sin_fight_victory', '你与一只大罪展开了殊死搏斗。那是完全坏掉的人类，只剩下本能的情绪表现。最终你击败了它，但那种纯粹的恶让你久久无法平静。', 'Epic', {str: 4, spr: -3, int: 2}));
+  if (age >= 28 && age <= 55 && chance(0.01) && !getFlag('abu_sin_fight_victory')) {
+    setFlag('abu_sin_fight_victory', true);
+    events.push(evt('你与一只大罪展开了殊死搏斗。那是完全坏掉的人类，只剩下本能的情绪表现。最终你击败了它，但那种纯粹的恶让你久久无法平静。', 'abu_sin_fight_victory', '力量+4，精神-3，智力+2', true, '大罪'));
+    modAttr('str', 4);
+    modAttr('spr', -3);
+    modAttr('int', 2);
   }
-
 
   // 稀有度判定：Common 50%, Rare 30%, Epic 15%, Legend 5%
   var rarityRoll = Math.random();
@@ -24624,9 +24852,10 @@ function addAbnormalExistenceEvents(age) {
     return eventTier === tier;
   });
 
-
   return events;
 }
+
+
 
 // ==================== 都市生活特殊地点事件 ====================
 function addUrbanLifeEvents(age) {
@@ -25123,6 +25352,139 @@ function addUrbanLifeEvents(age) {
     return eventTier === tier;
   });
 
+
+  return events;
+}
+
+// ==================== 月亮计划梗彩蛋事件 ====================
+function addMoonPlanMemeEvents(age) {
+  var events = [];
+  var a = gameState.attrs;
+
+  // Common
+  if (age >= 10 && age <= 80 && chance(0.02) && !getFlag('meme_angela_coffee')) {
+    setFlag('meme_angela_coffee', true);
+    events.push(evt('你路过一家咖啡馆，看到一位绿发女仆装的少女正在调制咖啡。她抬头看了你一眼："要来一杯充满知性味道的咖啡吗？"', 'meme_angela_coffee', '快乐+1，智力+1', false, '彩蛋'));
+    modAttr('spr', 1);
+    modAttr('int', 1);
+  }
+  if (age >= 15 && age <= 80 && chance(0.02) && !getFlag('meme_roland_book')) {
+    setFlag('meme_roland_book', true);
+    events.push(evt('你在后巷遇到一位拿着黑色长剑的男子。他叹了口气："又是钢琴家吗...不，只是个普通人？那借本书看看吧。"他递给你一本《扭曲侦探》。', 'meme_roland_book', '智力+2，快乐+1', false, '彩蛋'));
+    modAttr('int', 2);
+    modAttr('spr', 1);
+  }
+  if (age >= 12 && age <= 80 && chance(0.02) && !getFlag('meme_dante_clock')) {
+    setFlag('meme_dante_clock', true);
+    events.push(evt('你在街上看到一个人，他的头居然是一个滴答作响的金色时钟。他向你挥手："但丁，12罪孽的导体。等等，我是不是认错人了？"', 'meme_dante_clock', '精神-1，快乐+2', false, '彩蛋'));
+    modAttr('spr', -1);
+    modAttr('happiness', 2);
+  }
+  if (age >= 8 && age <= 80 && chance(0.02) && !getFlag('meme_bus_passengers')) {
+    setFlag('meme_bus_passengers', true);
+    events.push(evt('一辆奇怪的巴士停在你面前，车门打开，里面坐着几个穿着囚服的犯人。其中一个红发少年探出头："要上车吗？我们有脑啡肽口味的零食！"', 'meme_bus_passengers', '快乐+2', false, '彩蛋'));
+    modAttr('spr', 2);
+  }
+  if (age >= 18 && age <= 80 && chance(0.02) && !getFlag('meme_xiao_baking')) {
+    setFlag('meme_xiao_baking', true);
+    events.push(evt('你闻到一股焦糊味，循着味道发现一个红发女孩正在烤饼干。她满脸黑灰地递给你一块："虽然有点焦，但这是我的心意！"饼干意外地好吃。', 'meme_xiao_baking', '快乐+2，体质+1', false, '彩蛋'));
+    modAttr('spr', 2);
+    modAttr('str', 1);
+  }
+  if (age >= 20 && age <= 80 && chance(0.02) && !getFlag('meme_netzach_drinking')) {
+    setFlag('meme_netzach_drinking', true);
+    events.push(evt('你走进一家酒吧，看到一位绿发的慵懒男子正在吧台后面打盹。他迷迷糊糊地给你倒了一杯酒："别吵...让我再睡五分钟..."', 'meme_netzach_drinking', '精神+1，快乐+1', false, '彩蛋'));
+    modAttr('spr', 1);
+    modAttr('happiness', 1);
+  }
+  if (age >= 16 && age <= 80 && chance(0.02) && !getFlag('meme_gebura_training')) {
+    setFlag('meme_gebura_training', true);
+    events.push(evt('你在训练场看到一个红发女子正在用拟态大刀劈砍训练假人。她回头看了你一眼："新来的？拿起武器，让我看看你的觉悟。"', 'meme_gebura_training', '力量+2', false, '彩蛋'));
+    modAttr('str', 2);
+  }
+  if (age >= 5 && age <= 80 && chance(0.02) && !getFlag('meme_nothing_there')) {
+    setFlag('meme_nothing_there', true);
+    events.push(evt('你在巷子里看到一个奇怪的生物，它的身体像是被剥了皮的人形，头部有三只发光的眼睛。它歪了歪头，发出可爱的"咕叽"声。你决定赶紧离开。', 'meme_nothing_there', '精神-2', false, '彩蛋'));
+    modAttr('spr', -2);
+  }
+  if (age >= 25 && age <= 80 && chance(0.02) && !getFlag('meme_chesed_coffee')) {
+    setFlag('meme_chesed_coffee', true);
+    events.push(evt('一位戴着眼镜、穿着得体的男子向你递来一杯咖啡："要来一杯我亲自泡的吗？虽然Angela的更好喝，但我也不差哦。"他的笑容让人无法拒绝。', 'meme_chesed_coffee', '快乐+2，智力+1', false, '彩蛋'));
+    modAttr('spr', 2);
+    modAttr('int', 1);
+  }
+  if (age >= 14 && age <= 80 && chance(0.02) && !getFlag('meme_sancho_story')) {
+    setFlag('meme_sancho_story', true);
+    events.push(evt('你在图书馆借到一本叫《堂吉诃德》的书，书里夹着一张便签："如果我有一个梦想，那就是把所有人都变成书。——桑丘"', 'meme_sancho_story', '智力+1，快乐+1', false, '彩蛋'));
+    modAttr('int', 1);
+    modAttr('spr', 1);
+  }
+
+  // Rare
+  if (age >= 10 && age <= 80 && chance(0.01) && !getFlag('meme_binah_tea')) {
+    setFlag('meme_binah_tea', true);
+    events.push(evt('一位黑发的优雅女性邀请你喝茶。她微笑着说："你知道都市的真相吗？不知道的话，喝完这杯茶也许就知道了。"你感觉自己的三观被刷新了。', 'meme_binah_tea', '智力+3，精神-1', false, '彩蛋'));
+    modAttr('int', 3);
+    modAttr('spr', -1);
+  }
+  if (age >= 20 && age <= 80 && chance(0.01) && !getFlag('meme_hokma_glasses')) {
+    setFlag('meme_hokma_glasses', true);
+    events.push(evt('一位戴着单片眼镜的老绅士拦住你，仔细端详了许久："有趣...你的可能性很有趣。记住，知识本身就是一种力量，也是一种诅咒。"', 'meme_hokma_glasses', '智力+2，快乐+1', false, '彩蛋'));
+    modAttr('int', 2);
+    modAttr('spr', 1);
+  }
+  if (age >= 15 && age <= 80 && chance(0.01) && !getFlag('meme_tanya_dance')) {
+    setFlag('meme_tanya_dance', true);
+    events.push(evt('你在夜晚的街头看到一位穿着华丽服装的女性正在跳舞。她的舞步优雅而危险，每一个动作都像是致命的攻击。她朝你抛了个媚眼："要一起跳吗？"', 'meme_tanya_dance', '魅力+2，快乐+1', false, '彩蛋'));
+    modAttr('chr', 2);
+    modAttr('spr', 1);
+  }
+  if (age >= 18 && age <= 80 && chance(0.01) && !getFlag('meme_gregor_smoke')) {
+    setFlag('meme_gregor_smoke', true);
+    events.push(evt('一位长着蟑螂触角的男子递给你一支烟："来一根？都市生活压力很大吧。别问我触角的事，天生的。"', 'meme_gregor_smoke', '精神+2，体质-1', false, '彩蛋'));
+    modAttr('spr', 2);
+    modAttr('str', -1);
+  }
+  if (age >= 5 && age <= 80 && chance(0.01) && !getFlag('meme_big_bird_eye')) {
+    setFlag('meme_big_bird_eye', true);
+    events.push(evt('你在废墟中遇到一只巨大的黑色鸟类，它的眼睛像探照灯一样明亮。它歪着头看你，你突然感到一种莫名的安全感。"只要你跟着我，就不会有危险。"', 'meme_big_bird_eye', '精神+2，快乐+1', false, '彩蛋'));
+    modAttr('spr', 2);
+    modAttr('happiness', 1);
+  }
+
+  // Epic
+  if (age >= 25 && age <= 80 && chance(0.005) && !getFlag('meme_ayan_ego')) {
+    setFlag('meme_ayan_ego', true);
+    events.push(evt('你遇到了一位白发赤瞳的女性，她手持一把巨大的镰刀。她看着你说："我能听到这把武器的声音...你也能听到吗？"她离开后，你发现自己的武器在微微发光。', 'meme_ayan_ego', '力量+3，精神+2', true, '彩蛋'));
+    modAttr('str', 3);
+    modAttr('spr', 2);
+  }
+  if (age >= 30 && age <= 80 && chance(0.005) && !getFlag('meme_carmen_whisper')) {
+    setFlag('meme_carmen_whisper', true);
+    events.push(evt('你做了一个奇怪的梦，梦中一位温柔的女性对你说："每个人都有被救赎的可能...包括你。"醒来时，你发现枕边有一朵金黄色的花。', 'meme_carmen_whisper', '快乐+3，意志+2', true, '彩蛋'));
+    modAttr('spr', 3);
+    modAttr('wil', 2);
+  }
+
+  // Legend
+  if (age >= 40 && age <= 80 && chance(0.002) && !getFlag('meme_library_invite')) {
+    setFlag('meme_library_invite', true);
+    events.push(evt('你收到一张黑色的邀请函，上面写着："欢迎来到图书馆。在这里，一切知识都将化为书页。"当你抬头时，一座宏伟的建筑凭空出现在你面前，门口站着一位绿发的女仆和一位黑衣的男子。', 'meme_library_invite', '全属性+2', true, '彩蛋'));
+    modAttr('str', 2);
+    modAttr('int', 2);
+    modAttr('con', 2);
+    modAttr('wil', 2);
+    modAttr('chr', 2);
+  }
+  if (age >= 35 && age <= 80 && chance(0.002) && !getFlag('meme_moon_plan_dev')) {
+    setFlag('meme_moon_plan_dev', true);
+    events.push(evt('你在梦中见到了月亮计划的开发者们。他们说："这个游戏还没有结束，新的故事正在书写。记住，每一个选择都有意义。"醒来时，你的脑海中多了一个名为"月计人"的称号。', 'meme_moon_plan_dev', '全属性+3', true, '彩蛋'));
+    modAttr('str', 3);
+    modAttr('int', 3);
+    modAttr('con', 3);
+    modAttr('wil', 3);
+    modAttr('chr', 3);
+  }
 
   return events;
 }
