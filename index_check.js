@@ -10728,6 +10728,16 @@ const COLOR_TITLES = [
   '蒼葭焦整',   '蓝灰愉律',   '蓝紫后念',   '蓝黑主实',   '蔚蓝前然',   '蔷薇设乐',   '蕉月凝郁',   '蕨类建汐',   '薑黄真曦',   '藎篋广态',
 ];
 
+function generateColorTitle() {
+  var prefix = COLOR_TITLE_PREFIXES[Math.floor(Math.random() * COLOR_TITLE_PREFIXES.length)];
+  var suffix = COLOR_TITLE_SUFFIXES[Math.floor(Math.random() * COLOR_TITLE_SUFFIXES.length)];
+  return prefix + suffix;
+}
+
+function getRandomColorTitle() {
+  return COLOR_TITLES[Math.floor(Math.random() * COLOR_TITLES.length)];
+}
+
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13216,51 +13226,60 @@ function shiftAlignment(dx, dy) {
 }
 
 function getIdentityTier() {
-  var ids = gameState.identities || [];
   var a = gameState.attrs;
-  var attrSum = (a.wea||0) + (a.wil||0) + (a.int||0);
-  var idCount = ids.length;
-  var ms = gameState.milestones || [];
+  var score = (a.wea||0) + (a.wil||0) + (a.int||0) + getIdentityCount();
+  // 特殊身份优先判定（一旦触发，覆盖分数判定）
+  if (getFlag('head_shadow') || getFlag('claw_visited') || getFlag('eye_watched')) return { name:'人上人', desc:'你与都市的最高存在产生了交集。首脑制定法律，眼线监视一切，爪牙执行调律。在都市中，没有什么比被首脑注视更危险，也没有什么比成为首脑的一部分更令人恐惧。', color:'#ffd700' };
+  if (getFlag('wing_director') || getFlag('association_minister')) return { name:'上等人', desc:'你身处都市的权力核心。翼公司董事喝茶聊天划分利益蛋糕，协会部长统筹收尾人协会的大小事务。真正能让他们全神贯注的是拉钩会议和翼间战争——以及首脑突然上门。', color:'#c0c0c0' };
+  if (getFlag('cyborg_full') || getFlag('blood_cyborg') || getFlag('sub_human') || getFlag('non_human')) return { name:'亚人', desc:'你被改变了躯体构造与对自我的认知。非人禁忌禁止义体仿照人类身体制作，但你已超越了这条界限。你的生活观念与都市的普通人截然不同——清道夫靠液化吸收人类为生，血魔以吸血维生，而全身义体化的你已分不清自己还剩下多少是"人"。', color:'#00ced1' };
+  if (getFlag('ring_affected') || getFlag('carnival_art') || getFlag('bremen_artist') || getFlag('distortion')) return { name:'疯子', desc:'你被都市折磨疯了，或是想要如此获得自由与解脱。环指的艺术家将人变成素材，不莱梅乐团用音乐扭曲灵魂，谢肉祭用人形面料制作"艺术品"。你开始放弃一切地去制作各种形式的"艺术品"与进行"表演"，受害者被传染做类似的事情。', color:'#ff69b4' };
+  if (getFlag('gear_church_member') || getFlag('index_follower') || getFlag('church_devout')) return { name:'邪教徒', desc:'你依靠宗教信仰麻痹自己，忘记都市的折磨。齿轮教会的信徒崇拜机械，将人体改造视为神圣的进化；食指的追随者盲目服从"信"的命令，在神秘主义的指引下生存。你的生存观念已被宗教彻底重塑。', color:'#9370db' };
+  // 分数层级判定
+  if (score >= 40) return { name:'人上人', desc:'裁剪都市未来可能失控的枝条，收税，制定法律，保护都市免于外部威胁。你与首脑、眼线、爪牙同处一个世界——或者你就是其中之一。', color:'#ffd700' };
+  if (score >= 30) return { name:'上等人', desc:'喝茶聊天划分利益蛋糕，一盘菜吃掉后巷一栋房，不时隐秘地满足一下"个人癖好"。作为翼公司董事、协会部长或拇指二老板，真正能令你全神贯注的是拉钩会议和翼间战争这类的事情。以及……首脑上门。', color:'#c0c0c0' };
+  if (score >= 20) return { name:'中等人', desc:'给公司打工，给协会打工，给事务所打工，给帮派打工，以高低不同、花样繁多的形式给人打工。从拇指指挥官到底层帮派成员、从特色到九阶的各大收尾人、从翼到后巷的各类公司职员——最低也能吃上三餐和养活一个家庭。', color:'#cd853f' };
+  if (score >= 12) return { name:'下等人', desc:'在后巷苟延残喘，抱团取暖，勉强做个什么生意糊口，常常受到帮派盘剥，交不上保护金就地去世。耗子、崩塌的巢中的普通居民，起码没啥大事还能活命。', color:'#808080' };
+  if (score >= 6) return { name:'人下人', desc:'不知道自己明天是不是还是个人，不知道下一秒周围的石头会不会咬人。郊区难民，废墟里不知道还有没有活人。你的存在本身就是都市的容错空间——"您的生命已如风中残烛"。', color:'#4a4a4a' };
   
-  // 1. impurity flag → 杂质（S+级）
-  if (getFlag('impurity')) {
-    return { name:'杂质', desc:'你被首脑认定为"杂质"——都市规则的例外，必须被清除的异端。首脑的调律师正从四面八方向你汇聚。你的存在本身就是对都市秩序的否定。', color:'#ff0000' };
-  }
+  // === 7大板块新身份判定 ===
+  // 手指组织
+  if (getFlag('fin_thumb_godfather')) return { name:'拇指教父', desc:'你是拇指的最高领导者，统治着大量士兵与指挥官。在拇指中，你的命令就是绝对法则。', color:'#ffd700' };
+  if (getFlag('fin_thumb_promotion')) return { name:'拇指指挥官', desc:'你在拇指中晋升到了指挥官层级，统领着数名士兵。严格的阶级礼仪是你日常的一部分。', color:'#c0c0c0' };
+  if (getFlag('fin_thumb_monthly')) return { name:'拇指士兵', desc:'你是拇指组织的一名士兵，为组织效忠并领取津贴。服从命令是你唯一需要做的事。', color:'#cd853f' };
+  if (getFlag('fin_index_order_1') || getFlag('fin_index_order_2')) return { name:'食指代行者', desc:'你是食指的代行者，负责执行指令。你的一切行动都遵从"信"的指引。', color:'#cd853f' };
+  if (getFlag('fin_ring_art_trade')) return { name:'环指收藏家', desc:'你与环指的艺术品交易产生了联系，欣赏着扭曲与美交织的艺术。', color:'#9370db' };
+  if (getFlag('fin_pinky_family_join')) return { name:'小指受保护者', desc:'你受到小指家族的保护，在都市的黑暗中有了一个避风港。', color:'#808080' };
   
-  // 2. 色彩级里程碑（色彩级收尾人/殷红迷雾/漆黑噤默等）→ 色彩级
-  if (gameState.becameColor || hasMilestone('都市之星') || ms.some(function(m) { return m.indexOf('色彩级') >= 0 || m.indexOf('漆黑') >= 0 || m.indexOf('殷红') >= 0; })) {
-    return { name:'色彩级', desc:'传说之上的传说——你是都市中仅存的几位色彩级收尾人之一。一阶收尾人用实力说话，而你用色彩定义世界。当你的色彩在都市中闪耀，连首脑也会侧目。', color:'#ff4500' };
-  }
+  // 收尾人协会
+  if (getFlag('fix_epic_rank1')) return { name:'一阶收尾人', desc:'你成为了最高阶的收尾人，接取着最危险、报酬最丰厚的委托。你的名字在协会中广为人知。', color:'#c0c0c0' };
+  if (getFlag('fix_rare_zwei_member')) return { name:'Zwei协会收尾人', desc:'你加入了Zwei协会，以保护委托人为己任。你的防御能力在协会中名列前茅。', color:'#cd853f' };
+  if (getFlag('fix_rare_shi_member')) return { name:'し协会收尾人', desc:'你加入了し协会，成为了暗杀型收尾人。隐匿与致命是你的代名词。', color:'#cd853f' };
+  if (getFlag('fix_rare_liu_member')) return { name:'六协会收尾人', desc:'你加入了六协会，擅长火焰与武术。你的战斗风格充满东方韵味。', color:'#cd853f' };
+  if (getFlag('fix_rare_hana_member')) return { name:'Hana协会收尾人', desc:'你加入了Hana协会，负责综合收尾人事务。你见识过都市最黑暗的一面。', color:'#cd853f' };
+  if (getFlag('fix_rare_brand_craft') || getFlag('fix_rare_screw_craft') || getFlag('fix_rare_ink_craft')) return { name:'工坊工匠', desc:'你与收尾人工坊产生了联系，掌握着特殊的装备锻造或改造技术。', color:'#cd853f' };
+  if (getFlag('fix_epic_ego_weapon')) return { name:'E.G.O持有者', desc:'你获得了E.G.O装备，能够借用异想体的力量。这把武器与你的心灵相连。', color:'#9370db' };
   
-  // 3. 首脑相关 flag → 人上人
-  if (getFlag('head_shadow') || getFlag('claw_visited') || getFlag('eye_watched')) {
-    return { name:'人上人', desc:'你与都市的最高存在产生了交集。首脑制定法律，眼线监视一切，爪牙执行调律。在都市中，没有什么比被首脑注视更危险，也没有什么比成为首脑的一部分更令人恐惧。', color:'#ffd700' };
-  }
+  // 奇点技术
+  if (getFlag('sin_t_time_control')) return { name:'时间操控者', desc:'你接触了T公司的时间控制奇点，能够在一定程度上操纵时间的流速。', color:'#ffd700' };
+  if (getFlag('sin_w_warp_travel') || getFlag('sin_w_warp_first_class')) return { name:'WARP旅行者', desc:'你体验过W公司的空间撕裂技术，穿越过压缩的空间。', color:'#c0c0c0' };
+  if (getFlag('sin_f_spirit_use')) return { name:'妖灵使', desc:'你使用过F公司的妖灵奇点技术，与电子精灵产生了联系。', color:'#9370db' };
+  if (getFlag('sin_g_sphere_use')) return { name:'球体掌控者', desc:'你掌控过G公司的球体奇点，能够利用球状物体进行攻击或防御。', color:'#9370db' };
+  if (getFlag('sin_vending_machine') || getFlag('sin_tuning_fork') || getFlag('sin_space_tear')) return { name:'奇点研究员', desc:'你收集或研究过奇点遗物，对这些超自然技术有着独到的理解。', color:'#cd853f' };
   
-  // 4. 翼董事/协会部长 → 上等人
-  if (getFlag('wing_director') || getFlag('association_minister')) {
-    return { name:'上等人', desc:'你身处都市的权力核心。翼公司董事喝茶聊天划分利益蛋糕，协会部长统筹收尾人协会的大小事务。真正能让他们全神贯注的是拉钩会议和翼间战争——以及首脑突然上门。', color:'#c0c0c0' };
-  }
+  // 亚人异常
+  if (getFlag('abu_ego_awaken')) return { name:'神备觉醒者', desc:'你在极端的意志下觉醒了神备，心灵的光芒化为实体化的力量。', color:'#ffd700' };
+  if (getFlag('abu_distortion_self')) return { name:'扭曲者', desc:'你的心灵在都市的折磨下产生了扭曲，身体也随之异变。', color:'#ff69b4' };
+  if (getFlag('abu_vampire_servant') || getFlag('abu_vampire_blood')) return { name:'血魔眷属', desc:'你与血魔产生了深度联系，或许已经成为血魔的眷属。', color:'#dc143c' };
+  if (getFlag('abu_sweeper_bottle') || getFlag('abu_sweeper_blood')) return { name:'清道夫同化者', desc:'你的身体正在向清道夫转化，逐渐融入那个液化的"家庭"。', color:'#00ced1' };
+  if (getFlag('abu_mermaid_song') || getFlag('abu_mermaid_lake')) return { name:'人鱼见证者', desc:'你听闻或遭遇过人鱼，那种美丽而危险的神秘存在。', color:'#00bfff' };
   
-  // 5. 扭曲/神备 flag → 特殊存在（扭曲者/神备觉醒者）
-  if (getFlag('distortion_self') || getFlag('twisted') || hasMilestone('扭曲') || getFlag('godEgoAwakened') || hasMilestone('神备觉醒') || getFlag('ego_awakened') || hasMilestone('E.G.O觉醒') || getFlag('abu_ego_awaken') || getFlag('abu_distortion_self')) {
-    if (getFlag('distortion_self') || getFlag('twisted') || hasMilestone('扭曲') || getFlag('abu_distortion_self')) {
-      return { name:'扭曲者', desc:'你的心灵在都市的折磨下产生了扭曲，身体也随之异变。你成为了都市中扭曲的存在，既是悲剧的产物，也是超越常理的力量。', color:'#ff69b4' };
-    }
-    return { name:'神备觉醒者', desc:'你在极端的意志下觉醒了神备，心灵的光芒化为实体化的力量。你已经超越了普通人类的极限，成为了都市中最不可思议的存在之一。', color:'#ffd700' };
-  }
+  // 都市生活
+  if (getFlag('urb_library_enter')) return { name:'图书馆访客', desc:'你踏入了那座神秘的图书馆，见证了光之种的可能性。', color:'#9370db' };
+  if (getFlag('urb_blood_vampire_eyes') || getFlag('urb_hardblood_craft')) return { name:'血魔血统者', desc:'你发现自己拥有血魔的血统，红色的眼睛是这份血统的证明。', color:'#dc143c' };
+  if (getFlag('geo_hong_yuan_immortal')) return { name:'仙皇虫宿主', desc:'你与洪元实业的仙皇虫产生了联系，获得了超越常人的生命力。', color:'#32cd32' };
+  if (getFlag('geo_nine_pianist') || getFlag('fix_legend_pianist')) return { name:'钢琴家见证者', desc:'你遭遇了那位用琴声毁灭一切的钢琴家，并幸存了下来。', color:'#ff69b4' };
   
-  // 6. 其他：根据身份数量+属性总值分档
-  if (idCount >= 8 || attrSum >= 50) {
-    return { name:'上等人', desc:'喝茶聊天划分利益蛋糕，一盘菜吃掉后巷一栋房，不时隐秘地满足一下"个人癖好"。作为翼公司董事、协会部长或拇指二老板，真正能令你全神贯注的是拉钩会议和翼间战争这类的事情。以及……首脑上门。', color:'#c0c0c0' };
-  }
-  if (idCount >= 5 || attrSum >= 30) {
-    return { name:'中等人', desc:'给公司打工，给协会打工，给事务所打工，给帮派打工，以高低不同、花样繁多的形式给人打工。从拇指指挥官到底层帮派成员、从特色到九阶的各大收尾人、从翼到后巷的各类公司职员——最低也能吃上三餐和养活一个家庭。', color:'#cd853f' };
-  }
-  if (idCount >= 3 || attrSum >= 15) {
-    return { name:'下等人', desc:'在后巷苟延残喘，抱团取暖，勉强做个什么生意糊口，常常受到帮派盘剥，交不上保护金就地去世。耗子、崩塌的巢中的普通居民，起码没啥大事还能活命。', color:'#808080' };
-  }
-  return { name:'人下人', desc:'不知道自己明天是不是还是个人，不知道下一秒周围的石头会不会咬人。郊区难民，废墟里不知道还有没有活人。你的存在本身就是都市的容错空间——"您的生命已如风中残烛"。', color:'#4a4a4a' };
+  return { name:'人下人', desc:'在都市的最底层挣扎求生。', color:'#4a4a4a' };
 }
 
 function getIdentityCount() {
@@ -15319,38 +15338,6 @@ function getRandomEventsByFlow(events, flow) {
   return shuffled;
 }
 
-function applyAgeGate(events, age) {
-  if (!events || events.length === 0) return events;
-  return events.filter(function(ev) {
-    // Major 事件年龄门槛
-    var tag = ev.milestone || ev.tag || '';
-    if (tag.indexOf('神备') !== -1 && age < 22) return false;
-    if (tag.indexOf('大罪') !== -1 && age < 15) return false;
-    if (tag.indexOf('色彩') !== -1 && age < 25) return false;
-    if (tag.indexOf('都市之星') !== -1 && age < 30) return false;
-    if (tag.indexOf('E.G.O') !== -1 && age < 22) return false;
-    return true;
-  });
-}
-
-function checkDeathPrerequisites(deathType, gameState) {
-  if (!deathType) return true;
-  var f = gameState.flags || {};
-  var age = gameState.age || 0;
-  // 每种死亡类型至少需要对应前置事件
-  var prereq = {
-    'sweeper': f.sweeper_witness || age >= 15,
-    'bloodfiend': f.vampire_encounter || age >= 20,
-    'claw': f.taboo_violation || age >= 25,
-    'pianist': f.pianist_witness || age >= 20,
-    'distortion': f.distortion_witness || age >= 18,
-    'gang': f.gang_member || age >= 16,
-    'fixer_battle': f.fixer_combat || age >= 18,
-    'library': f.library_knowledge || age >= 25,
-  };
-  return prereq[deathType] !== false;
-}
-
 function runRegisteredEvents(age) {
   if (!gameState.alive || gameState.dead) return [];
   var identity = '';
@@ -15891,16 +15878,6 @@ function generateEvents(age) {
     if (registeredEvts && registeredEvts.length > 0) {
       events = events.concat(registeredEvts);
     }
-  }
-
-  // Major事件年龄门控
-  if (typeof applyAgeGate === 'function') {
-    events = applyAgeGate(events, age);
-  }
-
-  // 事件密度上限：每年最多8个事件
-  if (events.length > 8) {
-    events = events.slice(0, 8);
   }
 
   return events;
@@ -22988,162 +22965,47 @@ function endSimulation() {
 // =============================
 
 function calculateRank() {
-  var gs = gameState;
-  var achievements = checkAchievements(gs);
-  var achCount = achievements.length;
-  var milestoneCount = gs.milestones.length;
-  // 获取7大属性
-  var con = gs.attrs.con || 0;
-  var str = gs.attrs.str || 0;
-  var int = gs.attrs.int || 0;
-  var wil = gs.attrs.wil || 0;
-  var spr = gs.attrs.spr || 0;
-  var chr = gs.attrs.chr || 0;
-  var wea = gs.attrs.wea || 0;
+  const gs = gameState;
+  const achievements = checkAchievements(gs);
+  const achCount = achievements.length;
+  const milestoneCount = gs.milestones.length;
+  const con = gs.attrs.con || 0, int = gs.attrs.int || 0, wil = gs.attrs.wil || 0, wea = gs.attrs.wea || 0;
+  const attrSum = con + int + wil + wea;
+  const rarityWeights = { common: 5, rare: 12, epic: 25, legend: 50 };
+  let achScore = 0;
+  for (const a of achievements) achScore += rarityWeights[a.rarity] || 5;
+  const age = gs.age || 0;
+  const ext = gs.lifeExtended || 0;
+  const ageScore = age >= 100 + ext ? 30 + ext : age >= 80 ? 25 : age >= 60 ? 20 : age >= 40 ? 15 : age >= 25 ? 10 : age >= 15 ? 5 : 0;
+  const deathPenalty = gs.alive ? 0 : 15;
 
-  // 年龄加成
-  var age = gs.age || 0;
-  var ext = gs.lifeExtended || 0;
-  var ageScore;
-  if (age >= 100 + ext) {
-    ageScore = 30 + ext;
-  } else if (age >= 80) {
-    ageScore = 25;
-  } else if (age >= 60) {
-    ageScore = 20;
-  } else if (age >= 40) {
-    ageScore = 15;
-  } else if (age >= 25) {
-    ageScore = 10;
-  } else if (age >= 15) {
-    ageScore = 5;
-  } else {
-    ageScore = 0;
+  // 快速通道
+  if (gs.milestones.includes('杂质') || gs.milestones.includes('都市之星')) {
+    return { rank: 'S+', label: '杂质 / 都市之星', quote: '你在都市的历史中留下了不可磨灭的痕迹。无论是作为英雄还是噩梦，你的名字将永远被铭记。', color: '#ff3864', score: 999, achievements, note: '被都市认定为杂质，或是传说般的都市之星。' };
+  }
+  if (gs.milestones.includes('色彩级收尾人') || gs.milestones.includes('漆黑静默') || gs.milestones.includes('殷红迷雾') || gs.milestones.includes('堇紫泪滴')) {
+    return { rank: 'S', label: '色彩级收尾人', quote: '色彩级——收尾人中的传奇。你的名字足以让后巷的耗子停止呼吸。', color: '#f1c40f', score: 900, achievements, note: '你是收尾人中的传奇，色彩级的威名响彻都市。' };
+  }
+  if (gs.flags.twisted) {
+    return { rank: 'S', label: '异想体', quote: '都市的噩梦并非只存在于传说之中。那些扭曲的灵魂，终将化为异想体，永远游荡在这片黑暗之中。', color: '#8B0000', score: 850, achievements, note: '你成为了都市 nightmares 的一部分。' };
+  }
+  if (gs.flags.book) {
+    return { rank: 'S', label: '书籍', quote: '你的故事被收录在了安吉拉的图书馆中。在这座无尽的图书馆里，你将以另一种形式继续存在。', color: '#9b59b6', score: 800, achievements, note: '图书馆中的一本书，另一个永恒的开始。' };
   }
 
-  // 死亡惩罚
-  var deathPenalty = gs.alive ? 0 : 15;
+  const total = attrSum * 2 + milestoneCount * 8 + achScore + ageScore - deathPenalty;
+  let rank, label, quote, color, note;
+  if (total >= 350) { rank='S+'; label='杂质 / 都市之星'; quote='你在都市的历史中留下了不可磨灭的痕迹。'; color='#ff3864'; note='被都市认定为杂质，或是传说般的都市之星。'; }
+  else if (total >= 280) { rank='S'; label='色彩级收尾人'; quote='色彩级——收尾人中的传奇。'; color='#f1c40f'; note='你的名字足以让后巷的耗子停止呼吸。'; }
+  else if (total >= 220) { rank='A+'; label='一阶收尾人'; quote:'一阶——职业收尾人的顶点。都市的梦魇在你面前不过是一场噩梦。'; color='#daa520'; note:'职业最高等级，精英中的精英。'; }
+  else if (total >= 160) { rank='A'; label='二阶收尾人'; quote:'二阶——"上游"的实力。你可以承接都市梦魇级的委托了。'; color='#4a7fb5'; note:'足以应对大多数都市恶疾。'; }
+  else if (total >= 110) { rank='B'; label='五阶收尾人'; quote:'五阶——"中游"的起点。你已经在都市中站稳了脚跟。'; color='#7a6f5a'; note:'在后巷中已算一方强者。'; }
+  else if (total >= 70) { rank='C'; label='七阶收尾人'; quote:'七阶——你加入了有名气的事务所，但距离真正的强者还差得远。'; color='#555'; note:'勉强在都市的夹缝中求生。'; }
+  else if (total >= 35) { rank='D'; label='九阶收尾人'; quote:'九阶——刚握起武器的普通人。都市不会记住你的名字。'; color='#666'; note:'后巷底层的无名之辈。'; }
+  else { rank='E'; label='耗子 / 底层'; quote:'在这座巨大的都市里，你连成为九阶的资格都没有。'; color:'#444'; note:'都市从不缺少这样的尘埃。'; }
 
-  // === 快速通道1: 杂质 ===
-  if (getFlag('impurity')) {
-    return {
-      rank: 'S+',
-      title: '杂质',
-      disaster: '杂质',
-      label: '杂质 / 都市之星',
-      score: 999,
-      color: '#ff3864',
-      quote: '你在都市的历史中留下了不可磨灭的痕迹。无论是作为英雄还是噩梦，你的名字将永远被铭记。',
-      note: '被首脑认定为杂质，都市的禁忌存在。',
-      achievements: achievements
-    };
-  }
-  // === 快速通道2: 色彩级收尾人 ===
-  var colorMilestones = ['色彩级收尾人', '殷红迷雾', '苍蓝残响', '堇紫泪滴', '漆黑噤默', '猩红凝视', '靛蓝老者', '蜜黄标枪', '朱红十字'];
-  var isColor = false;
-  for (var ci = 0; ci < colorMilestones.length; ci++) {
-    if (gs.milestones.indexOf(colorMilestones[ci]) !== -1) {
-      isColor = true;
-      break;
-    }
-  }
-  if (isColor) {
-    return {
-      rank: 'S',
-      title: '色彩级收尾人',
-      disaster: '色彩级',
-      label: '色彩级收尾人',
-      score: 900,
-      color: '#f1c40f',
-      quote: '色彩级——收尾人中的传奇。你的名字足以让后巷的耗子停止呼吸。',
-      note: '你是收尾人中的传奇，色彩级的威名响彻都市。',
-      achievements: achievements
-    };
-  }
-
-  // === 综合评分 ===
-  var total = (con + str + int + wil + spr + chr + wea) * 2 + achCount * 8 + milestoneCount * 5 + ageScore - deathPenalty;
-
-  var rank, title, disaster, label, quote, color, note;
-  if (total >= 350) {
-    rank = 'S+';
-    title = '杂质';
-    disaster = '都市之星';
-    label = '杂质 / 都市之星';
-    quote = '你在都市的历史中留下了不可磨灭的痕迹。';
-    color = '#ff3864';
-    note = '被都市认定为杂质，或是传说般的都市之星。';
-  } else if (total >= 280) {
-    rank = 'S';
-    title = '色彩级收尾人';
-    disaster = '色彩级';
-    label = '色彩级收尾人';
-    quote = '色彩级——收尾人中的传奇。';
-    color = '#f1c40f';
-    note = '你的名字足以让后巷的耗子停止呼吸。';
-  } else if (total >= 220) {
-    rank = 'A+';
-    title = '一阶收尾人';
-    disaster = '都市梦魇';
-    label = '一阶收尾人 / 都市梦魇';
-    quote = '一阶——职业收尾人的顶点。都市的梦魇在你面前不过是一场噩梦。';
-    color = '#daa520';
-    note = '职业最高等级，精英中的精英。';
-  } else if (total >= 180) {
-    rank = 'A';
-    title = '三阶收尾人';
-    disaster = '都市恶疾';
-    label = '三阶收尾人 / 都市恶疾';
-    quote = '三阶——你已经可以在都市中立足，足以应对大多数恶疾级的威胁。';
-    color = '#4a7fb5';
-    note = '足以应对大多数都市恶疾。';
-  } else if (total >= 140) {
-    rank = 'B';
-    title = '五阶收尾人';
-    disaster = '都市传说';
-    label = '五阶收尾人 / 都市传说';
-    quote = '五阶——"中游"的起点。你已经在都市中站稳了脚跟。';
-    color = '#7a6f5a';
-    note = '在后巷中已算一方强者。';
-  } else if (total >= 100) {
-    rank = 'C';
-    title = '七阶收尾人';
-    disaster = '传闻→都市传说';
-    label = '七阶收尾人 / 传闻';
-    quote = '七阶——你加入了有名气的事务所，但距离真正的强者还差得远。';
-    color = '#555';
-    note = '勉强在都市的夹缝中求生。';
-  } else if (total >= 60) {
-    rank = 'D';
-    title = '九阶收尾人';
-    disaster = '传闻';
-    label = '九阶收尾人 / 传闻';
-    quote = '九阶——刚握起武器的普通人。都市不会记住你的名字。';
-    color = '#666';
-    note = '后巷底层的无名之辈。';
-  } else {
-    rank = 'E';
-    title = '耗子底层';
-    disaster = '传闻';
-    label = '耗子 / 底层';
-    quote = '在这座巨大的都市里，你连成为九阶的资格都没有。';
-    color = '#444';
-    note = '都市从不缺少这样的尘埃。';
-  }
-
-  return {
-    rank: rank,
-    title: title,
-    disaster: disaster,
-    label: label,
-    score: total,
-    color: color,
-    quote: quote,
-    note: note,
-    achievements: achievements
-  };
+  return { rank, label, quote, color, score: total, achievements, note };
 }
-
 function generateLifeStory() {
   const { birthplace, selectedTalents, milestones, events, age, alive, deathCause, attrs } = gameState;
   const storyParts = [];
@@ -48050,6 +47912,16 @@ const COLOR_TITLES = [
   // 第791-800个
   '蒼葭焦整',   '蓝灰愉律',   '蓝紫后念',   '蓝黑主实',   '蔚蓝前然',   '蔷薇设乐',   '蕉月凝郁',   '蕨类建汐',   '薑黄真曦',   '藎篋广态',
 ];
+
+function generateColorTitle() {
+  var prefix = COLOR_TITLE_PREFIXES[Math.floor(Math.random() * COLOR_TITLE_PREFIXES.length)];
+  var suffix = COLOR_TITLE_SUFFIXES[Math.floor(Math.random() * COLOR_TITLE_SUFFIXES.length)];
+  return prefix + suffix;
+}
+
+function getRandomColorTitle() {
+  return COLOR_TITLES[Math.floor(Math.random() * COLOR_TITLES.length)];
+}
 
 </script>
 <script src="events/birthplace-nest.js"></script>
