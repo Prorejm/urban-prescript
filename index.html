@@ -4945,21 +4945,25 @@ function generateAdultEvents(age, a, f, bp, tags) {
 
   // 三鸟事件
   if (age >= 35 && chance(0.04) && !hasMilestone('三鸟')) {
-    const birds = ['大鸟', '惩戒鸟', '审判鸟'];
+    const birds = [
+      { name: '大鸟', desc: '皮肤黑黝，身材圆润，没有羽毛，瞪大一只只眼睛，一只长爪提着一盏燃烧黑色羽毛的灯。' },
+      { name: '惩戒鸟', desc: '一只白色的小鸟，圆滚滚的胴体，腹部周围被染成鲜红，看似可爱却散发着危险的气息。' },
+      { name: '审判鸟', desc: '一只高大的类人形黑色鸟类，全身被绷带缠绕，手持一杆天平，审判着一切罪恶。' }
+    ];
     const bird = pick(birds);
     events.push(
       evt(
-        `你遭遇了${bird}。那巨大的身影遮天蔽日，你的眼睛无法移开。`,
+        `你遭遇了${bird.name}。${bird.desc}它的目光让你无法移开。`,
         'bird_encounter',
         '',
         true,
-        `遭遇${bird}`
+        `遭遇${bird.name}`
       )
     );
     if ((a.wil || 0) >= 8) {
       events.push(
         evt(
-          `你忍受住了${bird}的注视。当你回过神来时，它已经消失不见。`,
+          `你忍受住了${bird.name}的注视。当你回过神来时，它已经消失不见。`,
           'bird_survive',
           '意志+1',
           false
@@ -4969,7 +4973,7 @@ function generateAdultEvents(age, a, f, bp, tags) {
     } else {
       events.push(
         evt(
-          `${bird}的目光摧毁了你的理智。你尖叫着逃跑，一路上不断回头看它是否追来。`,
+          `${bird.name}的目光摧毁了你的理智。你尖叫着逃跑，一路上不断回头看它是否追来。`,
           'bird_trauma',
           '意志-2',
           false
@@ -4983,7 +4987,7 @@ function generateAdultEvents(age, a, f, bp, tags) {
   if (age >= 35 && chance(0.03) && (bp === 'ruins' || bp === 'outskirts') && !hasMilestone('一罪与百善')) {
     events.push(
       evt(
-        '你在废墟深处遇到了一个奇异的异想体——一罪与百善。它戴着荆棘冠冕，散发着神圣而诡异的气息。',
+        '你在废墟深处遇到了一个奇异的异想体——一罪与百善。那是一颗头戴荆棘之冠的巨大骷髅头，一根金属十字架贯穿了它的顶骨和两侧颞骨，静静地飘浮在离地两米的高度。漆黑的眼窝凝视着你，散发着神圣而诡异的气息。',
         'one_sin',
         '',
         true,
@@ -5005,11 +5009,11 @@ function generateAdultEvents(age, a, f, bp, tags) {
   // 脑叶公司收容物
   if (age >= 32 && chance(0.05) && !hasMilestone('异想体遭遇')) {
     const abnormalities = [
-      { name: '一无所有', desc: '一个戴着皮的「人」。它模仿着人类，但那只是表象。' },
-      { name: '微笑的尸山', desc: '由无数尸体堆积而成的山丘，上面开满了微笑的花朵。' },
-      { name: '碧蓝新星', desc: '蓝色的光芒吞噬了一切，你在其中看到了星辰的尽头。' },
-      { name: '沉默乐团', desc: '音乐响起，所有的声音都被它吸收。你差点成为了乐团的一员。' },
-      { name: '终末鸟', desc: '三只鸟合为一体，世界在它的阴影下颤抖。' },
+      { name: '一无所有', desc: '一个近4米高的人形怪物，方形头部上长有蓝色类人手臂和尖锐爪子，脸上四个蓝色眼睛和两张大小不一的嘴，巨大舌头耷拉在外。三条腿——右前腿是裸露的骨头，后腿像红色大肠，躯干透明，露出红蓝绿三色肠道。' },
+      { name: '微笑的尸山', desc: '一个巨大的黑色球形血肉团，交织着金属梁和齿轮，两条肢体支撑着身体。一张大嘴满是血淋淋的牙齿，表面覆盖着无数白色融化的面具状面孔，黑色空洞代替眼睛和嘴巴。' },
+      { name: '碧蓝新星', desc: '一个由无数灰色腿组成的发光心脏，心脏有着明亮的蓝色边框和漆黑的中心。一个声音在你脑海中低语：「让我们作为星辰再次相见。」那蔚蓝的光芒几乎要将你的灵魂吸走。' },
+      { name: '沉默乐团', desc: '一个类似人形塑料模特的存在悬浮在空中，没有手臂和腿部，下侧被支柱和底盘代替。它穿着黑白相间的燕尾服，周围的空气随着它的「演奏」而扭曲。那是来自废墟的最华丽的演出，也是最后的演出。' },
+      { name: '终末鸟', desc: '三只鸟合为一体的存在，硕大的身体被审判鸟的绷带缠绕，细长弯曲的头颈连接着红色充满疤痕的圆形头部，上面有一颗黄色眼睛和两根红白小羽毛。腹部前方长着惩戒鸟的血盆大口。' },
     ];
     const abno = pick(abnormalities);
     events.push(
@@ -21546,9 +21550,9 @@ function addGeographyEvents(age) {
   // 根据事件内容自动判定稀有度并过滤
   events = events.filter(function(e) {
     var text = (e.text || '').toLowerCase();
-    var isLegend = /色彩级|殷红迷雾|图书馆|钢琴家|首脑|眼线|爪牙|调律者|杂质|神备觉醒|完全转化|翼公司董事|协会部长|拇指教父|二老板|都市之星|光之种|漆黑噤默|苍蓝残响|残响乐团/.test(text);
-    var isEpic = /一阶收尾人|协会成员|手指指挥官|工坊大师|都市梦魇|奇点核心|协会科长|食指代行者|环指收藏家|小指星刀|hana协会|zwei协会|tres协会|灾害评级/.test(text);
-    var isRare = /帮派|清道夫|深宵|食指指令|血魔|人鱼|郊区|废墟|warp|脑啡肽|后巷深宵|拇指士兵|工坊|子弹|弹药|共鸣音叉|空间撕裂|妖灵|扭曲|异想体|食指|中指|环指|小指/.test(text);
+    var isLegend = /色彩级|殷红迷雾|图书馆|钢琴家|首脑|眼线|爪牙|调律者|杂质|神备觉醒|完全转化|翼公司董事|协会部长|拇指教父|二老板|都市之星|光之种|漆黑噤默|苍蓝残响|残响乐团|白夜|终末鸟|一无所有/.test(text);
+    var isEpic = /一阶收尾人|协会成员|手指指挥官|工坊大师|都市梦魇|奇点核心|协会科长|食指代行者|环指收藏家|小指星刀|hana协会|zwei协会|tres协会|灾害评级|沉默乐团|碧蓝新星|憎恶女王|微笑的尸山|小红帽雇佣兵|魔弹射手/.test(text);
+    var isRare = /帮派|清道夫|深宵|食指指令|血魔|人鱼|郊区|废墟|warp|脑啡肽|后巷深宵|拇指士兵|工坊|子弹|弹药|共鸣音叉|空间撕裂|妖灵|扭曲|异想体|食指|中指|环指|小指|焦化少女|蜘蛛巢|疫医|红舞鞋|幸灾乐祸|美女与野兽|老妇人|我们可以改变一切|别碰我/.test(text);
     var eventTier = isLegend ? 'legend' : isEpic ? 'epic' : isRare ? 'rare' : 'common';
     return eventTier === tier;
   });
@@ -24721,6 +24725,105 @@ function addAbnormalExistenceEvents(age) {
     modAttr('spr', -5);
     modAttr('int', 3);
     modAttr('luk', -2);
+  }
+
+  // ========== 经典异想体遭遇（脑叶公司收容物）==========
+  // Common 6
+  if (age >= 8 && age <= 80 && chance(0.06) && !getFlag('abu_abno_spider_bud')) {
+    setFlag('abu_abno_spider_bud', true);
+    events.push(evt('你在后巷的废弃建筑中遇到了一个巨大的黑色囊状物——那是蜘蛛巢。无数红色的小眼睛在黑暗中注视着你，天花板上传来窸窣的爬行声。你小心翼翼地退了出去，不敢惊动那些小蜘蛛。', 'abu_abno_spider_bud', '精神-2，智力+1', false, '异想体'));
+    modAttr('spr', -2);
+    modAttr('int', 1);
+  }
+  if (age >= 10 && age <= 75 && chance(0.06) && !getFlag('abu_abno_old_lady')) {
+    setFlag('abu_abno_old_lady', true);
+    events.push(evt('在一栋废弃公寓的角落里，你看到了一个面色惨白、眼窝空洞的老妇人。她身穿蓝色长裙和褪色紫上衣，头戴白色棉帽，安详地坐在摇椅上。当你眨眼再看时，她已经消失了。', 'abu_abno_old_lady', '精神-1，智力+1', false, '异想体'));
+    modAttr('spr', -1);
+    modAttr('int', 1);
+  }
+  if (age >= 12 && age <= 70 && chance(0.06) && !getFlag('abu_abno_scorched_girl')) {
+    setFlag('abu_abno_scorched_girl', true);
+    events.push(evt('深夜的街道上，你看到一个烧焦的小女孩身影。她没有手臂，白色的眼睛空洞无神，半张开的白色嘴巴似乎在无声地呢喃。一根点燃的火柴贯穿了她的躯干，在黑暗中散发着微弱的火光。', 'abu_abno_scorched_girl', '精神-2，意志+1', false, '异想体'));
+    modAttr('spr', -2);
+    modAttr('wil', 1);
+  }
+  if (age >= 14 && age <= 65 && chance(0.06) && !getFlag('abu_abno_beauty_beast')) {
+    setFlag('abu_abno_beauty_beast', true);
+    events.push(evt('你在郊区遇到了一只四足行走的异想体——美女与野兽。它全身覆盖棕色毛发，两个灰色弯角上长着洋红色花朵，脸上密密麻麻长有数十只翠绿色的眼睛。它用那些眼睛同时注视着你，发出低沉的呜咽。', 'abu_abno_beauty_beast', '精神-2，魅力-1', false, '异想体'));
+    modAttr('spr', -2);
+    modAttr('chr', -1);
+  }
+  if (age >= 6 && age <= 80 && chance(0.06) && !getFlag('abu_abno_dont_touch')) {
+    setFlag('abu_abno_dont_touch', true);
+    events.push(evt('你在一处脑叶公司遗址中发现了一个奇怪的按钮，上面闪烁着「别碰我」的警告。你强忍着触碰的冲动离开了——据说触碰那个东西的人会遭遇无法预料的恐怖后果。', 'abu_abno_dont_touch', '智力+1，精神-1', false, '异想体'));
+    modAttr('int', 1);
+    modAttr('spr', -1);
+  }
+  if (age >= 16 && age <= 65 && chance(0.06) && !getFlag('abu_abno_we_can_change')) {
+    setFlag('abu_abno_we_can_change', true);
+    events.push(evt('你发现了一台白色的机器——「我们可以改变一切」。它的外形类似铁处女，头部有像素风格的微笑眼睛，胸部有心脏图案。机器敞开着，内部满是尖锐的刺钉，仿佛在等待下一个受害者。', 'abu_abno_we_can_change', '精神-2，智力+1', false, '异想体'));
+    modAttr('spr', -2);
+    modAttr('int', 1);
+  }
+  // Rare 5
+  if (age >= 18 && age <= 60 && chance(0.025) && !getFlag('abu_abno_red_shoes')) {
+    setFlag('abu_abno_red_shoes', true);
+    events.push(evt('你在废墟中看到了一双红色的高跟鞋，被安放在一块天鹅绒枕头上。鞋子闪烁着不寻常的光泽，仿佛有生命一般。你听说那双鞋里藏着牙齿，一旦穿上就会咬住皮肤永远无法脱下。', 'abu_abno_red_shoes', '精神-3，魅力+1', false, '异想体'));
+    modAttr('spr', -3);
+    modAttr('chr', 1);
+  }
+  if (age >= 20 && age <= 55 && chance(0.025) && !getFlag('abu_abno_schadenfreude')) {
+    setFlag('abu_abno_schadenfreude', true);
+    events.push(evt('你遇到了一个钢铁箱子——幸灾乐祸。箱子的正面有一个钥匙孔，孔里有一只灰色的眼睛正注视着你，不时眨动。箱子左上角和右下角各有一个摄像头般的镜头，让你感觉自己正在被全方位监视。', 'abu_abno_schadenfreude', '精神-2，智力+2', false, '异想体'));
+    modAttr('spr', -2);
+    modAttr('int', 2);
+  }
+  if (age >= 22 && age <= 55 && chance(0.025) && !getFlag('abu_abno_freischutz')) {
+    setFlag('abu_abno_freischutz', true);
+    events.push(evt('一个披着蓝黄黑三色大斗篷的身影出现在你面前——魔弹射手。除了眼睛、头部和腿部，它的身体呈现为不定形的黑色绒状。它扛着一把巨大的杠杆步枪，枪口似乎还在冒烟。它对你说：「这枚子弹，能命中你指定的任何目标。」', 'abu_abno_freischutz', '精神-2，力量+2', false, '异想体'));
+    modAttr('spr', -2);
+    modAttr('str', 2);
+  }
+  if (age >= 24 && age <= 55 && chance(0.025) && !getFlag('abu_abno_plague_doctor')) {
+    setFlag('abu_abno_plague_doctor', true);
+    events.push(evt('一个戴着黑色软呢帽和鸟喙面具的身影出现在废墟中——疫医。它身穿黑色长袍，两个巨大的黑色翅膀代替手臂，脖子上围着羽毛领。它温和地对你说：「我会治愈所有的疾病，你将重获新生。」你不确定该不该接受它的「治疗」。', 'abu_abno_plague_doctor', '精神-1，智力+2', false, '异想体'));
+    modAttr('spr', -1);
+    modAttr('int', 2);
+  }
+  if (age >= 25 && age <= 50 && chance(0.025) && !getFlag('abu_abno_little_red')) {
+    setFlag('abu_abno_little_red', true);
+    events.push(evt('一个身穿黑色衣服、头戴红色兜帽的女性从阴影中走出——小红帽雇佣兵。她的半张脸被牙齿状的面具遮住，只露出一只黄色的眼睛，身上满是战斗留下的伤疤。她手持霰弹枪和斧头，冷冷地问：「你看到那只该死的狼了吗？」', 'abu_abno_little_red', '力量+2，精神-2', false, '异想体'));
+    modAttr('str', 2);
+    modAttr('spr', -2);
+  }
+  // Epic 3
+  if (age >= 28 && age <= 55 && chance(0.01) && !getFlag('abu_abno_queen_hatred')) {
+    setFlag('abu_abno_queen_hatred', true);
+    events.push(evt('你遇到了一位散发着诡异魅力的少女——憎恶女王。她有着淡蓝紫色的渐变长发，黄色的风格化眼睛，身穿粉色百褶裙和白色袖子。巨大的粉色蝴蝶结和翼状肩饰让她看起来像是童话中的魔法少女——但你感受到了她身上那股危险的憎恨之力。', 'abu_abno_queen_hatred', '精神-3，智力+2，魅力+1', true, '异想体'));
+    modAttr('spr', -3);
+    modAttr('int', 2);
+    modAttr('chr', 1);
+  }
+  if (age >= 30 && age <= 50 && chance(0.01) && !getFlag('abu_abno_silent_orchestra')) {
+    setFlag('abu_abno_silent_orchestra', true);
+    events.push(evt('你听到了一段无法形容的音乐——那是沉默乐团的演出。一个类似人形塑料模特的存在悬浮在空中，没有手臂和腿部，下侧被支柱和底盘代替。它穿着黑白相间的燕尾服，周围的空气随着它的「演奏」而扭曲。你捂住耳朵拼命逃离，但那旋律仍在脑海中回荡。', 'abu_abno_silent_orchestra', '精神-4，智力+3', true, '异想体'));
+    modAttr('spr', -4);
+    modAttr('int', 3);
+  }
+  if (age >= 32 && age <= 50 && chance(0.01) && !getFlag('abu_abno_blue_star')) {
+    setFlag('abu_abno_blue_star', true);
+    events.push(evt('你在郊区深处看到了一个散发着蔚蓝光芒的存在——碧蓝新星。无数灰色的腿从一个发光的心脏中伸出，心脏有着明亮的蓝色边框和漆黑的中心。一个声音在你脑海中低语：「让我们作为星辰再次相见。」你差点被那光芒吸引过去，在最后一刻恢复了理智。', 'abu_abno_blue_star', '精神-3，智力+3，幸运-1', true, '异想体'));
+    modAttr('spr', -3);
+    modAttr('int', 3);
+    modAttr('luk', -1);
+  }
+  // Legend 1
+  if (age >= 35 && age <= 50 && chance(0.003) && !getFlag('abu_abno_whitenight')) {
+    setFlag('abu_abno_whitenight', true);
+    events.push(evt('你见证了真正的恐怖——白夜。那是一只形似未发育人类胚胎的存在，白色的圆形头部，弯曲的身体，一双血红的眼睛注视着一切。五对白色的羽毛翅膀向外伸展，脖子上戴着刻有「666」的金色项圈，头上悬浮着金色的荆棘之冠。它宣称自己是救世主，而你成为了它的「信徒」之一——在短暂的疯狂后，你奇迹般地存活了下来，但永远无法忘记那双红色的眼睛。', 'abu_abno_whitenight', '精神-5，意志+4，智力+3', true, '异想体'));
+    modAttr('spr', -5);
+    modAttr('wil', 4);
+    modAttr('int', 3);
   }
 
   // ========== 神备（5个） ==========
