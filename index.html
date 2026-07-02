@@ -2016,7 +2016,7 @@ function getTalentOrg() {
 }
 
 function orgSanction(oldOrg) {
-  const events = [];
+  var events = [];
   const a = gameState.attrs;
   if (isFingerOrg(oldOrg)) {
     events.push(evt('你决定脱离' + oldOrg + '。这在手指中是绝对的禁忌。', 'org_leave_' + oldOrg, '', true, '脱离' + oldOrg));
@@ -3776,10 +3776,10 @@ function evt(text, effect, effText, major, milestone) {
 // 主事件生成函数
 // ============================================================
 function generateEvents(age) {
-  const a = gameState.attrs;
-  const f = gameState.flags || (gameState.flags = {});
-  const bp = gameState.birthplace ? gameState.birthplace.id : 'backstreet';
-  const tags = gameState.talentTags || [];
+  var a = gameState.attrs;
+  var f = gameState.flags || (gameState.flags = {});
+  var bp = gameState.birthplace ? gameState.birthplace.id : 'backstreet';
+  var tags = gameState.talentTags || [];
 
   // === 隐藏判定系统：限制特殊事件频率 ===
   if (!gameState.hiddenChecks) gameState.hiddenChecks = {};
@@ -3795,7 +3795,7 @@ function generateEvents(age) {
   if (!gameState.ageEventCount) gameState.ageEventCount = {};
   if (!gameState.ageEventCount[age]) gameState.ageEventCount[age] = 0;
 
-  const events = [];
+  var events = [];
 
   // 事件互斥检查：如果前置事件已发生，阻止后续相关事件
   // 安吉丽卡存活 → 阻止安吉丽卡死亡事件
