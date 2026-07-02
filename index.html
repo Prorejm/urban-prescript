@@ -1982,6 +1982,24 @@ function shiftAlignment(dx, dy) {
   gameState.alignment.x = Math.max(-1, Math.min(1, gameState.alignment.x + dx));
   gameState.alignment.y = Math.max(-1, Math.min(1, gameState.alignment.y + dy));
 }
+
+function getIdentityTier() {
+  var score = (gameState.attrs.wea||0) + (gameState.attrs.wil||0) + (gameState.attrs.int||0) + getIdentityCount();
+  if (score >= 40) return { name:'人上人', desc:'裁剪都市未来可能失控的枝条，收税，制定法律。首脑、眼线、爪牙、翼之董事。', color:'#ffd700' };
+  if (score >= 30) return { name:'上等人', desc:'喝茶聊天划分利益蛋糕。翼公司董事、协会部长、拇指二老板。', color:'#c0c0c0' };
+  if (score >= 20) return { name:'中等人', desc:'给公司打工，给协会打工，以高低不同的形式给人打工。', color:'#cd853f' };
+  if (score >= 12) return { name:'下等人', desc:'在后巷苟延残喘，常常受到帮派盘剥。', color:'#808080' };
+  if (score >= 6) return { name:'人下人', desc:'不知道自己明天是不是还是个人。郊区难民。', color:'#4a4a4a' };
+  if (getFlag('ring_affected') || getFlag('carnival_art') || getFlag('bremen_artist')) return { name:'疯子', desc:'被都市折磨疯了，开始制作各种形式的"艺术品"。环指、不莱梅等。', color:'#ff69b4' };
+  if (getFlag('gear_church_member') || getFlag('index_follower')) return { name:'邪教徒', desc:'依靠宗教信仰麻痹自己。齿轮教会、食指。', color:'#9370db' };
+  if (getFlag('cyborg_full') || getFlag('blood_cyborg') || getFlag('sub_human')) return { name:'亚人', desc:'被改变了躯体构造与对自我的认知。', color:'#00ced1' };
+  return { name:'下等人', desc:'在后巷苟延残喘。', color:'#808080' };
+}
+
+function getIdentityCount() {
+  return (gameState.identities || []).length;
+}
+
 function getCurrentOrg() { return getFlag('org') || getFlag('finger_joined'); }
 function hasOrg(orgName) { return getFlag('org') === orgName || getFlag('finger_joined') === orgName; }
 function canJoinOrg(orgName) {
@@ -2706,6 +2724,40 @@ const ACHIEVEMENTS = [
     lore:'有些传令员声称能预见未来的指令。无论真假，这种能力足以让他们在食指体系中获得极高的地位——或者被当成异端处理。' },
   { id:'ring_finger_gallery', name:'环指画廊参观者', desc:'参观过环指的秘密画廊。', rarity:RARITY.RARE, condition:(gs)=>getFlag('ring_gallery_visit'),
     lore:'环指画廊展出的不是普通的画，而是「活体艺术」。每一幅作品都曾经是一个人，他们在死亡瞬间被定格，成为了永恒的艺术品。' },
+
+  // ====== 补充成就 ======
+  { id:'cyber_first_install', name:'义体改造者', desc:'第一次安装义体。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('cyber_first')||gs.milestones.includes('义体初次安装'),
+    lore:'第一次踏入义体改造的门槛。无论是替换一根手指还是植入一只义眼，从这一刻起，你的身体不再完全属于你自己。' },
+  { id:'full_cyber_body', name:'全身义体', desc:'完成全身义体化。', rarity:RARITY.LEGEND, condition:(gs)=>getFlag('cyber_fullbody'),
+    lore:'当你的身体完全被机械取代，你是否还是人类？齿轮教团会说这是飞升，N公司会说这是禁忌，而你只知道——活着就是一切。' },
+  { id:'subhuman_exist', name:'亚人', desc:'成为亚人存在。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('subhuman')||gs.milestones.includes('亚人化'),
+    lore:'亚人是介于人类与非人之间的存在。血魔眷属、异想体共生体、清道夫融合者……当你的存在不再符合人类定义时，都市会以另一种目光注视你。' },
+  { id:'ring_art_material', name:'环指的素材', desc:'被环指选为素材。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('ring_material')||gs.milestones.includes('被环指选为素材'),
+    lore:'在环指眼中，你的身体、你的痛苦、你的死亡都是创作的素材。被选中意味着你即将成为一幅"活体艺术品"。' },
+  { id:'idol_road', name:'偶像之路', desc:'参与偶像相关事件。', rarity:RARITY.RARE, condition:(gs)=>getFlag('idol_event')||gs.milestones.includes('偶像活动'),
+    lore:'都市中的偶像产业是翼公司控制娱乐的产物。霓虹灯光下的偶像们在舞台上闪耀，但舞台下的真相远比歌声更加残酷。' },
+  { id:'warp_first_class', name:'WARP头等舱', desc:'乘坐WARP头等舱。', rarity:RARITY.RARE, condition:(gs)=>getFlag('warp_first_class')||gs.milestones.includes('WARP头等舱'),
+    lore:'WARP头等舱是都市中少数人的特权。舒适的座位、优质的餐食、安全的旅途——前提是你不知道头等舱和普通车厢经历了完全不同的时空。' },
+  { id:'roamer_investor', name:'后门投资人', desc:'投资漫游者公司。', rarity:RARITY.RARE, condition:(gs)=>getFlag('roamer_investor')||gs.milestones.includes('投资漫游者'),
+    lore:'漫游者公司（边狱公司前身）是一个神秘的组织。投资它意味着你与但丁和那个头部被星盘取代的管理者产生了联系。' },
+  { id:'happy_roland', name:'幸福罗兰', desc:'遇到安吉丽卡存活的罗兰。', rarity:RARITY.LEGEND, condition:(gs)=>getFlag('happy_roland')||gs.milestones.includes('幸福罗兰'),
+    lore:'在一个平行的时间线中，安吉丽卡没有在钢琴师事件中死去。罗兰没有扭曲，没有成为漆黑噤默。他们只是两个在后巷中平凡幸福的人——这是都市中最不可能发生的奇迹。' },
+  { id:'white_moon_knight', name:'白月骑士', desc:'遇到巴里。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('barry_encounter')||gs.milestones.includes('白月骑士'),
+    lore:'白月骑士巴里是某个遥远传说的守护者。在都市的阴影中，有些人选择以骑士之名守护最后一丝光明。' },
+  { id:'thumb_tax_triple', name:'拇指的税单', desc:'被三级不同拇指成员收税。', rarity:RARITY.RARE, condition:(gs)=>(getFlag('thumb_tax_count')||0)>=3,
+    lore:'拇指不仅在后巷收取保护费，他们的税收层级分明：士兵收底层税、指挥官收中层税、二老板收高层税。如果你被三级都收过税，说明你的"地位"经历了不小的起伏。' },
+  { id:'head_gaze', name:'首脑的注视', desc:'被爪牙/首脑关注。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('head_gaze')||gs.milestones.includes('首脑注视'),
+    lore:'当你做了一些引起首脑注意的事情——无论是违反禁忌还是触碰了某种边界——你会发现周围的人开始用不同的眼神看你。那不是恐惧，而是怜悯。被首脑注视的人，很少有好的结局。' },
+  { id:'library_visitor', name:'图书馆访客', desc:'进入图书馆。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('library_entered')||gs.milestones.includes('进入图书馆'),
+    lore:'迷雾中的图书馆，邀请函上的墨迹还在发光。当你踏入大门的那一刻，安吉拉已经在等待——每一本书都记录着一个人的一生，而你的书即将被翻开。' },
+  { id:'light_seed_holder', name:'光之种持有者', desc:'获得光之种。', rarity:RARITY.LEGEND, condition:(gs)=>getFlag('lightSeedHeld')||gs.milestones.includes('获得光之种'),
+    lore:'光之种是脑叶公司的终极计划产物。它蕴含着照亮都市灵魂的力量，也是发射后引发白夜黑昼、扭曲和大罪出现的根源。持有它，就等于持有改变都市命运的可能。' },
+  { id:'nest_resident', name:'巢中居民', desc:'在巢中生活。', rarity:RARITY.COMMON, condition:(gs)=>getFlag('nest_resident')||gs.milestones.includes('巢中生活'),
+    lore:'巢是都市中安全而昂贵的地方。翼公司统治下的居民享受着相对和平的生活，但代价是高昂的税金和绝对的服从。巢中居民的后巷邻居们称他们为"笼中之鸟"。' },
+  { id:'outskirts_survivor', name:'郊区幸存者', desc:'在郊区存活。', rarity:RARITY.EPIC, condition:(gs)=>getFlag('outskirts_survived')||gs.milestones.includes('郊区存活'),
+    lore:'郊区是都市之外的无法地带，没有首脑的保护，没有法律，没有秩序。只有无尽的荒野、旧翼遗迹和未知怪物。能在郊区存活的人，已经超越了后巷强者的范畴。' },
+  { id:'index_finger_letter', name:'食指的信', desc:'收到食指命令。', rarity:RARITY.RARE, condition:(gs)=>getFlag('index_letter_received')||gs.milestones.includes('收到食指命令'),
+    lore:'白色信纸上没有抬头，没有署名，只有冰冷的指令。收到食指的信意味着你已经被纳入了他们的体系——无论你是否愿意，指令必须被完成。' },
 ];
 
 // =============================
@@ -3191,7 +3243,7 @@ function startSimulation() {
 }
 
 function nextYear() {
-  if (!gameState.alive) return;
+  if (!gameState.alive || gameState.dead) return;
 
   // 年份推进视觉效果
   var ageDisplay = document.getElementById('sim-age');
@@ -3357,6 +3409,22 @@ function showNextEvent(onDone) {
 
 function showAllPendingEvents(onDone) {
   if (!gameState.pendingEvents || gameState.pendingEvents.length === 0) {
+    if (onDone) onDone();
+    return;
+  }
+  // 批量DOM更新优化：在快速模式下直接使用 addEventsBatch 批量渲染，避免逐条触发回流
+  var speed = getSimSpeed();
+  if (gameState.simAuto && speed >= 7 && typeof addEventsBatch === 'function') {
+    var remaining = gameState.pendingEvents.slice(gameState.eventIndex);
+    if (remaining.length > 0) {
+      addEventsBatch(remaining);
+      gameState.pendingEvents.forEach(function(ev) { ev.rendered = true; });
+      gameState.eventIndex = gameState.pendingEvents.length;
+      // 批量渲染后只做一次滚动
+      requestAnimationFrame(function() {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      });
+    }
     if (onDone) onDone();
     return;
   }
@@ -3850,6 +3918,10 @@ function generateEvents(age) {
   if (typeof runExtendedEvents === 'function' && gameState.alive && !gameState.dead) {
     runExtendedEvents();
   }
+
+  // 环指/素材事件
+  var ringEvents = addMaterialAndRingEvents(age);
+  events = events.concat(ringEvents);
 
   // 义体改造事件
   if (typeof addCyberneticsEvents === 'function' && gameState.alive && !gameState.dead) {
@@ -11552,6 +11624,15 @@ function showResults() {
       card.appendChild(idDiv);
     }
 
+    // ===== 身份层级 =====
+    var tier = typeof getIdentityTier === 'function' ? getIdentityTier() : { name:'中等人', desc:'', color:'#cd853f' };
+    var tierDiv = document.createElement('div');
+    tierDiv.style.cssText = 'margin:16px 0;padding:12px;background:rgba(255,255,255,0.05);border:1px solid ' + tier.color + ';border-radius:8px;';
+    var tierHtml = '<div style="color:' + tier.color + ';font-weight:bold;font-size:1.1rem;">身份层级：' + tier.name + '</div>';
+    if (tier.desc) tierHtml += '<div style="color:#aaa;font-size:0.85rem;margin-top:4px;">' + tier.desc + '</div>';
+    tierDiv.innerHTML = tierHtml;
+    card.appendChild(tierDiv);
+
     // ===== 九宫格阵营 =====
     var ax = (gameState.alignment || {}).x || 0;
     var ay = (gameState.alignment || {}).y || 0;
@@ -16027,6 +16108,320 @@ function eventChainHongluSuccession(age) {
   }
 }
 
+// ==================== 环指/素材事件 ====================
+function addMaterialAndRingEvents(age) {
+  if (!gameState.alive || gameState.dead) return [];
+  var events = [];
+  var a = gameState.attrs;
+
+  // --- 环指艺术家盯上 ---
+  if (!getFlag('ring_noticed') && age >= 16 && age <= 55 && chance(0.12)) {
+    setFlag('ring_noticed', true);
+    events.push(evt(
+      '一个穿着奇异的人注意到了你。他的眼睛在昏暗的后巷中闪烁着不自然的光芒，手中握着一本满是素描的笔记本。他盯着你看了很久，像是在打量一件未完成的作品。"你的线条……很有趣。"他留下这句话便消失在了巷尾。',
+      function() { modAttr('wil', -1); addLog('有人在注视你，你感到不安。'); },
+      '意志-1', true, 'ring_noticed'
+    ));
+  }
+
+  // --- 成为素材：被环指掳走 ---
+  if (!getFlag('ring_captured') && getFlag('ring_noticed') && age >= 18 && age <= 50 && chance(0.15)) {
+    setFlag('ring_captured', true);
+    events.push(evt(
+      '你在后巷行走时，突然被人从背后捂住口鼻。意识模糊间，你被拖入了一个充满颜料和雕塑的地下室。醒来时，你发现自己被绑在一张操作台上，周围摆满了各种工具——刀片、颜料、针线。"恭喜你，"那个人的声音从阴影中传来，"你被选中了。你将成为我的素材。"',
+      function() { modAttr('con', -2); modAttr('wil', -1); modAttr('int', 1); setFlag('ring_affected', true); },
+      '体质-2，意志-1，智力+1', true, 'ring_captured'
+    ));
+  }
+
+  // --- 素材改造：颜料浸染 ---
+  if (getFlag('ring_captured') && !getFlag('ring_painted') && age >= 19 && chance(0.2)) {
+    setFlag('ring_painted', true);
+    events.push(evt(
+      '他们将你浸泡在一种你从未见过的颜料中。颜料渗入你的皮肤，改变了你的身体——你感到自己的血液仿佛变成了流淌的油彩。疼痛难以忍受，但你无法反抗。艺术家在一旁微笑着记录下你每一个细微的变化。"多美啊……这就是活着的艺术。"',
+      function() { modAttr('con', -1); modAttr('int', 2); modAttr('wil', -2); },
+      '体质-1，智力+2，意志-2', true, 'ring_painted'
+    ));
+  }
+
+  // --- 素材改造：人体雕塑 ---
+  if (getFlag('ring_captured') && !getFlag('ring_sculpted') && age >= 20 && chance(0.18)) {
+    setFlag('ring_sculpted', true);
+    events.push(evt(
+      '你的四肢被重新塑造。骨骼被打断后用金属丝重新连接，皮肤被缝合成了不自然的形状。你不再是人形——你变成了一件"雕塑"。艺术家退后几步，满意地端详着自己的作品。"完美。你的痛苦让这件作品更加深刻。"',
+      function() { modAttr('con', -3); modAttr('wea', -1); modAttr('int', 3); },
+      '体质-3，武器-1，智力+3', true, 'ring_sculpted'
+    ));
+  }
+
+  // --- 素材改造：活体画布 ---
+  if (getFlag('ring_captured') && !getFlag('ring_canvas') && age >= 21 && chance(0.16)) {
+    setFlag('ring_canvas', true);
+    events.push(evt(
+      '你的身体成为了一块画布。每一寸皮肤都被刻上了精密的图案，有些甚至深入到了肌肉层。你在镜子中看到自己——身上布满了色彩斑斓却扭曲变形的纹样。那些纹路仿佛在蠕动，像是活着的寄生虫。',
+      function() { modAttr('wil', -2); modAttr('int', 2); modAttr('con', -1); },
+      '意志-2，智力+2，体质-1', true, 'ring_canvas'
+    ));
+  }
+
+  // --- 逃离环指 ---
+  if (getFlag('ring_affected') && !getFlag('ring_escaped') && age >= 22 && chance(0.25)) {
+    setFlag('ring_escaped', true);
+    if ((a.con || 0) >= 5 && (a.wil || 0) >= 4) {
+      events.push(evt(
+        '你趁着艺术家外出展览的机会，用被改造过的手指解开了束缚。你的身体虽然已经面目全非，但你还是逃了出来。后巷的夜风打在你满是颜料的皮肤上，你第一次觉得自由如此痛苦。',
+        function() { modAttr('wil', 2); modAttr('con', 1); addLog('你逃出了环指的工坊。'); },
+        '意志+2，体质+1', true, 'ring_escaped'
+      ));
+    } else {
+      events.push(evt(
+        '你试图逃跑，但被改造过的身体已经无法支撑你走太远。你在后巷中跌倒，被巡逻的帮派成员发现——幸运的是，他们把你交给了一个地下医生。',
+        function() { modAttr('con', -2); modAttr('wil', 1); addLog('你勉强活了下来，但身体更加残破。'); },
+        '体质-2，意志+1', true, 'ring_escaped_fail'
+      ));
+    }
+  }
+
+  // --- 环指的艺术展览 ---
+  if (!getFlag('ring_exhibition') && age >= 20 && age <= 45 && chance(0.08)) {
+    setFlag('ring_exhibition', true);
+    events.push(evt(
+      '你被邀请参观环指举办的地下艺术展览。展厅位于后巷深处，入口伪装成一个废弃的仓库。展厅内陈列着各种令人毛骨悚然的"艺术品"——有些看起来像是被改造过的人体，有些是仍在呼吸的活体雕塑。观众们穿着考究，用专业的术语讨论着这些作品的艺术价值。',
+      function() { modAttr('int', 1); modAttr('wil', -1); },
+      '智力+1，意志-1', false, 'ring_exhibition'
+    ));
+  }
+
+  // --- 环指选中的恐惧 ---
+  if (getFlag('ring_noticed') && !getFlag('ring_affected') && !getFlag('ring_fear') && age >= 17 && chance(0.2)) {
+    setFlag('ring_fear', true);
+    events.push(evt(
+      '自从那个艺术家注意到你之后，你每天都在恐惧中度过。每次有人从背后靠近，你都会猛地回头。你在自己的房间门窗上加装了额外的锁，但你知道如果环指真的想找到你，这些都没有用。后巷的流言说，被环指选中的人，从来没有能"完整"退出的。',
+      function() { modAttr('wil', -1); modAttr('int', 1); },
+      '意志-1，智力+1', false, 'ring_fear'
+    ));
+  }
+
+  // --- 环指艺术品交易 ---
+  if (!getFlag('ring_trade') && age >= 25 && age <= 50 && chance(0.06)) {
+    setFlag('ring_trade', true);
+    events.push(evt(
+      '你在一次后巷的地下交易中，无意间目睹了环指的艺术品拍卖。买家们戴着面具，用数额惊人的钱币竞标那些"作品"。你认出其中一件——那分明是一个人的身体，被精心改造成了某种花瓶的形状。拍卖师高声宣布："这件作品名为\'永恒的容器\'，起拍价——一万币。"',
+      function() { modAttr('int', 2); modAttr('wil', -2); },
+      '智力+2，意志-2', true, 'ring_trade'
+    ));
+  }
+
+  // --- 环指学徒的考核 ---
+  if (!getFlag('ring_apprentice') && age >= 16 && age <= 30 && (a.int || 0) >= 4 && chance(0.05)) {
+    setFlag('ring_apprentice', true);
+    events.push(evt(
+      '一个自称是环指学徒的人找到了你。他说他注意到了你的"艺术天赋"——虽然你并不知道自己在哪方面有天赋。他递给你一张卡片，上面画着一个扭曲的指纹图案。"环指正在招募新的学徒。如果你通过考核，你将获得学习真正艺术的机会。当然，如果失败了……素材总是不够用的。"',
+      function() { modAttr('int', 1); },
+      '智力+1', false, 'ring_apprentice'
+    ));
+  }
+
+  // --- 偶像玛莉亚 ---
+  if (!getFlag('idol_maria') && age >= 14 && age <= 35 && chance(0.1)) {
+    setFlag('idol_maria', true);
+    events.push(evt(
+      '你看到了偶像玛莉亚的演出广告。海报上的少女笑容灿烂，眼中却有一丝不易察觉的空洞。据说她是环指旗下最受欢迎的偶像之一——她的歌声能够"净化"听众的心灵，但流言说那些被"净化"的人后来都变得不太正常。',
+      function() { modAttr('wil', -1); modAttr('int', 1); },
+      '意志-1，智力+1', false, 'idol_maria'
+    ));
+  }
+
+  // --- 偶像练歌 ---
+  if (getFlag('idol_maria') && !getFlag('idol_practice') && age >= 15 && age <= 35 && chance(0.15)) {
+    setFlag('idol_practice', true);
+    events.push(evt(
+      '你偶然路过一间练习室，听到里面传来令人沉醉的歌声。透过门缝，你看到偶像玛莉亚正在进行秘密练歌。她的歌声在空气中编织出某种旋律——你的身体不由自主地开始跟随节奏摇摆。当你回过神来，发现自己已经站了整整两个小时。',
+      function() { modAttr('wil', -1); modAttr('con', 1); },
+      '意志-1，体质+1', false, 'idol_practice'
+    ));
+  }
+
+  // --- 偶像演出 ---
+  if (getFlag('idol_maria') && !getFlag('idol_performance') && age >= 16 && age <= 40 && chance(0.12)) {
+    setFlag('idol_performance', true);
+    events.push(evt(
+      '偶像玛莉亚在环指的地下剧场举办了一场演出。剧场的观众们全都戴着相同的白色面具，像是某种诡异的仪式。玛莉亚在舞台上翩翩起舞，她的歌声越来越激昂，观众们开始不自觉地站起来，身体随着旋律扭曲成了奇怪的形状。你感到自己的意识在模糊……',
+      function() {
+        if (chance(0.3)) {
+          modAttr('wil', -3); modAttr('int', 2);
+          addLog('你被歌声影响了，脑海中充满了混乱的画面。');
+        } else {
+          modAttr('wil', -1); modAttr('int', 1);
+          addLog('你勉强保持了清醒，但歌声的余韵仍在脑海中回荡。');
+        }
+      },
+      '意志-1~-3，智力+1~2', true, 'idol_performance'
+    ));
+  }
+
+  // --- 中级拇指成员来收税 ---
+  if (!getFlag('thumb_tax_mid') && age >= 20 && age <= 55 && chance(0.1)) {
+    setFlag('thumb_tax_mid', true);
+    events.push(evt(
+      '一个穿着笔挺制服的拇指中级成员来收税。与之前那些粗暴的低级成员不同，他举止得体，甚至有些绅士。"打扰了，"他微微颔首，"根据拇指第七条税法，本区域居民需缴纳本季度税款。"他拿出一张精致的收据，上面印着拇指的徽章。他补充道："逾期未缴者，将由拇指执法队处理。我相信您不会让我为难。"',
+      function() {
+        modAttr('con', -1);
+        if (gameState.attrs.money) gameState.attrs.money = Math.max(0, (gameState.attrs.money || 0) - 2);
+        addLog('你向中级拇指成员缴纳了保护费。');
+      },
+      '体质-1，金钱-2', false, 'thumb_tax_mid'
+    ));
+  }
+
+  // --- 高级拇指成员来收税 ---
+  if (!getFlag('thumb_tax_senior') && age >= 25 && age <= 55 && chance(0.06)) {
+    setFlag('thumb_tax_senior', true);
+    events.push(evt(
+      '一位高级拇指成员亲自登门。他的制服上缝着金色的线纹，腰间别着一把做工考究的手枪。他面带微笑，语气温和而威严："我代表拇指第二税务部向您问好。"他环顾四周，"您的生活环境……似乎需要改善。我建议您按时完税。拇指的规矩您是清楚的——好公民，好生活。坏公民……"他没有说完，只是微笑着留下了一张金色边框的税单。',
+      function() {
+        modAttr('wil', -2);
+        if (gameState.attrs.money) gameState.attrs.money = Math.max(0, (gameState.attrs.money || 0) - 5);
+        addLog('你向高级拇指成员缴纳了高额税金，内心充满了无力感。');
+      },
+      '意志-2，金钱-5', true, 'thumb_tax_senior'
+    ));
+  }
+
+  // --- 其他帮派保护费：黑云会 ---
+  if (!getFlag('gang_tax_kumo') && age >= 18 && age <= 50 && chance(0.08)) {
+    setFlag('gang_tax_kumo', true);
+    events.push(evt(
+      '黑云会的人来了。他们穿着统一的黑色制服，像一片乌云一样笼罩在你的店铺前。"这个月的份子钱。"领头的男人面无表情地伸出手。"黑云会保护这一带，不接受拒绝。"',
+      function() {
+        modAttr('con', -1);
+        if (gameState.attrs.money) gameState.attrs.money = Math.max(0, (gameState.attrs.money || 0) - 1);
+      },
+      '体质-1，金钱-1', false, 'gang_tax_kumo'
+    ));
+  }
+
+  // --- 谢肉祭（Carnival）相关 ---
+  if (!getFlag('carnival_art') && age >= 18 && age <= 45 && chance(0.08)) {
+    setFlag('carnival_art', true);
+    events.push(evt(
+      '谢肉祭的人在后巷留下了一批"面料样品"。那些面料触感柔软至极，但你凑近细看时，发现纹理中隐约浮现出人的面孔——它们在无声地哭泣。一个戴着面料面具的女人在你身后出现："喜欢吗？这是我们的最新作品——纯天然人形面料。每一匹都是独一无二的艺术品。"她的声音像是丝绸在摩擦。',
+      function() { modAttr('wil', -2); modAttr('int', 2); },
+      '意志-2，智力+2', true, 'carnival_art'
+    ));
+  }
+
+  // --- 被后巷屠夫盯上 ---
+  if (!getFlag('backstreet_butcher') && age >= 20 && age <= 55 && chance(0.07)) {
+    setFlag('backstreet_butcher', true);
+    events.push(evt(
+      '后巷屠夫出现在你的视野中。这个传说中的人物身穿血迹斑斑的围裙，手提一把巨大的剁骨刀。他的目光扫过你，像是在评估一块肉的价值。"不错，"他低声嘟囔，"肉质鲜嫩，筋骨均匀。有客户会喜欢的。"你感到一阵彻骨的寒意——他不是在开玩笑。',
+      function() { modAttr('wil', -2); modAttr('con', -1); },
+      '意志-2，体质-1', true, 'backstreet_butcher'
+    ));
+  }
+
+  // --- 味之巷的美食相关 ---
+  if (!getFlag('flavor_alley_food') && age >= 16 && age <= 50 && chance(0.09)) {
+    setFlag('flavor_alley_food', true);
+    events.push(evt(
+      '味之巷的某个摊位散发着你从未闻过的诱人香气。摊主是一个面带微笑的胖男人，他的灶台上一口巨大的铁锅正在咕嘟咕嘟地沸腾。"尝尝吧，"他热情地招呼，"今天的特供——绝对新鲜。"你注意到锅里的汤呈现出不正常的深红色，而角落里堆放着一些你不愿细看的"食材"。',
+      function() {
+        if (chance(0.4)) {
+          modAttr('con', 2); modAttr('wil', -2);
+          addLog('你吃了那碗汤。味道令人难忘，但你不愿回想它的来源。');
+        } else {
+          modAttr('wil', 1);
+          addLog('你婉拒了，借口说不饿。摊主的笑容僵了一瞬。');
+        }
+      },
+      '体质+0~-2，意志-2~+1', false, 'flavor_alley_food'
+    ));
+  }
+
+  // --- 二号巷（后巷2区）事件 ---
+  if (!getFlag('alley2_event') && age >= 15 && age <= 45 && chance(0.1)) {
+    setFlag('alley2_event', true);
+    events.push(evt(
+      '后巷第二区的帮派正在举行一场"选拔"。他们把街边的居民聚集起来，像挑选牲畜一样打量每一个人。"手臂粗壮的去打架，身材好的去跳舞，剩下的……"一个帮派头目舔了舔嘴唇，"食材储备。"你混在人群中，祈祷自己被分到不太糟的类别。',
+      function() {
+        if ((a.con || 0) >= 6) {
+          modAttr('wea', 1); modAttr('con', 1);
+          addLog('你被选中当打手。虽然危险，但至少保住了命。');
+        } else if ((a.int || 0) >= 5) {
+          modAttr('int', 1);
+          addLog('你被安排去帮帮派记账。一份不体面但相对安全的工作。');
+        } else {
+          modAttr('con', -2); modAttr('wil', -1);
+          addLog('你被当作了最底层的劳动力，每天从事繁重的苦力活。');
+        }
+      },
+      '根据属性分配不同结果', true, 'alley2_event'
+    ));
+  }
+
+  // --- 环指的画廊参观（事后） ---
+  if (getFlag('ring_exhibition') && !getFlag('ring_gallery_horror') && age >= 22 && chance(0.15)) {
+    setFlag('ring_gallery_horror', true);
+    events.push(evt(
+      '你再次路过环指的画廊，发现大门敞开。好奇心驱使你走了进去——展厅内空无一人，但"作品"们都在。你走近一件雕塑，突然意识到它还在呼吸。那是一个活人，被浇筑在透明的树脂中，只能转动眼珠。他的眼中充满了无声的哀求。',
+      function() { modAttr('wil', -3); modAttr('int', 2); },
+      '意志-3，智力+2', true, 'ring_gallery_horror'
+    ));
+  }
+
+  // --- 被不莱梅（Bremen）的艺术家影响 ---
+  if (!getFlag('bremen_artist') && age >= 18 && age <= 40 && chance(0.06)) {
+    setFlag('bremen_artist', true);
+    events.push(evt(
+      '一个自称属于不莱梅乐队的音乐家在后巷演奏了一首诡异的曲子。旋律像是来自另一个世界——你感到自己的记忆和情感被音符搅动，那些你早已遗忘或刻意压制的东西涌上心头。曲终时，音乐家对你露出了一个意味深长的微笑。"听到了吗？那就是你灵魂的颜色。"',
+      function() { modAttr('wil', -2); modAttr('int', 3); },
+      '意志-2，智力+3', true, 'bremen_artist'
+    ));
+  }
+
+  // --- 环指的高级素材改造 ---
+  if (getFlag('ring_painted') && getFlag('ring_sculpted') && !getFlag('ring_masterpiece') && age >= 25 && chance(0.2)) {
+    setFlag('ring_masterpiece', true);
+    events.push(evt(
+      '艺术家终于满意了。你的身体经过无数次改造后，已经完全不像一个人类。你拥有了某种超越常人的感知能力——你能"看到"颜色的情感，"听到"形状的旋律。代价是你再也无法回到正常的生活中。你成为了环指的一件"杰作"。',
+      function() { modAttr('int', 5); modAttr('con', -3); modAttr('wil', -2); modAttr('wea', 2); },
+      '智力+5，武器+2，体质-3，意志-2', true, 'ring_masterpiece'
+    ));
+  }
+
+  // --- 环指的委托：寻找新素材 ---
+  if (getFlag('ring_escaped') && !getFlag('ring_recruit') && age >= 25 && chance(0.1)) {
+    setFlag('ring_recruit', true);
+    events.push(evt(
+      '一个你认识的环指学徒找到了你——不是来抓你回去，而是来给你一个"机会"。"你对素材的了解比任何人都深，"他低声说，"帮我们找到新的素材，我们给你报酬。而且……我们保证不再碰你。"这是一个魔鬼的交易。',
+      function() {
+        if (chance(0.5)) {
+          modAttr('int', 2); modAttr('wil', -3);
+          setFlag('ring_recruiter', true);
+          addLog('你接受了环指的委托，踏上了寻找素材的道路。你的灵魂在堕落。');
+        } else {
+          modAttr('wil', 2);
+          addLog('你断然拒绝了。无论付出什么代价，你都不会成为他们的帮凶。');
+        }
+      },
+      '根据选择获得不同结果', true, 'ring_recruit'
+    ));
+  }
+
+  // --- 环指的艺术品市场观察 ---
+  if (!getFlag('ring_market') && age >= 28 && age <= 55 && chance(0.05)) {
+    setFlag('ring_market', true);
+    events.push(evt(
+      '你进入了环指控制的地下艺术品市场。这里的商品与普通市场截然不同——活体雕塑被摆放在橱窗中，由呼吸装置维持生命；人皮画作被小心翼翼地卷在画筒里；还有用骨骼制成的乐器，据说能奏出"人类最后的旋律"。你看到一个买家花了天文数字买走了一件作品，而那个作品分明还在流泪。',
+      function() { modAttr('int', 3); modAttr('wil', -3); },
+      '智力+3，意志-3', true, 'ring_market'
+    ));
+  }
+
+  return events;
+}
+
 // ==================== 黑兽事件链 ====================
 function eventChainBlackBeast(age) {
   if (!gameState.alive || gameState.dead) return;
@@ -18734,6 +19129,496 @@ function runExtendedRoutes(age) {
     addEvent({ text: '黑市上有人向你推销一种被称为"玻璃窗"的物品——基于九人会的发明，能让人"感受其他世界"。你犹豫了一下，但没有尝试。"玻璃窗"和"镜子"这些白夜黑昼后出现的技术让人"感受其他世界"——听起来很诱人，但代价是什么？卖家没有告诉你，你也不敢问。', effect: 'encounter', effText: '智力+1', major: true, milestone: '玻璃窗接触' });
     addMilestone('玻璃窗接触');
     modAttr('int', 1);
+  }
+}
+
+// ==================== 义体/全身义体改造事件 ====================
+function addCyberneticsEvents(age) {
+  if (!gameState.alive || gameState.dead) return;
+  if (gameState.ageEventCount && gameState.ageEventCount[age] >= 3) return;
+  const a = gameState.attrs;
+
+  // 1. K公司机械义肢——最常见的基础义体
+  if (age >= 16 && age <= 55 && !getFlag('kcorp_prosthetic_arm') && chance(0.04)) {
+    setFlag('kcorp_prosthetic_arm', true);
+    addEvent({ text: '你在一次事故中失去了左臂。后巷的义体诊所向你推荐了K公司的机械义肢——这是都市中最常见的义体产品，以可靠性和耐用性著称。"K公司的货，用十年不成问题，"技师如是说。你花了所有积蓄换上了一只银灰色的机械手臂，握拳时关节发出令人安心的咔嗒声。', effect: 'cyber', effText: '体质+1，武器+1，家境-1', major: true, milestone: 'K公司机械义肢' });
+    addMilestone('K公司机械义肢');
+    modAttr('con', 1);
+    modAttr('wea', 1);
+    modAttr('wea', -1);
+  }
+
+  // 2. K公司机械义肢升级
+  if (age >= 20 && age <= 50 && getFlag('kcorp_prosthetic_arm') && !getFlag('kcorp_arm_upgrade') && chance(0.03)) {
+    setFlag('kcorp_arm_upgrade', true);
+    addEvent({ text: '你的K公司义肢用了几年后，你攒够了钱进行了一次升级。新型号的反应速度提升了30%，内置了基础的振动反馈系统——现在你甚至能通过义肢感受到物体的温度和纹理。"质量可靠"是K公司一贯的口碑，这次的升级也不例外。', effect: 'cyber', effText: '武器+2，家境-1', major: true, milestone: 'K公司义肢升级' });
+    addMilestone('K公司义肢升级');
+    modAttr('wea', 2);
+    modAttr('wea', -1);
+  }
+
+  // 3. T公司义眼/视觉增强——时间感知相关
+  if (age >= 18 && age <= 45 && !getFlag('tcorp_eye_implant') && chance(0.03)) {
+    setFlag('tcorp_eye_implant', true);
+    addEvent({ text: '你在黑市上购买了一颗T公司的义眼植入体。T公司的技术与时间感知息息相关——装上这颗义眼后，你的视觉处理速度显著提升，甚至能短暂地"看"到子弹的轨迹。但偶尔，你的视野中会出现不属于这个时间的残影——某个人的身影一闪而过，仿佛来自过去或未来。', effect: 'cyber', effText: '智力+2，体质-1', major: true, milestone: 'T公司义眼植入' });
+    addMilestone('T公司义眼植入');
+    modAttr('int', 2);
+    modAttr('con', -1);
+  }
+
+  // 4. T公司义眼副作用——时间错乱
+  if (age >= 22 && age <= 50 && getFlag('tcorp_eye_implant') && !getFlag('tcorp_eye_sideeffect') && chance(0.04)) {
+    setFlag('tcorp_eye_sideeffect', true);
+    addEvent({ text: 'T公司义眼的副作用开始显现了。你越来越频繁地看到"时间残影"——上一秒还在眼前的物体，下一秒突然出现在几米之外。有几次你在战斗中因为看到了"尚未发生的攻击"而提前闪避，救了自己一命。但也有时候，你分不清自己看到的是现在还是未来。', effect: 'cyber', effText: '智力+2，意志-2', major: true, milestone: 'T公司义眼副作用' });
+    addMilestone('T公司义眼副作用');
+    modAttr('int', 2);
+    modAttr('wil', -2);
+  }
+
+  // 5. W公司空间折叠储物义体
+  if (age >= 20 && age <= 55 && !getFlag('wcorp_storage_implant') && chance(0.02)) {
+    setFlag('wcorp_storage_implant', true);
+    addEvent({ text: '一位W公司的技术员向你推销了一种空间折叠储物义体——植入皮下后，你的身体内部会形成一个微小的折叠空间，可以存放小型物品。"相当于随身带了一个口袋维度，"他演示着将一把匕首消失在掌心。价格不菲，但对于经常需要携带大量装备的人来说非常实用。', effect: 'cyber', effText: '家境-1，智力+1', major: true, milestone: 'W公司空间储物义体' });
+    addMilestone('W公司空间储物义体');
+    modAttr('wea', -1);
+    modAttr('int', 1);
+  }
+
+  // 6. 后巷廉价义肢——质量差
+  if (age >= 15 && age <= 40 && !getFlag('cheap_prosthetic') && chance(0.05)) {
+    setFlag('cheap_prosthetic', true);
+    addEvent({ text: '你买不起正规公司的义肢，只能从后巷的地下作坊买了一支廉价机械手臂。焊点粗糙，关节松动，每次移动都会发出刺耳的嘎吱声。技师保证"够用了"——但他没告诉你的是，这种义肢平均使用寿命不超过两年，而且随时可能失控。', effect: 'cyber', effText: '体质+1，家境+1，意志-1', major: false, milestone: '后巷廉价义肢' });
+    addMilestone('后巷廉价义肢');
+    modAttr('con', 1);
+    modAttr('wea', 1);
+    modAttr('wil', -1);
+  }
+
+  // 7. 后巷廉价义肢故障
+  if (age >= 17 && age <= 42 && getFlag('cheap_prosthetic') && !getFlag('cheap_prosthetic_break') && chance(0.06)) {
+    setFlag('cheap_prosthetic_break', true);
+    addEvent({ text: '果然出事了。你的廉价义肢在一次战斗中突然失控——手指不受控制地抽搐，关节锁死，整条手臂像一根铁棍一样僵在半空中。你不得不在战斗中用另一只手强行掰开了卡死的关节。金属断裂的声音令人牙酸。你需要修好它，或者换一个更好的。', effect: 'cyber', effText: '体质-1，武器-1', major: true, milestone: '廉价义肢故障' });
+    addMilestone('廉价义肢故障');
+    modAttr('con', -1);
+    modAttr('wea', -1);
+  }
+
+  // 8. 全身义体改造——收尾人路线
+  if (age >= 25 && age <= 50 && !getFlag('full_cyberbody') && a.wea >= 5 && chance(0.02)) {
+    setFlag('full_cyberbody', true);
+    addEvent({ text: '你做出了一个重大决定——全身义体化。作为收尾人，肉体的极限你已经触及了。将90%以上的身体替换为机械，只剩大脑和脊椎保留有机组织，这是许多高阶收尾人的选择。手术持续了整整三天，当你再次睁开眼睛时，镜中的自己已经不再是人类的样子——银灰色的金属皮肤、发光的光学传感器代替了眼睛、液压驱动的四肢散发着机油的味道。你变强了，但你还是你吗？', effect: 'cyber', effText: '体质+3，武器+3，智力+1，意志-2', major: true, milestone: '全身义体改造' });
+    addMilestone('全身义体改造');
+    modAttr('con', 3);
+    modAttr('wea', 3);
+    modAttr('int', 1);
+    modAttr('wil', -2);
+  }
+
+  // 9. 全身义体化后的金属皮肤优势
+  if (age >= 26 && age <= 55 && getFlag('full_cyberbody') && !getFlag('cyberbody_metal_skin') && chance(0.04)) {
+    setFlag('cyberbody_metal_skin', true);
+    addEvent({ text: '全身义体化的第一个显著优势就是防御力。你的金属皮肤能抵御大部分常规武器的攻击——刀刃划过只会留下浅浅的划痕，甚至低口径子弹也无法穿透你的合金外壳。在街头斗殴中，你成为了令人畏惧的存在。但金属皮肤也让你失去了触觉——你再也感受不到微风拂过皮肤的温暖。', effect: 'cyber', effText: '体质+2，武器+1', major: false, milestone: '金属皮肤优势' });
+    addMilestone('金属皮肤优势');
+    modAttr('con', 2);
+    modAttr('wea', 1);
+  }
+
+  // 10. 鲨鱼帮风格义体——暴力美学
+  if (age >= 18 && age <= 40 && !getFlag('shark_gang_cyber') && chance(0.03)) {
+    setFlag('shark_gang_cyber', true);
+    addEvent({ text: '你在后巷遇到了鲨鱼帮的成员——他们的义体改造充满了暴力美学的风格：外露的液压管、锋利的金属獠牙、发光的红色光学眼。一个鲨鱼帮的"铁匠"向你展示了他们的特色义肢——内置了弹出式刀刃和电击功能。"实用又好看，"他咧开嘴，露出金属牙齿，"要不要来一套？"', effect: 'cyber', effText: '武器+2，体质+1，家境-1', major: true, milestone: '鲨鱼帮风格义体' });
+    addMilestone('鲨鱼帮风格义体');
+    modAttr('wea', 2);
+    modAttr('con', 1);
+    modAttr('wea', -1);
+  }
+
+  // 11. 义体排异反应
+  if (age >= 17 && age <= 55 && (getFlag('kcorp_prosthetic_arm') || getFlag('cheap_prosthetic') || getFlag('tcorp_eye_implant')) && !getFlag('cyber_rejection') && chance(0.04)) {
+    setFlag('cyber_rejection', true);
+    addEvent({ text: '你的身体开始排斥植入的义体。植入部位周围的皮肤发红、肿胀，神经接口处传来持续的灼烧感。这是义体排异反应——你的免疫系统将机械部件视为入侵者。医生说你需要接受免疫抑制剂治疗，否则排异反应会越来越严重，甚至危及生命。', effect: 'cyber', effText: '体质-2，意志+1', major: true, milestone: '义体排异反应' });
+    addMilestone('义体排异反应');
+    modAttr('con', -2);
+    modAttr('wil', 1);
+  }
+
+  // 12. 义体黑客入侵
+  if (age >= 20 && age <= 50 && (getFlag('kcorp_prosthetic_arm') || getFlag('full_cyberbody') || getFlag('tcorp_eye_implant')) && !getFlag('cyber_hack') && chance(0.03)) {
+    setFlag('cyber_hack', true);
+    addEvent({ text: '你在执行任务时遭遇了义体黑客。对方通过无线信号侵入了你的义体控制系统——你的机械手臂突然不听使唤，义眼中的数据开始疯狂闪烁。一种恐怖的感觉席卷全身：你的身体的一部分不再属于你。你拼尽全力通过纯意志力对抗入侵信号，最终在义体完全被接管前切断了无线连接模块。', effect: 'cyber', effText: '意志+2，智力+1，武器-1', major: true, milestone: '义体黑客入侵' });
+    addMilestone('义体黑客入侵');
+    modAttr('wil', 2);
+    modAttr('int', 1);
+    modAttr('wea', -1);
+  }
+
+  // 13. 翼公司军用级义体——黑市流通
+  if (age >= 22 && age <= 45 && !getFlag('wing_military_cyber') && a.wea >= 6 && chance(0.02)) {
+    setFlag('wing_military_cyber', true);
+    addEvent({ text: '一位神秘的中间人向你展示了一套翼公司军用级义体——本应只配发给翼公司精锐部队的装备不知怎的流入了黑市。这套义体内置了能量护盾、强化骨骼和战术计算辅助系统。性能远超民用产品，但也有严重的缺陷：一旦被翼公司发现你持有军用义体，等待你的将是清洗队。', effect: 'cyber', effText: '武器+3，体质+2，家境-2', major: true, milestone: '翼公司军用级义体' });
+    addMilestone('翼公司军用级义体');
+    modAttr('wea', 3);
+    modAttr('con', 2);
+    modAttr('wea', -2);
+  }
+
+  // 14. 齿轮教会机械崇拜式改造
+  if (age >= 16 && age <= 40 && !getFlag('gear_church_cyber') && chance(0.02)) {
+    setFlag('gear_church_cyber', true);
+    addEvent({ text: '你接触到了齿轮教会的信徒。他们崇拜机械与齿轮，认为血肉是脆弱的、不完美的，只有将身体逐步替换为机械才能接近"永恒的完美"。一位高阶信徒向你展示了他的身体——几乎已经完全机械化，胸腔内是一组精密咬合的齿轮，随呼吸缓缓转动。"加入我们，"他说，"摆脱血肉的束缚。"你犹豫了，但他们的技术确实是顶尖的。', effect: 'cyber', effText: '体质+2，智力+1，意志-1', major: true, milestone: '齿轮教会改造' });
+    addMilestone('齿轮教会改造');
+    modAttr('con', 2);
+    modAttr('int', 1);
+    modAttr('wil', -1);
+  }
+
+  // 15. 齿轮教会深度改造
+  if (age >= 25 && age <= 50 && getFlag('gear_church_cyber') && !getFlag('gear_church_deep') && chance(0.03)) {
+    setFlag('gear_church_deep', true);
+    addEvent({ text: '你接受了齿轮教会的深度改造——脊椎被替换为一根精密的机械轴，每个椎间盘都嵌有微型齿轮。你的身体开始发出低沉的机械运转声，行动时伴随着齿轮咬合的韵律。教会称你为"半齿轮者"——你已经走在了通往"完全齿轮化"的道路上。但你知道，每一步改造都让你离人类更远一步。', effect: 'cyber', effText: '体质+2，武器+1，智力-1', major: true, milestone: '齿轮教会深度改造' });
+    addMilestone('齿轮教会深度改造');
+    modAttr('con', 2);
+    modAttr('wea', 1);
+    modAttr('int', -1);
+  }
+
+  // 16. 高身份角色获得高级义体
+  if (age >= 20 && age <= 50 && !getFlag('premium_cybernetics') && a.wea >= 8 && chance(0.03)) {
+    setFlag('premium_cybernetics', true);
+    addEvent({ text: '以你的身份和地位，你终于有资格购买顶级义体了。K公司的旗舰级全身义体套餐——每一块合金板都经过手工打磨，关节采用纳米级精度加工，内置AI辅助系统能预判你的意图并提前调整姿态。这就是都市精英与后巷鼠辈之间的差距——同一具义体，价格是天壤之别。', effect: 'cyber', effText: '体质+2，武器+2，家境+1', major: true, milestone: '顶级义体' });
+    addMilestone('顶级义体');
+    modAttr('con', 2);
+    modAttr('wea', 2);
+    modAttr('wea', 1);
+  }
+
+  // 17. 义体维护保养事件
+  if (age >= 18 && age <= 60 && (getFlag('kcorp_prosthetic_arm') || getFlag('full_cyberbody') || getFlag('cheap_prosthetic')) && !getFlag('cyber_maintenance') && chance(0.05)) {
+    setFlag('cyber_maintenance', true);
+    addEvent({ text: '你的义体到了保养的时候了。正规的K公司售后服务中心收费昂贵但服务周到——技师会全面检查每一个关节、每一条液压管、每一根神经接口。后巷的非法修理店便宜得多，但手艺参差不齐——你听说过有人在保养后义肢反向安装的故事。', effect: 'cyber', effText: '家境-1，体质+1', major: false, milestone: '义体保养' });
+    addMilestone('义体保养');
+    modAttr('wea', -1);
+    modAttr('con', 1);
+  }
+
+  // 18. 脑部接口植入
+  if (age >= 20 && age <= 45 && !getFlag('brain_interface') && chance(0.02)) {
+    setFlag('brain_interface', true);
+    addEvent({ text: '你接受了一次脑部接口植入手术——在后脑勺开一个小孔，将一枚芯片直接连接到大脑皮层。术后，你可以直接与电子设备进行思维交互，信息处理速度提升了数倍。但手术的风险极高：任何微小的失误都可能导致永久性脑损伤。幸运的是，你的手术成功了。你现在的思维速度足以让普通人望尘莫及。', effect: 'cyber', effText: '智力+3，体质-1', major: true, milestone: '脑部接口植入' });
+    addMilestone('脑部接口植入');
+    modAttr('int', 3);
+    modAttr('con', -1);
+  }
+
+  // 19. 脊椎义体——提升反射速度
+  if (age >= 18 && age <= 40 && !getFlag('spine_cybernetic') && chance(0.03)) {
+    setFlag('spine_cybernetic', true);
+    addEvent({ text: '你安装了一副脊椎义体——将天然脊椎替换为强化合金材质的机械脊椎。改造后你的神经信号传导速度提升了将近五倍，反射速度远超常人。在战斗中，你甚至能在对手出招前就做出闪避。但这种改造有一个隐患：脊椎是人体最脆弱的部分之一，一旦机械脊椎被击穿，你将面临终身瘫痪。', effect: 'cyber', effText: '体质+2，武器+2', major: true, milestone: '脊椎义体植入' });
+    addMilestone('脊椎义体植入');
+    modAttr('con', 2);
+    modAttr('wea', 2);
+  }
+
+  // 20. 心脏替换为机械心脏
+  if (age >= 22 && age <= 50 && !getFlag('mechanical_heart') && chance(0.02)) {
+    setFlag('mechanical_heart', true);
+    addEvent({ text: '你的心脏在一次重伤中严重受损，不得不接受机械心脏移植。新的机械心脏由K公司生产，采用双缸液压驱动，能提供比天然心脏更强的血液泵送能力。你的体力和耐力都有了显著提升。但每当夜深人静时，你都能听到胸腔中传来的有节奏的机械嗡鸣声——那是你的新心脏在跳动。', effect: 'cyber', effText: '体质+3，意志+1，家境-2', major: true, milestone: '机械心脏移植' });
+    addMilestone('机械心脏移植');
+    modAttr('con', 3);
+    modAttr('wil', 1);
+    modAttr('wea', -2);
+  }
+
+  // 21. 义体过载导致自我认知模糊（亚人化）
+  if (age >= 25 && age <= 50 && (getFlag('full_cyberbody') || getFlag('gear_church_deep')) && !getFlag('cyber_overload_identity') && chance(0.03)) {
+    setFlag('cyber_overload_identity', true);
+    addEvent({ text: '你的义体负荷过高了。在一次高强度战斗后，你感到意识开始模糊——机械部分和有机部分的边界变得模糊不清。你开始质疑：那些机械关节的运动是你在控制，还是机械在"替"你思考？你的记忆出现了断层——有些你确信发生过的事情，义体的日志中毫无记录。这种现象被称为"亚人化"——当义体比例超过一定阈值后，人类的自我意识会逐渐被机械逻辑侵蚀。', effect: 'cyber', effText: '智力+2，意志-3，体质+1', major: true, milestone: '义体过载·亚人化' });
+    addMilestone('义体过载·亚人化');
+    modAttr('int', 2);
+    modAttr('wil', -3);
+    modAttr('con', 1);
+  }
+
+  // 22. 血魔义体——血魔科技+机械
+  if (age >= 20 && age <= 45 && !getFlag('blood_moon_cyber') && chance(0.02)) {
+    setFlag('blood_moon_cyber', true);
+    addEvent({ text: '你在黑市上发现了一种极为罕见的义体——融合了血魔科技的机械部件。这种义体需要以使用者的血液作为能源，在战斗中会激活血魔因子，赋予使用者超常的再生能力和战斗本能。代价是你的体温常年偏低，偶尔会在月光下感到一种难以抑制的嗜血冲动。', effect: 'cyber', effText: '体质+3，武器+2，意志-2', major: true, milestone: '血魔义体植入' });
+    addMilestone('血魔义体植入');
+    modAttr('con', 3);
+    modAttr('wea', 2);
+    modAttr('wil', -2);
+  }
+
+  // 23. 全身义体化后的心理变化
+  if (age >= 28 && age <= 55 && getFlag('full_cyberbody') && !getFlag('cyberbody_psychological') && chance(0.04)) {
+    setFlag('cyberbody_psychological', true);
+    addEvent({ text: '全身义体化后，你的心理开始发生微妙的变化。你发现自己越来越难以对事物产生情感共鸣——看着受伤的人不再感到同情，面对死亡不再感到恐惧。你的情感反应被机械大脑的逻辑处理逐步"优化"掉了。一位心理学家告诉你，这是全身义体化者的常见症状——被称为"情感钝化"。', effect: 'cyber', effText: '智力+1，意志-2，体质+1', major: true, milestone: '全身义体·情感钝化' });
+    addMilestone('全身义体·情感钝化');
+    modAttr('int', 1);
+    modAttr('wil', -2);
+    modAttr('con', 1);
+  }
+
+  // 24. W公司空间义体事故
+  if (age >= 22 && age <= 50 && getFlag('wcorp_storage_implant') && !getFlag('wcorp_storage_accident') && chance(0.03)) {
+    setFlag('wcorp_storage_accident', true);
+    addEvent({ text: '你的W公司空间储物义体出了严重故障——折叠空间出现了裂缝，你存储在内部的物品开始随机出现在你周围的空间中。更糟的是，你的左手偶尔会"掉"进折叠空间再从另一侧出来。W公司的技术员紧急修复了这个缺陷，但警告你不要再存储活体物品——上一位客户曾经试图在折叠空间中藏一只猫，结果……猫变成了两个。', effect: 'cyber', effText: '智力+1，意志-1', major: true, milestone: 'W公司空间义体事故' });
+    addMilestone('W公司空间义体事故');
+    modAttr('int', 1);
+    modAttr('wil', -1);
+  }
+
+  // 25. K公司义肢的二手交易
+  if (age >= 16 && age <= 35 && !getFlag('secondhand_cyber') && chance(0.04)) {
+    setFlag('secondhand_cyber', true);
+    addEvent({ text: '你从后巷的二手市场买到了一支K公司机械义肢——上一个主人已经不需要它了（无论是因为死亡还是升级）。义肢上有一些磨损的痕迹，但K公司的产品质量确实过硬，即使是被使用过的二手货也远比全新的后巷仿制品可靠。你以不到原价三分之一的价格入手，算是捡了个便宜。', effect: 'cyber', effText: '体质+1，武器+1，家境+1', major: false, milestone: '二手K公司义肢' });
+    addMilestone('二手K公司义肢');
+    modAttr('con', 1);
+    modAttr('wea', 1);
+    modAttr('wea', 1);
+  }
+
+  // 26. T公司义眼的时间感知觉醒
+  if (age >= 25 && age <= 50 && getFlag('tcorp_eye_implant') && getFlag('tcorp_eye_sideeffect') && !getFlag('tcorp_time_awakening') && chance(0.02)) {
+    setFlag('tcorp_time_awakening', true);
+    addEvent({ text: 'T公司义眼的时间感知能力在你体内进一步觉醒了。你不再只是看到"时间残影"——你能短暂地感知到未来三秒内即将发生的事情。在战斗中，这几乎等同于预知能力。但代价是每次使用这种能力后，你会陷入持续数小时的剧烈头痛，仿佛大脑被强行拉伸到了时间维度之外。', effect: 'cyber', effText: '智力+3，体质-2，意志-1', major: true, milestone: 'T公司义眼·时间觉醒' });
+    addMilestone('T公司义眼·时间觉醒');
+    modAttr('int', 3);
+    modAttr('con', -2);
+    modAttr('wil', -1);
+  }
+
+  // 27. 多家公司义体的兼容性问题
+  if (age >= 20 && age <= 50 && getFlag('kcorp_prosthetic_arm') && getFlag('tcorp_eye_implant') && !getFlag('cross_company_conflict') && chance(0.04)) {
+    setFlag('cross_company_conflict', true);
+    addEvent({ text: '你同时拥有K公司和T公司的义体产品，问题来了——两家公司的技术标准并不兼容。K公司的义肢使用的是第七代神经接口协议，而T公司的义眼采用第四代时间同步协议。两者在你的神经系统中产生了冲突，导致你偶尔会失去对左侧身体的控制。你需要找一位能处理跨公司兼容性问题的顶级技师。', effect: 'cyber', effText: '体质-1，智力+2', major: true, milestone: '跨公司义体兼容问题' });
+    addMilestone('跨公司义体兼容问题');
+    modAttr('con', -1);
+    modAttr('int', 2);
+  }
+
+  // 28. 义体改造的社会歧视
+  if (age >= 18 && age <= 55 && (getFlag('full_cyberbody') || getFlag('cheap_prosthetic') || getFlag('kcorp_prosthetic_arm')) && !getFlag('cyber_discrimination') && chance(0.04)) {
+    setFlag('cyber_discrimination', true);
+    addEvent({ text: '在都市中，义体改造者常常面临歧视。巢内的居民对全身义体化者尤其反感——他们认为"金属人"失去了人性，不应该与纯血人类享有同等权利。你进入巢的某个区域时被安检人员拦下，要求你出示义体改造许可证。没有许可证的义体改造者在某些巢内会被视为潜在威胁，甚至可以合法射杀。', effect: 'cyber', effText: '家境-1，意志+1', major: false, milestone: '义体歧视遭遇' });
+    addMilestone('义体歧视遭遇');
+    modAttr('wea', -1);
+    modAttr('wil', 1);
+  }
+
+  // 29. 翼公司军用义体被追查
+  if (age >= 25 && age <= 50 && getFlag('wing_military_cyber') && !getFlag('wing_military_hunted') && chance(0.04)) {
+    setFlag('wing_military_hunted', true);
+    addEvent({ text: '翼公司发现了你持有他们的军用级义体。一队身穿黑色作战服的清洗兵出现在你的住所附近。你不得不紧急撤离，在都市中展开了一场猫鼠游戏。军用义体的性能确实出色——但它的定位信标也在不断向翼公司发送你的位置。你必须在被追上之前找到方法屏蔽信号，或者干脆换掉这套义体。', effect: 'cyber', effText: '意志+2，体质+1，家境-2', major: true, milestone: '翼公司追查' });
+    addMilestone('翼公司追查');
+    modAttr('wil', 2);
+    modAttr('con', 1);
+    modAttr('wea', -2);
+  }
+
+  // 30. 义体回收者的威胁
+  if (age >= 20 && age <= 55 && (getFlag('full_cyberbody') || getFlag('kcorp_prosthetic_arm') || getFlag('spine_cybernetic')) && !getFlag('cyber_reaper') && chance(0.03)) {
+    setFlag('cyber_reaper', true);
+    addEvent({ text: '你听说过"义体回收者"的传说——后巷中专门猎杀义体改造者、拆卸他们身上有价值部件的犯罪集团。他们被称为"剥皮者"，因为他们的作案手法就像剥去猎物的皮一样精准。你注意到最近有人在跟踪你，而你身上的义体部件在黑市上确实值不少钱。你必须提高警惕。', effect: 'cyber', effText: '意志+2，武器+1', major: true, milestone: '义体回收者威胁' });
+    addMilestone('义体回收者威胁');
+    modAttr('wil', 2);
+    modAttr('wea', 1);
+  }
+}
+
+// ==================== 食指模仿收尾人事件 ====================
+function addIndexFixerEvents(age) {
+  if (!gameState.alive || gameState.dead) return;
+  if (gameState.ageEventCount && gameState.ageEventCount[age] >= 3) return;
+
+  // 1. 食指的信件到达
+  if (age >= 15 && age <= 50 && !getFlag('index_letter_arrival') && chance(0.04)) {
+    setFlag('index_letter_arrival', true);
+    addEvent({ text: '你收到了一封信——不是电子邮件，是一封真正的、用蜡封封口的实体信件。信封上没有寄件人地址，只有一个用红色墨水书写的食指图标——食指帮派的标志。食指通过"信"来发号施令，每一封信都代表一个不可违抗的命令。你拆开信封，信上只写了一句话和一个地点。', effect: 'index', effText: '智力+1，意志-1', major: true, milestone: '食指信件到达' });
+    addMilestone('食指信件到达');
+    modAttr('int', 1);
+    modAttr('wil', -1);
+  }
+
+  // 2. 被食指要求执行命令
+  if (age >= 16 && age <= 50 && getFlag('index_letter_arrival') && !getFlag('index_order_execute') && chance(0.04)) {
+    setFlag('index_order_execute', true);
+    addEvent({ text: '食指的命令来了。信中的指令简洁而冷酷：前往指定地点，在指定时间，完成指定任务。食指的信不是请求，而是命令——拒绝信件命令的人在都市中鲜有善终。你看了看信中的内容，这次的任务相对简单：将一个包裹送到J巢的某个地址。但你知道，食指的"简单任务"背后往往隐藏着不为人知的目的。', effect: 'index', effText: '家境+1，意志-1', major: true, milestone: '食指命令执行' });
+    addMilestone('食指命令执行');
+    modAttr('wea', 1);
+    modAttr('wil', -1);
+  }
+
+  // 3. 拒绝食指命令的后果
+  if (age >= 18 && age <= 50 && getFlag('index_letter_arrival') && !getFlag('index_order_refuse') && chance(0.02)) {
+    setFlag('index_order_refuse', true);
+    addEvent({ text: '这一次，你决定拒绝食指的命令。你将信件烧毁，假装从未收到过。但食指的情报网络远比你想象的更广泛。三天后，你住所的门上被钉了一封新的信——信封是黑色的，上面只有一个词："后悔"。接下来的日子里，你发现自己在都市中的处境急剧恶化：合作的收尾人突然取消合同，常去的商店对你关闭了大门，甚至连后巷的黑市贩子都拒绝与你交易。', effect: 'index', effText: '家境-2，意志+2', major: true, milestone: '拒绝食指命令' });
+    addMilestone('拒绝食指命令');
+    modAttr('wea', -2);
+    modAttr('wil', 2);
+  }
+
+  // 4. 莉亚·铁头（Leah）登场
+  if (age >= 18 && age <= 45 && !getFlag('leah_irontop') && chance(0.03)) {
+    setFlag('leah_irontop', true);
+    addEvent({ text: '你在后巷遇到了一个绰号"铁头"的年轻女性——莉亚。她的头部被一块厚重的金属板覆盖，据说是为了保护自己免受某种伤害。莉亚是食指旗下的模仿收尾人之一，性格直爽但有些鲁莽。她模仿的对象是一位赫赫有名的收尾人——虽然她的技术与原版还有差距，但那份不服输的劲头却是独有的。"铁头可不是装饰，"她拍了拍自己的金属脑袋，发出沉闷的回响，"这是勋章。"', effect: 'index', effText: '智力+1，体质+1', major: true, milestone: '莉亚·铁头登场' });
+    addMilestone('莉亚·铁头登场');
+    modAttr('int', 1);
+    modAttr('con', 1);
+  }
+
+  // 5. 瓦莱丽（Valerie）登场
+  if (age >= 20 && age <= 48 && !getFlag('valerie_appear') && chance(0.02)) {
+    setFlag('valerie_appear', true);
+    addEvent({ text: '瓦莱丽是食指帮派中一位令人敬畏的模仿收尾人。你第一次见到她是在J巢的一场收尾人聚会上——她优雅地坐在角落，手中把玩着一副刀刃。作为食指的高级成员，瓦莱丽模仿的收尾人风格以精准和致命著称。她的每一次出手都像是经过了千锤百炼的公式——没有多余的动作，每一刀都直奔要害。', effect: 'index', effText: '武器+2，智力+1', major: true, milestone: '瓦莱丽登场' });
+    addMilestone('瓦莱丽登场');
+    modAttr('wea', 2);
+    modAttr('int', 1);
+  }
+
+  // 6. 菲利普·道尔（Philip D.）登场
+  if (age >= 22 && age <= 50 && !getFlag('philip_doyle') && chance(0.02)) {
+    setFlag('philip_doyle', true);
+    addEvent({ text: '菲利普·道尔是食指中最具争议的模仿收尾人之一。他的模仿对象是一位以残酷手段著称的传奇收尾人，而菲利普似乎在模仿中注入了某种近乎偏执的热情。你听说他最近完成了一项几乎不可能的任务——独自一人清剿了一整个敌对帮派的据点。"我只是做了信上要求的事，"他平淡地说，但你注意到他的双手在微微颤抖。', effect: 'index', effText: '武器+2，意志+1，智力-1', major: true, milestone: '菲利普·道尔登场' });
+    addMilestone('菲利普·道尔登场');
+    modAttr('wea', 2);
+    modAttr('wil', 1);
+    modAttr('int', -1);
+  }
+
+  // 7. 食指内部权力斗争
+  if (age >= 20 && age <= 55 && !getFlag('index_power_struggle') && chance(0.03)) {
+    setFlag('index_power_struggle', true);
+    addEvent({ text: '食指内部并非铁板一块。你无意中得知了一场正在酝酿的权力斗争——两位食指的高层干部在争夺"书信长"的位置。书信长负责起草和分发食指的所有信件命令，是食指实际运作的核心。一位主张通过信件进行更精密的控制，另一位则倾向于用更直接的方式——包括暴力——来维持食指的权威。你被卷入了这场争斗的边缘。', effect: 'index', effText: '智力+2，家境-1', major: true, milestone: '食指内部斗争' });
+    addMilestone('食指内部斗争');
+    modAttr('int', 2);
+    modAttr('wea', -1);
+  }
+
+  // 8. 食指模仿收尾人的趣闻
+  if (age >= 16 && age <= 40 && !getFlag('index_fixer_joke') && chance(0.04)) {
+    setFlag('index_fixer_joke', true);
+    addEvent({ text: '后巷流传着一个关于食指模仿收尾人的笑话：一个模仿收尾人走进酒吧，酒保问他"你模仿的是谁？"他想了半天回答"我自己"。没有人笑。因为在都市中，一个模仿收尾人如果连自己模仿的是谁都搞不清楚，那就太可悲了——或者太可怕了。莉亚·铁头听到这个笑话后大笑不止，然后补了一句："至少我们知道自己不是漆黑芥末，那家伙才是真正的怪物。"', effect: 'index', effText: '智力+1', major: false, milestone: '食指模仿收尾人趣闻' });
+    addMilestone('食指模仿收尾人趣闻');
+    modAttr('int', 1);
+  }
+
+  // 9. 食指总部J巢相关
+  if (age >= 18 && age <= 50 && !getFlag('index_jnest_visit') && chance(0.03)) {
+    setFlag('index_jnest_visit', true);
+    addEvent({ text: '你第一次来到了J巢——食指帮派的大本营所在。J巢与其他巢不同，这里的氛围充满了压抑的秩序感。街道上巡逻的不仅仅是巢的安保人员，还有食指的收尾人。每一面墙上都贴着食指的标志——一根竖起的食指，象征着"第一"和"命令"。在J巢，食指的信件比法律更有效力。', effect: 'index', effText: '智力+2，家境+1', major: true, milestone: 'J巢探访' });
+    addMilestone('J巢探访');
+    modAttr('int', 2);
+    modAttr('wea', 1);
+  }
+
+  // 10. 食指信件送达任务——危险包裹
+  if (age >= 17 && age <= 45 && getFlag('index_letter_arrival') && !getFlag('index_dangerous_parcel') && chance(0.03)) {
+    setFlag('index_dangerous_parcel', true);
+    addEvent({ text: '食指的这次命令不同寻常。你需要送达的包裹异常沉重，而且在你搬运的过程中，包裹内部偶尔发出轻微的嗡鸣声。你不禁猜测里面到底是什么——武器？活体实验品？还是更可怕的东西？送达地点是J巢外围的一栋不起眼的建筑，收件人从未露面——你只需要把包裹放在门口即可。但你注意到，上一位负责这种包裹的送达者已经失踪了。', effect: 'index', effText: '体质+1，意志-1，家境+1', major: true, milestone: '食指危险包裹' });
+    addMilestone('食指危险包裹');
+    modAttr('con', 1);
+    modAttr('wil', -1);
+    modAttr('wea', 1);
+  }
+
+  // 11. 食指模仿收尾人联合行动
+  if (age >= 22 && age <= 50 && !getFlag('index_joint_op') && chance(0.02)) {
+    setFlag('index_joint_op', true);
+    addEvent({ text: '你受邀参加了一次食指模仿收尾人的联合行动。莉亚·铁头、瓦莱丽和菲利普·道尔都参与了这次任务。行动的目标是清除一个违反食指令的外围帮派。三位模仿收尾人的配合默契得令人惊叹——莉亚以铁头冲锋在前，瓦莱丽从侧翼精准切割，菲利普负责断后和清理。你第一次亲眼见证了食指模仿收尾人的真正实力。', effect: 'index', effText: '武器+2，体质+1，智力+1', major: true, milestone: '食指联合行动' });
+    addMilestone('食指联合行动');
+    modAttr('wea', 2);
+    modAttr('con', 1);
+    modAttr('int', 1);
+  }
+
+  // 12. 食指的"信"体系揭秘
+  if (age >= 25 && age <= 55 && getFlag('index_letter_arrival') && !getFlag('index_system_reveal') && chance(0.02)) {
+    setFlag('index_system_reveal', true);
+    addEvent({ text: '你逐渐了解到食指"信"体系的深层运作方式。食指不仅通过信件传达命令，还通过信件建立了一个遍布都市的情报网络。每一封信都经过特殊的加密处理，只有指定的收件人才能阅读内容。食指的信使被称为"邮差"——他们是食指中最隐秘的成员，没有人知道他们的真实身份。据说食指每天在都市中流通的信件超过一千封，而每一封都可能改变某个人的命运。', effect: 'index', effText: '智力+3', major: true, milestone: '食指信件体系揭秘' });
+    addMilestone('食指信件体系揭秘');
+    modAttr('int', 3);
+  }
+
+  // 13. 漆黑芥末的传说
+  if (age >= 20 && age <= 50 && !getFlag('mustard_black_legend') && chance(0.02)) {
+    setFlag('mustard_black_legend', true);
+    addEvent({ text: '在后巷的酒馆里，你听到了关于"漆黑芥末"的传闻。他是食指最强大的模仿收尾人之一——甚至有人说是整个都市最强的模仿收尾人。据说他模仿的对象是一位传说中的色彩收尾人，能够使用与颜色相关的特殊能力。但与其他模仿收尾人不同的是，漆黑芥末似乎已经超越了"模仿"的范畴——他找到了属于自己的"颜色"。莉亚提到他时语气中带着敬畏和一丝恐惧："那家伙不是在模仿谁，他是在成为某种我们无法理解的东西。"', effect: 'index', effText: '智力+2，意志+1', major: true, milestone: '漆黑芥末传说' });
+    addMilestone('漆黑芥末传说');
+    modAttr('int', 2);
+    modAttr('wil', 1);
+  }
+
+  // 14. 食指的招募
+  if (age >= 18 && age <= 35 && !getFlag('index_recruitment') && chance(0.03)) {
+    setFlag('index_recruitment', true);
+    addEvent({ text: '食指注意到了你的能力。一位自称"邮差"的人找到了你，递给你一封未拆封的信。信中是食指的正式邀请——邀请你成为食指旗下的合作收尾人。作为食指的成员，你将获得稳定的工作来源、J巢内的居住权，以及食指情报网络的支持。代价是：你必须无条件服从信中的命令，不得质疑食指的任何决定。', effect: 'index', effText: '面临选择', major: true, milestone: '食指招募' });
+    addMilestone('食指招募');
+    if (chance(0.5)) {
+      addEvent({ text: '你接受了邀请。从此，你成为了食指庞大机器上的一个齿轮。你的第一封信在你加入的当天就到了——信上只有一个字："等。"', effect: 'accept', effText: '家境+2，意志-1', major: false, milestone: '加入食指' });
+      addMilestone('加入食指');
+      modAttr('wea', 2);
+      modAttr('wil', -1);
+    } else {
+      addEvent({ text: '你婉拒了邀请。邮差没有任何表情变化，只是默默收回了信。"食指的信永远有效，"他转身离去时说，"在你改变主意之前。"', effect: 'refuse', effText: '意志+1', major: false, milestone: '拒绝加入食指' });
+      addMilestone('拒绝加入食指');
+      modAttr('wil', 1);
+    }
+  }
+
+  // 15. 莉亚·铁头的铁头秘密
+  if (age >= 20 && age <= 45 && getFlag('leah_irontop') && !getFlag('leah_secret') && chance(0.03)) {
+    setFlag('leah_secret', true);
+    addEvent({ text: '你偶然得知了莉亚"铁头"的真正原因。那块覆盖她头部的金属板并非装饰，而是在一次致命的战斗中为了保命而紧急安装的义体——当时她的头骨碎裂，技师不得不在脑部外部安装了一块临时金属护板。后来她索性将其永久化，并将其作为自己的标志。"每次有人问起这个，"她苦笑着说，"我就告诉他们这是我天生的。毕竟在都市中，每个人的脑袋里都装着些不一样的东西。"', effect: 'index', effText: '智力+1，意志+1', major: false, milestone: '莉亚·铁头秘密' });
+    addMilestone('莉亚·铁头秘密');
+    modAttr('int', 1);
+    modAttr('wil', 1);
+  }
+
+  // 16. 食指模仿收尾人的训练场
+  if (age >= 16 && age <= 30 && !getFlag('index_training_ground') && chance(0.03)) {
+    setFlag('index_training_ground', true);
+    addEvent({ text: '你参观了食指的收尾人训练场——位于J巢地下的一个庞大设施。训练场模拟了各种都市战斗场景：后巷巷战、巢内突袭、大湖区域的水上战斗。食指的模仿收尾人在这里日复一日地磨练他们的技艺，试图缩小与原版之间的差距。教练是一位失去了一条腿的老收尾人，他用义肢支撑身体，声音洪亮："模仿不是复制！模仿是理解原版的精髓，然后用自己的方式超越！"', effect: 'index', effText: '体质+2，武器+1', major: true, milestone: '食指训练场' });
+    addMilestone('食指训练场');
+    modAttr('con', 2);
+    modAttr('wea', 1);
+  }
+
+  // 17. 食指的邮差遭遇
+  if (age >= 15 && age <= 50 && !getFlag('index_meet_postman') && chance(0.03)) {
+    setFlag('index_meet_postman', true);
+    addEvent({ text: '你在一次任务中遇到了一位食指的邮差。他穿着朴素的灰色制服，手中提着一个黑色的公文包，表情淡漠得仿佛不存在于这个世界。邮差是食指组织中最低调但最重要的成员——他们是信件的物理载体，每一封信都由他们亲手送达。"信在人在，"他简短地说，"信毁人亡。"你从他的眼神中看出了绝对的忠诚——或者绝对的恐惧。', effect: 'index', effText: '智力+1，意志+1', major: true, milestone: '食指邮差遭遇' });
+    addMilestone('食指邮差遭遇');
+    modAttr('int', 1);
+    modAttr('wil', 1);
+  }
+
+  // 18. 食指信件——特殊指令
+  if (age >= 22 && age <= 50 && getFlag('index_letter_arrival') && getFlag('index_order_execute') && !getFlag('index_special_order') && chance(0.02)) {
+    setFlag('index_special_order', true);
+    addEvent({ text: '你收到了一封不同寻常的食指信件——信封是金色的，这在食指的信件等级中代表最高优先级。信中的命令只有一个名字和一句话。名字是一个你从未听说过的人，指令是"在日落前确认此人是否还活着"。你查阅了所有能找到的情报，发现这个人是都市中一位知名协会收尾人的亲属。食指为什么关心这个人的生死？你不敢深想，只能执行命令。', effect: 'index', effText: '智力+2，意志-1', major: true, milestone: '食指特殊指令' });
+    addMilestone('食指特殊指令');
+    modAttr('int', 2);
+    modAttr('wil', -1);
+  }
+
+  // 19. 瓦莱丽的刀术展示
+  if (age >= 22 && age <= 48 && getFlag('valerie_appear') && !getFlag('valerie_blade_show') && chance(0.03)) {
+    setFlag('valerie_blade_show', true);
+    addEvent({ text: '你有幸目睹了瓦莱丽的刀术展示。她的动作行云流水，每一刀都精确到了毫米级别。她使用的是一对特制的短刀——据说是模仿某位传奇收尾人的武器定制而成。"模仿不是耻辱，"她在展示结束后对围观的人说，"耻辱的是停止进步。"你注意到她的刀刃上刻着一行小字，像是某个人的名字。', effect: 'index', effText: '武器+2，智力+1', major: true, milestone: '瓦莱丽刀术' });
+    addMilestone('瓦莱丽刀术');
+    modAttr('wea', 2);
+    modAttr('int', 1);
+  }
+
+  // 20. 食指与其他帮派的冲突
+  if (age >= 20 && age <= 50 && !getFlag('index_gang_conflict') && chance(0.03)) {
+    setFlag('index_gang_conflict', true);
+    addEvent({ text: '食指与另一个帮派之间的紧张关系升级为了公开冲突。导火索是一封被截获的食指信件——对方帮派公开嘲笑了食指"靠写信统治都市"的方式。食指的回应是一周内连续发出的数百封信，每封信都包含了针对对方不同成员的命令。帮派战争的独特之处在于：食指从不出动大军，而是通过精确的、一对一的命令执行来瓦解对手。这种"外科手术式"的打击方式让整个都市都为之侧目。', effect: 'index', effText: '智力+2，武器+1，体质+1', major: true, milestone: '食指帮派冲突' });
+    addMilestone('食指帮派冲突');
+    modAttr('int', 2);
+    modAttr('wea', 1);
+    modAttr('con', 1);
   }
 }
 
